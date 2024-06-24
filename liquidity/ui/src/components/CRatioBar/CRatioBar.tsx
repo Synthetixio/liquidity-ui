@@ -86,7 +86,7 @@ export const CRatioBarUi: FC<{
         position="relative"
         height="100px"
         width="full"
-        data-testid="c ratio progressbar"
+        data-cy="c ratio progressbar"
         overflowX="hidden"
       >
         <>
@@ -169,7 +169,7 @@ export const CRatioBarUi: FC<{
                 color={variant}
               />
               <TriangleUpIcon
-                data-testid="current c-ration triangle"
+                data-cy="current c-ration triangle"
                 position="absolute"
                 right={0}
                 bottom={0}

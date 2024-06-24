@@ -101,7 +101,7 @@ export const Withdraw = ({
           <NumberInput
             InputProps={{
               isRequired: true,
-              'data-testid': 'withdraw amount input',
+              'data-cy': 'withdraw amount input',
               'data-max': maxWithdrawable.toString(),
               type: 'number',
               min: 0,
@@ -150,7 +150,7 @@ export const Withdraw = ({
         isDisabled={
           withdrawAmount.lte(0) || isRunning || !unlockDate || withdrawAmount.gt(maxWithdrawable)
         }
-        data-testid="claim submit"
+        data-cy="claim submit"
         type="submit"
       >
         {withdrawAmount.gt(0) ? 'Withdraw' : 'Enter Amount'}

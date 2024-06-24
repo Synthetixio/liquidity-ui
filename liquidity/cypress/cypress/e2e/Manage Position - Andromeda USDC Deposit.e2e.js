@@ -26,8 +26,8 @@ it.skip('should deposit additional USDC collateral', () => {
     cy.task('mineBlock');
 
     cy.get('[data-cy="manage-action-deposit"]').click();
-    cy.get('[data-testid="deposit amount input"]').type('101');
-    cy.get('[data-testid="deposit submit"]').should('be.enabled').click();
+    cy.get('[data-cy="deposit amount input"]').type('101');
+    cy.get('[data-cy="deposit submit"]').should('be.enabled').click();
 
     cy.get('[data-cy="deposit-modal"]').should('exist').and('include.text', 'Complete this action');
 
@@ -44,9 +44,9 @@ it.skip('should deposit additional USDC collateral', () => {
       .click();
 
     cy.get('[data-cy="manage stats collateral"]').should('include.text', '101 USDC');
-    cy.get('[data-testid="deposit amount input"]').type('101');
+    cy.get('[data-cy="deposit amount input"]').type('101');
 
-    cy.get('[data-testid="deposit submit"]').should('be.enabled').click();
+    cy.get('[data-cy="deposit submit"]').should('be.enabled').click();
 
     cy.get('[data-cy="deposit-modal"]').should('exist').and('include.text', 'Complete this action');
 

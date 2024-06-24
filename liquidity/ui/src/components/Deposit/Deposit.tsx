@@ -187,7 +187,7 @@ export const DepositUi: FC<{
         <Flex flexDir="column" flexGrow={1}>
           <NumberInput
             InputProps={{
-              'data-testid': 'deposit amount input',
+              'data-cy': 'deposit amount input',
               'data-max': maxAmount?.toString(),
               min: 0,
             }}
@@ -243,8 +243,7 @@ export const DepositUi: FC<{
         <TransactionSummary mb={6} items={txSummaryItems} />
       </Collapse>
       <Button
-        data-testid="deposit submit"
-        data-cy="deposit-submit-button"
+        data-cy="deposit submit"
         type="submit"
         isDisabled={
           collateralChange.lte(0) ||

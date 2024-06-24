@@ -109,7 +109,7 @@ export const RepayModalUi: React.FC<{
           onClick={onSubmit}
           width="100%"
           mt="6"
-          data-testid="repay confirm button"
+          data-cy="repay confirm button"
         >
           {(() => {
             switch (true) {

@@ -50,39 +50,35 @@ it('should repay borrowed snxUSD and get back WETH collateral', () => {
     cy.get('[data-cy="manage-action-repay"]').click();
 
     // Need to wait for max repay amount to be fetched
-    cy.get('[data-testid="repay amount input"]')
+    cy.get('[data-cy="repay amount input"]')
       .should('have.attr', 'data-max')
       .and('not.match', /^0\.00/); // .and ensures both assertions are waiting for resolution
 
     cy.get('@debt').then((debt) => {
-      cy.get('[data-testid="repay amount input"]').type(`${debt}`);
+      cy.get('[data-cy="repay amount input"]').type(`${debt}`);
     });
 
-    cy.get('[data-testid="repay submit"]').should('be.enabled').click();
+    cy.get('[data-cy="repay submit"]').should('be.enabled').click();
 
-    cy.get('[data-testid="repay modal"]')
-      .should('exist')
-      .and('include.text', 'Complete this action');
-    cy.get('[data-testid="repay modal"]')
-      .should('exist')
-      .and('include.text', 'Approve sUSD transfer');
+    cy.get('[data-cy="repay modal"]').should('exist').and('include.text', 'Complete this action');
+    cy.get('[data-cy="repay modal"]').should('exist').and('include.text', 'Approve sUSD transfer');
 
     cy.get('@debt').then((debt) => {
-      cy.get('[data-testid="repay modal"]').should('include.text', `Repay ${debt} sUSD`);
+      cy.get('[data-cy="repay modal"]').should('include.text', `Repay ${debt} sUSD`);
     });
 
     // Repay
-    cy.get('[data-testid="repay confirm button"]').should('include.text', 'Start').click();
-    cy.get('[data-testid="repay confirm button"]')
+    cy.get('[data-cy="repay confirm button"]').should('include.text', 'Start').click();
+    cy.get('[data-cy="repay confirm button"]')
       .should('include.text', 'Processing...')
       .and('be.disabled');
 
-    cy.get('[data-testid="repay confirm button"]')
+    cy.get('[data-cy="repay confirm button"]')
       .should('include.text', 'Done')
       .and('be.enabled')
       .click();
 
-    cy.get('[data-testid="repay modal"]').should('not.exist');
+    cy.get('[data-cy="repay modal"]').should('not.exist');
 
     cy.get('[data-cy="manage-stats-debt-value"]').should('have.text', `$0`);
   });

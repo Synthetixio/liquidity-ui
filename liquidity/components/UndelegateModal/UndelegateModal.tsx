@@ -94,7 +94,7 @@ export const UndelegateModalUi: FC<{
           onClick={onSubmit}
           width="100%"
           mt="6"
-          data-testid="undelegate confirm button"
+          data-cy="undelegate confirm button"
         >
           {(() => {
             switch (true) {

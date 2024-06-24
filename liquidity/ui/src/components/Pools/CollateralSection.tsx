@@ -81,7 +81,7 @@ export const CollateralSectionUi: FC<{
       borderRadius="base"
       padding={6}
       flexDirection="column"
-      data-testid="pool collateral types"
+      data-cy="pool collateral types"
     >
       <Text fontWeight={700} fontSize="xl">
         Pool Collateralization
@@ -113,7 +113,7 @@ export const CollateralSectionUi: FC<{
                 fontWeight={700}
                 fontSize="xl"
                 color="white"
-                data-testid="pool tvl"
+                data-cy="pool tvl"
                 textAlign="end"
               >
                 {formatNumberToUsd(totalCollateral.value.toNumber(), { maximumFractionDigits: 0 })}
@@ -146,7 +146,7 @@ export const CollateralSectionUi: FC<{
               <Text
                 fontWeight={700}
                 fontSize="xl"
-                data-testid="pool total debt"
+                data-cy="pool total debt"
                 textAlign="end"
                 color={isInTotalProfit ? 'green.500' : 'white'}
               >
@@ -382,7 +382,7 @@ export const CollateralSectionUi: FC<{
                           color="white"
                           lineHeight="20px"
                           fontFamily="heading"
-                          data-testid="collateral value"
+                          data-cy="collateral value"
                         >
                           {formatNumberToUsd(vaultCollateral.collateral.value.toNumber(), {
                             maximumFractionDigits: 0,
@@ -394,7 +394,7 @@ export const CollateralSectionUi: FC<{
                           color="gray.500"
                           lineHeight="16px"
                           fontFamily="heading"
-                          data-testid="collateral value"
+                          data-cy="collateral value"
                         >
                           {formatNumber(vaultCollateral.collateral.amount.toNumber(), {
                             maximumFractionDigits: 0,
@@ -424,7 +424,7 @@ export const CollateralSectionUi: FC<{
                           <Text
                             fontSize="14px"
                             color={isInProfit ? 'green.500' : 'white'}
-                            data-testid="collateral debt"
+                            data-cy="collateral debt"
                             fontWeight={500}
                           >
                             {isInProfit ? '+' : '-'}
@@ -472,7 +472,7 @@ export const CollateralSectionUi: FC<{
                             fontSize="sm"
                             fontWeight={500}
                             color="white"
-                            data-testid="collateral apr"
+                            data-cy="collateral apr"
                           >
                             {formatApr(apr28d * 100, network?.id)}
                           </Text>

@@ -26,9 +26,9 @@ it('should deposit additional WETH collateral', () => {
 
       cy.wait(5000);
 
-      cy.get('[data-testid="deposit amount input"]').type(isBase ? '101' : '10');
+      cy.get('[data-cy="deposit amount input"]').type(isBase ? '101' : '10');
 
-      cy.get('[data-testid="deposit submit"]').should('be.enabled').click();
+      cy.get('[data-cy="deposit submit"]').should('be.enabled').click();
 
       cy.get('[data-cy="deposit-modal"]')
         .should('exist')
@@ -48,9 +48,9 @@ it('should deposit additional WETH collateral', () => {
 
       cy.get('[data-cy="manage stats collateral"]').should('include.text', '10 WETH');
 
-      cy.get('[data-testid="deposit amount input"]').type('10');
+      cy.get('[data-cy="deposit amount input"]').type('10');
 
-      cy.get('[data-testid="deposit submit"]').should('be.enabled').click();
+      cy.get('[data-cy="deposit submit"]').should('be.enabled').click();
 
       cy.get('[data-cy="deposit-modal"]')
         .should('exist')
@@ -85,9 +85,9 @@ it('should deposit additional WETH collateral', () => {
     cy.task('mineBlock');
     cy.get('[data-cy="manage-action-deposit"]').click();
 
-    cy.get('[data-testid="deposit amount input"]').type('10');
+    cy.get('[data-cy="deposit amount input"]').type('10');
 
-    cy.get('[data-testid="deposit submit"]').should('be.enabled').click();
+    cy.get('[data-cy="deposit submit"]').should('be.enabled').click();
 
     cy.get('[data-cy="deposit-modal"]').should('exist').and('include.text', 'Complete this action');
 
@@ -105,9 +105,9 @@ it('should deposit additional WETH collateral', () => {
 
     cy.get('[data-cy="manage stats collateral"]').should('include.text', '30 WETH');
 
-    cy.get('[data-testid="deposit amount input"]').type('10');
+    cy.get('[data-cy="deposit amount input"]').type('10');
 
-    cy.get('[data-testid="deposit submit"]').should('be.enabled').click();
+    cy.get('[data-cy="deposit submit"]').should('be.enabled').click();
 
     cy.get('[data-cy="deposit-modal"]').should('exist').and('include.text', 'Complete this action');
 

@@ -56,7 +56,7 @@ export const Repay = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosi
             <Flex gap="1" mr="3" cursor="pointer">
               <Text>Debt:</Text>
               <Text display="flex" alignItems="center">
-                $<Amount value={currentDebt} data-testid="current debt" />
+                $<Amount value={currentDebt} data-cy="current debt" />
                 {currentDebt?.gt(0) && (
                   <Text
                     cursor="pointer"
@@ -80,7 +80,7 @@ export const Repay = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosi
           <NumberInput
             InputProps={{
               isRequired: true,
-              'data-testid': 'repay amount input',
+              'data-cy': 'repay amount input',
               'data-max': max?.toString(),
               type: 'number',
               min: 0,
@@ -96,7 +96,7 @@ export const Repay = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosi
         </Flex>
       </BorderBox>
       <Button
-        data-testid="repay submit"
+        data-cy="repay submit"
         type="submit"
         isDisabled={
           !(max && snxUSDBalance && currentDebt && availableUSDCollateral) || debtChange.gte(0)
