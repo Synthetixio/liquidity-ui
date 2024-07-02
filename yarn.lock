@@ -5363,6 +5363,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/useAllPriceFeeds@workspace:liquidity/lib/useAllPriceFeeds":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useAllPriceFeeds@workspace:liquidity/lib/useAllPriceFeeds"
+  dependencies:
+    "@snx-v3/contracts": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/useAllowance@workspace:*, @snx-v3/useAllowance@workspace:liquidity/lib/useAllowance":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useAllowance@workspace:liquidity/lib/useAllowance"
@@ -5653,6 +5664,17 @@ __metadata:
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
+    ethers: "npm:^5.7.2"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
+"@snx-v3/useErrorParser@workspace:*, @snx-v3/useErrorParser@workspace:liquidity/lib/useErrorParser":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useErrorParser@workspace:liquidity/lib/useErrorParser"
+  dependencies:
+    "@snx-v3/contracts": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -5955,6 +5977,20 @@ __metadata:
     "@snx-v3/useBlockchain": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
     humanize-plus: "npm:^1.8.2"
+  languageName: unknown
+  linkType: soft
+
+"@snx-v3/usePriceUpdateTxn@workspace:liquidity/lib/usePriceUpdateTxn":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/usePriceUpdateTxn@workspace:liquidity/lib/usePriceUpdateTxn"
+  dependencies:
+    "@pythnetwork/pyth-evm-js": "npm:^1.42.0"
+    "@snx-v3/contracts": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useErrorParser": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    ethers: "npm:^5.7.2"
+    react: "npm:^18.2.0"
   languageName: unknown
   linkType: soft
 
