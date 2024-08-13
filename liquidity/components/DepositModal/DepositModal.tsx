@@ -3,13 +3,16 @@ import { Amount } from '@snx-v3/Amount';
 import { ContractError } from '@snx-v3/ContractError';
 import { getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { Multistep } from '@snx-v3/Multistep';
-import { useApprove } from '@snx-v3/useApprove';
+import { useApprove, useApproveStata } from '@snx-v3/useApprove';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { CollateralType, useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useDeposit } from '@snx-v3/useDeposit';
-import { useDepositBaseAndromeda } from '@snx-v3/useDepositBaseAndromeda';
+import {
+  useDepositBaseAndromeda,
+  useDepositBaseAndromedaStata,
+} from '@snx-v3/useDepositBaseAndromeda';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { useParams } from '@snx-v3/useParams';
 import { usePool } from '@snx-v3/usePools';
@@ -265,6 +268,8 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   const { data: collateralType } = useCollateralType(collateralSymbol);
 
   const isBase = isBaseAndromeda(network?.id, network?.preset);
+  const isStata = isBase && collateralSymbol === 'stataUSDC';
+
   const { data: wrapperToken } = useGetWrapperToken(getSpotMarketId(collateralSymbol));
 
   const collateralAddress = isBaseAndromeda(network?.id, network?.preset)
@@ -282,6 +287,10 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
         : utils.parseUnits(collateralNeeded.toString(), collateralType?.decimals)
       : 0,
     spender: isBase ? SpotProxy?.address : CoreProxy?.address,
+  });
+
+  const { approve: approveStata } = useApproveStata({
+    amount: utils.parseUnits(collateralNeeded.toString(), 6),
   });
 
   const toast = useToast({ isClosable: true, duration: 9000 });
@@ -310,6 +319,17 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   });
 
   const { exec: depositBaseAndromeda } = useDepositBaseAndromeda({
+    accountId,
+    newAccountId,
+    poolId,
+    collateralTypeAddress: collateralAddress,
+    collateralChange,
+    currentCollateral,
+    availableCollateral: availableCollateral || wei(0),
+    collateralSymbol,
+  });
+
+  const { exec: depositBaseAndromedaStata } = useDepositBaseAndromedaStata({
     accountId,
     newAccountId,
     poolId,
@@ -358,7 +378,11 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
             variant: 'left-accent',
           });
 
-          await approve(Boolean(state.context.infiniteApproval));
+          if (isBase && isStata) {
+            await approveStata(Boolean(state.context.infiniteApproval));
+          } else {
+            await approve(Boolean(state.context.infiniteApproval));
+          }
         } catch (error: any) {
           const contractError = errorParserCoreProxy(error);
           if (contractError) {
@@ -396,7 +420,11 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
           });
 
           if (isBase) {
-            await depositBaseAndromeda();
+            if (isStata) {
+              await depositBaseAndromedaStata();
+            } else {
+              await depositBaseAndromeda();
+            }
           } else {
             await execDeposit();
           }
