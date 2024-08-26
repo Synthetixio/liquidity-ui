@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
-import { BigNumber, ethers, providers } from 'ethers';
-import { EvmPriceServiceConnection } from '@pythnetwork/pyth-evm-js';
+import { ethers } from 'ethers';
 import { z } from 'zod';
 import { ZodBigNumber } from '@snx-v3/zod';
 import { offchainMainnetEndpoint, offchainTestnetEndpoint } from '@snx-v3/constants';
@@ -13,6 +12,8 @@ import { parseTxError } from '@snx-v3/parser';
 
 export const ERC7412_ABI = [
   'error OracleDataRequired(address oracleContract, bytes oracleQuery)',
+  'error OracleDataRequired(address oracleContract, bytes oracleQuery, uint256 feeRequired)',
+  'error Errors(bytes[] errors)',
   'error FeeRequired(uint feeAmount)',
   'function oracleId() view external returns (bytes32)',
   'function fulfillOracleQuery(bytes calldata signedOffchainData) payable external',
@@ -72,6 +73,7 @@ const PRICE_CACHE_LENGTH = 5000;
 
 const fetchOffchainData = withMemoryCache(
   async (oracleQuery: string, isTestnet: boolean, logLabel: string) => {
+    const { EvmPriceServiceConnection } = await import('@pythnetwork/pyth-evm-js');
     const priceService = new EvmPriceServiceConnection(
       isTestnet ? offchainTestnetEndpoint : offchainMainnetEndpoint
     );
@@ -96,7 +98,7 @@ const fetchOffchainData = withMemoryCache(
   PRICE_CACHE_LENGTH
 );
 
-function makeMulticall(
+export function makeMulticall(
   calls: TransactionRequest[],
   senderAddr: string,
   multicallAddress: string,
@@ -153,20 +155,7 @@ export const makeCoreProxyMulticall = (
   };
 };
 
-const parseError = async (error: any, provider: providers.JsonRpcProvider, network: Network) => {
-  let errorData = error.data || error.error?.data?.data || error.error?.error?.data;
-  if (!errorData) {
-    try {
-      console.log('Error is missing revert data, trying provider.call, instead of estimate gas..');
-      // Some wallets swallows the revert reason when calling estimate gas,try to get the error by using provider.call
-      // provider.call wont actually revert, instead the error data is just returned
-      const lookedUpError = await provider.call(error.transaction);
-      errorData = lookedUpError;
-    } catch (newError: any) {
-      console.log('provider.call(error.transaction) failed, trying to extract error');
-      console.log('Error data: ', errorData);
-    }
-  }
+const parseError = (errorData: any, AllErrors: ReturnType<typeof importAllErrors>): { name: string, args: any } | null => {
 
   if (`${errorData}`.startsWith('0x08c379a0')) {
     const content = `0x${errorData.substring(10)}`;
@@ -180,18 +169,17 @@ const parseError = async (error: any, provider: providers.JsonRpcProvider, netwo
   }
 
   try {
-    const AllErrors = await importAllErrors(network.id, network.preset);
     const AllErrorsInterface = new ethers.utils.Interface([...AllErrors.abi, ...PYTH_ERRORS]);
     const decodedError = AllErrorsInterface.parseError(errorData);
     return decodedError;
     // return ERC7412ErrorSchema.parse(decodedError);
   } catch (parseError) {
     console.error(
-      'Error is not a ERC7412 error, re-throwing original error, for better parsing. Parse error reason: ',
+      'Error is not a ERC7412 error. Parse error reason: ',
       parseError
     );
-    // If we cant parse it, throw the original error
-    throw error;
+    // If we cant parse it, return null
+    return null;
   }
 };
 
@@ -229,7 +217,7 @@ export const withERC7412 = async (
   logLabel?: string,
   _from?: string
 ): Promise<TransactionRequestWithGasLimit> => {
-  const initialMulticallLength = Array.isArray(tx) ? tx.length : 1;
+  tx = Array.isArray(tx) ? tx : [tx];
 
   const from = ([tx].flat()[0].from || _from) as string;
   // eslint-disable-next-line prefer-const
@@ -297,67 +285,77 @@ export const withERC7412 = async (
 
       console.log(
         `[${logLabel}] Estimated gas succeeded, with ${
-          multicallCalls.length - initialMulticallLength
+          multicallCalls.length - tx.length
         } price updates`
       );
 
       return { ...multicallTxn, gasLimit };
     } catch (error: any) {
       console.error(error);
-      const parsedError = await parseError(error, jsonRpcProvider, network);
+      let errorData = error.data || error.error?.data?.data || error.error?.error?.data;
+      if (!errorData) {
+        try {
+          console.log('Error is missing revert data, trying provider.call, instead of estimate gas..');
+          // Some wallets swallows the revert reason when calling estimate gas,try to get the error by using provider.call
+          // provider.call wont actually revert, instead the error data is just returned
+          const lookedUpError = await jsonRpcProvider.call(error.transaction);
+          errorData = lookedUpError;
+        } catch (newError: any) {
+          console.log('provider.call(error.transaction) failed, trying to extract error');
+          console.log('Error data: ', errorData);
+        }
+      }
+      const AllErrors = await importAllErrors(network.id, network.preset);
+      const parsedError = parseError(errorData, AllErrors);
+      if (!parsedError) {
+        throw error;
+      }
       if (window.localStorage.getItem('DEBUG') === 'true') {
         console.error('withERC7412', parsedError);
       }
-      if (parsedError.name === 'OracleDataRequired') {
-        const [oracleAddress, oracleQuery] = parsedError.args;
-        const ignoreCache = !isRead;
-        const signedRequiredData = await fetchOffchainData(
-          oracleQuery,
-          network.isTestnet,
-          logLabel || '',
-          ignoreCache ? 'no-cache' : undefined
-        );
-        const newTransactionRequest = {
-          from,
-          to: oracleAddress,
-          data: new ethers.utils.Interface(ERC7412_ABI).encodeFunctionData('fulfillOracleQuery', [
-            signedRequiredData,
-          ]),
-          // If from is set to the default address we can add a value directly, before getting FeeRequired revert.
-          // This will be a static call so no money would be withdrawn either way.
-          value: isRead ? ethers.utils.parseEther('0.1') : BigNumber.from(0),
-        };
-        // If we get OracleDataRequired, add an extra transaction request just before the last element
-        multicallCalls.splice(
-          multicallCalls.length - initialMulticallLength,
-          0,
-          newTransactionRequest
-        );
-      } else if (parsedError.name === 'FeeRequired') {
-        const requiredFee = parsedError.args[0];
 
-        const txToUpdate = multicallCalls.find(({ value }) => requiredFee.gt(value || 0)); // The first tx with value less than the required fee, is the one we need to update
-        if (txToUpdate === undefined) {
-          throw Error(
-            `Didn't find any tx with a value less than the required fee ${multicallCalls}`
+      async function handleError(parsedError: { name: string, args: any }, origTxns: TransactionRequest[]) {
+        if (parsedError.name === 'Errors') {
+          const errors = parsedError.args[0].map((error: any) => parseError(error, AllErrors));
+          return [...await Promise.all(errors.map((e: { name: string; args: any; }) => handleError(e, []))), ...origTxns];
+        }
+        else if (parsedError.name === 'OracleDataRequired') {
+          const [oracleAddress, oracleQuery] = parsedError.args;
+          const ignoreCache = !isRead;
+          const signedRequiredData = await fetchOffchainData(
+            oracleQuery,
+            network.isTestnet,
+            logLabel || '',
+            ignoreCache ? 'no-cache' : undefined
           );
+          const newTransactionRequest = {
+            from,
+            to: oracleAddress,
+            data: new ethers.utils.Interface(ERC7412_ABI).encodeFunctionData('fulfillOracleQuery', [
+              signedRequiredData,
+            ]),
+            value: parsedError.args[2] || 0,
+          };
+          // If we get OracleDataRequired, add an extra transaction request just before the last element
+          return [newTransactionRequest, ...origTxns];
+        } else {
+          const parsedError = parseTxError(error);
+  
+          if (parsedError) {
+            const AllErrors = await importAllErrors(network.id, network.preset);
+            try {
+              const errorResult = viem.decodeErrorResult({
+                abi: [...AllErrors.abi, ...PYTH_ERRORS],
+                data: parsedError,
+              });
+              console.error('error: ', errorResult.errorName, errorResult.args);
+            } catch (_error) {}
+          }
+          throw error;
         }
-        txToUpdate.value = requiredFee;
-      } else {
-        const parsedError = parseTxError(error);
-
-        if (parsedError) {
-          const AllErrors = await importAllErrors(network.id, network.preset);
-          try {
-            const errorResult = viem.decodeErrorResult({
-              abi: [...AllErrors.abi, ...PYTH_ERRORS],
-              data: parsedError,
-            });
-            console.log('error: ', errorResult.errorName, errorResult.args);
-          } catch (_error) {}
-        }
-        throw error;
       }
+
+      multicallCalls = await handleError(parsedError, multicallCalls);
     }
   }
 };
