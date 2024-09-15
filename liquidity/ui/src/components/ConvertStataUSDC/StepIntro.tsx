@@ -65,7 +65,8 @@ export const StepIntro = ({
 
   //Update estimated stataUSDC amount when USDC amount changes
   useEffect(() => {
-    const exchangeRate = new Wei(2);
+    //TODO: Simulate exchange rate
+    const exchangeRate = new Wei(1);
     const estimatedAmount = amount.mul(exchangeRate);
     setEstimatedAmount(estimatedAmount);
   }, [amount]);
