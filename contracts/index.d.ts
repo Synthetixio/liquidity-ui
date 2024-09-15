@@ -112,4 +112,10 @@ declare module '@snx-v3/contracts' {
     chainId?: number,
     preset?: string
   ): Promise<{ address: string; abi: string[] }>;
+
+  function importStataUSDC(
+    chainId?: number,
+    preset?: string
+  ): Promise<{ address: string; abi: string[] }>;
+
 }
