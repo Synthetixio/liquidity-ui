@@ -14,6 +14,7 @@
   "devDependencies": {
     "@chakra-ui/react": "^2.8.2",
     "@cypress/code-coverage": "^3.12.39",
+    "@pythnetwork/pyth-evm-js": "^1.42.0",
     "@snx-cy/onLogAdded": "workspace:*",
     "@snx-cy/printBrowserLogs": "workspace:*",
     "@snx-v3/contracts": "workspace:*",
@@ -27,8 +28,5 @@
     "ignoreMatches": [
       "ts-node"
     ]
-  },
-  "dependencies": {
-    "@snx-v3/theme": "workspace:*"
   }
 }
