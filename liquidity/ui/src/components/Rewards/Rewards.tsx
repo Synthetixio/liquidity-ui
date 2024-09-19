@@ -99,7 +99,8 @@ export const Rewards = ({ ...props }: FlexProps) => {
                   <RewardsRow
                     key={item.address}
                     symbol={item.symbol}
-                    claimableAmount={item.claimableAmount.toNumber()}
+                    displaySymbol={item.displaySymbol}
+                    claimableAmount={item.claimableAmount}
                     lifetimeClaimed={item.lifetimeClaimed}
                     address={item.distributorAddress}
                   />

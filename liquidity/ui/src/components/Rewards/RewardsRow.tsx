@@ -3,23 +3,27 @@ import { Amount } from '@snx-v3/Amount';
 import { etherscanLink } from '@snx-v3/etherscanLink';
 import { truncateAddress } from '@snx-v3/formatters';
 import { Tooltip } from '@snx-v3/Tooltip';
-import { useNetwork } from '@snx-v3/useBlockchain';
+import { ARBITRUM, useNetwork } from '@snx-v3/useBlockchain';
 import { useClaimRewards } from '@snx-v3/useClaimRewards';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useParams } from '@snx-v3/useParams';
-import { wei } from '@synthetixio/wei';
+import Wei, { wei } from '@synthetixio/wei';
 import { TokenIcon } from '../TokenIcon';
 import { RewardsModal } from './RewardsModal';
+import { useClaimUnwrapRewards } from '../../../../lib/useClaimUnwrapRewards';
+import { useCallback, useMemo } from 'react';
 
 interface RewardsRowInterface {
   symbol: string;
-  claimableAmount: number; // The immediate amount claimable as read from the contracts
+  displaySymbol?: string;
+  claimableAmount: Wei; // The immediate amount claimable as read from the contracts
   lifetimeClaimed: number;
   address: string;
 }
 
 export const RewardsRow = ({
   symbol,
+  displaySymbol,
   claimableAmount,
   lifetimeClaimed,
   address,
@@ -29,32 +33,50 @@ export const RewardsRow = ({
   const { data: collateralData } = useCollateralType(collateralSymbol);
   const { network } = useNetwork();
 
-  const { exec, txnState } = useClaimRewards(
+  const { exec: claim, txnState: txnState1 } = useClaimRewards(
     poolId || '',
     collateralData?.tokenAddress || '',
     accountId,
     address,
-    claimableAmount
+    claimableAmount.toNumber()
   );
 
-  const onClick = () => {
-    exec();
-  };
+  const { exec: claimUnWrap, txnState: txnState2 } = useClaimUnwrapRewards(
+    poolId || '',
+    collateralData?.tokenAddress || '',
+    accountId,
+    address,
+    claimableAmount,
+    symbol
+  );
+
+  const txnState = useMemo(
+    () => (network?.id === ARBITRUM.id ? txnState2 : txnState1),
+    [network?.id, txnState1, txnState2]
+  );
+
+  const onClick = useCallback(() => {
+    if (network?.id === ARBITRUM.id) {
+      claimUnWrap();
+    } else {
+      claim();
+    }
+  }, [claim, claimUnWrap, network?.id]);
 
   const { txnStatus, txnHash } = txnState;
 
   return (
     <>
       <RewardsModal
-        amount={claimableAmount}
-        collateralSymbol={symbol}
+        amount={claimableAmount.toNumber()}
+        collateralSymbol={displaySymbol}
         txnStatus={txnStatus}
         txnHash={txnHash}
       />
       <Tr>
         <Td display="flex" alignItems="center" px="14px" border="none" w="100%">
           <Fade in>
-            <TokenIcon height={30} width={30} symbol={symbol} />
+            <TokenIcon height={30} width={30} symbol={displaySymbol} />
           </Fade>
           <Fade in>
             <Flex flexDirection="column" ml="12px">
@@ -70,7 +92,7 @@ export const RewardsRow = ({
                     fontWeight={500}
                     lineHeight="20px"
                   >
-                    {symbol}
+                    {displaySymbol}
                   </Text>
                 </Tooltip>
               </Link>
@@ -86,7 +108,7 @@ export const RewardsRow = ({
               fontWeight={500}
               lineHeight="20px"
             >
-              <Amount value={wei(claimableAmount)} />
+              <Amount value={claimableAmount} showTooltip />
             </Text>
             {lifetimeClaimed > 0 && (
               <Text color="gray.500" fontSize="12px" fontFamily="heading" lineHeight="16px">
@@ -102,7 +124,7 @@ export const RewardsRow = ({
               w="100%"
               size="sm"
               variant="solid"
-              isDisabled={claimableAmount === 0}
+              isDisabled={claimableAmount.eq(0)}
               _disabled={{
                 bg: 'gray.900',
                 backgroundImage: 'none',
@@ -112,7 +134,7 @@ export const RewardsRow = ({
               }}
               onClick={onClick}
             >
-              {claimableAmount > 0 || !lifetimeClaimed ? 'Claim' : 'Claimed'}
+              {claimableAmount.gt(0) || !lifetimeClaimed ? 'Claim' : 'Claimed'}
             </Button>
           </Fade>
         </Td>
