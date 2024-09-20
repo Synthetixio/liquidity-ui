@@ -108,6 +108,19 @@ declare module '@snx-v3/contracts' {
     decimals: number;
   }>;
 
+  function importSynthTokens(
+    chainId?: number,
+    preset?: string
+  ): Promise<
+    {
+      synthMarketId: string;
+      address: string;
+      symbol: string;
+      name: string;
+      decimals: number;
+    }[]
+  >;
+
   function importAllErrors(
     chainId?: number,
     preset?: string

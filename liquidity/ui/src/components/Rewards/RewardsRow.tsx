@@ -3,15 +3,14 @@ import { Amount } from '@snx-v3/Amount';
 import { etherscanLink } from '@snx-v3/etherscanLink';
 import { truncateAddress } from '@snx-v3/formatters';
 import { Tooltip } from '@snx-v3/Tooltip';
-import { ARBITRUM, useNetwork } from '@snx-v3/useBlockchain';
-import { useClaimRewards } from '@snx-v3/useClaimRewards';
+import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useParams } from '@snx-v3/useParams';
 import Wei, { wei } from '@synthetixio/wei';
 import { TokenIcon } from '../TokenIcon';
 import { RewardsModal } from './RewardsModal';
 import { useClaimUnwrapRewards } from '../../../../lib/useClaimUnwrapRewards';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 
 interface RewardsRowInterface {
   symbol: string;
@@ -33,15 +32,7 @@ export const RewardsRow = ({
   const { data: collateralData } = useCollateralType(collateralSymbol);
   const { network } = useNetwork();
 
-  const { exec: claim, txnState: txnState1 } = useClaimRewards(
-    poolId || '',
-    collateralData?.tokenAddress || '',
-    accountId,
-    address,
-    claimableAmount.toNumber()
-  );
-
-  const { exec: claimUnWrap, txnState: txnState2 } = useClaimUnwrapRewards(
+  const { exec: claimUnWrap, txnState } = useClaimUnwrapRewards(
     poolId || '',
     collateralData?.tokenAddress || '',
     accountId,
@@ -50,18 +41,9 @@ export const RewardsRow = ({
     symbol
   );
 
-  const txnState = useMemo(
-    () => (network?.id === ARBITRUM.id ? txnState2 : txnState1),
-    [network?.id, txnState1, txnState2]
-  );
-
   const onClick = useCallback(() => {
-    if (network?.id === ARBITRUM.id) {
-      claimUnWrap();
-    } else {
-      claim();
-    }
-  }, [claim, claimUnWrap, network?.id]);
+    claimUnWrap();
+  }, [claimUnWrap]);
 
   const { txnStatus, txnHash } = txnState;
 

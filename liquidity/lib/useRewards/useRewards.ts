@@ -8,6 +8,7 @@ import { Wei, wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
 import { BigNumber } from 'ethers';
 import { z } from 'zod';
+import { useSynthTokens } from '../useSynthTokens';
 
 const RewardsResponseSchema = z.array(
   z.object({
@@ -57,6 +58,7 @@ export function useRewards({
   const { data: collateralType } = useCollateralType(collateralSymbol);
   const collateralAddress = collateralType?.tokenAddress;
   const { network } = useNetwork();
+  const { data: synthTokens } = useSynthTokens();
 
   const { data: Multicall3 } = useMulticall3(network);
   const { data: CoreProxy } = useCoreProxy({ customNetwork: network });
@@ -173,7 +175,10 @@ export function useRewards({
           const distributions = metaData[i]?.data?.rewardsDistributions;
 
           const symbol = item.payoutToken.symbol;
-          const displaySymbol = ['sETH', 'stBTC'].includes(symbol) ? symbol.slice(1) : symbol;
+          const synthToken = synthTokens?.find(
+            (synth) => synth.symbol.toUpperCase() === symbol?.toUpperCase()
+          );
+          const displaySymbol = synthToken ? synthToken?.symbol.slice(1) : symbol;
           if (!distributions || !distributions.length) {
             return {
               address: item.address,

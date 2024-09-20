@@ -46,7 +46,6 @@
     "@snx-v3/useApr": "workspace:*",
     "@snx-v3/useBlockchain": "workspace:*",
     "@snx-v3/useBorrow": "workspace:*",
-    "@snx-v3/useClaimRewards": "workspace:*",
     "@snx-v3/useClearDebt": "workspace:*",
     "@snx-v3/useCollateralPriceUpdates": "workspace:*",
     "@snx-v3/useCollateralPrices": "workspace:*",

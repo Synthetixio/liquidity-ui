@@ -15,6 +15,7 @@ import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { notNil } from '@snx-v3/tsHelpers';
 import Wei from '@synthetixio/wei';
+import { useSynthTokens } from '../useSynthTokens';
 
 export function useClaimUnwrapRewards(
   poolId?: string,
@@ -37,6 +38,7 @@ export function useClaimUnwrapRewards(
   const { data: collateralPriceUpdates } = useAllCollateralPriceIds();
   const provider = useProvider();
   const { gasSpeed } = useGasSpeed();
+  const { data: synthTokens } = useSynthTokens();
 
   const mutation = useMutation({
     mutationFn: async function () {
@@ -58,18 +60,14 @@ export function useClaimUnwrapRewards(
           )
         );
 
-        if (symbol?.toUpperCase() === 'SETH') {
+        const synthToken = synthTokens?.find(
+          (synth) => synth.symbol.toUpperCase() === symbol?.toUpperCase()
+        );
+
+        if (synthToken) {
           transcations.push(
             SpotProxy?.populateTransaction.unwrap(
-              4,
-              amount.toBN(),
-              amount.toBN().mul(98).div(100).toNumber().toFixed()
-            )
-          );
-        } else if (symbol?.toUpperCase() === 'STBTC') {
-          transcations.push(
-            SpotProxy?.populateTransaction.unwrap(
-              3,
+              synthToken.synthMarketId,
               amount.toBN(),
               amount.toBN().mul(98).div(100).toNumber().toFixed()
             )
@@ -94,7 +92,12 @@ export function useClaimUnwrapRewards(
 
         const allCalls = collateralPriceCalls.concat(calls);
 
-        const erc7412Tx = await withERC7412(network, allCalls, 'useDeposit', walletAddress);
+        const erc7412Tx = await withERC7412(
+          network,
+          allCalls,
+          'useClaimUnwrapRewards',
+          walletAddress
+        );
 
         const gasOptionsForTransaction = formatGasPriceForTransaction({
           gasLimit: erc7412Tx.gasLimit,
@@ -121,7 +124,14 @@ export function useClaimUnwrapRewards(
         });
 
         dispatch({ type: 'success' });
-        client.invalidateQueries({ queryKey: [`${network?.id}-${network?.preset}`, 'Rewards'] });
+        client.invalidateQueries({
+          queryKey: [
+            `${network?.id}-${network?.preset}`,
+            'Rewards',
+            { accountId },
+            { collateralAddress },
+          ],
+        });
 
         toast.closeAll();
         toast({
