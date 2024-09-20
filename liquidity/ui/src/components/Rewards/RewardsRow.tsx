@@ -13,33 +13,33 @@ import { useClaimUnwrapRewards } from '../../../../lib/useClaimUnwrapRewards';
 import { useCallback } from 'react';
 
 interface RewardsRowInterface {
-  symbol: string;
   displaySymbol?: string;
   claimableAmount: Wei; // The immediate amount claimable as read from the contracts
   lifetimeClaimed: number;
-  address: string;
+  distributorAddress: string;
+  payoutTokenAddress: string;
 }
 
 export const RewardsRow = ({
-  symbol,
   displaySymbol,
   claimableAmount,
   lifetimeClaimed,
-  address,
+  distributorAddress,
+  payoutTokenAddress,
 }: RewardsRowInterface) => {
   const { accountId, collateralSymbol, poolId } = useParams();
 
   const { data: collateralData } = useCollateralType(collateralSymbol);
   const { network } = useNetwork();
 
-  const { exec: claimUnWrap, txnState } = useClaimUnwrapRewards(
-    poolId || '',
-    collateralData?.tokenAddress || '',
-    accountId,
-    address,
-    claimableAmount,
-    symbol
-  );
+  const { exec: claimUnWrap, txnState } = useClaimUnwrapRewards({
+    poolId: poolId || '',
+    collateralAddress: collateralData?.tokenAddress || '',
+    accountId: accountId,
+    distributorAddress: distributorAddress,
+    amount: claimableAmount,
+    payoutTokenAddress,
+  });
 
   const onClick = useCallback(() => {
     claimUnWrap();
@@ -63,10 +63,13 @@ export const RewardsRow = ({
           <Fade in>
             <Flex flexDirection="column" ml="12px">
               <Link
-                href={etherscanLink({ chain: network?.name || 'mainnet', address })}
+                href={etherscanLink({
+                  chain: network?.name || 'mainnet',
+                  address: distributorAddress,
+                })}
                 target="_blank"
               >
-                <Tooltip label={`Distributed by ${truncateAddress(address)}`}>
+                <Tooltip label={`Distributed by ${truncateAddress(distributorAddress)}`}>
                   <Text
                     color="gray.50"
                     fontSize="14px"

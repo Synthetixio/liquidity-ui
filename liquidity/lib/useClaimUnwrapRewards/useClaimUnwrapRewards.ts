@@ -16,15 +16,23 @@ import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { notNil } from '@snx-v3/tsHelpers';
 import Wei from '@synthetixio/wei';
 import { useSynthTokens } from '../useSynthTokens';
+import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 
-export function useClaimUnwrapRewards(
-  poolId?: string,
-  collateralAddress?: string,
-  accountId?: string,
-  distributorAddress?: string,
-  amount?: Wei,
-  symbol?: string
-) {
+export function useClaimUnwrapRewards({
+  poolId,
+  collateralAddress,
+  accountId,
+  distributorAddress,
+  amount,
+  payoutTokenAddress,
+}: {
+  poolId?: string;
+  collateralAddress?: string;
+  accountId?: string;
+  distributorAddress?: string;
+  amount?: Wei;
+  payoutTokenAddress?: string;
+}) {
   const toast = useToast({ isClosable: true, duration: 9000 });
 
   const { network } = useNetwork();
@@ -39,6 +47,7 @@ export function useClaimUnwrapRewards(
   const provider = useProvider();
   const { gasSpeed } = useGasSpeed();
   const { data: synthTokens } = useSynthTokens();
+  const errorParserCoreProxy = useContractErrorParser(CoreProxy);
 
   const mutation = useMutation({
     mutationFn: async function () {
@@ -61,7 +70,7 @@ export function useClaimUnwrapRewards(
         );
 
         const synthToken = synthTokens?.find(
-          (synth) => synth.symbol.toUpperCase() === symbol?.toUpperCase()
+          (synth) => synth.address.toUpperCase() === payoutTokenAddress?.toUpperCase()
         );
 
         if (synthToken) {
@@ -145,6 +154,13 @@ export function useClaimUnwrapRewards(
         return claimedAmount;
       } catch (error) {
         const err = error as Error;
+
+        const contractError = errorParserCoreProxy(error);
+
+        if (contractError) {
+          console.error(new Error(contractError.name), contractError);
+        }
+
         dispatch({ type: 'error', payload: { error: err } });
 
         toast.closeAll();

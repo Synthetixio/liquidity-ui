@@ -17,10 +17,11 @@ describe('RewardsRow', () => {
         <QueryClientProvider client={queryClient}>
           <Table>
             <RewardsRow
-              symbol="ETH"
+              displaySymbol="ETH"
               claimableAmount={wei(50)}
               lifetimeClaimed={25}
-              address="0x123456789abcdef"
+              distributorAddress="0x123456789abcdef"
+              payoutTokenAddress="0x123456789abcdef"
             />
           </Table>
         </QueryClientProvider>

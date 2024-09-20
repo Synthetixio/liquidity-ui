@@ -15,6 +15,7 @@ const RewardsResponseSchema = z.array(
     address: z.string(),
     name: z.string(),
     symbol: z.string(),
+    payoutTokenAddress: z.string(),
     displaySymbol: z.string().optional(),
     distributorAddress: z.string(),
     decimals: z.number(),
@@ -173,12 +174,12 @@ export function useRewards({
           const claimableAmount = amounts[i];
           const historicalClaims = historicalData[i]?.data?.rewardsClaimeds;
           const distributions = metaData[i]?.data?.rewardsDistributions;
-
           const symbol = item.payoutToken.symbol;
           const synthToken = synthTokens?.find(
-            (synth) => synth.symbol.toUpperCase() === symbol?.toUpperCase()
+            (synth) => synth.address.toUpperCase() === item.payoutToken.address?.toUpperCase()
           );
           const displaySymbol = synthToken ? synthToken?.symbol.slice(1) : symbol;
+
           if (!distributions || !distributions.length) {
             return {
               address: item.address,
@@ -187,6 +188,7 @@ export function useRewards({
               displaySymbol,
               distributorAddress: item.address,
               decimals: item.payoutToken.decimals,
+              payoutTokenAddress: item.payoutToken.address,
               claimableAmount: wei(0),
               lifetimeClaimed: historicalClaims
                 .reduce(
@@ -204,6 +206,7 @@ export function useRewards({
             displaySymbol,
             distributorAddress: item.address,
             decimals: item.payoutToken.decimals,
+            payoutTokenAddress: item.payoutToken.address,
             claimableAmount,
             lifetimeClaimed: historicalClaims
               .reduce(
