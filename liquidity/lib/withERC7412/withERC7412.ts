@@ -155,8 +155,10 @@ export const makeCoreProxyMulticall = (
   };
 };
 
-const parseError = (errorData: any, AllErrors: ReturnType<typeof importAllErrors>): { name: string, args: any } | null => {
-
+const parseError = (
+  errorData: any,
+  AllErrors: { address: string; abi: string[] }
+): { name: string; args: any } | null => {
   if (`${errorData}`.startsWith('0x08c379a0')) {
     const content = `0x${errorData.substring(10)}`;
     // reason: string; for standard revert error string
@@ -174,10 +176,7 @@ const parseError = (errorData: any, AllErrors: ReturnType<typeof importAllErrors
     return decodedError;
     // return ERC7412ErrorSchema.parse(decodedError);
   } catch (parseError) {
-    console.error(
-      'Error is not a ERC7412 error. Parse error reason: ',
-      parseError
-    );
+    console.error('Error is not a ERC7412 error. Parse error reason: ', parseError);
     // If we cant parse it, return null
     return null;
   }
@@ -295,7 +294,9 @@ export const withERC7412 = async (
       let errorData = error.data || error.error?.data?.data || error.error?.error?.data;
       if (!errorData) {
         try {
-          console.log('Error is missing revert data, trying provider.call, instead of estimate gas..');
+          console.log(
+            'Error is missing revert data, trying provider.call, instead of estimate gas..'
+          );
           // Some wallets swallows the revert reason when calling estimate gas,try to get the error by using provider.call
           // provider.call wont actually revert, instead the error data is just returned
           const lookedUpError = await jsonRpcProvider.call(error.transaction);
@@ -314,12 +315,19 @@ export const withERC7412 = async (
         console.error('withERC7412', parsedError);
       }
 
-      async function handleError(parsedError: { name: string, args: any }, origTxns: TransactionRequest[]) {
+      async function handleError(
+        parsedError: { name: string; args: any },
+        origTxns: TransactionRequest[]
+      ) {
         if (parsedError.name === 'Errors') {
           const errors = parsedError.args[0].map((error: any) => parseError(error, AllErrors));
-          return [...await Promise.all(errors.map((e: { name: string; args: any; }) => handleError(e, []))), ...origTxns];
-        }
-        else if (parsedError.name === 'OracleDataRequired') {
+          return [
+            ...(await Promise.all(
+              errors.map((e: { name: string; args: any }) => handleError(e, []))
+            )),
+            ...origTxns,
+          ];
+        } else if (parsedError.name === 'OracleDataRequired') {
           const [oracleAddress, oracleQuery] = parsedError.args;
           const ignoreCache = !isRead;
           const signedRequiredData = await fetchOffchainData(
@@ -340,7 +348,7 @@ export const withERC7412 = async (
           return [newTransactionRequest, ...origTxns];
         } else {
           const parsedError = parseTxError(error);
-  
+
           if (parsedError) {
             const AllErrors = await importAllErrors(network.id, network.preset);
             try {
