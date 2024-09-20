@@ -342,7 +342,7 @@ export const withERC7412 = async (
             data: new ethers.utils.Interface(ERC7412_ABI).encodeFunctionData('fulfillOracleQuery', [
               signedRequiredData,
             ]),
-            value: parsedError.args[2] || 0,
+            value: 1,
           };
           // If we get OracleDataRequired, add an extra transaction request just before the last element
           return [newTransactionRequest, ...origTxns];
