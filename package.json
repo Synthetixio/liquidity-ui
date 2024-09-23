@@ -67,7 +67,6 @@
     "last 1 Opera version"
   ],
   "resolutions": {
-    "@synthetixio/v3-contracts": "synthetixio/v3-contracts#master",
     "@emotion/is-prop-valid": "^1.2.0",
     "@ethersproject/abi": "^5.7.0",
     "@ethersproject/bignumber": "^5.7.0",
