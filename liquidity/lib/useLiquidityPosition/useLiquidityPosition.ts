@@ -90,8 +90,6 @@ export const useLiquidityPosition = ({
     [priceUpdateTx?.data]
   );
 
-  console.log(`priceUpdateTx`, priceUpdateTx);
-
   return useQuery({
     queryKey: [
       `${network?.id}-${network?.preset}`,

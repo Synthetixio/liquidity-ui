@@ -1,8 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
 import { getSubgraphUrl } from '@snx-v3/constants';
-import { z } from 'zod';
-import Wei, { wei } from '@synthetixio/wei';
 import { useNetwork } from '@snx-v3/useBlockchain';
+import Wei, { wei } from '@synthetixio/wei';
+import { useQuery } from '@tanstack/react-query';
+import { z } from 'zod';
 
 const GraphBigIntSchema = z.string().transform((src) => wei(src, 18, true));
 const GraphBigDecimalSchema = z.string().transform((src) => wei(src, 18, true));
@@ -142,13 +142,14 @@ const getPoolData = async (chainName: string, id: string) => {
 
 export const usePoolData = (poolId?: string, networkName?: string) => {
   const { network } = useNetwork();
+  const chainName = networkName || network?.name;
 
   return useQuery({
+    enabled: Boolean(poolId && parseInt(poolId) > 0 && chainName),
     queryKey: [`${network?.id}-${network?.preset}`, 'PoolData', { pool: poolId }],
     queryFn: async () => {
-      const name = networkName || network?.name;
-      if (!poolId || !name) throw Error('No poolId or networkId');
-      const poolData = await getPoolData(name, poolId);
+      if (!poolId || !chainName) throw Error('No poolId or chainName');
+      const poolData = await getPoolData(chainName, poolId);
 
       if (!poolData.data.pool) {
         throw Error(`Pool ${poolId} not found`);
@@ -156,6 +157,5 @@ export const usePoolData = (poolId?: string, networkName?: string) => {
 
       return poolData.data.pool;
     },
-    enabled: Boolean(poolId && parseInt(poolId) > 0),
   });
 };
