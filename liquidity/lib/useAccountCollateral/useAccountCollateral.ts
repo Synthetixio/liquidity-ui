@@ -179,7 +179,7 @@ export function useAccountSpecificCollateral(accountId?: string, collateralAddre
       const data = await erc7412Call(
         network,
         provider,
-        calls,
+        allCalls,
         decoder,
         'useAccountSpecificCollateral'
       );
