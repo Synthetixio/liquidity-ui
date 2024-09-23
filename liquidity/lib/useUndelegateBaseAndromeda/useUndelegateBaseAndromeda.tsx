@@ -1,24 +1,24 @@
-import { useReducer } from 'react';
-import { useCoreProxy } from '@snx-v3/useCoreProxy';
-import { useMutation } from '@tanstack/react-query';
-import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
+import { parseUnits } from '@snx-v3/format';
+import { getRepayerContract, USDC_BASE_MARKET } from '@snx-v3/isBaseAndromeda';
+import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
-import Wei, { wei } from '@synthetixio/wei';
-import { BigNumber, Contract, PopulatedTransaction } from 'ethers';
+import { useAllCollateralPriceIds } from '@snx-v3/useAllCollateralPriceIds';
+import { useApprove } from '@snx-v3/useApprove';
+import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
+import { DEBT_REPAYER_ABI } from '@snx-v3/useClearDebt';
+import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
-import { TransactionRequest, withERC7412 } from '@snx-v3/withERC7412';
-import { useAllCollateralPriceIds } from '@snx-v3/useAllCollateralPriceIds';
-import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { useApprove } from '@snx-v3/useApprove';
-import { USDC_BASE_MARKET, getRepayerContract } from '@snx-v3/isBaseAndromeda';
-import { parseUnits } from '@snx-v3/format';
-import { DEBT_REPAYER_ABI } from '@snx-v3/useClearDebt';
-import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
-import { notNil } from '@snx-v3/tsHelpers';
-import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useGetUSDTokens } from '@snx-v3/useGetUSDTokens';
+import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
+import { withERC7412 } from '@snx-v3/withERC7412';
+import Wei, { wei } from '@synthetixio/wei';
+import { useMutation } from '@tanstack/react-query';
+import { BigNumber, Contract, ethers, PopulatedTransaction } from 'ethers';
+import { useReducer } from 'react';
 
 export const useUndelegateBaseAndromeda = ({
   accountId,
@@ -38,7 +38,7 @@ export const useUndelegateBaseAndromeda = ({
   const [txnState, dispatch] = useReducer(reducer, initialState);
   const { data: CoreProxy } = useCoreProxy();
   const { data: SpotMarketProxy } = useSpotMarketProxy();
-  const { data: priceUpdateTx } = useCollateralPriceUpdates();
+  const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
 
   const signer = useSigner();
   const { gasSpeed } = useGasSpeed();
@@ -104,20 +104,20 @@ export const useUndelegateBaseAndromeda = ({
         );
         transactions.push(populatedTxnPromised);
 
-        const callsPromise = Promise.all([...transactions].filter(notNil));
+        const callsPromise: Promise<
+          (ethers.PopulatedTransaction & { requireSuccess?: boolean })[]
+        > = Promise.all([...transactions].filter(notNil));
 
         const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
 
-        const allCalls: TransactionRequest[] = [...calls];
-
-        allCalls[1].requireSuccess = false;
+        calls[1].requireSuccess = false;
         if (priceUpdateTx) {
-          allCalls.unshift(priceUpdateTx as any);
+          calls.unshift(priceUpdateTx as any);
         }
 
         const walletAddress = await signer.getAddress();
 
-        const erc7412Tx = await withERC7412(network, allCalls, 'useUndelegateBase', walletAddress);
+        const erc7412Tx = await withERC7412(network, calls, 'useUndelegateBase', walletAddress);
 
         const gasOptionsForTransaction = formatGasPriceForTransaction({
           gasLimit: erc7412Tx.gasLimit,
@@ -134,6 +134,10 @@ export const useUndelegateBaseAndromeda = ({
         dispatch({ type: 'error', payload: { error } });
         throw error;
       }
+    },
+    onSuccess: () => {
+      // After mutation withERC7412, we guaranteed to have updated all the prices, dont care about await
+      refetchPriceUpdateTx();
     },
   });
   return {

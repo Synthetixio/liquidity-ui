@@ -64,10 +64,6 @@ export const PYTH_ERRORS = [
   'error InvalidWormholeAddressToSet()',
 ];
 
-export type TransactionRequest = ethers.providers.TransactionRequest & {
-  requireSuccess?: boolean;
-};
-
 async function fetchOffchainData({
   priceIds,
   isTestnet,
@@ -210,7 +206,7 @@ export const withERC7412 = async (
   calls: (ethers.PopulatedTransaction & { requireSuccess?: boolean })[],
   label: string,
   from: string
-): Promise<ethers.PopulatedTransaction> => {
+): Promise<ethers.PopulatedTransaction & { gasLimit: ethers.BigNumber }> => {
   // Make sure we're always using JSONRpcProvider, the web3 provider coming from the signer might have bugs causing errors to miss revert data
   const jsonRpcProvider = new ethers.providers.JsonRpcProvider(network?.rpcUrl());
   const Multicall3Contract = await importMulticall3(network.id, network.preset);

@@ -1,16 +1,15 @@
-import { useReducer } from 'react';
-import { useCoreProxy } from '@snx-v3/useCoreProxy';
-import { useMutation } from '@tanstack/react-query';
-import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { initialState, reducer } from '@snx-v3/txnReducer';
-import Wei, { wei } from '@synthetixio/wei';
-import { BigNumber } from 'ethers';
+import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
+import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { withERC7412 } from '@snx-v3/withERC7412';
-import { useAllCollateralPriceIds } from '@snx-v3/useAllCollateralPriceIds';
-import { fetchPriceUpdates, priceUpdatesToPopulatedTx } from '@snx-v3/fetchPythPrices';
+import Wei, { wei } from '@synthetixio/wei';
+import { useMutation } from '@tanstack/react-query';
+import { BigNumber } from 'ethers';
+import { useReducer } from 'react';
 
 export const useUndelegate = ({
   accountId,
@@ -27,16 +26,16 @@ export const useUndelegate = ({
 }) => {
   const [txnState, dispatch] = useReducer(reducer, initialState);
   const { data: CoreProxy } = useCoreProxy();
+  const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
   const signer = useSigner();
   const { gasSpeed } = useGasSpeed();
   const provider = useProvider();
-  const { data: collateralPriceUpdates } = useAllCollateralPriceIds();
   const { network } = useNetwork();
 
   const mutation = useMutation({
     mutationFn: async () => {
       if (!signer || !network || !provider) throw new Error('No signer or network');
-      if (!(CoreProxy && poolId && collateralTypeAddress && collateralPriceUpdates)) return;
+      if (!(CoreProxy && poolId && collateralTypeAddress)) return;
       if (collateralChange.eq(0)) return;
       if (currentCollateral.eq(0)) return;
       try {
@@ -52,20 +51,13 @@ export const useUndelegate = ({
 
         const walletAddress = await signer.getAddress();
 
-        const collateralPriceCallsPromise = fetchPriceUpdates(
-          collateralPriceUpdates,
-          network.isTestnet
-        ).then((signedData) =>
-          priceUpdatesToPopulatedTx(walletAddress, collateralPriceUpdates, signedData)
-        );
-        const [calls, gasPrices, collateralPriceCalls] = await Promise.all([
-          populatedTxnPromised,
-          getGasPrice({ provider }),
-          collateralPriceCallsPromise,
-        ]);
-        const allCalls = collateralPriceCalls.concat(calls);
+        const callsPromise = Promise.all([populatedTxnPromised]);
+        const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
+        if (priceUpdateTx) {
+          calls.push(priceUpdateTx as any);
+        }
 
-        const erc7412Tx = await withERC7412(network, allCalls, 'useUndelegate', walletAddress);
+        const erc7412Tx = await withERC7412(network, calls, 'useUndelegate', walletAddress);
 
         const gasOptionsForTransaction = formatGasPriceForTransaction({
           gasLimit: erc7412Tx.gasLimit,
@@ -82,6 +74,10 @@ export const useUndelegate = ({
         dispatch({ type: 'error', payload: { error } });
         throw error;
       }
+    },
+    onSuccess: () => {
+      // After mutation withERC7412, we guaranteed to have updated all the prices, dont care about await
+      refetchPriceUpdateTx();
     },
   });
   return {

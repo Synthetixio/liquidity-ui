@@ -1,13 +1,13 @@
 import { stringToHash } from '@snx-v3/tsHelpers';
 import { useDefaultProvider, useNetwork } from '@snx-v3/useBlockchain';
+import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
-import { erc7412Call } from '@snx-v3/withERC7412';
 import { useSystemToken } from '@snx-v3/useSystemToken';
+import { erc7412Call } from '@snx-v3/withERC7412';
 import { Wei, wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
-import { useAllCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 
 export type AccountCollateralType = {
   tokenAddress: string;
@@ -61,8 +61,6 @@ export const loadAccountCollateral = async ({
   return { decoder, calls };
 };
 
-export type AccountCollateralWithSymbol = AccountCollateralType & { symbol: string };
-
 export function useAccountCollateral({
   accountId,
   includeDelegationOff,
@@ -75,7 +73,7 @@ export function useAccountCollateral({
   const { data: collateralTypes } = useCollateralTypes(includeDelegationOff);
 
   const provider = useDefaultProvider();
-  const { data: priceUpdateTx } = useAllCollateralPriceUpdates();
+  const { data: priceUpdateTx } = useCollateralPriceUpdates();
 
   const { data: systemToken } = useSystemToken();
 
@@ -152,7 +150,7 @@ export function useAccountSpecificCollateral(accountId?: string, collateralAddre
   const { data: CoreProxy } = useCoreProxy();
   const { network } = useNetwork();
   const provider = useDefaultProvider();
-  const { data: priceUpdateTx } = useAllCollateralPriceUpdates();
+  const { data: priceUpdateTx } = useCollateralPriceUpdates();
 
   return useQuery({
     queryKey: [

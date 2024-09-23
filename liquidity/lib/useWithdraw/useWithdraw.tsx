@@ -1,17 +1,16 @@
-import { useReducer } from 'react';
-import { useCoreProxy } from '@snx-v3/useCoreProxy';
-import { useMutation } from '@tanstack/react-query';
-import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
+import { parseUnits } from '@snx-v3/format';
 import { initialState, reducer } from '@snx-v3/txnReducer';
-import { BigNumber, ethers } from 'ethers';
+import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
+import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
-import { useAllCollateralPriceIds } from '@snx-v3/useAllCollateralPriceIds';
-import { fetchPriceUpdates, priceUpdatesToPopulatedTx } from '@snx-v3/fetchPythPrices';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import Wei from '@synthetixio/wei';
-import { parseUnits } from '@snx-v3/format';
+import { useMutation } from '@tanstack/react-query';
+import { BigNumber, ethers } from 'ethers';
+import { useReducer } from 'react';
 
 export const useWithdraw = ({
   accountId,
@@ -24,7 +23,7 @@ export const useWithdraw = ({
 }) => {
   const [txnState, dispatch] = useReducer(reducer, initialState);
   const { data: CoreProxy } = useCoreProxy();
-  const { data: collateralPriceIds } = useAllCollateralPriceIds();
+  const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
   const { network } = useNetwork();
 
   const { gasSpeed } = useGasSpeed();
@@ -35,7 +34,7 @@ export const useWithdraw = ({
     mutationFn: async () => {
       if (!signer || !network || !provider) throw new Error('No signer or network');
 
-      if (!(CoreProxy && collateralTypeAddress && amount && collateralPriceIds)) {
+      if (!(CoreProxy && collateralTypeAddress && amount)) {
         throw new Error('Not ready');
       }
       if (amount?.eq(0)) {
@@ -46,8 +45,6 @@ export const useWithdraw = ({
 
       try {
         dispatch({ type: 'prompting' });
-
-        const gasPricesPromised = getGasPrice({ provider });
 
         const contract = new ethers.Contract(
           collateralTypeAddress,
@@ -67,20 +64,13 @@ export const useWithdraw = ({
           collateralAmount
         );
 
-        const collateralPriceCallsPromise = fetchPriceUpdates(
-          collateralPriceIds,
-          network.isTestnet
-        ).then((signedData) =>
-          priceUpdatesToPopulatedTx(walletAddress, collateralPriceIds, signedData)
-        );
-        const [gasPrices, populatedTxn, collateralPriceCalls] = await Promise.all([
-          gasPricesPromised,
-          populatedTxnPromised,
-          collateralPriceCallsPromise,
-        ]);
-        const allCalls = collateralPriceCalls.concat(populatedTxn);
+        const callsPromise = Promise.all([populatedTxnPromised]);
+        const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
+        if (priceUpdateTx) {
+          calls.unshift(priceUpdateTx as any);
+        }
 
-        const erc7412Tx = await withERC7412(network, allCalls, 'useWithdraw', walletAddress);
+        const erc7412Tx = await withERC7412(network, calls, 'useWithdraw', walletAddress);
 
         const gasOptionsForTransaction = formatGasPriceForTransaction({
           gasLimit: erc7412Tx.gasLimit,
@@ -97,6 +87,10 @@ export const useWithdraw = ({
         dispatch({ type: 'error', payload: { error } });
         throw error;
       }
+    },
+    onSuccess: () => {
+      // After mutation withERC7412, we guaranteed to have updated all the prices, dont care about await
+      refetchPriceUpdateTx();
     },
   });
   return {

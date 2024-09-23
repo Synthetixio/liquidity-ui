@@ -1,14 +1,13 @@
-import { useQuery } from '@tanstack/react-query';
-import { BigNumberish, ethers } from 'ethers';
-import { Network, useDefaultProvider, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { EvmPriceServiceConnection } from '@pythnetwork/pyth-evm-js';
 import { offchainMainnetEndpoint } from '@snx-v3/constants';
-import { ERC7412_ABI } from '@snx-v3/withERC7412';
-import { importMulticall3, importExtras } from '@snx-v3/contracts';
-import { networksOffline } from '@snx-v3/usePoolsList';
-import { wei } from '@synthetixio/wei';
-import { importPythERC7412Wrapper } from '@snx-v3/contracts';
+import { importExtras, importMulticall3, importPythERC7412Wrapper } from '@snx-v3/contracts';
 import { parseUnits } from '@snx-v3/format';
+import { Network, useDefaultProvider, useNetwork, useWallet } from '@snx-v3/useBlockchain';
+import { networksOffline } from '@snx-v3/usePoolsList';
+import { ERC7412_ABI } from '@snx-v3/withERC7412';
+import { wei } from '@synthetixio/wei';
+import { useQuery } from '@tanstack/react-query';
+import { ethers } from 'ethers';
 
 const priceService = new EvmPriceServiceConnection(offchainMainnetEndpoint);
 
@@ -92,33 +91,6 @@ const getPriceUpdates = async (
   };
 };
 
-export const useAllCollateralPriceUpdates = (customNetwork?: Network) => {
-  const { network } = useNetwork();
-  const targetNetwork = customNetwork || network;
-  return useQuery({
-    queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'all-price-updates'],
-    enabled: Boolean(network && targetNetwork?.id && targetNetwork?.preset),
-    queryFn: async () => {
-      if (!(targetNetwork?.id && targetNetwork?.preset)) {
-        throw 'useAllCollateralPriceUpdates is missing required data';
-      }
-      const stalenessTolerance = 1;
-
-      const pythFeedIds = (await getPythFeedIds(targetNetwork)) as string[];
-      if (!pythFeedIds.length) {
-        return null;
-      }
-      const tx = await getPriceUpdates(pythFeedIds, stalenessTolerance, targetNetwork);
-
-      return {
-        ...tx,
-        value: tx.value,
-      };
-    },
-    refetchInterval: 5 * 60000,
-  });
-};
-
 interface Collaterals {
   symbol: string;
   oracleId: string;
@@ -137,7 +109,7 @@ export const useOfflinePrices = (collaterals?: Collaterals[]) => {
       const stables = ['sUSDC', 'USDC'];
       const filteredCollaterals = collaterals.filter((item) => !stables.includes(item.symbol));
 
-      const returnData: { symbol: string; price: BigNumberish }[] = [
+      const returnData: { symbol: string; price: ethers.BigNumberish }[] = [
         {
           symbol: 'sUSDC',
           price: wei(1).toBN(),
@@ -176,8 +148,9 @@ export const useOfflinePrices = (collaterals?: Collaterals[]) => {
   });
 };
 
-export const useCollateralPriceUpdates = () => {
-  const { network } = useNetwork();
+export const useCollateralPriceUpdates = (customNetwork?: Network) => {
+  const { network: currentNetwork } = useNetwork();
+  const network = customNetwork || currentNetwork;
   const provider = useDefaultProvider();
   const { activeWallet } = useWallet();
 
@@ -240,6 +213,7 @@ export const useCollateralPriceUpdates = () => {
             outdatedPriceIds.push(pythFeedIds[i]);
           }
         });
+        console.log(`outdatedPriceIds`, outdatedPriceIds);
 
         if (outdatedPriceIds.length) {
           return {
@@ -253,6 +227,6 @@ export const useCollateralPriceUpdates = () => {
         return null;
       }
     },
-    refetchInterval: 60000,
+    refetchInterval: 300_000,
   });
 };

@@ -6,6 +6,7 @@ import {
   useNetwork,
   useProviderForChain,
 } from '@snx-v3/useBlockchain';
+import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useGetUSDTokens } from '@snx-v3/useGetUSDTokens';
@@ -14,7 +15,6 @@ import { ZodBigNumber } from '@snx-v3/zod';
 import Wei, { wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
-import { useAllCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 
 const PriceSchema = ZodBigNumber.transform((x) => wei(x));
 
@@ -69,7 +69,7 @@ export const useCollateralPrices = (customNetwork?: Network) => {
 
   const connectedProvider = useDefaultProvider();
   const offlineProvider = useProviderForChain(customNetwork);
-  const { data: priceUpdateTx } = useAllCollateralPriceUpdates(customNetwork);
+  const { data: priceUpdateTx } = useCollateralPriceUpdates(customNetwork);
 
   const provider = customNetwork ? offlineProvider : connectedProvider;
 
