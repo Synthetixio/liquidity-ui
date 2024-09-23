@@ -39,7 +39,6 @@ function toPairs<T>(array: T[]): [T, T][] {
 
 export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => {
   const { data: CoreProxy } = useCoreProxy();
-
   const { data: pools } = usePools();
   const { data: collateralTypes } = useCollateralTypes();
   const { data: priceUpdateTx } = useCollateralPriceUpdates();
@@ -56,14 +55,13 @@ export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => 
         pools: pools ? pools.map((pool) => pool.id).sort() : [],
         tokens: collateralTypes ? collateralTypes.map((x) => x.tokenAddress).sort() : [],
         priceUpdateTx: stringToHash(priceUpdateTx?.data),
-        CoreProxy: !!CoreProxy,
       },
     ],
     staleTime: 60000 * 5,
-    enabled: !!accountId,
+    enabled: Boolean(network && provider && CoreProxy && accountId && collateralTypes && pools),
     queryFn: async () => {
-      if (!pools || !collateralTypes || !CoreProxy || !accountId || !network || !provider) {
-        throw Error('Query should not be enabled');
+      if (!(network && provider && CoreProxy && accountId && collateralTypes && pools)) {
+        throw Error('OMG');
       }
 
       const positionCallsAndDataNested = await Promise.all(

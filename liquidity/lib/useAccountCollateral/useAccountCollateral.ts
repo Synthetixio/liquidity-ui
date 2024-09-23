@@ -159,10 +159,10 @@ export function useAccountSpecificCollateral(accountId?: string, collateralAddre
       { accountId },
       { token: collateralAddress, priceUpdateTx: stringToHash(priceUpdateTx?.data) },
     ],
-    enabled: Boolean(CoreProxy && accountId && collateralAddress),
+    enabled: Boolean(CoreProxy && accountId && collateralAddress && network && provider),
     queryFn: async function () {
-      if (!CoreProxy || !accountId || !collateralAddress || !network || !provider) {
-        throw 'useAccountSpecificCollateral should not be enabled';
+      if (!(CoreProxy && accountId && collateralAddress && network && provider)) {
+        throw new Error('OMG');
       }
       const { calls, decoder } = await loadAccountCollateral({
         accountId,
