@@ -234,6 +234,6 @@ export const useCollateralPriceUpdates = (customNetwork?: Network) => {
         return null;
       }
     },
-    refetchInterval: 300_000,
+    refetchInterval: 120_000,
   });
 };
