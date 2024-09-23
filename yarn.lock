@@ -5594,12 +5594,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useDeposit@workspace:liquidity/lib/useDeposit"
   dependencies:
-    "@snx-v3/fetchPythPrices": "workspace:*"
     "@snx-v3/format": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
-    "@snx-v3/useAllCollateralPriceIds": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useGasOptions": "workspace:*"
     "@snx-v3/useGasPrice": "workspace:*"
@@ -5959,11 +5958,10 @@ __metadata:
   resolution: "@snx-v3/useRepay@workspace:liquidity/lib/useRepay"
   dependencies:
     "@snx-v3/constants": "workspace:*"
-    "@snx-v3/fetchPythPrices": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
-    "@snx-v3/useAllCollateralPriceIds": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useGasOptions": "workspace:*"
     "@snx-v3/useGasPrice": "workspace:*"
@@ -6157,10 +6155,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useUndelegate@workspace:liquidity/lib/useUndelegate"
   dependencies:
-    "@snx-v3/fetchPythPrices": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
-    "@snx-v3/useAllCollateralPriceIds": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useGasOptions": "workspace:*"
     "@snx-v3/useGasPrice": "workspace:*"
@@ -6262,11 +6259,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useWithdraw@workspace:liquidity/lib/useWithdraw"
   dependencies:
-    "@snx-v3/fetchPythPrices": "workspace:*"
     "@snx-v3/format": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
-    "@snx-v3/useAllCollateralPriceIds": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useGasOptions": "workspace:*"
     "@snx-v3/useGasPrice": "workspace:*"
@@ -6346,13 +6342,8 @@ __metadata:
     "@pythnetwork/pyth-evm-js": "npm:^1.42.0"
     "@snx-v3/constants": "workspace:*"
     "@snx-v3/contracts": "workspace:*"
-    "@snx-v3/parser": "workspace:*"
-    "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/zod": "workspace:*"
     ethers: "npm:^5.7.2"
-    viem: "npm:^2.13.5"
-    zod: "npm:^3.22.4"
   languageName: unknown
   linkType: soft
 
