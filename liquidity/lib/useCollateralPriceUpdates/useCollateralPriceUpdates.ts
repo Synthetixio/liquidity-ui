@@ -158,7 +158,7 @@ export const useCollateralPriceUpdates = (customNetwork?: Network) => {
     queryKey: [`${network?.id}-${network?.preset}`, 'price-updates', activeWallet?.address],
     enabled: Boolean(network?.id && network?.preset),
     queryFn: async () => {
-      const stalenessTolerance = 600;
+      const stalenessTolerance = 3300; // normally we have tolerance of 3600, which leaves us with extra 5min
       if (!(network?.id && network?.preset)) {
         throw 'OMG';
       }
@@ -175,6 +175,10 @@ export const useCollateralPriceUpdates = (customNetwork?: Network) => {
         ]);
 
         const pythFeedIds = (await getPythFeedIds(network)) as string[];
+        if (window.localStorage.getItem('DEBUG') === 'true') {
+          // eslint-disable-next-line no-console
+          console.log('[useCollateralPriceUpdates]', { pythFeedIds });
+        }
 
         if (pythFeedIds.length === 0) {
           return null;
@@ -213,7 +217,10 @@ export const useCollateralPriceUpdates = (customNetwork?: Network) => {
             outdatedPriceIds.push(pythFeedIds[i]);
           }
         });
-        console.log(`outdatedPriceIds`, outdatedPriceIds);
+        if (window.localStorage.getItem('DEBUG') === 'true') {
+          // eslint-disable-next-line no-console
+          console.log('[useCollateralPriceUpdates]', { outdatedPriceIds });
+        }
 
         if (outdatedPriceIds.length) {
           return {
