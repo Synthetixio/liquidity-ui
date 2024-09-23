@@ -17,6 +17,7 @@ import { Progress } from './utils/theme';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      retry: false,
       refetchInterval: false, //  if queries needs refetching we should be explicit about it, given erc7412
       staleTime: DEFAULT_QUERY_STALE_TIME,
       refetchOnWindowFocus: false,
@@ -26,6 +27,7 @@ const queryClient = new QueryClient({
       },
     },
     mutations: {
+      retry: false,
       throwOnError: (e) => {
         console.error(e);
         return false;
