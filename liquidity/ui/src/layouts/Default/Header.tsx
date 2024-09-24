@@ -4,7 +4,7 @@ import { NetworkController } from './NetworkController';
 import { useEffect } from 'react';
 import { Logo, LogoIcon } from '@snx-v3/icons';
 import { MigrateUSDButton } from '../../components/MigrateUSD/MigrateUSDButton';
-import { MigrateUSDButton  as ConvertStataUSDCButton } from '../../components/ConvertStataUSDC/ConvertStataUSDCButton';
+import { MigrateUSDButton as ConvertStataUSDCButton } from '../../components/ConvertStataUSDC/ConvertStataUSDCButton';
 import { BASE_ANDROMEDA, BASE_SEPOLIA, MAINNET, SEPOLIA, useNetwork } from '@snx-v3/useBlockchain';
 
 export default function Header() {
@@ -90,7 +90,9 @@ export default function Header() {
             {/* Hide balance */}
             {/* <Balance isBase={isBase} balance={balance} /> */}
             {network && [MAINNET.id, SEPOLIA.id] && <MigrateUSDButton network={network} />}
-            {network && [BASE_ANDROMEDA.id, BASE_SEPOLIA.id] && <ConvertStataUSDCButton network={network} />}
+            {network && [BASE_ANDROMEDA.id, BASE_SEPOLIA.id] && (
+              <ConvertStataUSDCButton network={network} />
+            )}
             <NetworkController />
           </Flex>
         </Container>

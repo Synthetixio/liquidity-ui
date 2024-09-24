@@ -22,7 +22,6 @@ type Props = FC<{
 }>;
 
 export const ConvertStataUSDCTransaction: Props = ({ onSuccess, amount, network, onBack }) => {
-
   //const { data: USDC } = useV2sUSD(network);
   //const { data: USDC_balance } = useTokenBalance(USDC, network);
   //const { data: stataUSDC } = useUSDProxyForChain(network);
@@ -33,17 +32,15 @@ export const ConvertStataUSDCTransaction: Props = ({ onSuccess, amount, network,
   const { data: USDC } = useCollateralType('USDC');
   const { data: wrapperUSDCToken } = useGetWrapperToken(getSpotMarketId(USDC?.displaySymbol));
   // TODO: This will need refactoring
-  const usdcAddress = isBase
-    ? wrapperUSDCToken
-    : USDC?.tokenAddress;
+  const usdcAddress = isBase ? wrapperUSDCToken : USDC?.tokenAddress;
   const { data: USDC_balance } = useTokenBalance(usdcAddress, network);
 
   const { data: stataUSDC } = useCollateralType('stataUSDC');
-  const { data: wrapperStataUSDCToken } = useGetWrapperToken(getSpotMarketId(stataUSDC?.displaySymbol));
+  const { data: wrapperStataUSDCToken } = useGetWrapperToken(
+    getSpotMarketId(stataUSDC?.displaySymbol)
+  );
   // TODO: This will need refactoring
-  const stataUSDCAddress = isBase
-    ? wrapperStataUSDCToken
-    : stataUSDC?.tokenAddress;
+  const stataUSDCAddress = isBase ? wrapperStataUSDCToken : stataUSDC?.tokenAddress;
   const { data: stataUSDC_balance } = useTokenBalance(stataUSDCAddress, network);
 
   const [infiniteApproval, setInfiniteApproval] = useState(false);
@@ -54,7 +51,7 @@ export const ConvertStataUSDCTransaction: Props = ({ onSuccess, amount, network,
   const [txSummary, setTxSummary] = useState({
     usdcBalance: ZEROWEI,
     changeUsdcBalance: ZEROWEI,
-   oldStataUSDCBalance: ZEROWEI,
+    oldStataUSDCBalance: ZEROWEI,
     newStataUSDCBalance: ZEROWEI,
   });
 
@@ -69,7 +66,6 @@ export const ConvertStataUSDCTransaction: Props = ({ onSuccess, amount, network,
     spender: stataUSDCAddress,
   });
 
-
   const toast = useToast({ isClosable: true, duration: 9000 });
 
   const { convert, balance, isSuccess } = useConvertStataUSDC({
@@ -83,11 +79,11 @@ export const ConvertStataUSDCTransaction: Props = ({ onSuccess, amount, network,
   });
 
   const onSubmit = useCallback(async () => {
-  console.log('ConvertStataUSDCTransaction.tsx', {
+    console.log('ConvertStataUSDCTransaction.tsx', {
       amount: utils.parseUnits(amount.toString(), 6).toString(),
-      requireApproval, 
-      step: txState.step, 
-      USDC_balance: USDC_balance?.toString(), 
+      requireApproval,
+      step: txState.step,
+      USDC_balance: USDC_balance?.toString(),
       stataUSDC_balance: stataUSDC_balance?.toString(),
     });
 
@@ -121,7 +117,6 @@ export const ConvertStataUSDCTransaction: Props = ({ onSuccess, amount, network,
 
       await convert();
       const newStataUSDCBalance = await balance();
-
 
       setTxSummary({
         usdcBalance: USDC_balance || ZEROWEI,

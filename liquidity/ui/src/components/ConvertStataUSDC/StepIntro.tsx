@@ -1,4 +1,4 @@
-import React, {  useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   VStack,
   Text,
@@ -45,16 +45,16 @@ export const StepIntro = ({
   const { data: USDC_balance } = useTokenBalance(usdcAddress, network);
 
   const { data: stataUSDC } = useCollateralType('stataUSDC');
-  const { data: wrapperStataUSDCToken } = useGetWrapperToken(getSpotMarketId(stataUSDC?.displaySymbol));
+  const { data: wrapperStataUSDCToken } = useGetWrapperToken(
+    getSpotMarketId(stataUSDC?.displaySymbol)
+  );
   // TODO: This will need refactoring
   const stataUSDCAddress = isBaseAndromeda(network?.id, network?.preset)
     ? wrapperStataUSDCToken
     : stataUSDC?.tokenAddress;
   const { data: stataUSDC_balance } = useTokenBalance(stataUSDCAddress, network);
 
-  const [estimatedAmount, setEstimatedAmount]= useState<Wei>(new Wei(0));
-
-
+  const [estimatedAmount, setEstimatedAmount] = useState<Wei>(new Wei(0));
 
   useEffect(() => {
     if (USDC_balance && amount.eq(0) && !loaded) {
@@ -74,7 +74,7 @@ export const StepIntro = ({
   return (
     <VStack gap={2.5}>
       <Text width="100%" textAlign="left" fontSize="14px">
-        Convert your USDC to Aave stataUSDC. 
+        Convert your USDC to Aave stataUSDC.
       </Text>
 
       <BorderBox width="100%" display="flex" flexDirection="column" p={3}>

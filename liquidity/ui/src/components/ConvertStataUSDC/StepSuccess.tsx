@@ -19,7 +19,6 @@ export const StepSuccess = ({
   oldStataUSDCBalance: Wei;
   newStataUSDCBalance: Wei;
 }) => {
-
   return (
     <VStack spacing={6}>
       <Text width="100%" textAlign="left" fontSize="14px">
