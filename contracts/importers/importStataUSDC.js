@@ -13,15 +13,13 @@ export async function importStataUSDC(chainId, preset) {
       ]);
       return { address: meta.contracts.CollateralToken_stataBasUSDC, abi };
     }
-    case '84532-andromeda': {
-      const [{ default: meta }, { default: abi }] = await Promise.all([
-        import('@synthetixio/v3-contracts/84532-andromeda/meta.json'),
-        import(
-          '@synthetixio/v3-contracts/11155111-main/CollateralToken_stataBasUSDC.readable.json'
-        ),
-      ]);
-      return { address: meta.contracts.CollateralToken_stataUSDC, abi };
-    }
+    // case '84532-andromeda': {
+    //   const [{ default: meta }, { default: abi }] = await Promise.all([
+    //     import('@synthetixio/v3-contracts/84532-andromeda/meta.json'),
+    //     import('@synthetixio/v3-contracts/84532-main/CollateralToken_stataBasUSDC.readable.json'),
+    //   ]);
+    //   return { address: meta.contracts.CollateralToken_stataUSDC, abi };
+    // }
     default: {
       throw new Error(`Unsupported deployment ${deployment} for Extras`);
     }
