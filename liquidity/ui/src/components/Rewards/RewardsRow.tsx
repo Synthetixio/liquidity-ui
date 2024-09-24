@@ -56,7 +56,7 @@ export const RewardsRow = ({
         txnHash={txnHash}
       />
       <Tr>
-        <Td display="flex" alignItems="center" px="14px" border="none" w="100%">
+        <Td display="flex" alignItems="center" px={4} py={3} border="none" w="100%">
           <Fade in>
             <TokenIcon height={30} width={30} symbol={displaySymbol} />
           </Fade>
@@ -84,7 +84,7 @@ export const RewardsRow = ({
             </Flex>
           </Fade>
         </Td>
-        <Td alignItems="center" px="14px" border="none">
+        <Td alignItems="center" px={4} py={3} border="none">
           <Fade in>
             <Text
               color="gray.50"
