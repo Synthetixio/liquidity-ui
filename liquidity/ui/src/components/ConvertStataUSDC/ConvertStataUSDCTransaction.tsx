@@ -79,6 +79,7 @@ export const ConvertStataUSDCTransaction: Props = ({ onSuccess, amount, network,
   });
 
   const onSubmit = useCallback(async () => {
+    // eslint-disable-next-line no-console
     console.log('ConvertStataUSDCTransaction.tsx', {
       amount: utils.parseUnits(amount.toString(), 6).toString(),
       requireApproval,
