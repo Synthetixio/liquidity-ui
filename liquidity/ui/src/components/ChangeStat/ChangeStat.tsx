@@ -24,11 +24,11 @@ export const ChangeStat: FC<{
   value: Wei;
   newValue: Wei;
   hasChanges: boolean;
-  dataTestId?: string;
+  'data-cy'?: string;
   formatFn: (val: Wei) => ReactNode;
   withColor?: boolean;
   size?: 'sm' | 'md' | 'lg';
-}> = ({ formatFn, value, newValue, hasChanges, dataTestId, withColor, size = 'lg' }) => {
+}> = ({ formatFn, value, newValue, hasChanges, 'data-cy': dataCy, withColor, size = 'lg' }) => {
   return (
     <Flex
       gap="1"
@@ -39,7 +39,7 @@ export const ChangeStat: FC<{
       lineHeight={styles[size].lineHeight}
     >
       <Text
-        data-cy={dataTestId}
+        data-cy={dataCy}
         textAlign="center"
         opacity={value.eq(0) ? '70%' : undefined}
         color={withColor && value.gt(0) ? 'green.700' : value.lt(0) ? 'red.700' : 'gray.50'}

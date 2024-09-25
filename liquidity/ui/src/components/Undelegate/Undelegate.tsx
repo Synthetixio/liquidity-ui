@@ -25,7 +25,7 @@ import { TokenIcon } from '../TokenIcon';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { ZEROWEI } from '@snx-v3/constants';
 import { CRatioChangeStat } from '../CRatioBar/CRatioChangeStat';
-import { ChangeStat } from '../Manage';
+import { ChangeStat } from '../ChangeStat';
 import { currency } from '@snx-v3/format';
 import { TransactionSummary } from '../TransactionSummary/TransactionSummary';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';

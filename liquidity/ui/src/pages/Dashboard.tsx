@@ -25,7 +25,7 @@ export function Dashboard() {
           <MigrationBanner network={network} type="alert" />
         )}
 
-        <Heading color="gray.50" fontSize="1.5rem" data-cy="liquidity-dashboard">
+        <Heading color="gray.50" fontSize="1.5rem">
           Dashboard
         </Heading>
 

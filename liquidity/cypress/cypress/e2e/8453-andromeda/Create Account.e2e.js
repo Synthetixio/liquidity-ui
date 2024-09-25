@@ -4,21 +4,17 @@ it('Create Account', () => {
   });
 
   cy.viewport(1200, 900);
-  cy.visit('/');
+  cy.visit('/#/dashboard');
 
-  cy.get('[data-cy="account-menu-button"]').click();
-  cy.contains('[data-cy="create-new-account-menu-item"]', 'Create Account').should('exist');
+  cy.get('[data-cy="wallet button"]').click();
+  cy.contains('[data-cy="create new account button"]', 'Create Account').should('exist');
+  cy.get('[data-cy="create new account button"]').click();
+  cy.get('[data-cy="accounts list"]').children().should('have.length', 1);
 
-  // Create account
-  cy.get('[data-cy="header-wallet-address-button"]').click();
-  cy.get('[data-cy="create-new-account-menu-item"]').click();
-  cy.get('[data-cy="header-account-list"]').children().should('have.length', 1);
-
-  // The account id in the url should be the same as in the header
   cy.url().then((url) => {
-    const [baseUrl, fragment] = url.split('/#/');
-    const params = new URL(`${baseUrl}${fragment}`).searchParams;
-    const accountId = params.get('accountId');
-    cy.get(`[data-cy="account-${accountId}"]`).should('exist');
+    const u1 = new URL(url);
+    const u2 = new URL(`http://whatever${u1.hash.slice(1)}`);
+    const accountId = u2.searchParams.get('accountId');
+    cy.get(`[data-cy="account id"][data-account-id="${accountId}"]`).should('exist');
   });
 });

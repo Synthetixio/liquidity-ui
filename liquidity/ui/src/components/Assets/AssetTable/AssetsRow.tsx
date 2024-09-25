@@ -66,7 +66,7 @@ export const AssetsRow = ({
               fontWeight={700}
               lineHeight="1.25rem"
               fontFamily="heading"
-              data-cy="asset-list-wallet-balance"
+              data-cy="wallet balance value"
             >
               {formatNumberToUsd(walletBalance$)}
             </Text>
@@ -75,7 +75,7 @@ export const AssetsRow = ({
               fontFamily="heading"
               fontSize="0.75rem"
               lineHeight="1rem"
-              data-cy="asset-wallet-balance"
+              data-cy="wallet balance"
             >
               {formatNumber(walletBalance)}
               {` ${token}`}
@@ -91,7 +91,7 @@ export const AssetsRow = ({
               fontWeight={700}
               lineHeight="1.25rem"
               fontFamily="heading"
-              data-cy="asset-list-account-balance"
+              data-cy="account balance value"
             >
               {formatNumberToUsd(accountBalance$)}
             </Text>
@@ -110,7 +110,7 @@ export const AssetsRow = ({
               fontWeight={700}
               lineHeight="1.25rem"
               fontFamily="heading"
-              data-cy="asset-list-locked-balance"
+              data-cy="locked balance value"
             >
               {formatNumberToUsd(lockedBalance$)}
             </Text>
@@ -148,7 +148,7 @@ export const AssetsRow = ({
                   connect();
                 }
               }}
-              data-cy="assets-deposit-button"
+              data-cy="deposit button"
             >
               {activeWallet?.address ? 'Deposit' : 'Connect'}
             </Button>

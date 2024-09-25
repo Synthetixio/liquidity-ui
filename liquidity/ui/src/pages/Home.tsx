@@ -15,7 +15,6 @@ export function Home() {
           color="gray.50"
           maxWidth="20rem"
           fontSize={['2rem', '3rem']}
-          data-cy="liquidity-home"
           lineHeight="120%"
         >
           The Liquidity Layer of DeFi

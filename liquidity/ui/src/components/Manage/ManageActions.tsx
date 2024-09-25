@@ -157,7 +157,6 @@ export const ManageAction = ({
             <TabList>
               <Tab
                 color={tab === 'collateral' ? 'white' : 'gray.500'}
-                data-cy="tab-button-collateral"
                 fontWeight={700}
                 fontSize={['12px', '16px']}
                 onClick={() => {
@@ -172,7 +171,6 @@ export const ManageAction = ({
                 color={tab === 'debt' ? 'white' : 'gray.500'}
                 fontWeight={700}
                 fontSize={['12px', '16px']}
-                data-cy="tab-button-debt"
                 onClick={() => {
                   if (tab !== 'debt') {
                     setActiveAction(debtActions[0].link);
@@ -198,7 +196,6 @@ export const ManageAction = ({
                       borderColor={manageAction === action.link ? 'cyan.500' : 'gray.900'}
                       rounded="base"
                       cursor="pointer"
-                      data-cy={`collateral-action-${action.link}`}
                       onClick={() => setActiveAction(action.link)}
                       flex="1"
                       minWidth={['100%', 'auto']}
@@ -231,7 +228,6 @@ export const ManageAction = ({
                       borderColor={manageAction === action.link ? 'cyan.500' : 'gray.900'}
                       rounded="base"
                       cursor="pointer"
-                      data-cy={`debt-actions-${action.link}`}
                       onClick={() => setActiveAction(action.link)}
                       minWidth={['100%', 'auto']}
                     >

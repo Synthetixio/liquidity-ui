@@ -91,7 +91,7 @@ export const ClaimModalUi: React.FC<{
           }}
           width="100%"
           mt="6"
-          data-cy="claim-confirm-button"
+          data-cy="claim confirm button"
         >
           {(() => {
             switch (txnStatus) {

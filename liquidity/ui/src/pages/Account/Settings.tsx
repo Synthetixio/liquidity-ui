@@ -42,7 +42,7 @@ export function Settings() {
           mb={6}
           color="gray.50"
           fontSize="1.5rem"
-          data-cy="account-setting"
+          data-cy="account settings"
         >
           Account Settings
         </Heading>

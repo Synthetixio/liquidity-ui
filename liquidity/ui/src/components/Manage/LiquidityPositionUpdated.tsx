@@ -41,7 +41,7 @@ export function LiquidityPositionUpdated({
 
       {summary}
 
-      <Button w="100%" onClick={onClose} data-cy="liquidity-position-success-button">
+      <Button w="100%" onClick={onClose}>
         Continue
       </Button>
     </Flex>

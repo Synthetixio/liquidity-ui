@@ -9,7 +9,7 @@ export const PositionsEmpty = () => {
         collateral type
       </Text>
       <Link to="/pools">
-        <Button size="sm" data-cy="position-empty-button">
+        <Button size="sm" data-cy="all pools button">
           Explore all Pools
         </Button>
       </Link>

@@ -21,7 +21,7 @@ import { Events, ServiceNames, State, UndelegateMachine } from './UndelegateMach
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
 import { ZEROWEI } from '@snx-v3/constants';
-import { ChangeStat } from '../../ui/src/components';
+import { ChangeStat } from '../../ui/src/components/ChangeStat';
 import { currency } from '@snx-v3/format';
 import { CRatioChangeStat } from '../../ui/src/components/CRatioBar/CRatioChangeStat';
 import { TransactionSummary } from '../../ui/src/components/TransactionSummary/TransactionSummary';

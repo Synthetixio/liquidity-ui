@@ -6,7 +6,7 @@ import { currency } from '@snx-v3/format';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { CollateralType } from '@snx-v3/useCollateralTypes';
 import Wei from '@synthetixio/wei';
-import { ChangeStat } from './ChangeStat';
+import { ChangeStat } from '../ChangeStat';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { Tooltip } from '@snx-v3/Tooltip';
@@ -64,7 +64,6 @@ export const PnlStats: FC<{
               }
               withColor
               hasChanges={hasChanges}
-              dataTestId="manage-stats-debt-value"
             />
           ) : (
             <Skeleton width="100%">Lorem ipsum (this wont be displaye debt) </Skeleton>

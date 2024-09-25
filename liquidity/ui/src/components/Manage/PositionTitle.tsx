@@ -40,7 +40,6 @@ export const PositionTitle: FC<{
           color="gray.50"
           display="flex"
           alignItems="center"
-          data-cy="manage-position-title"
         >
           {isOpen ? 'Open ' : ''} {collateralDisplayName} Liquidity Position
         </Heading>
@@ -51,7 +50,6 @@ export const PositionTitle: FC<{
           color="gray.50"
           display="flex"
           alignItems="center"
-          data-cy="manage-position-subtitle"
           _hover={{ cursor: 'pointer' }}
           onClick={() => navigate(`/pools/${network?.id}/${poolId}`)}
         >

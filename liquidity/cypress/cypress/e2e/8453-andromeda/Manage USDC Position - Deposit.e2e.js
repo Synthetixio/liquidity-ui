@@ -1,6 +1,6 @@
 import { generatePath } from 'react-router-dom';
 
-it.skip('should deposit additional USDC collateral', () => {
+it('should deposit additional USDC collateral', () => {
   cy.connectWallet().then(({ address, privateKey }) => {
     cy.task('setEthBalance', { address, balance: 100 });
     cy.task('getUSDC', { address: address, amount: 500 });
@@ -15,49 +15,37 @@ it.skip('should deposit additional USDC collateral', () => {
       poolId: 1,
     });
     cy.visit(`/#${path}?manageAction=deposit&accountId=${accountId}`);
-    cy.wait(1000);
   });
 
-  cy.task('mineBlock');
-
-  cy.get('[data-cy="manage action"][data-action="deposit"]').click();
-  cy.get('[data-cy="deposit amount input"]').type('101');
+  cy.get('[data-cy="deposit amount input"]').should('exist').type('101');
   cy.get('[data-cy="deposit submit"]').should('be.enabled').click();
 
-  cy.get('[data-cy="deposit-modal"]').should('exist').and('include.text', 'Complete this action');
+  cy.get('[data-cy="deposit multistep"]')
+    .should('exist')
+    .and('include.text', 'Open Liquidity Position')
+    .and('include.text', 'Approve USDC transfer')
+    .and('include.text', 'Deposit & Lock USDC')
+    .and('include.text', 'This will deposit and lock 101 USDC to Spartan Council Pool.');
 
-  cy.get('[data-cy="deposit-modal"]')
-    .should('include.text', 'Approve USDC transfer')
-    .and('include.text', 'Delegate USDC')
-    .and('include.text', 'This will deposit and delegate 101 USDC to Spartan Council Pool');
-
-  cy.get('[data-cy="deposit-confirm-button"]').should('include.text', 'Start').click();
-
-  cy.get('[data-cy="deposit-confirm-button"]')
-    .should('include.text', 'Done')
-    .and('be.enabled')
+  cy.get('[data-cy="deposit confirm button"]')
+    .should('include.text', 'Execute Transaction')
     .click();
 
-  cy.get('[data-cy="manage stats collateral"]').should('include.text', '101 USDC');
-  cy.get('[data-cy="deposit amount input"]').type('101');
+  cy.get('[data-cy="manage stats collateral"]').should('exist').and('include.text', '101 USDC');
 
+  cy.get('[data-cy="deposit amount input"]').should('exist').clear().type('69');
   cy.get('[data-cy="deposit submit"]').should('be.enabled').click();
 
-  cy.get('[data-cy="deposit-modal"]').should('exist').and('include.text', 'Complete this action');
+  cy.get('[data-cy="deposit multistep"]')
+    .should('exist')
+    .and('include.text', 'Manage Collateral')
+    .and('include.text', 'Approve USDC transfer')
+    .and('include.text', 'Deposit & Lock USDC')
+    .and('include.text', 'This will deposit and lock 69 USDC to Spartan Council Pool.');
 
-  cy.get('[data-cy="deposit-modal"]')
-    .should('include.text', 'Approve USDC transfer')
-    .and('include.text', 'Delegate USDC')
-    .and('include.text', 'This will deposit and delegate 101 USDC to Spartan Council Pool');
-
-  cy.get('[data-cy="deposit-confirm-button"]').should('include.text', 'Start').click();
-
-  cy.get('[data-cy="deposit-confirm-button"]')
-    .should('include.text', 'Done')
-    .and('be.enabled')
+  cy.get('[data-cy="deposit confirm button"]')
+    .should('include.text', 'Execute Transaction')
     .click();
 
-  cy.get('[data-cy="deposit-modal"]').should('not.exist');
-
-  cy.get('[data-cy="manage stats collateral"]').should('include.text', '202 USDC');
+  cy.get('[data-cy="manage stats collateral"]').should('exist').and('include.text', '170 USDC');
 });

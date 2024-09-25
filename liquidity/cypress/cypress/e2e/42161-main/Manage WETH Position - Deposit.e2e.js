@@ -24,66 +24,74 @@ it.skip('should deposit additional WETH collateral', () => {
   cy.get('[data-cy="manage action"][data-action="deposit"]').click();
   cy.get('[data-cy="deposit amount input"]').type('10');
   cy.get('[data-cy="deposit submit"]').should('be.enabled').click();
-  cy.get('[data-cy="deposit-modal"]').should('exist').and('include.text', 'Complete this action');
-  cy.get('[data-cy="deposit-modal"]')
+  cy.get('[data-cy="deposit multistep"]')
+    .should('exist')
+    .and('include.text', 'Complete this action');
+  cy.get('[data-cy="deposit multistep"]')
     .should('include.text', 'Approve WETH transfer')
     .and('include.text', 'Delegate WETH')
     .and('include.text', 'This will deposit and delegate 10 WETH to Spartan Council Pool.');
-  cy.get('[data-cy="deposit-confirm-button"]').should('include.text', 'Start').click();
-  cy.get('[data-cy="deposit-confirm-button"]')
+  cy.get('[data-cy="deposit confirm button"]').should('include.text', 'Start').click();
+  cy.get('[data-cy="deposit confirm button"]')
     .should('include.text', 'Done')
     .and('be.enabled')
     .click();
-  cy.get('[data-cy="deposit-modal"]').should('not.exist');
+  cy.get('[data-cy="deposit multistep"]').should('not.exist');
   cy.get('[data-cy="manage stats collateral"]').should('include.text', '10 WETH');
 
   // Delegate 10 more to have 20
   cy.get('[data-cy="manage action"][data-action="deposit"]').click();
   cy.get('[data-cy="deposit amount input"]').type('10');
   cy.get('[data-cy="deposit submit"]').should('be.enabled').click();
-  cy.get('[data-cy="deposit-modal"]').should('exist').and('include.text', 'Complete this action');
-  cy.get('[data-cy="deposit-modal"]')
+  cy.get('[data-cy="deposit multistep"]')
+    .should('exist')
+    .and('include.text', 'Complete this action');
+  cy.get('[data-cy="deposit multistep"]')
     .should('include.text', 'Approve WETH transfer')
     .and('include.text', 'Delegate WETH')
     .and('include.text', 'This will deposit and delegate 10 WETH to Spartan Council Pool.');
-  cy.get('[data-cy="deposit-confirm-button"]').should('include.text', 'Start').click();
-  cy.get('[data-cy="deposit-confirm-button"]')
+  cy.get('[data-cy="deposit confirm button"]').should('include.text', 'Start').click();
+  cy.get('[data-cy="deposit confirm button"]')
     .should('include.text', 'Done')
     .and('be.enabled')
     .click();
-  cy.get('[data-cy="deposit-modal"]').should('not.exist');
+  cy.get('[data-cy="deposit multistep"]').should('not.exist');
   cy.get('[data-cy="manage stats collateral"]').should('include.text', '20 WETH');
 
   // Delegate 10 more to have 30
   cy.get('[data-cy="[data-cy="manage action"][data-action="deposit"]').click();
   cy.get('[data-cy="deposit amount input"]').type('10');
   cy.get('[data-cy="deposit submit"]').should('be.enabled').click();
-  cy.get('[data-cy="deposit-modal"]').should('exist').and('include.text', 'Complete this action');
-  cy.get('[data-cy="deposit-modal"]')
+  cy.get('[data-cy="deposit multistep"]')
+    .should('exist')
+    .and('include.text', 'Complete this action');
+  cy.get('[data-cy="deposit multistep"]')
     .should('include.text', 'Approve WETH transfer')
     .and('include.text', 'Delegate WETH')
     .and('include.text', 'This will deposit and delegate 10 WETH to Spartan Council Pool.');
-  cy.get('[data-cy="deposit-confirm-button"]').should('include.text', 'Start').click();
-  cy.get('[data-cy="deposit-confirm-button"]')
+  cy.get('[data-cy="deposit confirm button"]').should('include.text', 'Start').click();
+  cy.get('[data-cy="deposit confirm button"]')
     .should('include.text', 'Done')
     .and('be.enabled')
     .click();
-  cy.get('[data-cy="deposit-modal"]').should('not.exist');
+  cy.get('[data-cy="deposit multistep"]').should('not.exist');
   cy.get('[data-cy="manage stats collateral"]').should('include.text', '30 WETH');
 
   // Delegate 10 more to have 40
   cy.get('[data-cy="deposit amount input"]').type('10');
   cy.get('[data-cy="deposit submit"]').should('be.enabled').click();
-  cy.get('[data-cy="deposit-modal"]').should('exist').and('include.text', 'Complete this action');
-  cy.get('[data-cy="deposit-modal"]')
+  cy.get('[data-cy="deposit multistep"]')
+    .should('exist')
+    .and('include.text', 'Complete this action');
+  cy.get('[data-cy="deposit multistep"]')
     .should('include.text', 'Approve WETH transfer')
     .and('include.text', 'Delegate WETH')
     .and('include.text', 'This will deposit and delegate 10 WETH to Spartan Council Pool.');
-  cy.get('[data-cy="deposit-confirm-button"]').should('include.text', 'Start').click();
-  cy.get('[data-cy="deposit-confirm-button"]')
+  cy.get('[data-cy="deposit confirm button"]').should('include.text', 'Start').click();
+  cy.get('[data-cy="deposit confirm button"]')
     .should('include.text', 'Done')
     .and('be.enabled')
     .click();
-  cy.get('[data-cy="deposit-modal"]').should('not.exist');
+  cy.get('[data-cy="deposit multistep"]').should('not.exist');
   cy.get('[data-cy="manage stats collateral"]').should('include.text', '40 WETH');
 });

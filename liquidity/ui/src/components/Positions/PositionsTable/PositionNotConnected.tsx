@@ -10,7 +10,7 @@ export const PositionsNotConnected = () => {
       </Text>
       <Button
         size="sm"
-        data-cy="connect-button-position-table"
+        data-cy="connect wallet button"
         onClick={() => {
           connect();
         }}

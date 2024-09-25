@@ -38,7 +38,6 @@ export const PercentBadges: FC<{
         }}
         mx={1}
         onClick={disabled ? undefined : () => onBadgePress(0.5)}
-        data-cy="manage-percent-50"
         color="cyan.500"
         bg="whiteAlpha.300"
         fontFamily="heading"
