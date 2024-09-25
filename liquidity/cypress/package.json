@@ -28,5 +28,8 @@
     "ignoreMatches": [
       "ts-node"
     ]
+  },
+  "dependencies": {
+    "@snx-v3/theme": "workspace:*"
   }
 }

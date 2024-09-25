@@ -109,13 +109,7 @@ export const CollateralSectionUi: FC<{
             height="26px"
           >
             <Fade in>
-              <Text
-                fontWeight={700}
-                fontSize="xl"
-                color="white"
-                data-cy="pool tvl"
-                textAlign="end"
-              >
+              <Text fontWeight={700} fontSize="xl" color="white" data-cy="pool tvl" textAlign="end">
                 {formatNumberToUsd(totalCollateral.value.toNumber(), { maximumFractionDigits: 0 })}
               </Text>
             </Fade>

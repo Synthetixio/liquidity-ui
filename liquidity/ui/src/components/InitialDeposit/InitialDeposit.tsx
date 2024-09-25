@@ -218,7 +218,6 @@ export const InitialDepositUi: FC<{
           </Collapse>
           <Button
             data-cy="deposit submit"
-            data-cy="deposit-submit-button"
             onClick={() => {
               if (hasAccount) {
                 onSubmit();
