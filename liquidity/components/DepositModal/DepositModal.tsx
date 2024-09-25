@@ -38,7 +38,6 @@ import { CRatioChangeStat } from '../../ui/src/components/CRatioBar/CRatioChange
 import { TransactionSummary } from '../../ui/src/components/TransactionSummary/TransactionSummary';
 import { currency } from '@snx-v3/format';
 import { useConvertStataUSDC } from '@snx-v3/useConvertStataUSDC';
-import { useTokenBalance } from '@snx-v3/useTokenBalance';
 
 export const DepositModalUi: FC<{
   collateralChange: Wei;
@@ -328,8 +327,6 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   const collateralAddress = isBaseAndromeda(network?.id, network?.preset)
     ? wrapperToken
     : collateralType?.tokenAddress;
-
-  const { data: stataUSDCTokenBalance } = useTokenBalance(collateralAddress);
 
   const collateralNeeded = collateralChange.sub(availableCollateral);
 
@@ -644,7 +641,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
     } else {
       send(Events.RUN);
     }
-  }, [handleClose, send, state, requireApproval]);
+  }, [handleClose, send, state, requireApproval, depositBaseAndromeda]);
 
   const txSummaryItems = useMemo(() => {
     const items = [
