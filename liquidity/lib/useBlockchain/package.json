@@ -8,7 +8,7 @@
     "@snx-v3/constants": "workspace:*",
     "@snx-v3/contracts": "workspace:*",
     "@snx-v3/icons": "workspace:*",
-    "@web3-onboard/react": "^2.9.1",
+    "@web3-onboard/react": "^2.9.3",
     "ethers": "^5.7.2",
     "react": "^18.2.0"
   }

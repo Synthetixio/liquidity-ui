@@ -3,6 +3,13 @@ import { App } from './App';
 
 const container = document.querySelector('#app');
 
+declare global {
+  var $ethers: any; // eslint-disable-line no-var
+  var $enable: () => Promise<void>; // eslint-disable-line no-var
+  var $disable: () => void; // eslint-disable-line no-var
+  var ethereum: any; // eslint-disable-line no-var
+}
+
 export async function bootstrap() {
   if (!container) {
     throw new Error('Container #app does not exist');
@@ -40,6 +47,59 @@ export async function bootstrap() {
         return false;
       },
     });
+  }
+
+  if (window.localStorage.DEBUG === 'true') {
+    const { ethers } = await import('ethers');
+    window.$ethers = ethers;
+    let address = window.localStorage.WALLET || '';
+    if (!ethers.utils.isAddress(address)) {
+      // First Address from Anvil
+      address = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266';
+    }
+
+    window.$enable = async function () {
+      window.localStorage.MAGIC_WALLET = 'true';
+      const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
+      const network = await provider.getNetwork();
+      await provider.send('anvil_setBalance', [
+        address,
+        ethers.utils.parseEther('10000').toHexString(),
+      ]);
+      window.ethereum = new Proxy(provider, {
+        get(target: any, prop: any) {
+          switch (prop) {
+            case 'chainId':
+              return `0x${Number(network.chainId).toString(16)}`;
+            case 'isMetaMask':
+              return true;
+            case 'getSigner':
+              return () => {
+                return provider.getSigner(address);
+              };
+            case 'request':
+              return async ({ method, params }: { method: string; params: any }) => {
+                console.log('MAGIC_WALLET', { method, params }); // eslint-disable-line no-console
+                switch (method) {
+                  case 'eth_accounts':
+                  case 'eth_requestAccounts':
+                    return [address];
+                  case 'eth_sendTransaction':
+                    return await provider.send(method, params);
+                  default: {
+                    return await provider.send(method, params);
+                  }
+                }
+              };
+            default:
+              return target[prop];
+          }
+        },
+      });
+    };
+    if (window.localStorage.MAGIC_WALLET === 'true') {
+      await window.$enable();
+    }
   }
 
   const root = ReactDOM.createRoot(container);

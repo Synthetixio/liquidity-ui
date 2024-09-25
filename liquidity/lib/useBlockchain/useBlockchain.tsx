@@ -295,7 +295,10 @@ export function useProviderForChain(network?: Network) {
 
 export function useDefaultProvider() {
   const { network } = useNetwork();
-  return useProviderForChain(network);
+  if (window.localStorage.MAGIC_WALLET === 'true') {
+    return new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
+  }
+  return network ? new ethers.providers.JsonRpcProvider(network.rpcUrl()) : undefined;
 }
 
 export function useWallet() {
