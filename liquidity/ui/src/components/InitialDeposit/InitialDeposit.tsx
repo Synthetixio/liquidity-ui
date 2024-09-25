@@ -174,7 +174,6 @@ export const InitialDepositUi: FC<{
                     setCollateralChange(value);
                   }}
                   max={combinedTokenBalance}
-                  dataTestId="deposit-number-input"
                   min={ZEROWEI}
                 />
                 <Flex fontSize="xs" color="whiteAlpha.700" alignSelf="flex-end" gap="1">

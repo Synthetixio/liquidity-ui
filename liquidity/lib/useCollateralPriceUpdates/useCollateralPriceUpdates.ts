@@ -73,7 +73,7 @@ async function getPythFeedIdsFromCollateralList(
 const getPriceUpdates = async (
   priceIds: string[],
   stalenessTolerance: number,
-  network?: Network
+  network: Network
 ) => {
   const signedOffchainData = await priceService.getPriceFeedsUpdateData(priceIds);
   const updateType = 1;
@@ -83,11 +83,10 @@ const getPriceUpdates = async (
   );
   const erc7412Interface = new ethers.utils.Interface(ERC7412_ABI);
 
-  const { address } = await importPythERC7412Wrapper(network.id, network.preset);
+  const PythERC7412Wrapper = await importPythERC7412Wrapper(network.id, network.preset);
 
   return {
-    // pyth wrapper
-    to: address,
+    to: PythERC7412Wrapper.address,
     data: erc7412Interface.encodeFunctionData('fulfillOracleQuery', [data]),
     value: priceIds.length,
   };

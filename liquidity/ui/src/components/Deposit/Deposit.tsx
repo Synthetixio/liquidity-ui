@@ -197,7 +197,6 @@ export const DepositUi: FC<{
             }}
             max={maxAmount}
             min={ZEROWEI}
-            dataTestId="deposit-number-input"
           />
           <Flex fontSize="xs" color="whiteAlpha.700" alignSelf="flex-end" gap="1">
             {price.gt(0) && <Amount prefix="$" value={collateralChange.abs().mul(price)} />}
