@@ -30,9 +30,14 @@ export const ConvertStataUSDCTransaction: Props = ({ onSuccess, amount, network,
   const { data: USDC_balance } = useTokenBalance(usdcAddress, network);
 
   const { data: stataUSDC } = useCollateralType('stataUSDC');
-  const { data: wrapperStataUSDCToken } = useGetWrapperToken(getSpotMarketId(stataUSDC?.displaySymbol));
+  const { data: wrapperStataUSDCToken } = useGetWrapperToken(
+    getSpotMarketId(stataUSDC?.displaySymbol)
+  );
   const stataUSDCAddress = isBase ? wrapperStataUSDCToken : stataUSDC?.tokenAddress;
-  const { data: stataUSDC_balance, refetch: refetchStataUSDCBalance } = useTokenBalance(stataUSDCAddress, network);
+  const { data: stataUSDC_balance, refetch: refetchStataUSDCBalance } = useTokenBalance(
+    stataUSDCAddress,
+    network
+  );
 
   const [infiniteApproval, setInfiniteApproval] = useState(false);
   const [txState, setTxState] = useState({
