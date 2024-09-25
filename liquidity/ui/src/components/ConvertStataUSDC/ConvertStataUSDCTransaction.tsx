@@ -4,7 +4,7 @@ import { Multistep } from '@snx-v3/Multistep';
 import { utils } from 'ethers';
 import { useApprove } from '@snx-v3/useApprove';
 import { Wei } from '@synthetixio/wei';
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useState, useEffect } from 'react';
 import { Network } from '@snx-v3/useBlockchain';
 import { StepSuccess } from './StepSuccess';
 import { ZEROWEI } from '@snx-v3/constants';
@@ -22,26 +22,17 @@ type Props = FC<{
 }>;
 
 export const ConvertStataUSDCTransaction: Props = ({ onSuccess, amount, network, onBack }) => {
-  //const { data: USDC } = useV2sUSD(network);
-  //const { data: USDC_balance } = useTokenBalance(USDC, network);
-  //const { data: stataUSDC } = useUSDProxyForChain(network);
-  //const { data: stataUSDC_balance } = useTokenBalance(stataUSDC?.address, network);
-
   const isBase = isBaseAndromeda(network?.id, network?.preset);
 
   const { data: USDC } = useCollateralType('USDC');
   const { data: wrapperUSDCToken } = useGetWrapperToken(getSpotMarketId(USDC?.displaySymbol));
-  // TODO: This will need refactoring
   const usdcAddress = isBase ? wrapperUSDCToken : USDC?.tokenAddress;
   const { data: USDC_balance } = useTokenBalance(usdcAddress, network);
 
   const { data: stataUSDC } = useCollateralType('stataUSDC');
-  const { data: wrapperStataUSDCToken } = useGetWrapperToken(
-    getSpotMarketId(stataUSDC?.displaySymbol)
-  );
-  // TODO: This will need refactoring
+  const { data: wrapperStataUSDCToken } = useGetWrapperToken(getSpotMarketId(stataUSDC?.displaySymbol));
   const stataUSDCAddress = isBase ? wrapperStataUSDCToken : stataUSDC?.tokenAddress;
-  const { data: stataUSDC_balance } = useTokenBalance(stataUSDCAddress, network);
+  const { data: stataUSDC_balance, refetch: refetchStataUSDCBalance } = useTokenBalance(stataUSDCAddress, network);
 
   const [infiniteApproval, setInfiniteApproval] = useState(false);
   const [txState, setTxState] = useState({
@@ -59,8 +50,7 @@ export const ConvertStataUSDCTransaction: Props = ({ onSuccess, amount, network,
     contractAddress: usdcAddress,
     amount: amount.gt(0)
       ? isBase
-        ? // Base USDC and Base stataUSDC are 6 decimals
-          utils.parseUnits(amount.toString(), 6)
+        ? utils.parseUnits(amount.toString(), 6)
         : utils.parseUnits(amount.toString(), USDC?.decimals)
       : 0,
     spender: stataUSDCAddress,
@@ -68,26 +58,27 @@ export const ConvertStataUSDCTransaction: Props = ({ onSuccess, amount, network,
 
   const toast = useToast({ isClosable: true, duration: 9000 });
 
-  const { convert, balance, isSuccess } = useConvertStataUSDC({
+  const { mutate: convert, isSuccess } = useConvertStataUSDC({
     amount: amount.gt(0)
       ? isBase
-        ? // Base USDC and Base stataUSDC are 6 decimals
-          utils.parseUnits(amount.toString(), 6)
+        ? utils.parseUnits(amount.toString(), 6)
         : utils.parseUnits(amount.toString(), USDC?.decimals)
       : 0,
     depositToAave: true,
   });
 
-  const onSubmit = useCallback(async () => {
-    // eslint-disable-next-line no-console
-    console.log('ConvertStataUSDCTransaction.tsx', {
-      amount: utils.parseUnits(amount.toString(), 6).toString(),
-      requireApproval,
-      step: txState.step,
-      USDC_balance: USDC_balance?.toString(),
-      stataUSDC_balance: stataUSDC_balance?.toString(),
-    });
+  useEffect(() => {
+    if (isSuccess) {
+      refetchStataUSDCBalance().then(({ data }) => {
+        setTxSummary((prevSummary) => ({
+          ...prevSummary,
+          newStataUSDCBalance: data || ZEROWEI,
+        }));
+      });
+    }
+  }, [isSuccess, refetchStataUSDCBalance]);
 
+  const onSubmit = useCallback(async () => {
     try {
       if (txState.step > 2) {
         onSuccess();
@@ -116,28 +107,19 @@ export const ConvertStataUSDCTransaction: Props = ({ onSuccess, amount, network,
         newStataUSDCBalance: ZEROWEI,
       });
 
-      await convert();
-      const newStataUSDCBalance = await balance();
-
-      setTxSummary({
-        usdcBalance: USDC_balance || ZEROWEI,
-        changeUsdcBalance: amount,
-        oldStataUSDCBalance: stataUSDC_balance || ZEROWEI,
-        newStataUSDCBalance: newStataUSDCBalance,
-      });
-
-      setTxState({
-        step: 2,
-        status: 'success',
-      });
-
-      toast.closeAll();
-      toast({
-        title: 'Success',
-        description: 'Migration executed.',
-        status: 'success',
-        duration: 5000,
-        variant: 'left-accent',
+      convert(undefined, {
+        onError: () => {
+          setTxState((state) => ({
+            step: state.step,
+            status: 'error',
+          }));
+          toast({
+            title: 'Migration failed',
+            description: 'Please try again.',
+            status: 'error',
+            variant: 'left-accent',
+          });
+        },
       });
     } catch (error) {
       setTxState((state) => ({
@@ -154,9 +136,8 @@ export const ConvertStataUSDCTransaction: Props = ({ onSuccess, amount, network,
   }, [
     amount,
     approve,
-    balance,
-    infiniteApproval,
     convert,
+    infiniteApproval,
     onSuccess,
     refetchAllowance,
     requireApproval,
@@ -167,7 +148,15 @@ export const ConvertStataUSDCTransaction: Props = ({ onSuccess, amount, network,
   ]);
 
   if (isSuccess) {
-    return <StepSuccess {...txSummary} onConfirm={onSuccess} />;
+    return (
+      <StepSuccess
+        onConfirm={onSuccess}
+        usdcBalance={txSummary.usdcBalance}
+        changeUsdcBalance={txSummary.changeUsdcBalance}
+        oldStataUSDCBalance={txSummary.oldStataUSDCBalance}
+        newStataUSDCBalance={txSummary.newStataUSDCBalance}
+      />
+    );
   }
 
   return (
