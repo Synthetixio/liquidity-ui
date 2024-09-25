@@ -293,7 +293,7 @@ export function NetworkController() {
                       e.stopPropagation();
                       createAccount.mutation.mutate();
                     }}
-                    isDisabled={!createAccount.enabled}
+                    isDisabled={!createAccount.enabled || createAccount.mutation.isPending}
                     size="xs"
                     variant="outline"
                     colorScheme="gray"
