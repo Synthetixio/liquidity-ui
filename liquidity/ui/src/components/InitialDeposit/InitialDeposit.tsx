@@ -25,7 +25,7 @@ import { useTransferableSynthetix } from '@snx-v3/useTransferableSynthetix';
 import { TokenIcon } from '..';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { MAINNET, SEPOLIA, useNetwork } from '@snx-v3/useBlockchain';
-import { getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { getSpotMarketId, getUSDCOnBase, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { WithdrawIncrease } from '@snx-v3/WithdrawIncrease';
 import { formatNumber } from '@snx-v3/formatters';
@@ -281,17 +281,22 @@ export const InitialDeposit: FC<{
   const { network } = useNetwork();
   const { collateralSymbol } = useParams();
 
-  const { data: collateralType } = useCollateralType(collateralSymbol);
+  const { data: collateralType } = useCollateralType(
+    collateralSymbol === 'stataUSDC' ? 'USDC' : collateralSymbol
+  );
 
   const { data: transferrableSnx } = useTransferableSynthetix();
 
   const { data: wrapperToken } = useGetWrapperToken(getSpotMarketId(collateralSymbol));
-  // TODO: This will need refactoring
-  const balanceAddress = isBaseAndromeda(network?.id, network?.preset)
-    ? wrapperToken
-    : collateralType?.tokenAddress;
 
-  const { data: tokenBalance } = useTokenBalance(balanceAddress);
+  const balanceAddress = () => {
+    if (isBaseAndromeda(network?.id, network?.preset)) {
+      return collateralSymbol === 'stataUSDC' ? getUSDCOnBase(network?.id) : wrapperToken;
+    }
+    return collateralType?.tokenAddress;
+  };
+
+  const { data: tokenBalance } = useTokenBalance(balanceAddress());
 
   const { data: ethBalance } = useEthBalance();
 
@@ -304,7 +309,11 @@ export const InitialDeposit: FC<{
       snxBalance={transferrableSnx}
       ethBalance={ethBalance}
       symbol={collateralType?.symbol || ''}
-      minDelegation={collateralType.minDelegationD18}
+      minDelegation={
+        collateralSymbol === 'stataUSDC'
+          ? collateralType.minDelegationD18.mul(115).div(100)
+          : collateralType.minDelegationD18
+      }
       setCollateralChange={setCollateralChange}
       collateralChange={collateralChange}
       onSubmit={submit}

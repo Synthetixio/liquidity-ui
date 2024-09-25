@@ -51,9 +51,9 @@ export const PnlStats: FC<{
           </Tooltip>
         </Flex>
         <Flex width="100%">
-          {liquidityPosition && collateralType ? (
+          {newDebt.eq(0) || (liquidityPosition && collateralType) ? (
             <ChangeStat
-              value={liquidityPosition.debt.mul(-1)}
+              value={liquidityPosition?.debt.mul(-1) || newDebt}
               newValue={newDebt.mul(-1)}
               formatFn={(val: Wei) =>
                 currency(val, {

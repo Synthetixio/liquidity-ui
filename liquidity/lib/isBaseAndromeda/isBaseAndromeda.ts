@@ -20,6 +20,7 @@ export function getSpotMarketId(collateralSymbol?: string) {
 
     case 'statausdc':
     case 'sstatausdc':
+    case 'stataUSDC':
       return STATA_BASE_MARKET;
 
     default:
@@ -29,3 +30,15 @@ export function getSpotMarketId(collateralSymbol?: string) {
 
 export const USDC_BASE_MARKET = '1';
 export const STATA_BASE_MARKET = '3';
+
+export const getUSDCOnBase = (id?: number | string) => {
+  if (id?.toString() === '8453') return '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
+  if (id?.toString() === '84532') return '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
+  throw new Error('Not Base Network');
+};
+
+export const getStataUSDCOnBase = (id?: number | string) => {
+  if (id?.toString() === '8453') return '0x4ea71a20e655794051d1ee8b6e4a3269b13ccacc';
+  if (id?.toString() === '84532') return '0x70f1b4390688209de7B23DcE275392B282589477';
+  throw new Error('Not Base Network');
+};

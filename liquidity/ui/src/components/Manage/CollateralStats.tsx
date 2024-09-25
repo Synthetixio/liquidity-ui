@@ -31,11 +31,17 @@ export const CollateralStats: FC<{
         {isLoading ? (
           <Skeleton width="100%">Lorem ipsum (this wont be displaye debt) </Skeleton>
         ) : liquidityPosition && collateralType ? (
-          <Flex direction="column">
+          <Flex direction="column" w="100%">
             <ChangeStat
               value={liquidityPosition.collateralAmount}
               newValue={newCollateralAmount}
-              formatFn={(val: Wei) => `${currency(val)} ${collateralType.displaySymbol}`}
+              formatFn={(val: Wei) =>
+                `${currency(val)} ${
+                  collateralType.displaySymbol === 'stataUSDC'
+                    ? 'USDC'
+                    : collateralType.displaySymbol
+                }`
+              }
               hasChanges={hasChanges}
               data-cy="manage stats collateral"
             />
@@ -54,11 +60,17 @@ export const CollateralStats: FC<{
             />
           </Flex>
         ) : (
-          <Flex direction="column">
+          <Flex direction="column" w="100%">
             <ChangeStat
               value={ZEROWEI}
               newValue={newCollateralAmount}
-              formatFn={(val: Wei) => `${currency(val)} ${collateralType?.displaySymbol || ''}`}
+              formatFn={(val: Wei) =>
+                `${currency(val)} ${
+                  collateralType?.displaySymbol === 'stataUSDC'
+                    ? 'USDC'
+                    : collateralType?.displaySymbol || ''
+                }`
+              }
               hasChanges={hasChanges}
             />
             <Text fontWeight="400" color="white" fontSize="16px">

@@ -3,10 +3,13 @@ import { createMachine, assign } from 'xstate';
 
 export const Events = {
   SET_REQUIRE_APPROVAL: 'SET_REQUIRE_APPROVAL',
+  SET_REQUIRE_APPROVAL_FOR_STATAUSDC: 'SET_REQUIRE_APPROVAL_FOR_STATAUSDC',
   SET_WRAP_AMOUNT: 'SET_WRAP_AMOUNT',
   SET_INFINITE_APPROVAL: 'SET_INFINITE_APPROVAL',
+  SET_IS_STATA_USDC: 'SET_IS_STATA_USDC',
   RETRY: 'RETRY',
   RUN: 'RUN',
+  WRAP_USDC: 'WRAP_USDC',
   SUCCESS: 'SUCCESS',
   FAILURE: 'FAILURE',
   RESET: 'RESET',
@@ -16,6 +19,8 @@ export const State = {
   idle: 'idle',
   wrap: 'wrap',
   approve: 'approve',
+  wrapUSDC: 'wrapUSDC',
+  approveStata: 'approveStata',
   deposit: 'deposit',
   failed: 'failed',
   success: 'success',
@@ -25,12 +30,16 @@ const FailedSteps = {
   [State.approve]: State.approve,
   [State.wrap]: State.wrap,
   [State.deposit]: State.deposit,
+  [State.wrapUSDC]: State.wrapUSDC,
+  [State.approveStata]: State.approveStata,
 } as const;
 
 export const ServiceNames = {
   wrapEth: 'wrapEth',
   approveWETH: 'approveWETH',
   executeDeposit: 'executeDeposit',
+  wrapUSDCToStataUSDC: 'executeWrapUSDC',
+  approveStataUSDC: 'approveStataUSDC',
 } as const;
 
 type Context = {
@@ -41,16 +50,24 @@ type Context = {
   requireApproval: boolean;
   wrapAmount: Wei;
   infiniteApproval: boolean;
+  isStataUSDC: boolean;
+  requireStataUSDCApproval: boolean;
 };
 
 type EventNamesType = typeof Events;
 
 type DepositEvents =
+  | { type: EventNamesType['SET_IS_STATA_USDC']; isStataUSDC: boolean }
   | { type: EventNamesType['SET_REQUIRE_APPROVAL']; requireApproval: boolean }
+  | {
+      type: EventNamesType['SET_REQUIRE_APPROVAL_FOR_STATAUSDC'];
+      requireStataUSDCApproval: boolean;
+    }
   | { type: EventNamesType['SET_WRAP_AMOUNT']; wrapAmount: Wei }
   | { type: EventNamesType['SET_INFINITE_APPROVAL']; infiniteApproval: boolean }
   | { type: EventNamesType['RETRY'] }
   | { type: EventNamesType['RUN'] }
+  | { type: EventNamesType['WRAP_USDC'] }
   | { type: EventNamesType['SUCCESS'] }
   | { type: EventNamesType['FAILURE'] }
   | { type: EventNamesType['RESET'] };
@@ -74,6 +91,14 @@ type MachineState =
       context: Context & { error: null };
     }
   | {
+      value: StateType['wrapUSDC'];
+      context: Context & { error: null };
+    }
+  | {
+      value: StateType['approveStata'];
+      context: Context & { error: null };
+    }
+  | {
       value: StateType['failed'];
       context: Context & { error: { error: Error; step: keyof typeof FailedSteps } };
     }
@@ -89,6 +114,8 @@ const initialContext = {
   error: null,
   requireApproval: false,
   infiniteApproval: false,
+  isStataUSDC: false,
+  requireStataUSDCApproval: false,
 };
 
 export const DepositMachine = createMachine<Context, DepositEvents, MachineState>({
@@ -97,6 +124,7 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
   predictableActionArguments: true,
   context: initialContext,
   on: {
+    [Events.WRAP_USDC]: { target: State.wrapUSDC },
     [Events.RUN]: {
       target: State.deposit,
       actions: assign({
@@ -109,11 +137,19 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
     [Events.SET_REQUIRE_APPROVAL]: {
       actions: assign({ requireApproval: (_context, event) => event.requireApproval }),
     },
+    [Events.SET_REQUIRE_APPROVAL_FOR_STATAUSDC]: {
+      actions: assign({
+        requireStataUSDCApproval: (_context, event) => event.requireStataUSDCApproval,
+      }),
+    },
     [Events.SET_WRAP_AMOUNT]: {
       actions: assign({ wrapAmount: (_context, event) => event.wrapAmount }),
     },
     [Events.SET_INFINITE_APPROVAL]: {
       actions: assign({ infiniteApproval: (_context, event) => event.infiniteApproval }),
+    },
+    [Events.SET_IS_STATA_USDC]: {
+      actions: assign({ isStataUSDC: (_context, event) => event.isStataUSDC }),
     },
   },
   states: {
@@ -144,13 +180,45 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
     [State.approve]: {
       invoke: {
         src: ServiceNames.approveWETH,
-        onDone: {
-          target: State.deposit,
-        },
+        onDone: [
+          {
+            target: State.wrapUSDC,
+            cond: (context) => context.isStataUSDC,
+          },
+          {
+            target: State.deposit,
+          },
+        ],
         onError: {
           target: State.failed,
           actions: assign({
             error: (_context, event) => ({ error: event.data, step: FailedSteps.approve }),
+          }),
+        },
+      },
+    },
+    [State.wrapUSDC]: {
+      invoke: {
+        src: ServiceNames.wrapUSDCToStataUSDC,
+        onError: {
+          target: State.failed,
+          actions: assign({
+            error: (_context, event) => ({ error: event.data, step: FailedSteps.wrapUSDC }),
+          }),
+        },
+        onDone: {
+          target: State.approveStata,
+          cond: (context) => context.requireStataUSDCApproval,
+        },
+      },
+    },
+    [State.approveStata]: {
+      invoke: {
+        src: ServiceNames.approveStataUSDC,
+        onError: {
+          target: State.failed,
+          actions: assign({
+            error: (_context, event) => ({ error: event.data, step: FailedSteps.approveStata }),
           }),
         },
       },
