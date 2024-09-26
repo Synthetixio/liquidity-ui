@@ -22,6 +22,7 @@ import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { ZEROWEI } from '@snx-v3/constants';
 import { MigrationBanner } from '../../Migration/MigrationBanner';
 import { Specifics } from './Specifics';
+import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 
 interface CollateralTypeWithDeposited extends CollateralType {
   collateralDeposited: string;
@@ -51,6 +52,8 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
     network
   );
   const isBase = isBaseAndromeda(network?.id, network?.preset);
+  const { data: stataUSDC } = useStataUSDCApr(network.id, network.preset);
+
   // TODO: This will need refactoring
   const balanceAddress = isBase ? wrapperToken : collateralType?.tokenAddress;
 
@@ -195,7 +198,9 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
               fontWeight={500}
               color="white"
             >
-              {formatApr(apr28d * 100, network?.id)}
+              {isBase && collateralType.symbol === 'stataUSDC' && stataUSDC
+                ? formatApr(apr28d * 100 + stataUSDC, network?.id)
+                : formatApr(apr28d * 100, network?.id)}
               <Tooltip
                 label={
                   <Flex direction="column">

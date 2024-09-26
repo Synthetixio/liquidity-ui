@@ -12,6 +12,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@aave/math-utils@npm:^1.30.2":
+  version: 1.30.2
+  resolution: "@aave/math-utils@npm:1.30.2"
+  peerDependencies:
+    bignumber.js: ^9.x
+    tslib: ^2.4.x
+  checksum: 10/275654b1471382a5ab1195fc974f974b0afd25065cee50f651a8aa7f81eea1ef59ffbc8c719c4f85931d1ccf9c9e4f9c55c95460054c6faff571f3fc2c5cb829
+  languageName: node
+  linkType: hard
+
 "@adraffy/ens-normalize@npm:1.10.0":
   version: 1.10.0
   resolution: "@adraffy/ens-normalize@npm:1.10.0"
@@ -5387,6 +5397,7 @@ __metadata:
     "@snx-v3/useGasOptions": "workspace:*"
     "@snx-v3/useGasPrice": "workspace:*"
     "@snx-v3/useGasSpeed": "workspace:*"
+    "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
@@ -5397,7 +5408,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useApr@workspace:liquidity/lib/useApr"
   dependencies:
+    "@aave/math-utils": "npm:^1.30.2"
     "@snx-v3/constants": "workspace:*"
+    "@snx-v3/isBaseAndromeda": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
     react: "npm:^18.2.0"
