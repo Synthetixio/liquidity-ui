@@ -92,7 +92,8 @@ export function useRewards({
         rewardsDistributors &&
         poolId &&
         collateralAddress &&
-        accountId
+        accountId &&
+        synthTokens
     ),
     queryKey: [
       `${network?.id}-${network?.preset}`,
