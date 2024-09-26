@@ -124,7 +124,6 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
   predictableActionArguments: true,
   context: initialContext,
   on: {
-    [Events.WRAP_USDC]: { target: State.wrapUSDC },
     [Events.RUN]: {
       target: State.deposit,
       actions: assign({
@@ -158,6 +157,10 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
         [Events.RUN]: [
           { target: State.wrap, cond: (context) => context.wrapAmount.gt(0) },
           { target: State.approve, cond: (context) => context.requireApproval },
+          {
+            target: State.approveStata,
+            cond: (context) => context.isStataUSDC && context.requireStataUSDCApproval,
+          },
           { target: State.deposit },
         ],
       },
@@ -186,6 +189,10 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
             cond: (context) => context.isStataUSDC,
           },
           {
+            target: State.approveStata,
+            cond: (context) => context.isStataUSDC,
+          },
+          {
             target: State.deposit,
           },
         ],
@@ -207,7 +214,7 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
           }),
         },
         onDone: {
-          target: State.approveStata,
+          target: State.success,
           cond: (context) => context.requireStataUSDCApproval,
         },
       },

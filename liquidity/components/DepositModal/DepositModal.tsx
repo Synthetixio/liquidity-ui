@@ -51,6 +51,8 @@ export const DepositModalUi: FC<{
   poolName: string;
   title?: string;
   txSummary?: ReactNode;
+  hasEnoughStataUSDC?: boolean;
+  requireStataUSDCApproval?: boolean;
 }> = ({
   collateralChange,
   isOpen,
@@ -63,6 +65,8 @@ export const DepositModalUi: FC<{
   poolName,
   title = 'Manage Collateral',
   txSummary,
+  hasEnoughStataUSDC,
+  requireStataUSDCApproval,
 }) => {
   const wrapAmount = state.context.wrapAmount;
   const infiniteApproval = state.context.infiniteApproval;
@@ -171,7 +175,7 @@ export const DepositModalUi: FC<{
               status={{
                 failed: error?.step === State.wrapUSDC,
                 disabled: state.matches(State.success) && requireApproval,
-                success: state.matches(State.success),
+                success: hasEnoughStataUSDC || state.matches(State.success),
                 loading: state.matches(State.wrapUSDC) && !error,
               }}
             />
@@ -182,7 +186,7 @@ export const DepositModalUi: FC<{
               status={{
                 failed: error?.step === State.approveStata,
                 disabled: state.matches(State.success) && requireApproval,
-                success: state.matches(State.success),
+                success: !requireStataUSDCApproval || state.matches(State.success),
                 loading: state.matches(State.approveStata) && !error,
               }}
             />
@@ -329,15 +333,23 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
     : collateralType?.tokenAddress;
 
   const collateralNeeded = collateralChange.sub(availableCollateral);
+  const hasEnoughStataUSDCBalance = collateralNeeded.lte(stataUSDCTokenBalance);
 
-  const { approve, requireApproval } = useApprove({
+  const amountToApprove = () => {
+    if (collateralNeeded.eq(0)) return 0;
+    if (isBase && isStataUSDC && hasEnoughStataUSDCBalance) return 0;
+    if (isBase && isStataUSDC) return utils.parseUnits(collateralNeeded.toString(), 6);
+    if (isBase) return utils.parseUnits(collateralNeeded.toString(), collateralType?.decimals);
+    return 0;
+  };
+
+  const {
+    approve,
+    requireApproval,
+    isLoading: approveIsLoading,
+  } = useApprove({
     contractAddress: isBase && isStataUSDC ? getUSDCOnBase(network?.id) : collateralAddress,
-    amount: collateralNeeded.gt(0)
-      ? isBase
-        ? // Base USDC and Base stataUSDC are 6 decimals
-          utils.parseUnits(collateralNeeded.toString(), 6)
-        : utils.parseUnits(collateralNeeded.toString(), collateralType?.decimals)
-      : 0,
+    amount: amountToApprove(),
     spender: isBase
       ? isStataUSDC
         ? getStataUSDCOnBase(network?.id)
@@ -635,6 +647,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
       send(Events.RETRY);
       return;
     }
+<<<<<<< HEAD
     await depositBaseAndromeda();
     if (!requireApproval) {
       send(Events.WRAP_USDC);
@@ -642,6 +655,11 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
       send(Events.RUN);
     }
   }, [handleClose, send, state, requireApproval, depositBaseAndromeda]);
+=======
+
+    send(Events.RUN);
+  }, [handleClose, send, state]);
+>>>>>>> f7fe8173 (done)
 
   const txSummaryItems = useMemo(() => {
     const items = [
@@ -703,6 +721,8 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
       availableCollateral={availableCollateral || wei(0)}
       title={title}
       txSummary={<TransactionSummary items={txSummaryItems} />}
+      hasEnoughStataUSDC={hasEnoughStataUSDCBalance}
+      requireStataUSDCApproval={requireStataUSDCApproval}
     />
   );
 };
