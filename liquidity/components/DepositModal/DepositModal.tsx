@@ -38,6 +38,7 @@ import { CRatioChangeStat } from '../../ui/src/components/CRatioBar/CRatioChange
 import { TransactionSummary } from '../../ui/src/components/TransactionSummary/TransactionSummary';
 import { currency } from '@snx-v3/format';
 import { useConvertStataUSDC } from '@snx-v3/useConvertStataUSDC';
+import { useTokenBalance } from '@snx-v3/useTokenBalance';
 
 export const DepositModalUi: FC<{
   collateralChange: Wei;
@@ -332,6 +333,8 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
     ? wrapperToken
     : collateralType?.tokenAddress;
 
+  const { data: stataUSDCTokenBalance } = useTokenBalance(getStataUSDCOnBase(network?.id));
+
   const collateralNeeded = collateralChange.sub(availableCollateral);
   const hasEnoughStataUSDCBalance = collateralNeeded.lte(stataUSDCTokenBalance);
 
@@ -343,11 +346,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
     return 0;
   };
 
-  const {
-    approve,
-    requireApproval,
-    isLoading: approveIsLoading,
-  } = useApprove({
+  const { approve, requireApproval } = useApprove({
     contractAddress: isBase && isStataUSDC ? getUSDCOnBase(network?.id) : collateralAddress,
     amount: amountToApprove(),
     spender: isBase
@@ -647,19 +646,9 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
       send(Events.RETRY);
       return;
     }
-<<<<<<< HEAD
-    await depositBaseAndromeda();
-    if (!requireApproval) {
-      send(Events.WRAP_USDC);
-    } else {
-      send(Events.RUN);
-    }
-  }, [handleClose, send, state, requireApproval, depositBaseAndromeda]);
-=======
 
     send(Events.RUN);
   }, [handleClose, send, state]);
->>>>>>> f7fe8173 (done)
 
   const txSummaryItems = useMemo(() => {
     const items = [
