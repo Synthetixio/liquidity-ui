@@ -6610,9 +6610,9 @@ __metadata:
   linkType: soft
 
 "@synthetixio/v3-contracts@synthetixio/v3-contracts#master":
-  version: 6.8.0
-  resolution: "@synthetixio/v3-contracts@https://github.com/synthetixio/v3-contracts.git#commit=f842754be50c39e18de5078867565ac6013f03f8"
-  checksum: 10/559d8e085495f388924398b9a5821343e22fdda7e708929906a191417e8ddea06743ef3cee7f4b389dbd089c48d82aec34393c73f3ad06b104375ae58d1e1647
+  version: 6.10.0
+  resolution: "@synthetixio/v3-contracts@https://github.com/synthetixio/v3-contracts.git#commit=f663ec10cc1d315746694b85073542f4c7afab0b"
+  checksum: 10/702ad396da3881a959bd48f8e8870defc2dd5cf0001dd9ce59d860dec839be29b61e1723176fc82acd869c4df63a903fe07d3905b8270f30784ff5c3607e6ef2
   languageName: node
   linkType: hard
 
