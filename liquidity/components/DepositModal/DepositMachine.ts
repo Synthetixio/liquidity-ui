@@ -7,6 +7,7 @@ export const Events = {
   SET_WRAP_AMOUNT: 'SET_WRAP_AMOUNT',
   SET_INFINITE_APPROVAL: 'SET_INFINITE_APPROVAL',
   SET_IS_STATA_USDC: 'SET_IS_STATA_USDC',
+  SET_HAS_ENOUGH_STATAUSDC: 'SET_HAS_ENOUGH_STATAUSDC',
   RETRY: 'RETRY',
   RUN: 'RUN',
   WRAP_USDC: 'WRAP_USDC',
@@ -52,12 +53,14 @@ type Context = {
   infiniteApproval: boolean;
   isStataUSDC: boolean;
   requireStataUSDCApproval: boolean;
+  hasEnoughStataUSDC: boolean;
 };
 
 type EventNamesType = typeof Events;
 
 type DepositEvents =
   | { type: EventNamesType['SET_IS_STATA_USDC']; isStataUSDC: boolean }
+  | { type: EventNamesType['SET_HAS_ENOUGH_STATAUSDC']; hasEnoughStataUSDC: boolean }
   | { type: EventNamesType['SET_REQUIRE_APPROVAL']; requireApproval: boolean }
   | {
       type: EventNamesType['SET_REQUIRE_APPROVAL_FOR_STATAUSDC'];
@@ -116,6 +119,7 @@ const initialContext = {
   infiniteApproval: false,
   isStataUSDC: false,
   requireStataUSDCApproval: false,
+  hasEnoughStataUSDC: false,
 };
 
 export const DepositMachine = createMachine<Context, DepositEvents, MachineState>({
@@ -158,6 +162,10 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
           { target: State.wrap, cond: (context) => context.wrapAmount.gt(0) },
           { target: State.approve, cond: (context) => context.requireApproval },
           {
+            target: State.wrapUSDC,
+            cond: (context) => context.isStataUSDC && context.hasEnoughStataUSDC,
+          },
+          {
             target: State.approveStata,
             cond: (context) => context.isStataUSDC && context.requireStataUSDCApproval,
           },
@@ -186,7 +194,7 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
         onDone: [
           {
             target: State.wrapUSDC,
-            cond: (context) => context.isStataUSDC,
+            cond: (context) => context.isStataUSDC && !context.hasEnoughStataUSDC,
           },
           {
             target: State.approveStata,
@@ -215,7 +223,6 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
         },
         onDone: {
           target: State.success,
-          cond: (context) => context.requireStataUSDCApproval,
         },
       },
     },
@@ -227,6 +234,9 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
           actions: assign({
             error: (_context, event) => ({ error: event.data, step: FailedSteps.approveStata }),
           }),
+        },
+        onDone: {
+          target: State.success,
         },
       },
     },

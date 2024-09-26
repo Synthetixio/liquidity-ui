@@ -333,10 +333,12 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
     ? wrapperToken
     : collateralType?.tokenAddress;
 
-  const { data: stataUSDCTokenBalance } = useTokenBalance(getStataUSDCOnBase(network?.id));
+  const { data: stataUSDCTokenBalance, refetch: refetchStataUSDCBalance } = useTokenBalance(
+    getStataUSDCOnBase(network?.id)
+  );
 
   const collateralNeeded = collateralChange.sub(availableCollateral);
-  const hasEnoughStataUSDCBalance = collateralNeeded.lte(stataUSDCTokenBalance || wei(0));
+  const hasEnoughStataUSDCBalance = collateralNeeded.lte(wei(stataUSDCTokenBalance, 18) || wei(0));
 
   const amountToApprove = () => {
     if (collateralNeeded.eq(0)) return 0;
@@ -386,12 +388,19 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
     decimals: Number(collateralType?.decimals) || 18,
   });
 
+  const stataAfterWrapping = () => {
+    if (collateralChange.gte(stataUSDCTokenBalance || wei(0))) {
+      return stataUSDCTokenBalance || wei(0);
+    }
+    return collateralChange;
+  };
+
   const { exec: depositBaseAndromeda } = useDepositBaseAndromeda({
     accountId,
     newAccountId,
     poolId,
     collateralTypeAddress: collateralAddress,
-    collateralChange,
+    collateralChange: isStataUSDC ? stataAfterWrapping() : collateralChange,
     currentCollateral,
     availableCollateral: availableCollateral || wei(0),
     collateralSymbol,
@@ -469,6 +478,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
             variant: 'left-accent',
           });
           await wrapUSDCToStataUSDC();
+          await refetchStataUSDCBalance();
         } catch (error) {
           toast.closeAll();
           toast({
@@ -604,6 +614,10 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   useEffect(() => {
     send(Events.SET_REQUIRE_APPROVAL, { requireApproval });
   }, [requireApproval, send]);
+
+  useEffect(() => {
+    send(Events.SET_HAS_ENOUGH_STATAUSDC, { hasEnoughStataUSDC: hasEnoughStataUSDCBalance });
+  }, [hasEnoughStataUSDCBalance, send]);
 
   useEffect(() => {
     send(Events.SET_REQUIRE_APPROVAL_FOR_STATAUSDC, {
