@@ -338,7 +338,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   );
 
   const collateralNeeded = collateralChange.sub(availableCollateral);
-  const hasEnoughStataUSDCBalance = collateralNeeded.lte(wei(stataUSDCTokenBalance, 18) || wei(0));
+  const hasEnoughStataUSDCBalance = collateralNeeded.lte(wei(stataUSDCTokenBalance || wei(0), 18));
 
   const amountToApprove = () => {
     if (collateralNeeded.eq(0)) return 0;
