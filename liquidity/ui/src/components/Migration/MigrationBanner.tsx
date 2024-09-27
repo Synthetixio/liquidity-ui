@@ -86,7 +86,7 @@ export const MigrationBanner: FC<Props> = ({ network, type = 'banner' }) => {
         accountId={accountId}
       />
 
-      {!!data && data?.collateral.gt(0) && (
+      {!!data && data?.collateral.gt(0) && data.debt.gt(0) && (
         <Fade in>
           {type === 'banner' && (
             <>
