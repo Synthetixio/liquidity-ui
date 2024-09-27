@@ -68,6 +68,7 @@ export async function bootstrap() {
       ]);
       window.ethereum = new Proxy(provider, {
         get(target: any, prop: any) {
+          // console.log('MAGIC_WALLET', prop, { target: target[prop] });
           switch (prop) {
             case 'chainId':
               return `0x${Number(network.chainId).toString(16)}`;
@@ -79,15 +80,22 @@ export async function bootstrap() {
               };
             case 'request':
               return async ({ method, params }: { method: string; params: any }) => {
-                console.log('MAGIC_WALLET', { method, params }); // eslint-disable-line no-console
                 switch (method) {
                   case 'eth_accounts':
                   case 'eth_requestAccounts':
                     return [address];
+                  case 'eth_chainId':
+                    return `0x${Number(network.chainId).toString(16)}`;
                   case 'eth_sendTransaction':
-                    return await provider.send(method, params);
                   default: {
-                    return await provider.send(method, params);
+                    try {
+                      const result = await provider.send(method, params);
+                      console.log('MAGIC_WALLET', { method, params, result }); // eslint-disable-line no-console
+                      return result;
+                    } catch (error) {
+                      console.log('MAGIC_WALLET', { method, params, error }); // eslint-disable-line no-console
+                      throw error;
+                    }
                   }
                 }
               };
