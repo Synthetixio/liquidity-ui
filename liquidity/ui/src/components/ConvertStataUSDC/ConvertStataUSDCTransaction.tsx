@@ -9,9 +9,14 @@ import { Network } from '@snx-v3/useBlockchain';
 import { StepSuccess } from './StepSuccess';
 import { ZEROWEI } from '@snx-v3/constants';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
-import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
-import { getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import {
+  getSpotMarketId,
+  getStataUSDCOnBase,
+  getUSDCOnBase,
+  isBaseAndromeda,
+} from '@snx-v3/isBaseAndromeda';
 import { useConvertStataUSDC } from '@snx-v3/useConvertStataUSDC';
 
 type Props = FC<{
@@ -24,12 +29,21 @@ type Props = FC<{
 export const ConvertStataUSDCTransaction: Props = ({ onSuccess, amount, network, onBack }) => {
   const isBase = isBaseAndromeda(network?.id, network?.preset);
 
-  const { data: USDC } = useCollateralType('USDC');
+  const { data: collateralTypes } = useCollateralTypes();
+  const USDCCollateral = collateralTypes?.filter(
+    (collateral) =>
+      collateral.tokenAddress.toLowerCase() === getUSDCOnBase(network.id).toLowerCase()
+  );
+  const USDC = USDCCollateral?.length ? USDCCollateral[0] : undefined;
+  const stataUSDCCollateral = collateralTypes?.filter(
+    (collateral) =>
+      collateral.tokenAddress.toLowerCase() === getStataUSDCOnBase(network.id).toLowerCase()
+  );
+  const stataUSDC = stataUSDCCollateral?.length ? stataUSDCCollateral[0] : undefined;
   const { data: wrapperUSDCToken } = useGetWrapperToken(getSpotMarketId(USDC?.displaySymbol));
   const usdcAddress = isBase ? wrapperUSDCToken : USDC?.tokenAddress;
   const { data: USDC_balance } = useTokenBalance(usdcAddress, network);
 
-  const { data: stataUSDC } = useCollateralType('stataUSDC');
   const { data: wrapperStataUSDCToken } = useGetWrapperToken(
     getSpotMarketId(stataUSDC?.displaySymbol)
   );
@@ -48,40 +62,21 @@ export const ConvertStataUSDCTransaction: Props = ({ onSuccess, amount, network,
     usdcBalance: ZEROWEI,
     changeUsdcBalance: ZEROWEI,
     oldStataUSDCBalance: ZEROWEI,
-    newStataUSDCBalance: ZEROWEI,
+    newStataUSDCBalance: stataUSDC_balance || ZEROWEI,
   });
 
   const { approve, refetchAllowance, requireApproval } = useApprove({
     contractAddress: usdcAddress,
-    amount: amount.gt(0)
-      ? isBase
-        ? utils.parseUnits(amount.toString(), 6)
-        : utils.parseUnits(amount.toString(), USDC?.decimals)
-      : 0,
+    amount: amount.gt(0) ? utils.parseUnits(amount.toString(), USDC?.decimals) : 0,
     spender: stataUSDCAddress,
   });
 
   const toast = useToast({ isClosable: true, duration: 9000 });
 
   const { mutate: convert, isSuccess } = useConvertStataUSDC({
-    amount: amount.gt(0)
-      ? isBase
-        ? utils.parseUnits(amount.toString(), 6)
-        : utils.parseUnits(amount.toString(), USDC?.decimals)
-      : 0,
+    amount: amount.gt(0) ? utils.parseUnits(amount.toString(), stataUSDC?.decimals) : 0,
     depositToAave: true,
   });
-
-  useEffect(() => {
-    if (isSuccess) {
-      refetchStataUSDCBalance().then(({ data }) => {
-        setTxSummary((prevSummary) => ({
-          ...prevSummary,
-          newStataUSDCBalance: data || ZEROWEI,
-        }));
-      });
-    }
-  }, [isSuccess, refetchStataUSDCBalance]);
 
   const onSubmit = useCallback(async () => {
     try {
@@ -191,7 +186,7 @@ export const ConvertStataUSDCTransaction: Props = ({ onSuccess, amount, network,
         mt={4}
         subtitle={
           <Text>
-            This will convert <Amount value={amount} suffix={` USDC `} /> to stataUSDC
+            This will convert <Amount value={amount} suffix="USDC" /> to stataUSDC
           </Text>
         }
         status={{
@@ -216,11 +211,11 @@ export const ConvertStataUSDCTransaction: Props = ({ onSuccess, amount, network,
         })()}
       </Button>
 
-      {txState.status !== 'pending' && (
+      {txState.status !== 'pending' ? (
         <Button variant="outline" colorScheme="gray" width="100%" onClick={onBack}>
           Back
         </Button>
-      )}
+      ) : null}
     </VStack>
   );
 };

@@ -17,9 +17,14 @@ import { ZEROWEI } from '@snx-v3/constants';
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { TokenIcon } from '../TokenIcon';
-import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { useCollateralType, useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
-import { getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import {
+  getSpotMarketId,
+  getStataUSDCOnBase,
+  getUSDCOnBase,
+  isBaseAndromeda,
+} from '@snx-v3/isBaseAndromeda';
 
 export const StepIntro = ({
   onClose,
@@ -36,15 +41,25 @@ export const StepIntro = ({
 }) => {
   const [loaded, setLoaded] = useState(false);
 
-  const { data: USDC } = useCollateralType('USDC');
+  const { data: collateralTypes } = useCollateralTypes();
+  const USDCCollateral = collateralTypes?.filter(
+    (collateral) =>
+      collateral.tokenAddress.toLowerCase() === getUSDCOnBase(network.id).toLowerCase()
+  );
+  const USDC = USDCCollateral?.length ? USDCCollateral[0] : undefined;
+  const stataUSDCCollateral = collateralTypes?.filter(
+    (collateral) =>
+      collateral.tokenAddress.toLowerCase() === getStataUSDCOnBase(network.id).toLowerCase()
+  );
+  const stataUSDC = stataUSDCCollateral?.length ? stataUSDCCollateral[0] : undefined;
   const { data: wrapperUSDCToken } = useGetWrapperToken(getSpotMarketId(USDC?.displaySymbol));
+
   // TODO: This will need refactoring
   const usdcAddress = isBaseAndromeda(network?.id, network?.preset)
     ? wrapperUSDCToken
     : USDC?.tokenAddress;
   const { data: USDC_balance } = useTokenBalance(usdcAddress, network);
 
-  const { data: stataUSDC } = useCollateralType('stataUSDC');
   const { data: wrapperStataUSDCToken } = useGetWrapperToken(
     getSpotMarketId(stataUSDC?.displaySymbol)
   );

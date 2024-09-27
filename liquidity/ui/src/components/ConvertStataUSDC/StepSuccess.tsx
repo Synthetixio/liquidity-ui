@@ -67,19 +67,6 @@ export const StepSuccess = ({
       <Button mb={-2} width="100%" onClick={onConfirm}>
         Continue
       </Button>
-
-      {/*<Button
-        display="flex"
-        alignItems="center"
-        gap={1}
-        variant="outline"
-        colorScheme="gray"
-        width="100%"
-      >
-        Deposit sUSD to Curve
-        <ArrowUpIcon transform="rotate(45deg)" />
-      </Button>
-      */}
     </VStack>
   );
 };

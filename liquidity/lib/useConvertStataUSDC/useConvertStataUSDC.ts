@@ -6,7 +6,7 @@ import { wei } from '@synthetixio/wei';
 import { BigNumberish } from 'ethers';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { parseTxError } from '@snx-v3/parser';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useStataUSDC } from '@snx-v3/useStataUSDC';
 
 export function useConvertStataUSDC({
@@ -20,6 +20,7 @@ export function useConvertStataUSDC({
   const { data: stataUSDC } = useStataUSDC();
   const { gasSpeed } = useGasSpeed();
   const provider = useDefaultProvider();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
@@ -57,5 +58,9 @@ export function useConvertStataUSDC({
       }
     },
     mutationKey: ['wrapUSDC'],
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ exact: false, queryKey: ['TokenBalance'] });
+      await queryClient.refetchQueries({ exact: false, queryKey: ['TokenBalance'] });
+    },
   });
 }
