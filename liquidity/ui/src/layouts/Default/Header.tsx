@@ -90,9 +90,9 @@ export default function Header() {
             {/* Hide balance */}
             {/* <Balance isBase={isBase} balance={balance} /> */}
             {network && [MAINNET.id, SEPOLIA.id] && <MigrateUSDButton network={network} />}
-            {network && [BASE_ANDROMEDA.id, BASE_SEPOLIA.id] && (
+            {network && [BASE_ANDROMEDA.id, BASE_SEPOLIA.id] ? (
               <ConvertStataUSDCButton network={network} />
-            )}
+            ) : null}
             <NetworkController />
           </Flex>
         </Container>
