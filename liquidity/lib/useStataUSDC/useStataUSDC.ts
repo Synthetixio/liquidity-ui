@@ -40,7 +40,7 @@ export function useStataUSDC(customNetwork?: Network) {
 
       return new Contract(lmAddress, lmAbi, signerOrProvider);
     },
-    enabled: Boolean(signer || provider || providerForChain),
+    enabled: Boolean(signer && provider && providerForChain),
     staleTime: Infinity,
   });
 }
