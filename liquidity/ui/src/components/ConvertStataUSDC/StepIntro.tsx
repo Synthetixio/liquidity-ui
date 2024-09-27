@@ -17,7 +17,7 @@ import { ZEROWEI } from '@snx-v3/constants';
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { TokenIcon } from '../TokenIcon';
-import { useCollateralType, useCollateralTypes } from '@snx-v3/useCollateralTypes';
+import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import {
   getSpotMarketId,

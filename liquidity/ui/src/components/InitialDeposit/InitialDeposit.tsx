@@ -16,7 +16,7 @@ import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
-import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useEthBalance } from '@snx-v3/useEthBalance';
 import Wei from '@synthetixio/wei';
 import { FC, useContext, useMemo, useState } from 'react';
@@ -25,7 +25,12 @@ import { useTransferableSynthetix } from '@snx-v3/useTransferableSynthetix';
 import { TokenIcon } from '..';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { MAINNET, SEPOLIA, useNetwork } from '@snx-v3/useBlockchain';
-import { getSpotMarketId, getUSDCOnBase, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import {
+  getSpotMarketId,
+  getStataUSDCOnBase,
+  getUSDCOnBase,
+  isBaseAndromeda,
+} from '@snx-v3/isBaseAndromeda';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { WithdrawIncrease } from '@snx-v3/WithdrawIncrease';
 import { formatNumber } from '@snx-v3/formatters';
@@ -281,9 +286,18 @@ export const InitialDeposit: FC<{
   const { network } = useNetwork();
   const { collateralSymbol } = useParams();
 
-  const { data: collateralType } = useCollateralType(
-    collateralSymbol === 'stataUSDC' ? 'USDC' : collateralSymbol
-  );
+  const { data: collateralTypes } = useCollateralTypes();
+
+  const collateral = collateralTypes?.filter(
+    (collateral) => collateral.tokenAddress.toLowerCase() === liquidityPosition?.tokenAddress
+  )[0];
+
+  const isStataUSDC = collateralTypes
+    ? collateralTypes?.filter(
+        (collateral) =>
+          collateral.tokenAddress.toLowerCase() === getStataUSDCOnBase(network?.id).toLowerCase()
+      ).length >= 1
+    : false;
 
   const { data: transferrableSnx } = useTransferableSynthetix();
 
@@ -291,28 +305,28 @@ export const InitialDeposit: FC<{
 
   const balanceAddress = () => {
     if (isBaseAndromeda(network?.id, network?.preset)) {
-      return collateralSymbol === 'stataUSDC' ? getUSDCOnBase(network?.id) : wrapperToken;
+      return isStataUSDC ? getUSDCOnBase(network?.id) : wrapperToken;
     }
-    return collateralType?.tokenAddress;
+    return collateral?.tokenAddress;
   };
 
   const { data: tokenBalance } = useTokenBalance(balanceAddress());
 
   const { data: ethBalance } = useEthBalance();
 
-  if (!collateralType) return null;
+  if (!collateralTypes) return null;
 
   return (
     <InitialDepositUi
-      displaySymbol={collateralType?.displaySymbol || ''}
+      displaySymbol={collateral?.displaySymbol || ''}
       tokenBalance={tokenBalance}
       snxBalance={transferrableSnx}
       ethBalance={ethBalance}
-      symbol={collateralType?.symbol || ''}
+      symbol={collateral?.symbol || ''}
       minDelegation={
-        collateralSymbol === 'stataUSDC'
-          ? collateralType.minDelegationD18.mul(115).div(100)
-          : collateralType.minDelegationD18
+        isStataUSDC
+          ? collateral?.minDelegationD18.mul(115).div(100) || ZEROWEI
+          : collateral?.minDelegationD18 || ZEROWEI
       }
       setCollateralChange={setCollateralChange}
       collateralChange={collateralChange}
