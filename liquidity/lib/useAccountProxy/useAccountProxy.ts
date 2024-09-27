@@ -1,21 +1,20 @@
 import { Contract } from '@ethersproject/contracts';
-import { useQuery } from '@tanstack/react-query';
-import { useDefaultProvider, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { importAccountProxy } from '@snx-v3/contracts';
+import { useDefaultProvider, useNetwork } from '@snx-v3/useBlockchain';
+import { useQuery } from '@tanstack/react-query';
 
 export function useAccountProxy() {
   const { network } = useNetwork();
   const provider = useDefaultProvider();
-  const { activeWallet } = useWallet();
 
   return useQuery({
-    queryKey: [`${network?.id}-${network?.preset}`, 'AccountProxy', activeWallet?.address],
+    queryKey: [`${network?.id}-${network?.preset}`, 'AccountProxy'],
+    enabled: Boolean(provider && network),
     queryFn: async function () {
-      if (!provider || !network) throw new Error('Should be disabled');
+      if (!(provider && network)) throw new Error('OMFG');
       const { address, abi } = await importAccountProxy(network.id, network?.preset);
       return new Contract(address, abi, provider);
     },
-    enabled: Boolean(provider),
     staleTime: Infinity,
   });
 }
