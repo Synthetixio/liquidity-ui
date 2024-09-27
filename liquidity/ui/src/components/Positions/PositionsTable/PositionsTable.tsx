@@ -119,6 +119,7 @@ export const PositionsTable = ({
                         isBase={isBase}
                         apr={positionApr?.apr28d * 100}
                         systemTokenSymbol={systemToken?.symbol}
+                        isStataUSDC={position.collateralType.symbol.includes('stata')}
                       />
                     );
                   })}

@@ -1,4 +1,7 @@
-const extraAbi = ['function deposit(uint256, address, uint16, bool) external'];
+const extraAbi = [
+  'function deposit(uint256, address, uint16, bool) external',
+  'function convertToShares(uint256) view',
+];
 
 export async function importStataUSDC(chainId, preset) {
   if (!preset) {

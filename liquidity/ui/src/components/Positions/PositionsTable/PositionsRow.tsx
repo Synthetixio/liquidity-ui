@@ -11,12 +11,15 @@ import { CRatioAmount } from '../../CRatioBar/CRatioAmount';
 import { CRatioBadge } from '../../CRatioBar/CRatioBadge';
 import { TokenIcon } from '../../TokenIcon';
 import { DebtAmount } from './DebtAmount';
+import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
+import { NETWORKS, useNetwork } from '@snx-v3/useBlockchain';
 
 interface PositionRow extends LiquidityPositionType {
   final: boolean;
   isBase: boolean;
   apr?: number;
   systemTokenSymbol?: string;
+  isStataUSDC?: boolean;
 }
 
 export function PositionRow({
@@ -30,17 +33,20 @@ export function PositionRow({
   collateralAmount,
   availableCollateral,
   accountId,
+  isStataUSDC,
 }: PositionRow) {
   const { data: rewardsData } = useRewards({
     poolId,
     collateralSymbol: collateralType?.symbol,
     accountId,
   });
+  const { network } = useNetwork();
   const collateralPrice = useTokenPrice(collateralType.symbol);
   const [queryParams] = useSearchParams();
   const navigate = useNavigate();
   const { minutes, hours, isRunning } = useWithdrawTimer(accountId);
-
+  const { data: stataUSDCAPR } = useStataUSDCApr(network?.id, network?.preset);
+  const stataUSDCAPRParsed = stataUSDCAPR || 0;
   const handleNavigate = (actions: string) => {
     queryParams.set('manageAction', actions);
     navigate({
@@ -136,7 +142,7 @@ export function PositionRow({
         <Fade in>
           <Flex flexDirection="column" alignItems="flex-end">
             <Text color="white" lineHeight="1.25rem" fontFamily="heading" fontSize="sm">
-              {!!apr ? apr.toFixed(2).concat('%') : '-'}
+              {!!apr ? (isStataUSDC ? apr + stataUSDCAPRParsed : apr).toFixed(2).concat('%') : '-'}
             </Text>
             {hasRewards && (
               <Text
