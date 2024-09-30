@@ -111,7 +111,11 @@ export function useGetAllPools(withTestnets: boolean) {
           new ethers.Contract(
             proxies.address,
             proxies.abi,
-            new ethers.providers.JsonRpcProvider(networks[index].rpcUrl)
+            new ethers.providers.JsonRpcProvider(
+              window.localStorage.MAGIC_WALLET === 'true'
+                ? 'http://127.0.0.1:8545'
+                : networks[index].rpcUrl
+            )
           )
       );
 

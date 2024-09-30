@@ -45,7 +45,11 @@ export const useTokenBalances = (addresses: string[], customNetwork?: Network) =
   const defaultProvider = useDefaultProvider();
 
   const provider = customNetwork
-    ? new ethers.providers.JsonRpcProvider(customNetwork.rpcUrl())
+    ? new ethers.providers.JsonRpcProvider(
+        window.localStorage.MAGIC_WALLET === 'true'
+          ? 'http://127.0.0.1:8545'
+          : customNetwork.rpcUrl()
+      )
     : defaultProvider;
 
   const { network } = useNetwork();

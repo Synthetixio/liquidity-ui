@@ -208,7 +208,9 @@ export const withERC7412 = async (
   from: string
 ): Promise<ethers.PopulatedTransaction & { gasLimit: ethers.BigNumber }> => {
   // Make sure we're always using JSONRpcProvider, the web3 provider coming from the signer might have bugs causing errors to miss revert data
-  const jsonRpcProvider = new ethers.providers.JsonRpcProvider(network?.rpcUrl());
+  const jsonRpcProvider = new ethers.providers.JsonRpcProvider(
+    window.localStorage.MAGIC_WALLET === 'true' ? 'http://127.0.0.1:8545' : network?.rpcUrl()
+  );
   const Multicall3Contract = await importMulticall3(network.id, network.preset);
   const Multicall3Interface = new ethers.utils.Interface(Multicall3Contract.abi);
   const AllErrorsContract = await importAllErrors(network.id, network.preset);
