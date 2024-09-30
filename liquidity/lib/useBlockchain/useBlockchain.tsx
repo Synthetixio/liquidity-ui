@@ -287,10 +287,12 @@ export const appMetadata = {
 };
 
 export function useProviderForChain(network?: Network) {
-  return useMemo(
-    () => (network ? new ethers.providers.JsonRpcProvider(network.rpcUrl()) : undefined),
-    [network]
-  );
+  return useMemo(() => {
+    if (window.localStorage.MAGIC_WALLET === 'true') {
+      return new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
+    }
+    return network ? new ethers.providers.JsonRpcProvider(network.rpcUrl()) : undefined;
+  }, [network]);
 }
 
 export function useDefaultProvider() {
@@ -328,12 +330,6 @@ export function useWallet() {
   }, [connect, disconnect, wallet]);
 }
 
-export function useGetNetwork(chainId: string) {
-  return useMemo(() => {
-    return NETWORKS.find((n) => n.hexId === chainId);
-  }, [chainId]);
-}
-
 export function useNetwork() {
   const [{ connectedChain }, setChain] = useSetChain();
 
@@ -369,14 +365,18 @@ export function useIsConnected(): boolean {
 
 export function useSigner() {
   const [{ wallet }] = useConnectWallet();
-
   return useMemo(() => {
     if (!wallet) {
       return null;
     }
-
+    if (window.localStorage.MAGIC_WALLET === 'true') {
+      const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
+      const activeWallet = wallet?.accounts?.[0];
+      if (activeWallet) {
+        return provider.getSigner(activeWallet.address);
+      }
+    }
     const provider = new ethers.providers.Web3Provider(wallet.provider, 'any');
-
     return provider.getSigner();
   }, [wallet]);
 }
@@ -385,12 +385,13 @@ export function useProvider() {
   const [{ wallet }] = useConnectWallet();
 
   return useMemo(() => {
+    if (window.localStorage.MAGIC_WALLET === 'true') {
+      return new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
+    }
     if (!wallet) {
       return null;
     }
-
     const provider = new ethers.providers.Web3Provider(wallet.provider, 'any');
-
     return provider;
   }, [wallet]);
 }
