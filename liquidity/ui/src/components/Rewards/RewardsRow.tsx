@@ -4,13 +4,13 @@ import { etherscanLink } from '@snx-v3/etherscanLink';
 import { truncateAddress } from '@snx-v3/formatters';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useNetwork } from '@snx-v3/useBlockchain';
+import { useClaimUnwrapRewards } from '@snx-v3/useClaimUnwrapRewards';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useParams } from '@snx-v3/useParams';
 import Wei, { wei } from '@synthetixio/wei';
+import { useCallback } from 'react';
 import { TokenIcon } from '../TokenIcon';
 import { RewardsModal } from './RewardsModal';
-import { useClaimUnwrapRewards } from '../../../../lib/useClaimUnwrapRewards';
-import { useCallback } from 'react';
 
 interface RewardsRowInterface {
   displaySymbol?: string;

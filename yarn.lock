@@ -5169,6 +5169,7 @@ __metadata:
     "@snx-v3/useApr": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useBorrow": "workspace:*"
+    "@snx-v3/useClaimUnwrapRewards": "workspace:*"
     "@snx-v3/useClearDebt": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCollateralPrices": "workspace:*"
@@ -5474,7 +5475,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/useClaimUnwrapRewards@workspace:liquidity/lib/useClaimUnwrapRewards":
+"@snx-v3/useClaimUnwrapRewards@workspace:*, @snx-v3/useClaimUnwrapRewards@workspace:liquidity/lib/useClaimUnwrapRewards":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useClaimUnwrapRewards@workspace:liquidity/lib/useClaimUnwrapRewards"
   dependencies:
