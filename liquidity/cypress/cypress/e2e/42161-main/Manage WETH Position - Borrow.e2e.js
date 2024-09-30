@@ -1,6 +1,6 @@
 import { generatePath } from 'react-router-dom';
 
-it.skip('should borrow against WETH position', () => {
+it('should borrow against WETH position', () => {
   cy.connectWallet().then(({ address, privateKey }) => {
     cy.task('setEthBalance', { address, balance: 105 });
 
@@ -32,32 +32,31 @@ it.skip('should borrow against WETH position', () => {
       collateralSymbol: 'WETH',
       poolId: 1,
     });
-    cy.visit(`/#${path}?manageAction=borrow&accountId=${accountId}`);
+    cy.visit(`/#${path}?manageAction=claim&accountId=${accountId}`);
   });
 
-  cy.get('[data-cy="manage action"][data-action="borrow"]').click();
+  cy.contains('[data-status="info"]', 'You can take an interest-free loan up to').should('exist');
 
-  // Need to wait for max borrow amount to be fetched
-  cy.get('[data-cy="borrow amount input"]')
-    .should('have.attr', 'data-max')
-    .and('not.match', /^0\.00/); // .and ensures both assertions are waiting for resolution
-  cy.get('[data-cy="borrow amount input"]').type(`100`);
+  cy.get('[data-cy="claim amount input"]').should('exist').type('10');
 
-  cy.get('[data-cy="borrow submit"]').should('be.enabled').click();
+  cy.contains(
+    '[data-status="warning"]',
+    'Assets will be available to withdraw 24 hours after your last interaction with this position.'
+  ).should('exist');
 
-  cy.get('[data-cy="borrow modal"]').should('exist').and('include.text', 'Complete this action');
-  cy.get('[data-cy="borrow modal"]').should('include.text', `Borrow 100`);
-  cy.get('[data-cy="borrow confirm button"]').should('include.text', 'Start').click();
-  cy.get('[data-cy="borrow confirm button"]')
-    .should('include.text', 'Processing...')
-    .and('be.disabled');
+  cy.contains('[data-status="info"]', 'You are about to take a $10 interest-free loan').should(
+    'exist'
+  );
 
-  cy.get('[data-cy="borrow confirm button"]')
-    .should('include.text', 'Done')
-    .and('be.enabled')
-    .click();
+  cy.get('[data-cy="claim submit"]').should('be.enabled').click();
 
-  cy.get('[data-cy="borrow modal"]').should('not.exist');
+  cy.get('[data-cy="claim multistep"]')
+    .should('exist')
+    .and('include.text', 'Manage Debt')
+    .and('include.text', 'Borrow')
+    .and('include.text', 'Borrow 10 USDx');
 
-  cy.get('[data-cy="manage stats debt value"]').should('have.text', `-$100`);
+  cy.get('[data-cy="claim confirm button"]').should('include.text', 'Execute Transaction').click();
+
+  cy.contains('[data-status="info"]', 'Debt successfully Updated').should('exist');
 });
