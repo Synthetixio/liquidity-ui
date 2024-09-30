@@ -62,7 +62,7 @@ export function useRewards({
   const { data: synthTokens } = useSynthTokens();
 
   const { data: Multicall3 } = useMulticall3(network);
-  const { data: CoreProxy } = useCoreProxy({ customNetwork: network });
+  const { data: CoreProxy } = useCoreProxy(network);
   const { data: rewardsDistributors } = useRewardsDistributors(network);
 
   // We need to filter the distributors, so we only query for this particular collateral type

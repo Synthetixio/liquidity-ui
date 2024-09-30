@@ -1,5 +1,5 @@
 import { Contract } from '@ethersproject/contracts';
-import { useQuery } from '@tanstack/react-query';
+import { importV2x } from '@snx-v3/contracts';
 import {
   Network,
   useNetwork,
@@ -7,35 +7,28 @@ import {
   useProviderForChain,
   useSigner,
 } from '@snx-v3/useBlockchain';
-import { importV2x } from '@snx-v3/contracts';
+import { useQuery } from '@tanstack/react-query';
 
 export function useV2xSynthetix(customNetwork?: Network) {
-  const providerForChain = useProviderForChain(customNetwork);
   const { network } = useNetwork();
   const provider = useProvider();
   const signer = useSigner();
+  const providerForChain = useProviderForChain(customNetwork);
+  const signerOrProvider = signer || provider;
   const targetNetwork = customNetwork || network;
-
   const withSigner = Boolean(signer);
-
   return useQuery({
     queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'V2xSynthetix', { withSigner }],
+    enabled: Boolean(signerOrProvider && targetNetwork),
     queryFn: async function () {
+      if (!(signerOrProvider && targetNetwork)) throw new Error('OMFG');
       if (providerForChain && customNetwork) {
-        const { address: v2xAddress, abi: v2xAbi } = await importV2x(
-          customNetwork.id,
-          customNetwork.preset
-        );
-        return new Contract(v2xAddress, v2xAbi, providerForChain);
+        const { address, abi } = await importV2x(targetNetwork.id, targetNetwork.preset);
+        return new Contract(address, abi, providerForChain);
       }
-
-      const signerOrProvider = signer || provider;
-      if (!signerOrProvider || !network) throw new Error('Should be disabled CP');
-
-      const { address: v2xAddress, abi: v2xAbi } = await importV2x(network?.id, network?.preset);
-      return new Contract(v2xAddress, v2xAbi, signerOrProvider);
+      const { address, abi } = await importV2x(targetNetwork?.id, targetNetwork?.preset);
+      return new Contract(address, abi, signerOrProvider);
     },
-    enabled: Boolean(signer || provider || providerForChain),
     staleTime: Infinity,
   });
 }

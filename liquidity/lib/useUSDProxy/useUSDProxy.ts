@@ -1,29 +1,34 @@
 import { Contract } from '@ethersproject/contracts';
-import { useQuery } from '@tanstack/react-query';
-import { useNetwork, useProvider, useSigner, useWallet } from '@snx-v3/useBlockchain';
 import { importUSDProxy } from '@snx-v3/contracts';
+import {
+  Network,
+  useNetwork,
+  useProvider,
+  useProviderForChain,
+  useSigner,
+} from '@snx-v3/useBlockchain';
+import { useQuery } from '@tanstack/react-query';
 
-export function useUSDProxy() {
+export function useUSDProxy(customNetwork?: Network) {
   const { network } = useNetwork();
   const provider = useProvider();
   const signer = useSigner();
+  const providerForChain = useProviderForChain(customNetwork);
   const signerOrProvider = signer || provider;
+  const targetNetwork = customNetwork || network;
   const withSigner = Boolean(signer);
-  const { activeWallet } = useWallet();
-
   return useQuery({
-    queryKey: [
-      `${network?.id}-${network?.preset}`,
-      'USDProxy',
-      { withSigner },
-      activeWallet?.address,
-    ],
+    queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'USDProxy', { withSigner }],
+    enabled: Boolean(signerOrProvider && targetNetwork),
     queryFn: async function () {
-      if (!signerOrProvider || !network) throw new Error('Should be disabled');
-      const { address, abi } = await importUSDProxy(network.id, network.preset);
+      if (!(signerOrProvider && targetNetwork)) throw new Error('OMFG');
+      if (providerForChain && customNetwork) {
+        const { address, abi } = await importUSDProxy(targetNetwork.id, targetNetwork.preset);
+        return new Contract(address, abi, providerForChain);
+      }
+      const { address, abi } = await importUSDProxy(targetNetwork?.id, targetNetwork?.preset);
       return new Contract(address, abi, signerOrProvider);
     },
-    enabled: Boolean(signerOrProvider),
     staleTime: Infinity,
   });
 }

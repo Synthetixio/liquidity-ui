@@ -28,7 +28,7 @@ export const useAllCollateralPriceIds = (customNetwork?: Network) => {
   const targetNetwork = customNetwork || network;
   const { data: Multicall3 } = useMulticall3(customNetwork);
   const { data: OracleProxy } = useOracleManagerProxy(customNetwork);
-  const { data: CoreProxy } = useCoreProxy({ customNetwork });
+  const { data: CoreProxy } = useCoreProxy(customNetwork);
   const { data: collateralConfigs } = useCollateralTypes(false, customNetwork);
 
   return useQuery({

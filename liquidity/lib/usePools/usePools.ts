@@ -23,7 +23,7 @@ export function usePools(customNetwork?: Network) {
   const { network } = useNetwork();
   const targetNetwork = customNetwork || network;
 
-  const { data: CoreProxy } = useCoreProxy({ customNetwork: targetNetwork });
+  const { data: CoreProxy } = useCoreProxy(targetNetwork);
 
   return useQuery({
     enabled: Boolean(targetNetwork),
