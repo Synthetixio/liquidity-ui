@@ -6086,6 +6086,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/useStataUSDCRate@workspace:liquidity/lib/useStataUSDCRate":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useStataUSDCRate@workspace:liquidity/lib/useStataUSDCRate"
+  dependencies:
+    "@synthetixio/wei": "npm:^2.74.4"
+    "@tanstack/react-query": "npm:^5.8.3"
+    ethers: "npm:^5.7.2"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/useSynthTokens@workspace:liquidity/lib/useSynthTokens":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useSynthTokens@workspace:liquidity/lib/useSynthTokens"

@@ -9,7 +9,6 @@ import {
 } from '@snx-v3/useBlockchain';
 import { importStataUSDC } from '@snx-v3/contracts';
 
-// This hook is used to get stataUSDC proxy contract
 export function useStataUSDC(customNetwork?: Network) {
   const providerForChain = useProviderForChain(customNetwork);
   const { network } = useNetwork();
@@ -29,7 +28,6 @@ export function useStataUSDC(customNetwork?: Network) {
         );
         return new Contract(lmAddress, lmAbi, providerForChain);
       }
-
       const signerOrProvider = signer || provider;
       if (!signerOrProvider || !network) throw new Error('Should be disabled CP');
 
@@ -40,7 +38,7 @@ export function useStataUSDC(customNetwork?: Network) {
 
       return new Contract(lmAddress, lmAbi, signerOrProvider);
     },
-    enabled: Boolean(signer && provider && providerForChain),
+    enabled: Boolean(provider || providerForChain),
     staleTime: Infinity,
   });
 }

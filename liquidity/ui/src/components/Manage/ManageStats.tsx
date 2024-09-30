@@ -15,6 +15,7 @@ import { PnlStats } from './PnlStats';
 import { DebtStats } from './DebtStats';
 import { CollateralStats } from './CollateralStats';
 import { ZEROWEI } from '@snx-v3/constants';
+import { useStataUSDCRate } from '@snx-v3/useStataUSDCRate';
 
 export const ManageStatsUi: FC<{
   liquidityPosition?: LiquidityPosition;
@@ -23,6 +24,7 @@ export const ManageStatsUi: FC<{
   newDebt: Wei;
   newCratio: Wei;
   collateralValue: Wei;
+  stataUSDCRate?: Wei;
   debt: Wei;
   cRatio: Wei;
   hasChanges: boolean;
@@ -32,6 +34,7 @@ export const ManageStatsUi: FC<{
   collateralValue,
   cRatio,
   newCollateralAmount,
+  stataUSDCRate,
   newCratio,
   newDebt,
   hasChanges,
@@ -51,6 +54,7 @@ export const ManageStatsUi: FC<{
           newCollateralAmount={newCollateralAmount}
           collateralValue={collateralValue}
           hasChanges={hasChanges}
+          stataUSDCRate={stataUSDCRate}
         />
 
         {isBaseAndromeda(network?.id, network?.preset) && (
@@ -113,6 +117,8 @@ export const ManageStats = ({ liquidityPosition }: { liquidityPosition?: Liquidi
     debtChange: debtChange,
   });
 
+  const { data: stataUSDCRate } = useStataUSDCRate();
+
   return (
     <ManageStatsUi
       hasChanges={hasChanges}
@@ -122,6 +128,7 @@ export const ManageStats = ({ liquidityPosition }: { liquidityPosition?: Liquidi
       liquidityPosition={liquidityPosition}
       collateralType={collateralType}
       cRatio={cRatio}
+      stataUSDCRate={stataUSDCRate}
       collateralValue={collateralValue}
       debt={liquidityPosition?.debt || ZEROWEI}
     />

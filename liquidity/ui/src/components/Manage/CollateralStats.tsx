@@ -5,7 +5,7 @@ import { currency } from '@snx-v3/format';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { CollateralType } from '@snx-v3/useCollateralTypes';
 import Wei from '@synthetixio/wei';
-import { ZEROWEI } from '@snx-v3/constants';
+import { ONEWEI, ZEROWEI } from '@snx-v3/constants';
 import { ChangeStat } from '../ChangeStat';
 
 export const CollateralStats: FC<{
@@ -13,9 +13,17 @@ export const CollateralStats: FC<{
   collateralType?: CollateralType;
   newCollateralAmount: Wei;
   collateralValue: Wei;
+  stataUSDCRate?: Wei;
   hasChanges: boolean;
   isLoading?: boolean;
-}> = ({ liquidityPosition, collateralType, newCollateralAmount, hasChanges, isLoading }) => (
+}> = ({
+  liquidityPosition,
+  collateralType,
+  newCollateralAmount,
+  hasChanges,
+  isLoading,
+  stataUSDCRate,
+}) => (
   <BorderBox p={4} flex="1" flexDirection="row" bg="navy.700">
     <Flex
       opacity={!liquidityPosition && !isLoading && !hasChanges ? '40%' : '100%'}
@@ -35,13 +43,12 @@ export const CollateralStats: FC<{
             <ChangeStat
               value={liquidityPosition.collateralAmount}
               newValue={newCollateralAmount}
-              formatFn={(val: Wei) =>
-                `${currency(val)} ${
-                  collateralType.displaySymbol === 'stataUSDC'
-                    ? 'USDC'
-                    : collateralType.displaySymbol
-                }`
-              }
+              formatFn={(val: Wei) => {
+                if (collateralType.displaySymbol === 'stataUSDC') {
+                  return `${currency(new Wei(val, 27).div(stataUSDCRate || ONEWEI))}`;
+                }
+                return `${currency(val)} ${collateralType.displaySymbol}`;
+              }}
               hasChanges={hasChanges}
               data-cy="manage stats collateral"
             />
