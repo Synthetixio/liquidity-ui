@@ -1,7 +1,6 @@
 import '@cypress/code-coverage/support';
 import { onLogAdded } from '@snx-cy/onLogAdded';
 import { ethers } from 'ethers';
-import { metamask } from '../lib/metamask';
 import { subgraph } from '../lib/subgraph';
 
 beforeEach(() => {
@@ -48,10 +47,11 @@ beforeEach(() => {
 
 Cypress.Commands.add('connectWallet', (namespace = 'wallet') => {
   const wallet = ethers.Wallet.createRandom();
-  const privateKey = wallet.privateKey;
+  //  const privateKey = wallet.privateKey;
   const address = wallet.address;
   cy.on('window:before:load', (win) => {
-    win.ethereum = metamask({ chainId: Cypress.env('CHAIN_ID'), privateKey, address });
+    win.localStorage.setItem('MAGIC_WALLET', 'true');
+    win.localStorage.setItem('WALLET', address);
   });
 
   return cy.wrap(wallet).as(namespace);
