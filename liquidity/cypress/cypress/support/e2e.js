@@ -50,8 +50,7 @@ Cypress.Commands.add('connectWallet', (namespace = 'wallet') => {
   //  const privateKey = wallet.privateKey;
   const address = wallet.address;
   cy.on('window:before:load', (win) => {
-    win.localStorage.setItem('MAGIC_WALLET', 'true');
-    win.localStorage.setItem('WALLET', address);
+    win.localStorage.setItem('MAGIC_WALLET', address);
   });
 
   return cy.wrap(wallet).as(namespace);

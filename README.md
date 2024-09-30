@@ -93,8 +93,7 @@ and all transactions will be automatically signed, without any popups
 
     ```js
     localStorage.DEBUG = 'true';
-    localStorage.MAGIC_WALLET = 'true';
-    localStorage.WALLET = '0xWhateverWalletAddressYouWantToWorkWith';
+    localStorage.MAGIC_WALLET = '0xWhateverWalletAddressYouWantToWorkWith';
     ```
 
 6.  Reload page and proceed with connecting your wallet through UI choosing "Metamask" in popup

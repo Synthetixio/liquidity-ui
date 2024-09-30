@@ -129,7 +129,11 @@ export function NetworkController() {
         </MenuButton>
         <MenuList border="1px" borderColor="gray.900">
           {mainnets.map(({ id, preset, label }) => (
-            <MenuItem key={`${id}-${preset}`} onClick={() => setNetwork(id)}>
+            <MenuItem
+              key={`${id}-${preset}`}
+              onClick={() => setNetwork(id)}
+              isDisabled={window.$chainId ? window.$chainId !== id : false}
+            >
               <NetworkIcon networkId={id} size="20px" />
               <Text variant="nav" ml={2}>
                 {label}
@@ -156,7 +160,11 @@ export function NetworkController() {
           </MenuOptionGroup>
 
           {(showTestnets ? testnets : []).map(({ id, preset, label }) => (
-            <MenuItem key={`${id}-${preset}`} onClick={() => setNetwork(id)}>
+            <MenuItem
+              key={`${id}-${preset}`}
+              onClick={() => setNetwork(id)}
+              isDisabled={window.$chainId ? window.$chainId !== id : false}
+            >
               <NetworkIcon filter="grayscale(1)" networkId={id} size="20px" />
               <Text variant="nav" ml={2}>
                 {label}

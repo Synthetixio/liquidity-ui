@@ -1,6 +1,5 @@
 import { assertAddressType } from '@snx-v3/assertAddressType';
-import { wei } from '@synthetixio/wei';
-import { useQuery } from '@tanstack/react-query';
+import { ZEROWEI } from '@snx-v3/constants';
 import {
   Network,
   useDefaultProvider,
@@ -8,11 +7,9 @@ import {
   useProviderForChain,
   useWallet,
 } from '@snx-v3/useBlockchain';
+import { wei } from '@synthetixio/wei';
+import { useQuery } from '@tanstack/react-query';
 import { ethers, providers } from 'ethers';
-import { ZodBigNumber } from '@snx-v3/zod';
-import { ZEROWEI } from '@snx-v3/constants';
-
-export const BalanceSchema = ZodBigNumber.transform((x) => wei(x));
 
 export const abi = [
   'function balanceOf(address) view returns (uint256)',
@@ -43,14 +40,8 @@ export const useTokenBalance = (address?: string, customNetwork?: Network) => {
 export const useTokenBalances = (addresses: string[], customNetwork?: Network) => {
   const { activeWallet } = useWallet();
   const defaultProvider = useDefaultProvider();
-
-  const provider = customNetwork
-    ? new ethers.providers.JsonRpcProvider(
-        window.localStorage.MAGIC_WALLET === 'true'
-          ? 'http://127.0.0.1:8545'
-          : customNetwork.rpcUrl()
-      )
-    : defaultProvider;
+  const providerForChain = useProviderForChain(customNetwork);
+  const provider = providerForChain || defaultProvider;
 
   const { network } = useNetwork();
 
