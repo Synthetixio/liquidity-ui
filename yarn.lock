@@ -5925,7 +5925,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/usePools@workspace:liquidity/lib/usePools"
   dependencies:
-    "@snx-v3/contracts": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/zod": "workspace:*"
@@ -6094,7 +6093,6 @@ __metadata:
     "@snx-v3/assertAddressType": "workspace:*"
     "@snx-v3/constants": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/zod": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     ethers: "npm:^5.7.2"

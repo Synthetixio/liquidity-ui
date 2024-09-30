@@ -38,9 +38,7 @@ export function useClaimUnwrapRewards({
   const { network } = useNetwork();
   const { data: SpotProxy } = useSpotMarketProxy();
   const signer = useSigner();
-  const { data: CoreProxy } = useCoreProxy({
-    isWrite: true,
-  });
+  const { data: CoreProxy } = useCoreProxy();
   const [txnState, dispatch] = useReducer(reducer, initialState);
   const client = useQueryClient();
   const { data: collateralPriceUpdates } = useAllCollateralPriceIds();
