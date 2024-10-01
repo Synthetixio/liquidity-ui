@@ -1,15 +1,15 @@
+import { calculateCRatio } from '@snx-v3/calculations';
+import { keyBy, stringToHash } from '@snx-v3/tsHelpers';
+import { useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
+import { loadPrices } from '@snx-v3/useCollateralPrices';
+import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { CollateralType, useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { loadPosition } from '@snx-v3/useLiquidityPosition';
 import { usePools } from '@snx-v3/usePools';
+import { erc7412Call } from '@snx-v3/withERC7412';
 import Wei, { wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
-import { useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
-import { loadPrices } from '@snx-v3/useCollateralPrices';
-import { calculateCRatio } from '@snx-v3/calculations';
-import { erc7412Call } from '@snx-v3/withERC7412';
-import { keyBy, stringToHash } from '@snx-v3/tsHelpers';
-import { useAllCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 
 export type LiquidityPositionType = {
   id: `${string}-${string}`;
@@ -39,16 +39,14 @@ function toPairs<T>(array: T[]): [T, T][] {
 
 export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => {
   const { data: CoreProxy } = useCoreProxy();
-
   const { data: pools } = usePools();
   const { data: collateralTypes } = useCollateralTypes();
-  const { data: priceUpdateTx, isLoading: collateralPriceUpdatesIsLoading } =
-    useAllCollateralPriceUpdates();
+  const { data: priceUpdateTx } = useCollateralPriceUpdates();
 
   const { network } = useNetwork();
   const provider = useProviderForChain(network!);
 
-  const query = useQuery({
+  return useQuery({
     queryKey: [
       `${network?.id}-${network?.preset}`,
       'LiquidityPositions',
@@ -57,14 +55,13 @@ export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => 
         pools: pools ? pools.map((pool) => pool.id).sort() : [],
         tokens: collateralTypes ? collateralTypes.map((x) => x.tokenAddress).sort() : [],
         priceUpdateTx: stringToHash(priceUpdateTx?.data),
-        CoreProxy: !!CoreProxy,
       },
     ],
     staleTime: 60000 * 5,
-    enabled: !!accountId,
+    enabled: Boolean(network && provider && CoreProxy && accountId && collateralTypes && pools),
     queryFn: async () => {
-      if (!pools || !collateralTypes || !CoreProxy || !accountId || !network || !provider) {
-        throw Error('Query should not be enabled');
+      if (!(network && provider && CoreProxy && accountId && collateralTypes && pools)) {
+        throw Error('OMG');
       }
 
       const positionCallsAndDataNested = await Promise.all(
@@ -187,9 +184,4 @@ export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => 
       );
     },
   });
-
-  return {
-    ...query,
-    isLoading: query.isLoading || collateralPriceUpdatesIsLoading,
-  };
 };

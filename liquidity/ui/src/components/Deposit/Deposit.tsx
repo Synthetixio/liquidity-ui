@@ -19,7 +19,8 @@ import { FC, useContext, useMemo } from 'react';
 import { useParams } from '@snx-v3/useParams';
 import { AccountCollateralType } from '@snx-v3/useAccountCollateral';
 import { useTransferableSynthetix } from '@snx-v3/useTransferableSynthetix';
-import { ChangeStat, CollateralAlert, TokenIcon } from '../';
+import { CollateralAlert, TokenIcon } from '../';
+import { ChangeStat } from '../ChangeStat';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { useNetwork } from '@snx-v3/useBlockchain';
@@ -187,7 +188,7 @@ export const DepositUi: FC<{
         <Flex flexDir="column" flexGrow={1}>
           <NumberInput
             InputProps={{
-              'data-testid': 'deposit amount input',
+              'data-cy': 'deposit amount input',
               'data-max': maxAmount?.toString(),
               min: 0,
             }}
@@ -197,7 +198,6 @@ export const DepositUi: FC<{
             }}
             max={maxAmount}
             min={ZEROWEI}
-            dataTestId="deposit-number-input"
           />
           <Flex fontSize="xs" color="whiteAlpha.700" alignSelf="flex-end" gap="1">
             {price.gt(0) && <Amount prefix="$" value={collateralChange.abs().mul(price)} />}
@@ -243,8 +243,7 @@ export const DepositUi: FC<{
         <TransactionSummary mb={6} items={txSummaryItems} />
       </Collapse>
       <Button
-        data-testid="deposit submit"
-        data-cy="deposit-submit-button"
+        data-cy="deposit submit"
         type="submit"
         isDisabled={
           collateralChange.lte(0) ||

@@ -7,8 +7,6 @@ import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 
 import { useToast } from '@chakra-ui/react';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
-import { fetchPriceUpdates, priceUpdatesToPopulatedTx } from '@snx-v3/fetchPythPrices';
-import { useAllCollateralPriceIds } from '@snx-v3/useAllCollateralPriceIds';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
@@ -16,7 +14,7 @@ import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { notNil } from '@snx-v3/tsHelpers';
 import Wei from '@synthetixio/wei';
 import { useSynthTokens } from '../useSynthTokens';
-import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
+import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 
 export function useClaimAllRewards(
   rewards: {
@@ -33,20 +31,18 @@ export function useClaimAllRewards(
   const { network } = useNetwork();
   const { data: SpotProxy } = useSpotMarketProxy();
   const signer = useSigner();
-  const { data: CoreProxy } = useCoreProxy({
-    isWrite: true,
-  });
+  const { data: CoreProxy } = useCoreProxy();
   const [txnState, dispatch] = useReducer(reducer, initialState);
   const client = useQueryClient();
-  const { data: collateralPriceUpdates } = useAllCollateralPriceIds();
   const provider = useProvider();
   const { gasSpeed } = useGasSpeed();
   const { data: synthTokens } = useSynthTokens();
-  const errorParserCoreProxy = useContractErrorParser(CoreProxy);
+  const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
 
   const mutation = useMutation({
     mutationFn: async function () {
       try {
+        if (!signer || !network || !provider) throw new Error('No signer or network');
         if (!rewards.filter(({ amount }) => amount?.gt(0)).length || !signer || !network) return;
         if (!CoreProxy) throw new Error('CoreProxy undefined');
 
@@ -89,24 +85,15 @@ export function useClaimAllRewards(
         );
 
         const callsPromise = Promise.all(transcations.filter(notNil));
-
         const walletAddress = await signer.getAddress();
-        const collateralPriceCallsPromise = fetchPriceUpdates(
-          collateralPriceUpdates,
-          network?.isTestnet
-        ).then((signedData) =>
-          priceUpdatesToPopulatedTx(walletAddress, collateralPriceUpdates, signedData)
-        );
 
-        const [calls, gasPrices, collateralPriceCalls] = await Promise.all([
-          callsPromise,
-          getGasPrice({ provider: provider! }),
-          collateralPriceCallsPromise,
-        ]);
+        const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
 
-        const allCalls = collateralPriceCalls.concat(calls);
+        if (priceUpdateTx) {
+          calls.unshift(priceUpdateTx as any);
+        }
 
-        const erc7412Tx = await withERC7412(network, allCalls, 'useClaimAllRewards', walletAddress);
+        const erc7412Tx = await withERC7412(network, calls, 'useClaimAllRewards', walletAddress);
 
         const gasOptionsForTransaction = formatGasPriceForTransaction({
           gasLimit: erc7412Tx.gasLimit,
@@ -147,16 +134,8 @@ export function useClaimAllRewards(
         });
 
         return claimedAmount;
-      } catch (error) {
-        const err = error as Error;
-
-        const contractError = errorParserCoreProxy(error);
-
-        if (contractError) {
-          console.error(new Error(contractError.name), contractError);
-        }
-
-        dispatch({ type: 'error', payload: { error: err } });
+      } catch (error: any) {
+        dispatch({ type: 'error', payload: { error } });
 
         toast.closeAll();
         toast({
@@ -165,9 +144,11 @@ export function useClaimAllRewards(
           status: 'error',
           variant: 'left-accent',
         });
-
-        return 0;
       }
+    },
+    onSuccess: () => {
+      // After mutation withERC7412, we guaranteed to have updated all the prices, dont care about await
+      refetchPriceUpdateTx();
     },
   });
 

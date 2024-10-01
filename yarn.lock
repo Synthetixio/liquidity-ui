@@ -5099,6 +5099,7 @@ __metadata:
   dependencies:
     "@chakra-ui/react": "npm:^2.8.2"
     "@cypress/code-coverage": "npm:^3.12.39"
+    "@pythnetwork/pyth-evm-js": "npm:^1.42.0"
     "@snx-cy/onLogAdded": "workspace:*"
     "@snx-cy/printBrowserLogs": "workspace:*"
     "@snx-v3/contracts": "workspace:*"
@@ -5208,10 +5209,10 @@ __metadata:
     "@types/react-helmet": "npm:^6.1.9"
     "@web3-onboard/coinbase": "npm:^2.4.1"
     "@web3-onboard/common": "npm:^2.4.2"
-    "@web3-onboard/gnosis": "npm:^2.3.1"
-    "@web3-onboard/injected-wallets": "npm:^2.11.1"
+    "@web3-onboard/gnosis": "npm:^2.3.2"
+    "@web3-onboard/injected-wallets": "npm:^2.11.2"
     "@web3-onboard/ledger": "npm:2.7.1"
-    "@web3-onboard/react": "npm:^2.9.1"
+    "@web3-onboard/react": "npm:^2.9.3"
     "@web3-onboard/trezor": "npm:^2.4.6"
     "@web3-onboard/walletconnect": "npm:^2.6.1"
     babel-loader: "npm:^9.1.3"
@@ -5339,8 +5340,6 @@ __metadata:
     "@snx-v3/useAccountProxy": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
   languageName: unknown
   linkType: soft
@@ -5428,8 +5427,9 @@ __metadata:
   dependencies:
     "@chakra-ui/react": "npm:^2.8.2"
     "@snx-v3/constants": "workspace:*"
+    "@snx-v3/contracts": "workspace:*"
     "@snx-v3/icons": "workspace:*"
-    "@web3-onboard/react": "npm:^2.9.1"
+    "@web3-onboard/react": "npm:^2.9.3"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -5618,12 +5618,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useDeposit@workspace:liquidity/lib/useDeposit"
   dependencies:
-    "@snx-v3/fetchPythPrices": "workspace:*"
     "@snx-v3/format": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
-    "@snx-v3/useAllCollateralPriceIds": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useGasOptions": "workspace:*"
     "@snx-v3/useGasPrice": "workspace:*"
@@ -5942,7 +5941,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/usePools@workspace:liquidity/lib/usePools"
   dependencies:
-    "@snx-v3/contracts": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/zod": "workspace:*"
@@ -5983,11 +5981,10 @@ __metadata:
   resolution: "@snx-v3/useRepay@workspace:liquidity/lib/useRepay"
   dependencies:
     "@snx-v3/constants": "workspace:*"
-    "@snx-v3/fetchPythPrices": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
-    "@snx-v3/useAllCollateralPriceIds": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useGasOptions": "workspace:*"
     "@snx-v3/useGasPrice": "workspace:*"
@@ -6112,7 +6109,6 @@ __metadata:
     "@snx-v3/assertAddressType": "workspace:*"
     "@snx-v3/constants": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/zod": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     ethers: "npm:^5.7.2"
@@ -6181,10 +6177,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useUndelegate@workspace:liquidity/lib/useUndelegate"
   dependencies:
-    "@snx-v3/fetchPythPrices": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
-    "@snx-v3/useAllCollateralPriceIds": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useGasOptions": "workspace:*"
     "@snx-v3/useGasPrice": "workspace:*"
@@ -6286,11 +6281,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useWithdraw@workspace:liquidity/lib/useWithdraw"
   dependencies:
-    "@snx-v3/fetchPythPrices": "workspace:*"
     "@snx-v3/format": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
-    "@snx-v3/useAllCollateralPriceIds": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useGasOptions": "workspace:*"
     "@snx-v3/useGasPrice": "workspace:*"
@@ -6370,13 +6364,8 @@ __metadata:
     "@pythnetwork/pyth-evm-js": "npm:^1.42.0"
     "@snx-v3/constants": "workspace:*"
     "@snx-v3/contracts": "workspace:*"
-    "@snx-v3/parser": "workspace:*"
-    "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/zod": "workspace:*"
     ethers: "npm:^5.7.2"
-    viem: "npm:^2.13.5"
-    zod: "npm:^3.22.4"
   languageName: unknown
   linkType: soft
 
@@ -6633,10 +6622,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@synthetixio/v3-contracts@synthetixio/v3-contracts#master":
-  version: 6.8.0
-  resolution: "@synthetixio/v3-contracts@https://github.com/synthetixio/v3-contracts.git#commit=f842754be50c39e18de5078867565ac6013f03f8"
-  checksum: 10/559d8e085495f388924398b9a5821343e22fdda7e708929906a191417e8ddea06743ef3cee7f4b389dbd089c48d82aec34393c73f3ad06b104375ae58d1e1647
+"@synthetixio/v3-contracts@npm:^6.10.0":
+  version: 6.12.0
+  resolution: "@synthetixio/v3-contracts@npm:6.12.0"
+  checksum: 10/2bf320ff9a56ae6716476c77aaa95f7ca1a2ab00e3eb29d2ba942083b787f6ddd693e1bf982b9d37c69c13a716f747571874cf042b7adc899c8491a2b4a7049b
   languageName: node
   linkType: hard
 
@@ -8412,9 +8401,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@web3-onboard/core@npm:2.22.1":
-  version: 2.22.1
-  resolution: "@web3-onboard/core@npm:2.22.1"
+"@web3-onboard/core@npm:2.22.3":
+  version: 2.22.3
+  resolution: "@web3-onboard/core@npm:2.22.3"
   dependencies:
     "@web3-onboard/common": "npm:^2.4.1"
     bnc-sdk: "npm:^4.6.7"
@@ -8428,19 +8417,19 @@ __metadata:
     svelte: "npm:^3.49.0"
     svelte-i18n: "npm:^3.3.13"
     viem: "npm:2.12.0"
-  checksum: 10/659ca2d6d06d097e09ad535add6e927b7b2289dd11e32e8179e6842e5271a03c696b168ed3c78347192eca6432fed1349e6034037aa7dc7ae5f4c2774a3a95d5
+  checksum: 10/2525bb3b1cf4d893f45fb4f0becd5a889a59b1ba13f02b9f567d988eac57bae28ffd8a37e153bf87595ee15dee316d78938a9e008c241cc82a2b7b215760914c
   languageName: node
   linkType: hard
 
-"@web3-onboard/gnosis@npm:^2.3.1":
-  version: 2.3.1
-  resolution: "@web3-onboard/gnosis@npm:2.3.1"
+"@web3-onboard/gnosis@npm:^2.3.2":
+  version: 2.3.2
+  resolution: "@web3-onboard/gnosis@npm:2.3.2"
   dependencies:
     "@web3-onboard/common": "npm:^2.4.1"
   peerDependencies:
     "@safe-global/safe-apps-provider": ^0.18.2
     "@safe-global/safe-apps-sdk": ^8.0.0
-  checksum: 10/85afd37cdaf3059a990d7ee0c7ff8cd229e08256045739e74af5c1b41fcc1018c9bd804c791e4266236f6944c5d265fc233b8520738108620f0b5a12c1a041db
+  checksum: 10/88cdb2ebf6d72b18c1796385ba21835ca87ef632c29cec74aba10ae64034b7ee697efa4c4a011644ca00f09720b01b359089bd3093a267d3c8972083636b5523
   languageName: node
   linkType: hard
 
@@ -8458,14 +8447,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@web3-onboard/injected-wallets@npm:^2.11.1":
-  version: 2.11.1
-  resolution: "@web3-onboard/injected-wallets@npm:2.11.1"
+"@web3-onboard/injected-wallets@npm:^2.11.2":
+  version: 2.11.2
+  resolution: "@web3-onboard/injected-wallets@npm:2.11.2"
   dependencies:
     "@web3-onboard/common": "npm:^2.4.1"
     joi: "npm:17.9.1"
     lodash.uniqby: "npm:^4.7.0"
-  checksum: 10/76bab7d36aca520992de6d7a528f5a72e66d003fe34de6b1d26f3738206c3c5d5e40011370e5d8740d3283cf2480f19e8691cf97465aa58ea47d1b5213c165b4
+  checksum: 10/3dd84ac8c4c71b628ac5327603ab18e801460ff655d7724c7dbebb7d7e8595f0b1d822dde903633ed991fd7d293e930ee5178476edd0fbf7f1c80a790eaff878
   languageName: node
   linkType: hard
 
@@ -8483,16 +8472,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@web3-onboard/react@npm:^2.9.1":
-  version: 2.9.1
-  resolution: "@web3-onboard/react@npm:2.9.1"
+"@web3-onboard/react@npm:^2.9.3":
+  version: 2.9.3
+  resolution: "@web3-onboard/react@npm:2.9.3"
   dependencies:
     "@web3-onboard/common": "npm:^2.4.1"
-    "@web3-onboard/core": "npm:2.22.1"
+    "@web3-onboard/core": "npm:2.22.3"
     use-sync-external-store: "npm:1.0.0"
   peerDependencies:
     react: ">=16.8"
-  checksum: 10/47779aefe51e0308fba0c9cb861cf0227ff3618c579c1e0a06153ce36c84ffb9886cd47ea7232177448f7144b2f75bcd993f7a1e35c304ba12f874fffb195201
+  checksum: 10/cd59788e532d7e1085ff0bc24a4bc592a90ef050126d784faf4065cc2ceaf21fd4399030ae22f3f047277bc11506e573a31ce385fd68876873e576e9edee7b19
   languageName: node
   linkType: hard
 

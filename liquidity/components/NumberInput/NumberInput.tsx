@@ -3,7 +3,7 @@ import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Wei, wei } from '@synthetixio/wei';
 
 export interface NumberInputProps extends InputProps {
-  'data-testid'?: string;
+  'data-cy'?: string;
   'data-max'?: string;
 }
 
@@ -24,7 +24,6 @@ export function NumberInput({
   min,
   max,
   InputProps,
-  dataTestId,
   disabled,
 }: {
   onChange?: (value: Wei) => void;
@@ -32,7 +31,6 @@ export function NumberInput({
   min?: Wei;
   max?: Wei;
   InputProps?: NumberInputProps;
-  dataTestId?: string;
   disabled?: boolean;
 }) {
   const [inputValue, setInputValue] = useState(value.gt(0) ? value.toString() : '');
@@ -128,7 +126,6 @@ export function NumberInput({
       value={inputValue}
       onChange={onInputChange}
       disabled={disabled}
-      data-cy={dataTestId}
       {...InputProps}
       maxLength={10}
     />

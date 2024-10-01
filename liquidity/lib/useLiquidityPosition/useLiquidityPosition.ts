@@ -1,8 +1,9 @@
-import { useMemo } from 'react';
 import { stringToHash } from '@snx-v3/tsHelpers';
 import { AccountCollateralType, loadAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { loadPrices } from '@snx-v3/useCollateralPrices';
+import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { erc7412Call } from '@snx-v3/withERC7412';
@@ -10,9 +11,8 @@ import { ZodBigNumber } from '@snx-v3/zod';
 import Wei, { wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
+import { useMemo } from 'react';
 import { z } from 'zod';
-import { useAllCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
-import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 
 const PositionCollateralSchema = z.object({
   value: ZodBigNumber.transform((x) => wei(x)).optional(), // This is currently only removed on base-goreli
@@ -81,7 +81,7 @@ export const useLiquidityPosition = ({
   const { data: CoreProxy } = useCoreProxy();
   const { data: systemToken } = useSystemToken();
   const { network } = useNetwork();
-  const { data: priceUpdateTx } = useAllCollateralPriceUpdates();
+  const { data: priceUpdateTx } = useCollateralPriceUpdates();
   const provider = useProviderForChain(network!);
   const { data: collateralTypes } = useCollateralTypes(true);
 

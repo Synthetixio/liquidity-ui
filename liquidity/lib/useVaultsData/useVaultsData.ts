@@ -1,15 +1,15 @@
+import { fetchPriceUpdates, priceUpdatesToPopulatedTx } from '@snx-v3/fetchPythPrices';
+import { stringToHash } from '@snx-v3/tsHelpers';
+import { useAllCollateralPriceIds } from '@snx-v3/useAllCollateralPriceIds';
+import { Network, useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
+import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
+import { erc7412Call } from '@snx-v3/withERC7412';
+import { ZodBigNumber } from '@snx-v3/zod';
 import { wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
-import { ZodBigNumber } from '@snx-v3/zod';
-import { Network, useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
-import { erc7412Call } from '@snx-v3/withERC7412';
-import { useAllCollateralPriceIds } from '@snx-v3/useAllCollateralPriceIds';
-import { fetchPriceUpdates, priceUpdatesToPopulatedTx } from '@snx-v3/fetchPythPrices';
-import { useAllCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
-import { stringToHash } from '@snx-v3/tsHelpers';
 
 const VaultCollateralSchema = z
   .object({ value: ZodBigNumber, amount: ZodBigNumber })
@@ -21,12 +21,12 @@ export const useVaultsData = (poolId?: number, customNetwork?: Network) => {
   const targetNetwork = customNetwork || network;
 
   const { data: collateralTypes } = useCollateralTypes(false, customNetwork);
-  const { data: CoreProxy } = useCoreProxy({ customNetwork });
+  const { data: CoreProxy } = useCoreProxy(customNetwork);
   const { data: collateralPriceUpdates } = useAllCollateralPriceIds(customNetwork);
 
   const provider = useProviderForChain(targetNetwork);
 
-  const { data: priceUpdateTx } = useAllCollateralPriceUpdates(customNetwork);
+  const { data: priceUpdateTx } = useCollateralPriceUpdates(customNetwork);
 
   return useQuery({
     queryKey: [

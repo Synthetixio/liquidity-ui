@@ -1,50 +1,34 @@
 import { Contract } from '@ethersproject/contracts';
-import { useQuery } from '@tanstack/react-query';
+import { importCoreProxy } from '@snx-v3/contracts';
 import {
   Network,
   useNetwork,
   useProvider,
   useProviderForChain,
   useSigner,
-  useWallet,
 } from '@snx-v3/useBlockchain';
-import { importCoreProxy } from '@snx-v3/contracts';
+import { useQuery } from '@tanstack/react-query';
 
-export function useCoreProxy({
-  customNetwork,
-  isWrite = false,
-}: {
-  customNetwork?: Network;
-  isWrite?: boolean;
-} = {}) {
+export function useCoreProxy(customNetwork?: Network) {
   const { network } = useNetwork();
   const provider = useProvider();
   const signer = useSigner();
-  const { activeWallet } = useWallet();
+  const providerForChain = useProviderForChain(customNetwork);
+  const signerOrProvider = signer || provider;
   const targetNetwork = customNetwork || network;
-  const providerForChain = useProviderForChain(targetNetwork);
-
+  const withSigner = Boolean(signer);
   return useQuery({
-    queryKey: [
-      `${targetNetwork?.id}-${targetNetwork?.preset}`,
-      'CoreProxy',
-      isWrite,
-      activeWallet?.address,
-    ],
+    queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'CoreProxy', { withSigner }],
+    enabled: Boolean(signerOrProvider && targetNetwork),
     queryFn: async function () {
-      const signerOrProvider = signer || provider;
-      if (isWrite && signerOrProvider) {
-        const { address, abi } = await importCoreProxy(network?.id, network?.preset);
-        return new Contract(address, abi, signerOrProvider);
-      }
-      if (targetNetwork) {
+      if (!(signerOrProvider && targetNetwork)) throw new Error('OMFG');
+      if (providerForChain && customNetwork) {
         const { address, abi } = await importCoreProxy(targetNetwork.id, targetNetwork.preset);
-        return new Contract(address, abi, providerForChain || provider || undefined);
+        return new Contract(address, abi, providerForChain);
       }
-
-      if (!signerOrProvider || !network) throw new Error('Should be disabled CP');
+      const { address, abi } = await importCoreProxy(targetNetwork?.id, targetNetwork?.preset);
+      return new Contract(address, abi, signerOrProvider);
     },
-    enabled: Boolean(signer || provider || providerForChain),
     staleTime: Infinity,
   });
 }

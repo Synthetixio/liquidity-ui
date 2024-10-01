@@ -6,10 +6,18 @@ function req(env) {
 
 const [WORKFLOW_NAME = req('WORKFLOW_NAME arg'), OUT_DIR = '/tmp/cov'] = process.argv.slice(2);
 
-const { CIRCLE_WORKFLOW_ID = req('CIRCLE_WORKFLOW_ID env') } = process.env;
+const {
+  CIRCLE_WORKFLOW_ID = req('CIRCLE_WORKFLOW_ID env'),
+  CIRCLE_TOKEN = req('CIRCLE_TOKEN env'),
+} = process.env;
 
 async function get(path) {
-  const res = await fetch(`https://circleci.com/api/v2/${path}`, { method: 'GET' });
+  const res = await fetch(`https://circleci.com/api/v2/${path}`, {
+    method: 'GET',
+    headers: {
+      'Circle-Token': CIRCLE_TOKEN,
+    },
+  });
   if (!res.ok) {
     throw new Error(`Failed fetching ${path}, ${await res.text()}`);
   }

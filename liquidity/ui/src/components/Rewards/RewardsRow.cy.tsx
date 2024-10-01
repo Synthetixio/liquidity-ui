@@ -1,14 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RewardsRow } from './RewardsRow'; // Replace with the actual path to your component
 import { Table } from '@chakra-ui/react';
-import injectedModule from '@web3-onboard/injected-wallets';
 import { init, Web3OnboardProvider } from '@web3-onboard/react';
 import { wei } from '@synthetixio/wei';
 
 describe('RewardsRow', () => {
   it('should render RewardsRow', () => {
     const onboard = init({
-      wallets: [injectedModule()],
+      wallets: [],
       chains: [{ id: 1 }],
     });
     const queryClient = new QueryClient();

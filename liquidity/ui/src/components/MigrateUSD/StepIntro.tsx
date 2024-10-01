@@ -17,7 +17,7 @@ import { ZEROWEI } from '@snx-v3/constants';
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { TokenIcon } from '../TokenIcon';
-import { useUSDProxyForChain } from '@snx-v3/useUSDProxy';
+import { useUSDProxy } from '@snx-v3/useUSDProxy';
 import { useV2sUSD } from '@snx-v3/useV2sUSD';
 
 export const StepIntro = ({
@@ -36,7 +36,7 @@ export const StepIntro = ({
   const [loaded, setLoaded] = useState(false);
   const { data: v2_sUSD } = useV2sUSD(network);
   const { data: v2_balance } = useTokenBalance(v2_sUSD, network);
-  const { data: v3_sUSD } = useUSDProxyForChain(network);
+  const { data: v3_sUSD } = useUSDProxy(network);
   const { data: v3_balance } = useTokenBalance(v3_sUSD?.address, network);
 
   useEffect(() => {

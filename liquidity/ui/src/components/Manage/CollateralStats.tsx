@@ -6,7 +6,7 @@ import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { CollateralType } from '@snx-v3/useCollateralTypes';
 import Wei from '@synthetixio/wei';
 import { ZEROWEI } from '@snx-v3/constants';
-import { ChangeStat } from './ChangeStat';
+import { ChangeStat } from '../ChangeStat';
 
 export const CollateralStats: FC<{
   liquidityPosition?: LiquidityPosition;
@@ -37,7 +37,7 @@ export const CollateralStats: FC<{
               newValue={newCollateralAmount}
               formatFn={(val: Wei) => `${currency(val)} ${collateralType.displaySymbol}`}
               hasChanges={hasChanges}
-              dataTestId="manage stats collateral"
+              data-cy="manage stats collateral"
             />
             <ChangeStat
               value={liquidityPosition.collateralAmount.mul(liquidityPosition.collateralPrice)}
@@ -50,7 +50,7 @@ export const CollateralStats: FC<{
               }
               size="md"
               hasChanges={hasChanges}
-              dataTestId="manage stats collateral"
+              data-cy="manage stats collateral"
             />
           </Flex>
         ) : (

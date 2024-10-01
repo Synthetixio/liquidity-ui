@@ -1,19 +1,18 @@
-import { useReducer } from 'react';
+import { ZEROWEI } from '@snx-v3/constants';
+import { notNil } from '@snx-v3/tsHelpers';
+import { initialState, reducer } from '@snx-v3/txnReducer';
+import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
+import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
-import { useMutation } from '@tanstack/react-query';
-import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
-import { initialState, reducer } from '@snx-v3/txnReducer';
-import Wei from '@synthetixio/wei';
-import { BigNumber } from 'ethers';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useSystemToken } from '@snx-v3/useSystemToken';
-import { notNil } from '@snx-v3/tsHelpers';
 import { withERC7412 } from '@snx-v3/withERC7412';
-import { useAllCollateralPriceIds } from '@snx-v3/useAllCollateralPriceIds';
-import { fetchPriceUpdates, priceUpdatesToPopulatedTx } from '@snx-v3/fetchPythPrices';
-import { ZEROWEI } from '@snx-v3/constants';
+import Wei from '@synthetixio/wei';
+import { useMutation } from '@tanstack/react-query';
+import { BigNumber } from 'ethers';
+import { useReducer } from 'react';
 
 export const useRepay = ({
   accountId,
@@ -31,8 +30,8 @@ export const useRepay = ({
 }) => {
   const [txnState, dispatch] = useReducer(reducer, initialState);
   const { data: CoreProxy } = useCoreProxy();
+  const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
   const { data: systemToken } = useSystemToken();
-  const { data: collateralPriceIds } = useAllCollateralPriceIds();
 
   const signer = useSigner();
   const { network } = useNetwork();
@@ -42,16 +41,7 @@ export const useRepay = ({
   const mutation = useMutation({
     mutationFn: async () => {
       if (!signer || !network || !provider) throw new Error('No signer or network');
-      if (
-        !(
-          CoreProxy &&
-          poolId &&
-          accountId &&
-          collateralTypeAddress &&
-          systemToken &&
-          collateralPriceIds
-        )
-      ) {
+      if (!(CoreProxy && poolId && accountId && collateralTypeAddress && systemToken)) {
         return;
       }
       if (debtChange.eq(0)) {
@@ -82,21 +72,14 @@ export const useRepay = ({
 
         const callsPromise = Promise.all([deposit, burn].filter(notNil));
         const walletAddress = await signer.getAddress();
-        const collateralPriceCallsPromise = fetchPriceUpdates(
-          collateralPriceIds,
-          network.isTestnet
-        ).then((signedData) =>
-          priceUpdatesToPopulatedTx(walletAddress, collateralPriceIds, signedData)
-        );
 
-        const [calls, gasPrices, collateralPriceCalls] = await Promise.all([
-          callsPromise,
-          getGasPrice({ provider }),
-          collateralPriceCallsPromise,
-        ]);
-        const allCalls = collateralPriceCalls.concat(calls);
+        const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
 
-        const erc7412Tx = await withERC7412(network, allCalls, 'useRepay', walletAddress);
+        if (priceUpdateTx) {
+          calls.unshift(priceUpdateTx as any);
+        }
+
+        const erc7412Tx = await withERC7412(network, calls, 'useRepay', walletAddress);
 
         const gasOptionsForTransaction = formatGasPriceForTransaction({
           gasLimit: erc7412Tx.gasLimit,
@@ -113,6 +96,10 @@ export const useRepay = ({
         dispatch({ type: 'error', payload: { error } });
         throw error;
       }
+    },
+    onSuccess: () => {
+      // After mutation withERC7412, we guaranteed to have updated all the prices, dont care about await
+      refetchPriceUpdateTx();
     },
   });
   return {

@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "start": "webpack-cli serve",
-    "build": "NODE_ENV=production webpack-cli",
-    "focus": "yarn workspaces focus '@synthetixio/v3-ui'"
+    "build": "NODE_ENV=production webpack-cli"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
@@ -89,10 +88,10 @@
     "@tanstack/react-query-devtools": "^5.8.3",
     "@web3-onboard/coinbase": "^2.4.1",
     "@web3-onboard/common": "^2.4.2",
-    "@web3-onboard/gnosis": "^2.3.1",
-    "@web3-onboard/injected-wallets": "^2.11.1",
+    "@web3-onboard/gnosis": "^2.3.2",
+    "@web3-onboard/injected-wallets": "^2.11.2",
     "@web3-onboard/ledger": "2.7.1",
-    "@web3-onboard/react": "^2.9.1",
+    "@web3-onboard/react": "^2.9.3",
     "@web3-onboard/trezor": "^2.4.6",
     "@web3-onboard/walletconnect": "^2.6.1",
     "ethers": "^5.7.2",

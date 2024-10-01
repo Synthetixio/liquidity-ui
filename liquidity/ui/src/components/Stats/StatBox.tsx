@@ -46,7 +46,13 @@ export const StatBox = ({ isLoading, title, label, value }: StatBoxProps) => {
           endColor="navy.800"
         >
           <Fade in>
-            <Text fontSize="24px" lineHeight="24px" fontWeight={800} data-cy={`${title}-stats-box`}>
+            <Text
+              fontSize="24px"
+              lineHeight="24px"
+              fontWeight={800}
+              data-cy="stats box"
+              data-title={title}
+            >
               {value || '$0.00'}
             </Text>
           </Fade>

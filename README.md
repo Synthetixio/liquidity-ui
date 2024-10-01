@@ -1,22 +1,4 @@
-# Synthetix V3 UI Monorepo
-
-[![main](https://github.com/synthetixio/v3ui/actions/workflows/main.yml/badge.svg)](https://github.com/synthetixio/v3ui/actions/workflows/main.yml)
-
-## Upgrade contacts
-
-```sh
-yarn upgrade-contracts
-yarn dedupe
-```
-
-## Upgrade browserlist
-
-```sh
-yarn upgrade-browsers
-yarn dedupe
-```
-
-## Install
+# Synthetix Liquidity UI
 
 This repo uses Yarn workspaces to manage multiple packages in the same repo. To prepare the repository for use, run:
 
@@ -26,74 +8,102 @@ yarn install
 
 This will install all dependencies, wire dependencies between packages in this repo, and allow for you to build projects.
 
-## Build
-
-If you make a change and want to generate the library JS code, run:
+Periodically we need to upgrade contacts:
 
 ```sh
-yarn build
+yarn upgrade-contracts
+yarn dedupe
 ```
 
-This will ensure all projects are fully built in topological order. You are also free to run script commands from individual repositories if necessary or desired.
-
-## Adding external library to the monorepo preserving git history
-
-This is 3-step process:
-
-1. Prepare original repo
-2. Add remote to monorepo
-3. Merge original repo branch and update build to match monorepo processes
-
-Using `codegen-graph-ts` as an example
-
-### 1. Prepare original repo
-
-- Create a separate branch `move-to-monorepo`
-- Create the intended destination folder inside monorepo `mkdir -p tools/codegen-graph-ts`
-- Move all the package files into `tools/codegen-graph-ts`
-- Remove all the files that won't be used (CI config, lockfile, etc)
-
-### 2. Add remote to monorepo
+and browserlists:
 
 ```sh
-cd ~/synthetix/v3ui
-git remote add codegen-graph-ts ~/synthetix/codegen-graph-ts
-git fetch --all
-
-#
-git merge codegen-graph-ts/move-to-monorepo --allow-unrelated-histories
+yarn upgrade-browsers
+yarn dedupe
 ```
 
-### 3. Merge original repo branch
+## Testing and local dev requirements
 
-Using `--allow-unrelated-histories` allows merging independent git history
+1. Install `foundry`
 
 ```sh
-git merge codegen-graph-ts/move-to-monorepo --allow-unrelated-histories
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
 ```
 
-Because we moved all the files into the separate folder we have no merge conflicts and at the same time we have full history added to the git tree
+Have `INFURA_KEY` env variable set
 
-Now we can remove remote as it is no longer necessary and cleanup all the added tags too
+## Testing Base
 
-```sh
-git remote remove codegen-graph-ts
+1.  Run Foundry Anvil fork
 
-# Cleanup all local tags and re-fetch existing tags without just removed `codegen-graph-ts` remote
-git tag -l | xargs git tag -d
-git fetch --tags
-```
+    ```sh
+    yarn anvil:base
+    ```
 
-### Rebasing unmerged branch
+2.  Update all prices
 
-To preserve all the merge commits when rebasing on top of updated master use `--rebase-merges`
+    ```sh
+    yarn update-prices:base
+    ```
 
-```sh
-git rebase master --rebase-merge
-```
+3.  Run Liquidity app locally
 
-Interactive rebase works too
+    ```sh
+    yarn start
+    ```
 
-```sh
-git rebase master --rebase-merge --interactive
-```
+4.  Open Cypress for Base
+    ```sh
+    yarn e2e:base
+    ```
+
+## Local development with fork and Magic Wallet
+
+Example for Arbitrum Mainnet
+
+All RPC calls in this mode will be made to `127.0.0.1:8585`
+and all transactions will be automatically signed, without any popups
+
+1.  Run Foundry Anvil fork
+
+    ```sh
+    yarn anvil:arbitrum
+    ```
+
+2.  Update all prices (optionally, to speed up UI as it will not need to attach price updates to each call)
+
+    ```sh
+    yarn update-prices:arbitrum
+    ```
+
+3.  Run Liquidity app locally
+
+    ```sh
+    yarn start
+    ```
+
+4.  Open app in browser
+
+    ```sh
+    open http://localhost:3000
+    ```
+
+5.  Open devtools and set `localStorage` values
+
+    ```js
+    localStorage.DEBUG = 'true';
+    localStorage.MAGIC_WALLET = '0xWalletAddress';
+    ```
+
+6.  Reload page and proceed with connecting your wallet through UI choosing "Metamask" in popup
+    (the only option)
+
+7.  If wallet needs some ETH balance you can use foundry's `cast` to set balance
+
+    ```sh
+    cast rpc anvil_setBalance 0xWalletAddress 10000000000000000000
+
+    # check your balance
+    cast balance 0xWalletAddress -e
+    ```

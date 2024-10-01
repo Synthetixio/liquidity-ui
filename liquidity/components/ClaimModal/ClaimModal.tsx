@@ -59,7 +59,7 @@ export const ClaimModalUi: React.FC<{
     }
 
     return (
-      <div>
+      <div data-cy="claim multistep">
         <Text color="gray.50" fontSize="20px" fontWeight={700}>
           <ArrowBackIcon cursor="pointer" onClick={onClose} mr={2} />
           Manage Debt
@@ -91,7 +91,7 @@ export const ClaimModalUi: React.FC<{
           }}
           width="100%"
           mt="6"
-          data-testid="claim-confirm-button"
+          data-cy="claim confirm button"
         >
           {(() => {
             switch (txnStatus) {

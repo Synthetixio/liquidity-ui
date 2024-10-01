@@ -58,7 +58,7 @@ export const WithdrawModalUi: FC<{
     }
 
     return (
-      <div>
+      <div data-cy="withdraw multistep">
         <Text color="gray.50" fontSize="20px" fontWeight={700}>
           <ArrowBackIcon cursor="pointer" onClick={onClose} mr={2} />
           Manage {isDebtWithdrawal ? 'Debt' : 'Collateral'}
@@ -86,7 +86,7 @@ export const WithdrawModalUi: FC<{
           onClick={onSubmit}
           width="100%"
           mt="6"
-          data-testid="withdraw confirm button"
+          data-cy="withdraw confirm button"
         >
           {(() => {
             switch (true) {

@@ -11,7 +11,7 @@ import { useMigrateUSD } from '@snx-v3/useMigrateUSD';
 import { StepSuccess } from './StepSuccess';
 import { ZEROWEI } from '@snx-v3/constants';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
-import { useUSDProxyForChain } from '@snx-v3/useUSDProxy';
+import { useUSDProxy } from '@snx-v3/useUSDProxy';
 
 type Props = FC<{
   amount: Wei;
@@ -25,7 +25,7 @@ export const MigrateUSDTransaction: Props = ({ onSuccess, amount, network, onBac
 
   const { data: v2_sUSD } = useV2sUSD(network);
   const { data: v2_balance } = useTokenBalance(v2_sUSD, network);
-  const { data: v3_sUSD } = useUSDProxyForChain(network);
+  const { data: v3_sUSD } = useUSDProxy(network);
   const { data: v3_balance } = useTokenBalance(v3_sUSD?.address, network);
 
   const [infiniteApproval, setInfiniteApproval] = useState(false);

@@ -1,19 +1,19 @@
-import { useReducer } from 'react';
+import { getRepayerContract, USDC_BASE_MARKET } from '@snx-v3/isBaseAndromeda';
+import { notNil } from '@snx-v3/tsHelpers';
+import { initialState, reducer } from '@snx-v3/txnReducer';
+import { useAllCollateralPriceIds } from '@snx-v3/useAllCollateralPriceIds';
+import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
+import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
-import { useMutation } from '@tanstack/react-query';
-import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
-import { initialState, reducer } from '@snx-v3/txnReducer';
-import Wei from '@synthetixio/wei';
-import { BigNumber, Contract } from 'ethers';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
-import { notNil } from '@snx-v3/tsHelpers';
-import { withERC7412 } from '@snx-v3/withERC7412';
-import { useAllCollateralPriceIds } from '@snx-v3/useAllCollateralPriceIds';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
-import { USDC_BASE_MARKET, getRepayerContract } from '@snx-v3/isBaseAndromeda';
-import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { withERC7412 } from '@snx-v3/withERC7412';
+import Wei from '@synthetixio/wei';
+import { useMutation } from '@tanstack/react-query';
+import { BigNumber, Contract } from 'ethers';
+import { useReducer } from 'react';
 
 export const DEBT_REPAYER_ABI = [
   {
@@ -49,7 +49,7 @@ export const useClearDebt = ({
   const { data: CoreProxy } = useCoreProxy();
   const { data: SpotMarketProxy } = useSpotMarketProxy();
   const { data: collateralPriceIds } = useAllCollateralPriceIds();
-  const { data: priceUpdateTx } = useCollateralPriceUpdates();
+  const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
 
   const signer = useSigner();
   const { network } = useNetwork();
@@ -121,6 +121,10 @@ export const useClearDebt = ({
         dispatch({ type: 'error', payload: { error } });
         throw error;
       }
+    },
+    onSuccess: () => {
+      // After mutation withERC7412, we guaranteed to have updated all the prices, dont care about await
+      refetchPriceUpdateTx();
     },
   });
   return {

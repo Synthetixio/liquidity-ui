@@ -1,13 +1,13 @@
-import { useQuery } from '@tanstack/react-query';
-import { useCoreProxy } from '@snx-v3/useCoreProxy';
-import { useDefaultProvider, useNetwork } from '@snx-v3/useBlockchain';
-import { z } from 'zod';
-import { SmallIntSchema, WeiSchema } from '@snx-v3/zod';
-import { ethers } from 'ethers';
-import { erc7412Call } from '@snx-v3/withERC7412';
 import { fetchPriceUpdates, priceUpdatesToPopulatedTx } from '@snx-v3/fetchPythPrices';
 import { useAllCollateralPriceIds } from '@snx-v3/useAllCollateralPriceIds';
-import { useAllCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { useDefaultProvider, useNetwork } from '@snx-v3/useBlockchain';
+import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { useCoreProxy } from '@snx-v3/useCoreProxy';
+import { erc7412Call } from '@snx-v3/withERC7412';
+import { SmallIntSchema, WeiSchema } from '@snx-v3/zod';
+import { useQuery } from '@tanstack/react-query';
+import { ethers } from 'ethers';
+import { z } from 'zod';
 
 export const MarketConfigurationSchema = z.object({
   id: SmallIntSchema,
@@ -29,7 +29,7 @@ export const usePoolConfiguration = (poolId?: string) => {
   const { data: CoreProxy } = useCoreProxy();
   const { data: collateralPriceUpdates } = useAllCollateralPriceIds();
   const provider = useDefaultProvider();
-  const { data: priceUpdateTx } = useAllCollateralPriceUpdates();
+  const { data: priceUpdateTx } = useCollateralPriceUpdates();
 
   return useQuery({
     enabled: Boolean(CoreProxy && poolId && collateralPriceUpdates),

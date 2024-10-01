@@ -21,7 +21,7 @@ import { Events, ServiceNames, State, UndelegateMachine } from './UndelegateMach
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
 import { ZEROWEI } from '@snx-v3/constants';
-import { ChangeStat } from '../../ui/src/components';
+import { ChangeStat } from '../../ui/src/components/ChangeStat';
 import { currency } from '@snx-v3/format';
 import { CRatioChangeStat } from '../../ui/src/components/CRatioBar/CRatioChangeStat';
 import { TransactionSummary } from '../../ui/src/components/TransactionSummary/TransactionSummary';
@@ -66,7 +66,7 @@ export const UndelegateModalUi: FC<{
     }
 
     return (
-      <div>
+      <div data-cy="undelegate multistep">
         <Text color="gray.50" fontSize="20px" fontWeight={700}>
           <ArrowBackIcon cursor="pointer" onClick={onClose} mr={2} />
           Manage Collateral
@@ -94,7 +94,7 @@ export const UndelegateModalUi: FC<{
           onClick={onSubmit}
           width="100%"
           mt="6"
-          data-testid="undelegate confirm button"
+          data-cy="undelegate confirm button"
         >
           {(() => {
             switch (true) {

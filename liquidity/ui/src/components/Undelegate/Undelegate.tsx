@@ -25,7 +25,7 @@ import { TokenIcon } from '../TokenIcon';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { ZEROWEI } from '@snx-v3/constants';
 import { CRatioChangeStat } from '../CRatioBar/CRatioChangeStat';
-import { ChangeStat } from '../Manage';
+import { ChangeStat } from '../ChangeStat';
 import { currency } from '@snx-v3/format';
 import { TransactionSummary } from '../TransactionSummary/TransactionSummary';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
@@ -154,7 +154,7 @@ export const UndelegateUi: FC<{
             <Text display="flex" alignItems="center" gap={1}>
               Locked:
             </Text>
-            <Amount value={max} data-testid="available to unlock" />
+            <Amount value={max} data-cy="available to unlock" />
             {max?.gt(0) && (
               <Text
                 as="span"
@@ -173,7 +173,7 @@ export const UndelegateUi: FC<{
             InputProps={{
               isDisabled: isInputDisabled,
               isRequired: true,
-              'data-testid': 'undelegate amount input',
+              'data-cy': 'undelegate amount input',
               'data-max': max?.toString(),
               type: 'number',
               min: 0,
@@ -269,7 +269,7 @@ export const UndelegateUi: FC<{
         <TransactionSummary mb={6} items={txSummaryItems} />
       </Collapse>
 
-      <Button data-testid="undelegate submit" type="submit" isDisabled={isSubmitDisabled}>
+      <Button data-cy="undelegate submit" type="submit" isDisabled={isSubmitDisabled}>
         {collateralChange.gte(0) ? 'Enter Amount' : 'Unlock Collateral'}
       </Button>
     </Flex>

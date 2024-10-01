@@ -1,5 +1,5 @@
 import { Contract } from '@ethersproject/contracts';
-import { useQuery } from '@tanstack/react-query';
+import { importLegacyMarket } from '@snx-v3/contracts';
 import {
   Network,
   useNetwork,
@@ -7,39 +7,28 @@ import {
   useProviderForChain,
   useSigner,
 } from '@snx-v3/useBlockchain';
-import { importLegacyMarket } from '@snx-v3/contracts';
+import { useQuery } from '@tanstack/react-query';
 
 export function useLegacyMarket(customNetwork?: Network) {
-  const providerForChain = useProviderForChain(customNetwork);
   const { network } = useNetwork();
   const provider = useProvider();
   const signer = useSigner();
+  const providerForChain = useProviderForChain(customNetwork);
+  const signerOrProvider = signer || provider;
   const targetNetwork = customNetwork || network;
-
   const withSigner = Boolean(signer);
-
   return useQuery({
     queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'LegacyMarket', { withSigner }],
+    enabled: Boolean(signerOrProvider && targetNetwork),
     queryFn: async function () {
+      if (!(signerOrProvider && targetNetwork)) throw new Error('OMFG');
       if (providerForChain && customNetwork) {
-        const { address: lmAddress, abi: lmAbi } = await importLegacyMarket(
-          customNetwork.id,
-          customNetwork.preset
-        );
-        return new Contract(lmAddress, lmAbi, providerForChain);
+        const { address, abi } = await importLegacyMarket(targetNetwork.id, targetNetwork.preset);
+        return new Contract(address, abi, providerForChain);
       }
-
-      const signerOrProvider = signer || provider;
-      if (!signerOrProvider || !network) throw new Error('Should be disabled CP');
-
-      const { address: lmAddress, abi: lmAbi } = await importLegacyMarket(
-        network?.id,
-        network?.preset
-      );
-
-      return new Contract(lmAddress, lmAbi, signerOrProvider);
+      const { address, abi } = await importLegacyMarket(targetNetwork?.id, targetNetwork?.preset);
+      return new Contract(address, abi, signerOrProvider);
     },
-    enabled: Boolean(signer || provider || providerForChain),
     staleTime: Infinity,
   });
 }

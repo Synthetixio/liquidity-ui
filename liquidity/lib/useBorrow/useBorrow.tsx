@@ -1,15 +1,15 @@
-import { useReducer } from 'react';
-import { useCoreProxy } from '@snx-v3/useCoreProxy';
-import { useMutation } from '@tanstack/react-query';
-import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { initialState, reducer } from '@snx-v3/txnReducer';
-import Wei from '@synthetixio/wei';
-import { BigNumber } from 'ethers';
+import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
+import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { withERC7412 } from '@snx-v3/withERC7412';
-import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import Wei from '@synthetixio/wei';
+import { useMutation } from '@tanstack/react-query';
+import { BigNumber } from 'ethers';
+import { useReducer } from 'react';
 
 export const useBorrow = ({
   accountId,
@@ -24,7 +24,7 @@ export const useBorrow = ({
 }) => {
   const [txnState, dispatch] = useReducer(reducer, initialState);
   const { data: CoreProxy } = useCoreProxy();
-  const { data: priceUpdateTx } = useCollateralPriceUpdates();
+  const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
 
   const signer = useSigner();
   const { gasSpeed } = useGasSpeed();
@@ -69,7 +69,7 @@ export const useBorrow = ({
         }
 
         const walletAddress = await signer.getAddress();
-        const erc7412Tx = await withERC7412(network, calls, 'borrow', walletAddress);
+        const erc7412Tx = await withERC7412(network, calls, 'useBorrow', walletAddress);
 
         const gasOptionsForTransaction = formatGasPriceForTransaction({
           gasLimit: erc7412Tx.gasLimit,
@@ -87,6 +87,10 @@ export const useBorrow = ({
         dispatch({ type: 'error', payload: { error } });
         throw error;
       }
+    },
+    onSuccess: () => {
+      // After mutation withERC7412, we guaranteed to have updated all the prices, dont care about await
+      refetchPriceUpdateTx();
     },
   });
   return {

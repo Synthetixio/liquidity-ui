@@ -1,46 +1,44 @@
 import { Contract } from '@ethersproject/contracts';
-import { useQuery } from '@tanstack/react-query';
+import { importOracleManagerProxy } from '@snx-v3/contracts';
 import {
   Network,
   useNetwork,
   useProvider,
   useProviderForChain,
   useSigner,
-  useWallet,
 } from '@snx-v3/useBlockchain';
-import { importOracleManagerProxy } from '@snx-v3/contracts';
+import { useQuery } from '@tanstack/react-query';
 
 export function useOracleManagerProxy(customNetwork?: Network) {
   const { network } = useNetwork();
-  const providerForChain = useProviderForChain(customNetwork);
   const provider = useProvider();
   const signer = useSigner();
-  const signerOrProvider = providerForChain || signer || provider;
-  const withSigner = Boolean(signer);
-  const { activeWallet } = useWallet();
-
+  const providerForChain = useProviderForChain(customNetwork);
+  const signerOrProvider = signer || provider;
   const targetNetwork = customNetwork || network;
-
+  const withSigner = Boolean(signer);
   return useQuery({
     queryKey: [
       `${targetNetwork?.id}-${targetNetwork?.preset}`,
       'OracleManagerProxy',
       { withSigner },
-      activeWallet?.address,
     ],
+    enabled: Boolean(signerOrProvider && targetNetwork),
     queryFn: async function () {
+      if (!(signerOrProvider && targetNetwork)) throw new Error('OMFG');
       if (providerForChain && customNetwork) {
         const { address, abi } = await importOracleManagerProxy(
-          customNetwork.id,
-          customNetwork.preset
+          targetNetwork.id,
+          targetNetwork.preset
         );
         return new Contract(address, abi, providerForChain);
       }
-      if (!network || !signerOrProvider) throw new Error('Network or signer not available');
-      const { address, abi } = await importOracleManagerProxy(network?.id, network?.preset);
+      const { address, abi } = await importOracleManagerProxy(
+        targetNetwork?.id,
+        targetNetwork?.preset
+      );
       return new Contract(address, abi, signerOrProvider);
     },
-    enabled: Boolean(signerOrProvider),
     staleTime: Infinity,
   });
 }

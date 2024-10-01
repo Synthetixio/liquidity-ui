@@ -54,7 +54,7 @@ export const Borrow = ({ liquidityPosition }: { liquidityPosition?: LiquidityPos
           <NumberInput
             InputProps={{
               isRequired: true,
-              'data-testid': 'borrow amount input',
+              'data-cy': 'borrow amount input',
               'data-max': maxDebt.toString(),
               type: 'number',
               min: 0,
@@ -92,7 +92,7 @@ export const Borrow = ({ liquidityPosition }: { liquidityPosition?: LiquidityPos
         </Alert>
       </Collapse>
 
-      <Button isDisabled={debtChange.lte(0)} data-testid="borrow submit" type="submit">
+      <Button isDisabled={debtChange.lte(0)} data-cy="borrow submit" type="submit">
         {debtChange.lte(0) ? 'Enter Amount' : isBase ? 'Claim' : 'Borrow'}
       </Button>
     </Flex>

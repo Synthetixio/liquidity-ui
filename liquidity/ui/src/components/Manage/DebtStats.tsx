@@ -7,7 +7,7 @@ import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { CollateralType } from '@snx-v3/useCollateralTypes';
 import Wei from '@synthetixio/wei';
 import { ZEROWEI } from '@snx-v3/constants';
-import { ChangeStat } from './ChangeStat';
+import { ChangeStat } from '../ChangeStat';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { DebtAmount } from '../Positions/PositionsTable/DebtAmount';
@@ -65,7 +65,6 @@ export const DebtStats: FC<{
               newValue={newDebt}
               formatFn={(val: Wei) => <DebtAmount debt={val} as="span" />}
               hasChanges={hasChanges}
-              dataTestId="manage-stats-debt-value"
             />
           ) : (
             <ChangeStat

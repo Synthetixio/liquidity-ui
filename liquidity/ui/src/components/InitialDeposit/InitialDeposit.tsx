@@ -164,7 +164,7 @@ export const InitialDepositUi: FC<{
               <Flex flexDir="column" flexGrow={1}>
                 <NumberInput
                   InputProps={{
-                    'data-testid': 'deposit amount input',
+                    'data-cy': 'deposit amount input',
                     'data-max': combinedTokenBalance?.toString(),
                     type: 'number',
                     min: 0,
@@ -174,7 +174,6 @@ export const InitialDepositUi: FC<{
                     setCollateralChange(value);
                   }}
                   max={combinedTokenBalance}
-                  dataTestId="deposit-number-input"
                   min={ZEROWEI}
                 />
                 <Flex fontSize="xs" color="whiteAlpha.700" alignSelf="flex-end" gap="1">
@@ -217,8 +216,7 @@ export const InitialDepositUi: FC<{
             </Alert>
           </Collapse>
           <Button
-            data-testid="deposit submit"
-            data-cy="deposit-submit-button"
+            data-cy="deposit submit"
             onClick={() => {
               if (hasAccount) {
                 onSubmit();

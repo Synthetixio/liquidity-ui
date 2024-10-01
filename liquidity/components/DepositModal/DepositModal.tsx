@@ -28,7 +28,7 @@ import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/Liquidi
 import { ZEROWEI } from '@snx-v3/constants';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { ChangeStat } from '../../ui/src/components';
+import { ChangeStat } from '../../ui/src/components/ChangeStat';
 import { CRatioChangeStat } from '../../ui/src/components/CRatioBar/CRatioChangeStat';
 import { TransactionSummary } from '../../ui/src/components/TransactionSummary/TransactionSummary';
 import { currency } from '@snx-v3/format';
@@ -102,7 +102,7 @@ export const DepositModalUi: FC<{
     }
 
     return (
-      <div>
+      <div data-cy="deposit multistep">
         <Text color="gray.50" fontSize="20px" fontWeight={700}>
           <ArrowBackIcon cursor="pointer" onClick={onClose} mr={2} />
           {title}
@@ -217,7 +217,7 @@ export const DepositModalUi: FC<{
           onClick={onSubmit}
           width="100%"
           mt="6"
-          data-cy="deposit-confirm-button"
+          data-cy="deposit confirm button"
         >
           {(() => {
             switch (true) {

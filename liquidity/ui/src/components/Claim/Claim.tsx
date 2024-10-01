@@ -67,7 +67,7 @@ const ClaimUi: FC<{
           <NumberInput
             InputProps={{
               isRequired: true,
-              'data-testid': 'claim amount input',
+              'data-cy': 'claim amount input',
               'data-max': maxClaimble.toString(),
               type: 'number',
               min: 0,
@@ -148,7 +148,7 @@ const ClaimUi: FC<{
       </Collapse>
       <Button
         isDisabled={debtChange.lte(0) || debtChange.gt(max)}
-        data-testid="claim submit"
+        data-cy="claim submit"
         type="submit"
       >
         {debtChange.lte(0)

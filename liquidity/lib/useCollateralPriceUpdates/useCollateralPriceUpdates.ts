@@ -1,14 +1,13 @@
-import { useQuery } from '@tanstack/react-query';
-import { BigNumberish, ethers } from 'ethers';
-import { Network, useDefaultProvider, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { EvmPriceServiceConnection } from '@pythnetwork/pyth-evm-js';
 import { offchainMainnetEndpoint } from '@snx-v3/constants';
-import { ERC7412_ABI } from '@snx-v3/withERC7412';
-import { importMulticall3, importExtras } from '@snx-v3/contracts';
-import { networksOffline } from '@snx-v3/usePoolsList';
-import { wei } from '@synthetixio/wei';
-import { importPythERC7412Wrapper } from '@snx-v3/contracts';
+import { importExtras, importMulticall3, importPythERC7412Wrapper } from '@snx-v3/contracts';
 import { parseUnits } from '@snx-v3/format';
+import { Network, useDefaultProvider, useNetwork, useWallet } from '@snx-v3/useBlockchain';
+import { networksOffline } from '@snx-v3/usePoolsList';
+import { ERC7412_ABI } from '@snx-v3/withERC7412';
+import { wei } from '@synthetixio/wei';
+import { useQuery } from '@tanstack/react-query';
+import { ethers } from 'ethers';
 
 const priceService = new EvmPriceServiceConnection(offchainMainnetEndpoint);
 
@@ -73,7 +72,7 @@ async function getPythFeedIdsFromCollateralList(
 const getPriceUpdates = async (
   priceIds: string[],
   stalenessTolerance: number,
-  network?: Network
+  network: Network
 ) => {
   const signedOffchainData = await priceService.getPriceFeedsUpdateData(priceIds);
   const updateType = 1;
@@ -83,41 +82,13 @@ const getPriceUpdates = async (
   );
   const erc7412Interface = new ethers.utils.Interface(ERC7412_ABI);
 
-  const { address } = await importPythERC7412Wrapper(network?.id, network?.preset);
+  const PythERC7412Wrapper = await importPythERC7412Wrapper(network.id, network.preset);
 
   return {
-    // pyth wrapper
-    to: address,
+    to: PythERC7412Wrapper.address,
     data: erc7412Interface.encodeFunctionData('fulfillOracleQuery', [data]),
     value: priceIds.length,
   };
-};
-
-export const useAllCollateralPriceUpdates = (customNetwork?: Network) => {
-  const { network } = useNetwork();
-  const targetNetwork = customNetwork || network;
-  return useQuery({
-    queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'all-price-updates'],
-    enabled: Boolean(targetNetwork?.id && targetNetwork?.preset),
-    queryFn: async () => {
-      if (!(targetNetwork?.id && targetNetwork?.preset)) {
-        throw 'useAllCollateralPriceUpdates is missing required data';
-      }
-      const stalenessTolerance = 1;
-
-      const pythFeedIds = (await getPythFeedIds(targetNetwork)) as string[];
-      if (!pythFeedIds.length) {
-        return null;
-      }
-      const tx = await getPriceUpdates(pythFeedIds, stalenessTolerance, targetNetwork);
-
-      return {
-        ...tx,
-        value: tx.value,
-      };
-    },
-    refetchInterval: 5 * 60000,
-  });
 };
 
 interface Collaterals {
@@ -138,7 +109,7 @@ export const useOfflinePrices = (collaterals?: Collaterals[]) => {
       const stables = ['sUSDC', 'USDC'];
       const filteredCollaterals = collaterals.filter((item) => !stables.includes(item.symbol));
 
-      const returnData: { symbol: string; price: BigNumberish }[] = [
+      const returnData: { symbol: string; price: ethers.BigNumberish }[] = [
         {
           symbol: 'sUSDC',
           price: wei(1).toBN(),
@@ -177,8 +148,9 @@ export const useOfflinePrices = (collaterals?: Collaterals[]) => {
   });
 };
 
-export const useCollateralPriceUpdates = () => {
-  const { network } = useNetwork();
+export const useCollateralPriceUpdates = (customNetwork?: Network) => {
+  const { network: currentNetwork } = useNetwork();
+  const network = customNetwork || currentNetwork;
   const provider = useDefaultProvider();
   const { activeWallet } = useWallet();
 
@@ -186,7 +158,7 @@ export const useCollateralPriceUpdates = () => {
     queryKey: [`${network?.id}-${network?.preset}`, 'price-updates', activeWallet?.address],
     enabled: Boolean(network?.id && network?.preset),
     queryFn: async () => {
-      const stalenessTolerance = 600;
+      const stalenessTolerance = 3300; // normally we have tolerance of 3600, which leaves us with extra 5min
       if (!(network?.id && network?.preset)) {
         throw 'OMG';
       }
@@ -203,12 +175,16 @@ export const useCollateralPriceUpdates = () => {
         ]);
 
         const pythFeedIds = (await getPythFeedIds(network)) as string[];
+        if (window.localStorage.getItem('DEBUG') === 'true') {
+          // eslint-disable-next-line no-console
+          console.log('[useCollateralPriceUpdates]', { pythFeedIds });
+        }
 
         if (pythFeedIds.length === 0) {
           return null;
         }
 
-        const { address } = await importPythERC7412Wrapper(network?.id, network?.preset);
+        const { address } = await importPythERC7412Wrapper(network.id, network.preset);
 
         const txs = [
           ...pythFeedIds.map((priceId) => ({
@@ -241,6 +217,10 @@ export const useCollateralPriceUpdates = () => {
             outdatedPriceIds.push(pythFeedIds[i]);
           }
         });
+        if (window.localStorage.getItem('DEBUG') === 'true') {
+          // eslint-disable-next-line no-console
+          console.log('[useCollateralPriceUpdates]', { outdatedPriceIds });
+        }
 
         if (outdatedPriceIds.length) {
           return {
@@ -254,6 +234,6 @@ export const useCollateralPriceUpdates = () => {
         return null;
       }
     },
-    refetchInterval: 60000,
+    refetchInterval: 120_000,
   });
 };

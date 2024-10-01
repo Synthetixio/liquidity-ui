@@ -1,22 +1,22 @@
-import { useReducer } from 'react';
-import { useCoreProxy } from '@snx-v3/useCoreProxy';
-import { useMutation } from '@tanstack/react-query';
-import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
+import { parseUnits } from '@snx-v3/format';
+import { getSpotMarketId } from '@snx-v3/isBaseAndromeda';
+import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
-import Wei, { wei } from '@synthetixio/wei';
-import { BigNumber, ethers } from 'ethers';
+import { approveAbi } from '@snx-v3/useApprove';
+import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
+import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
-import { withERC7412 } from '@snx-v3/withERC7412';
-import { notNil } from '@snx-v3/tsHelpers';
-import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
-import { parseUnits } from '@snx-v3/format';
-import { getSpotMarketId } from '@snx-v3/isBaseAndromeda';
-import { approveAbi } from '@snx-v3/useApprove';
-import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useGetUSDTokens } from '@snx-v3/useGetUSDTokens';
-import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
+import { withERC7412 } from '@snx-v3/withERC7412';
+import Wei, { wei } from '@synthetixio/wei';
+import { useMutation } from '@tanstack/react-query';
+import { BigNumber, ethers } from 'ethers';
+import { useReducer } from 'react';
 
 export const useDepositBaseAndromeda = ({
   accountId,
@@ -40,7 +40,7 @@ export const useDepositBaseAndromeda = ({
   const [txnState, dispatch] = useReducer(reducer, initialState);
   const { data: CoreProxy } = useCoreProxy();
   const { data: SpotMarketProxy } = useSpotMarketProxy();
-  const { data: priceUpdateTx } = useCollateralPriceUpdates();
+  const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
   const { data: usdTokens } = useGetUSDTokens();
   const { data: collateralType } = useCollateralType(collateralSymbol);
 
@@ -161,6 +161,10 @@ export const useDepositBaseAndromeda = ({
         dispatch({ type: 'error', payload: { error } });
         throw error;
       }
+    },
+    onSuccess: () => {
+      // After mutation withERC7412, we guaranteed to have updated all the prices, dont care about await
+      refetchPriceUpdateTx();
     },
   });
   return {

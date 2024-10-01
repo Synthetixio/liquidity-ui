@@ -36,7 +36,7 @@ export function NetworkController() {
     isLoading: isAccountsLoading,
     isFetching: isAccountsFetching,
   } = useAccounts();
-  const { mutation } = useCreateAccount();
+  const createAccount = useCreateAccount();
   const [showTestnets, setShowTestnets] = useLocalStorage(LOCAL_STORAGE_KEYS.SHOW_TESTNETS, false);
   const [queryParams] = useSearchParams();
   const navigate = useNavigate();
@@ -120,7 +120,6 @@ export function NetworkController() {
           colorScheme="gray"
           sx={{ '> span': { display: 'flex', alignItems: 'center' } }}
           mr={1}
-          data-cy="account-menu-button"
           px={3}
         >
           <NetworkIcon
@@ -130,7 +129,11 @@ export function NetworkController() {
         </MenuButton>
         <MenuList border="1px" borderColor="gray.900">
           {mainnets.map(({ id, preset, label }) => (
-            <MenuItem key={`${id}-${preset}`} onClick={() => setNetwork(id)}>
+            <MenuItem
+              key={`${id}-${preset}`}
+              onClick={() => setNetwork(id)}
+              isDisabled={window.$chainId ? window.$chainId !== id : false}
+            >
               <NetworkIcon networkId={id} size="20px" />
               <Text variant="nav" ml={2}>
                 {label}
@@ -157,7 +160,11 @@ export function NetworkController() {
           </MenuOptionGroup>
 
           {(showTestnets ? testnets : []).map(({ id, preset, label }) => (
-            <MenuItem key={`${id}-${preset}`} onClick={() => setNetwork(id)}>
+            <MenuItem
+              key={`${id}-${preset}`}
+              onClick={() => setNetwork(id)}
+              isDisabled={window.$chainId ? window.$chainId !== id : false}
+            >
               <NetworkIcon filter="grayscale(1)" networkId={id} size="20px" />
               <Text variant="nav" ml={2}>
                 {label}
@@ -177,7 +184,7 @@ export function NetworkController() {
             py="6px"
             px="9.5px"
             whiteSpace="nowrap"
-            data-cy="header-wallet-address-button"
+            data-cy="wallet button"
           >
             <WalletIcon color="white" />
             <Text
@@ -187,7 +194,7 @@ export function NetworkController() {
               fontWeight={700}
               fontSize="xs"
               userSelect="none"
-              data-cy="header-wallet-address-display"
+              data-cy="short wallet address"
             >
               {activeWallet.ens?.name || prettyString(activeWallet.address)}
             </Text>
@@ -258,7 +265,7 @@ export function NetworkController() {
                       />
                     </Link>
                   </Flex>
-                  <Flex data-cy="header-account-list" flexDir="column">
+                  <Flex data-cy="accounts list" flexDir="column">
                     {accounts?.map((account) => (
                       <Text
                         key={account}
@@ -269,7 +276,8 @@ export function NetworkController() {
                         fontSize="16px"
                         cursor="pointer"
                         p="3"
-                        data-cy={`account-${account}`}
+                        data-cy="account id"
+                        data-account-id={account}
                         _hover={{ bg: 'whiteAlpha.300' }}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -289,9 +297,11 @@ export function NetworkController() {
 
                   <Button
                     onClick={(e) => {
+                      e.preventDefault();
                       e.stopPropagation();
-                      mutation.mutate();
+                      createAccount.mutation.mutate();
                     }}
+                    isDisabled={!createAccount.enabled || createAccount.mutation.isPending}
                     size="xs"
                     variant="outline"
                     colorScheme="gray"
@@ -311,7 +321,7 @@ export function NetworkController() {
                       </svg>
                     }
                     w="130px"
-                    data-cy="create-new-account-menu-item"
+                    data-cy="create new account button"
                   >
                     Create Account
                   </Button>
@@ -322,7 +332,7 @@ export function NetworkController() {
         </Menu>
       ) : (
         <Button
-          data-cy="header-connect-wallet"
+          data-cy="connect wallet button"
           onClick={() => connect()}
           type="button"
           size="sm"

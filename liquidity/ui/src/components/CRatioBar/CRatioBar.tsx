@@ -82,13 +82,7 @@ export const CRatioBarUi: FC<{
         )}
       </Flex>
 
-      <Box
-        position="relative"
-        height="100px"
-        width="full"
-        data-testid="c ratio progressbar"
-        overflowX="hidden"
-      >
+      <Box position="relative" height="100px" width="full" overflowX="hidden">
         <>
           <LineWithText
             left="25%"
@@ -169,7 +163,6 @@ export const CRatioBarUi: FC<{
                 color={variant}
               />
               <TriangleUpIcon
-                data-testid="current c-ration triangle"
                 position="absolute"
                 right={0}
                 bottom={0}

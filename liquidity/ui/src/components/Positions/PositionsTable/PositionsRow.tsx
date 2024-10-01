@@ -208,7 +208,6 @@ export function PositionRow({
             borderColor="gray.900"
             borderRadius="4px"
             onClick={() => handleNavigate('deposit')}
-            data-cy="manage-position-row-button"
           >
             Manage
           </Button>
