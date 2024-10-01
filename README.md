@@ -107,3 +107,13 @@ and all transactions will be automatically signed, without any popups
     # check your balance
     cast balance 0xWalletAddress -e
     ```
+
+8.  Periodically (once an hour or less) sync fork time and update prices.
+
+    ```sh
+    yarn update-prices:arbitrum
+    yarn sync-time
+    ```
+
+    Because price updates are coming from offchain server we need to bring fork's internal time to realtime,
+    otherwise we will will have empty `priceUpdateTx` but then consistently get `OracleDataRequiredError` for ALL price feeds
