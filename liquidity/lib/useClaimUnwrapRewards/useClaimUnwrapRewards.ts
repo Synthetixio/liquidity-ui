@@ -8,12 +8,12 @@ import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
+import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import Wei from '@synthetixio/wei';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { BigNumber } from 'ethers';
 import { useReducer } from 'react';
-import { useSynthTokens } from '../useSynthTokens';
 
 export function useClaimUnwrapRewards({
   poolId,
