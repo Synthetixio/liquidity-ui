@@ -32,7 +32,7 @@ export const chains: ChainWithDecimalId[] = Object.values(
 
 export const onboard = init({
   wallets:
-    window.localStorage.DEBUG === 'true' && window.localStorage.MAGIC_WALLET === 'true'
+    window.localStorage.DEBUG === 'true' && window.$magicWallet
       ? [injectedModule()]
       : [
           coinbaseModule(),
