@@ -1,31 +1,21 @@
 import { Button } from '@chakra-ui/react';
-import { FC, useEffect, useState } from 'react';
 import { Network, useNetwork, useWallet } from '@snx-v3/useBlockchain';
-import { MigrateUSDModal } from './MigrateUSDModal';
+import { useParams } from '@snx-v3/useParams';
+import { useEffect, useState } from 'react';
 import { TokenIcon } from '../TokenIcon';
-import { useLocation } from 'react-router-dom';
+import { MigrateUSDModal } from './MigrateUSDModal';
 
-interface Props {
-  network: Network;
-}
-
-export const MigrateUSDButton: FC<Props> = ({ network }) => {
-  const location = useLocation();
-
+export function MigrateUSDButton({ network }: { network: Network }) {
   const [isOpen, setIsOpen] = useState(false);
   const { network: currentNetwork } = useNetwork();
-
+  const params = useParams();
   const { activeWallet } = useWallet();
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-
-    const convert = queryParams.get('convert');
-
-    if (convert && convert.toLowerCase() === 'snxusd') {
+    if (params.convert?.toLowerCase() === 'snxusd') {
       setIsOpen(true);
     }
-  }, [location.search]);
+  }, [params.convert]);
 
   if (!activeWallet || currentNetwork?.id !== network.id) {
     return null;
@@ -54,4 +44,4 @@ export const MigrateUSDButton: FC<Props> = ({ network }) => {
       </Button>
     </>
   );
-};
+}
