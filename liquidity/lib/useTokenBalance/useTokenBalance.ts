@@ -1,77 +1,90 @@
-import { assertAddressType } from '@snx-v3/assertAddressType';
-import { ZEROWEI } from '@snx-v3/constants';
-import {
-  Network,
-  useDefaultProvider,
-  useNetwork,
-  useProviderForChain,
-  useWallet,
-} from '@snx-v3/useBlockchain';
+import { Network, useNetwork, useProviderForChain, useWallet } from '@snx-v3/useBlockchain';
 import { wei } from '@synthetixio/wei';
-import { useQuery } from '@tanstack/react-query';
-import { ethers, providers } from 'ethers';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { ethers } from 'ethers';
 
 export const abi = [
   'function balanceOf(address) view returns (uint256)',
   'function decimals() view returns (uint8)',
 ];
 
-export const useTokenBalance = (address?: string, customNetwork?: Network) => {
+export const useTokenBalance = (tokenAddress?: string, customNetwork?: Network) => {
   const { activeWallet } = useWallet();
   const { network } = useNetwork();
-
   const targetNetwork = customNetwork || network;
   const provider = useProviderForChain(targetNetwork);
-
-  const tokenAddress = assertAddressType(address) ? address : undefined;
+  const walletAddress = activeWallet?.address;
   return useQuery({
+    enabled: Boolean(walletAddress && tokenAddress && provider && targetNetwork),
     queryKey: [
       `${targetNetwork?.id}-${targetNetwork?.preset}`,
       'TokenBalance',
-      { accountAddress: activeWallet?.address },
-      { tokenAddress },
+      { accountAddress: walletAddress, tokenAddress },
     ],
-    queryFn: async () => await fetchTokenBalance(address!, activeWallet!.address, provider!),
-    enabled: Boolean(activeWallet?.address && tokenAddress && provider && targetNetwork?.id),
-    refetchInterval: 15000,
+    queryFn: async () => {
+      if (!(walletAddress && tokenAddress && provider && targetNetwork)) {
+        throw 'OMFG';
+      }
+
+      const TokenContract = new ethers.Contract(tokenAddress, abi, provider);
+      const [balance, decimals] = await Promise.all([
+        TokenContract.balanceOf(walletAddress),
+        TokenContract.decimals(),
+      ]);
+      return { balance, decimals };
+    },
+    select: ({ balance, decimals }) => wei(balance, decimals),
+    refetchInterval: 120_000,
   });
 };
 
-export const useTokenBalances = (addresses: string[], customNetwork?: Network) => {
+export const useTokenBalances = (tokenAddresses: string[], customNetwork?: Network) => {
   const { activeWallet } = useWallet();
-  const defaultProvider = useDefaultProvider();
-  const providerForChain = useProviderForChain(customNetwork);
-  const provider = providerForChain || defaultProvider;
-
   const { network } = useNetwork();
-
   const targetNetwork = customNetwork || network;
+  const provider = useProviderForChain(targetNetwork);
+  const walletAddress = activeWallet?.address;
 
+  const queryClient = useQueryClient();
   return useQuery({
     queryKey: [
       `${targetNetwork?.id}-${targetNetwork?.preset}`,
       'TokenBalance',
-      { accountAddress: activeWallet?.address },
-      addresses.toString(),
+      {
+        accountAddress: walletAddress,
+        tokenAddresses: tokenAddresses.map((a) => a.slice(2, 6).toLowerCase()).sort(),
+      },
     ],
-    queryFn: async () =>
-      await Promise.all(
-        addresses.map((address) => fetchTokenBalance(address, activeWallet!.address, provider!))
-      ),
-    enabled: Boolean(activeWallet?.address && addresses.length && provider && targetNetwork?.id),
-    refetchInterval: 15000,
+    enabled: Boolean(walletAddress && tokenAddresses.length && provider && targetNetwork),
+
+    queryFn: async () => {
+      if (!(walletAddress && tokenAddresses.length && provider && targetNetwork)) {
+        throw 'OMFG';
+      }
+
+      return await Promise.all(
+        tokenAddresses.map(async (tokenAddress) => {
+          const TokenContract = new ethers.Contract(tokenAddress, abi, provider);
+          const [balance, decimals] = await Promise.all([
+            TokenContract.balanceOf(walletAddress),
+            TokenContract.decimals(),
+          ]);
+          queryClient.setQueryData(
+            [
+              `${targetNetwork?.id}-${targetNetwork?.preset}`,
+              'TokenBalance',
+              {
+                accountAddress: walletAddress,
+                tokenAddresses: tokenAddresses.map((a) => a.slice(2, 6).toLowerCase()).sort(),
+              },
+            ],
+            { balance, decimals }
+          );
+          return { balance, decimals };
+        })
+      );
+    },
+    select: (balances) => balances.map(({ balance, decimals }) => wei(balance, decimals)),
+    refetchInterval: 120_000,
   });
 };
-
-export async function fetchTokenBalance(
-  tokenAddress: string,
-  walletAddress: string,
-  provider: providers.JsonRpcProvider
-) {
-  if (!tokenAddress) {
-    return ZEROWEI;
-  }
-  const contract = new ethers.Contract(tokenAddress, abi, provider);
-  const balance = wei(await contract.balanceOf(walletAddress), await contract.decimals());
-  return balance;
-}

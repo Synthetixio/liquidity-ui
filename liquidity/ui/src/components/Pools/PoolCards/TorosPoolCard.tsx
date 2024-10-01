@@ -3,7 +3,7 @@ import { BASE_ANDROMEDA, NetworkIcon } from '@snx-v3/useBlockchain';
 import { TokenIcon } from '../../TokenIcon';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { getSpotMarketId } from '@snx-v3/isBaseAndromeda';
-import { useTokenBalanceForChain } from '@snx-v3/useTokenBalance';
+import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { formatNumberToUsd } from '@snx-v3/formatters';
 import { formatNumber } from 'humanize-plus';
 import { Specifics } from './Specifics';
@@ -15,7 +15,7 @@ interface TorosPoolCardProps {
 
 export function TorosPoolCard({ tvl, apy }: TorosPoolCardProps) {
   const { data: wrapperToken } = useGetWrapperToken(getSpotMarketId('USDC'), BASE_ANDROMEDA);
-  const { data: balance } = useTokenBalanceForChain(wrapperToken, BASE_ANDROMEDA);
+  const { data: balance } = useTokenBalance(wrapperToken, BASE_ANDROMEDA);
 
   return (
     <Fade in>

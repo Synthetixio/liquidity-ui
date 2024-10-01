@@ -135,7 +135,7 @@ export const Rewards = ({ ...props }: FlexProps) => {
             {!isPending && rewards && rewards.length === 0 ? (
               <Td display="flex" alignItems="left" px={4} border="none" w="100%">
                 <Text color="gray.500" fontFamily="heading" fontSize="xs">
-                  No Rewards Available
+                  Create a Position to see your earnings
                 </Text>
               </Td>
             ) : null}

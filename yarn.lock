@@ -5000,7 +5000,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/assertAddressType@workspace:*, @snx-v3/assertAddressType@workspace:liquidity/lib/assertAddressType":
+"@snx-v3/assertAddressType@workspace:liquidity/lib/assertAddressType":
   version: 0.0.0-use.local
   resolution: "@snx-v3/assertAddressType@workspace:liquidity/lib/assertAddressType"
   languageName: unknown
@@ -6104,8 +6104,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useTokenBalance@workspace:liquidity/lib/useTokenBalance"
   dependencies:
-    "@snx-v3/assertAddressType": "workspace:*"
-    "@snx-v3/constants": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
