@@ -10,6 +10,7 @@
     "cy": "NODE_ENV=test cypress open --component --browser chrome",
     "e2e:arbitrum": "NODE_ENV=test CYPRESS_CHAIN_ID=42161 CYPRESS_PRESET=main cypress open --e2e --browser chrome --config specPattern='./cypress/e2e/42161-main/*.e2e.js'",
     "e2e:base": "NODE_ENV=test CYPRESS_CHAIN_ID=8453 CYPRESS_PRESET=andromeda cypress open --e2e --browser chrome --config specPattern='./cypress/e2e/8453-andromeda/*.e2e.js'",
+    "sync-time": "ts-node bin/syncTime.ts",
     "update-prices": "ts-node bin/doAllPriceUpdates.ts 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
     "update-prices:arbitrum": "NODE_ENV=test CYPRESS_CHAIN_ID=42161 CYPRESS_PRESET=main yarn update-prices",
     "update-prices:base": "NODE_ENV=test CYPRESS_CHAIN_ID=8453 CYPRESS_PRESET=andromeda yarn update-prices"

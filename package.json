@@ -10,6 +10,7 @@
     "build": "yarn workspace @snx-v3/liquidity build",
     "update-prices:arbitrum": "yarn workspace @snx-v3/liquidity-cypress update-prices:arbitrum",
     "update-prices:base": "yarn workspace @snx-v3/liquidity-cypress update-prices:base",
+    "sync-time": "yarn workspace @snx-v3/liquidity-cypress sync-time",
     "anvil:arbitrum": "yarn workspace @snx-v3/liquidity-cypress anvil:arbitrum",
     "anvil:sepolia": "yarn workspace @snx-v3/liquidity-cypress anvil:sepolia",
     "anvil:base": "yarn workspace @snx-v3/liquidity-cypress anvil:base",
