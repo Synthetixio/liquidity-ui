@@ -1,6 +1,4 @@
-import { fetchPriceUpdates, priceUpdatesToPopulatedTx } from '@snx-v3/fetchPythPrices';
 import { stringToHash } from '@snx-v3/tsHelpers';
-import { useAllCollateralPriceIds } from '@snx-v3/useAllCollateralPriceIds';
 import { Network, useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
@@ -22,7 +20,6 @@ export const useVaultsData = (poolId?: number, customNetwork?: Network) => {
 
   const { data: collateralTypes } = useCollateralTypes(false, customNetwork);
   const { data: CoreProxy } = useCoreProxy(customNetwork);
-  const { data: collateralPriceUpdates } = useAllCollateralPriceIds(customNetwork);
 
   const provider = useProviderForChain(targetNetwork);
 
@@ -38,15 +35,9 @@ export const useVaultsData = (poolId?: number, customNetwork?: Network) => {
         priceUpdateTx: stringToHash(priceUpdateTx?.data),
       },
     ],
+    enabled: Boolean(CoreProxy && collateralTypes && poolId && targetNetwork && provider),
     queryFn: async () => {
-      if (
-        !CoreProxy ||
-        !collateralTypes ||
-        !poolId ||
-        !collateralPriceUpdates ||
-        !targetNetwork ||
-        !provider
-      ) {
+      if (!(CoreProxy && collateralTypes && poolId && targetNetwork && provider)) {
         throw Error('useVaultsData should not be enabled when missing data');
       }
 
@@ -62,12 +53,7 @@ export const useVaultsData = (poolId?: number, customNetwork?: Network) => {
         )
       );
 
-      const collateralPriceUpdateCallsP = fetchPriceUpdates(
-        collateralPriceUpdates,
-        targetNetwork.isTestnet
-      ).then((signedData) => priceUpdatesToPopulatedTx('0x', collateralPriceUpdates, signedData));
-
-      const calls = await Promise.all([collateralPriceUpdateCallsP, collateralCallsP, debtCallsP]);
+      const calls = await Promise.all([collateralCallsP, debtCallsP]);
 
       if (priceUpdateTx) {
         calls.unshift(priceUpdateTx as any);
@@ -105,7 +91,6 @@ export const useVaultsData = (poolId?: number, customNetwork?: Network) => {
         'useVaultsData'
       );
     },
-    enabled: Boolean(collateralTypes?.length && CoreProxy && poolId && collateralPriceUpdates),
   });
 };
 

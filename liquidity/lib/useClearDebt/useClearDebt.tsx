@@ -1,7 +1,6 @@
 import { getRepayerContract, USDC_BASE_MARKET } from '@snx-v3/isBaseAndromeda';
 import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
-import { useAllCollateralPriceIds } from '@snx-v3/useAllCollateralPriceIds';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
@@ -48,7 +47,6 @@ export const useClearDebt = ({
   const [txnState, dispatch] = useReducer(reducer, initialState);
   const { data: CoreProxy } = useCoreProxy();
   const { data: SpotMarketProxy } = useSpotMarketProxy();
-  const { data: collateralPriceIds } = useAllCollateralPriceIds();
   const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
 
   const signer = useSigner();
@@ -59,17 +57,7 @@ export const useClearDebt = ({
   const mutation = useMutation({
     mutationFn: async () => {
       if (!signer || !network || !provider) throw new Error('No signer or network');
-
-      if (
-        !(
-          CoreProxy &&
-          poolId &&
-          accountId &&
-          collateralTypeAddress &&
-          SpotMarketProxy &&
-          collateralPriceIds
-        )
-      ) {
+      if (!(CoreProxy && poolId && accountId && collateralTypeAddress && SpotMarketProxy)) {
         return;
       }
 

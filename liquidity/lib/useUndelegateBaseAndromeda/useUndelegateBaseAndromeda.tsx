@@ -2,7 +2,6 @@ import { parseUnits } from '@snx-v3/format';
 import { getRepayerContract, USDC_BASE_MARKET } from '@snx-v3/isBaseAndromeda';
 import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
-import { useAllCollateralPriceIds } from '@snx-v3/useAllCollateralPriceIds';
 import { useApprove } from '@snx-v3/useApprove';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { DEBT_REPAYER_ABI } from '@snx-v3/useClearDebt';
@@ -43,7 +42,6 @@ export const useUndelegateBaseAndromeda = ({
   const signer = useSigner();
   const { gasSpeed } = useGasSpeed();
   const provider = useProvider();
-  const { data: collateralPriceUpdates } = useAllCollateralPriceIds();
   const { network } = useNetwork();
   const { data: usdTokens } = useGetUSDTokens();
 
@@ -60,10 +58,7 @@ export const useUndelegateBaseAndromeda = ({
   const mutation = useMutation({
     mutationFn: async () => {
       if (!signer || !network || !provider) throw new Error('No signer or network');
-      if (
-        !(CoreProxy && poolId && collateralTypeAddress && collateralPriceUpdates && SpotMarketProxy)
-      )
-        return;
+      if (!(CoreProxy && poolId && collateralTypeAddress && SpotMarketProxy)) return;
       if (collateralChange.eq(0)) return;
       if (currentCollateral.eq(0)) return;
       try {
