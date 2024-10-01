@@ -125,4 +125,9 @@ declare module '@snx-v3/contracts' {
     chainId?: number,
     preset?: string
   ): Promise<{ address: string; abi: string[] }>;
+
+  function importStaticAaveUSDC(
+    chainId?: number,
+    preset?: string
+  ): Promise<{ address: string; abi: string[] }>;
 }
