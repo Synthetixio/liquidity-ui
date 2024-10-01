@@ -93,8 +93,17 @@ and all transactions will be automatically signed, without any popups
 
     ```js
     localStorage.DEBUG = 'true';
-    localStorage.MAGIC_WALLET = '0xWhateverWalletAddressYouWantToWorkWith';
+    localStorage.MAGIC_WALLET = '0xWalletAddress';
     ```
 
 6.  Reload page and proceed with connecting your wallet through UI choosing "Metamask" in popup
     (the only option)
+
+7.  If wallet needs some ETH balance you can use foundry's `cast` to set balance
+
+    ```sh
+    cast rpc anvil_setBalance 0xWalletAddress 10000000000000000000
+
+    # check your balance
+    cast balance 0xWalletAddress -e
+    ```
