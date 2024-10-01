@@ -71,7 +71,6 @@ export const useTokenInfo = (tokenAddress?: string) => {
       return tokensInfo[tokenAddress];
     },
     staleTime: Infinity,
-    refetchInterval: Infinity,
   });
 };
 
@@ -116,6 +115,5 @@ export const useTokensInfo = (addresses: string[]) => {
       ) as TokensInfoType;
     },
     staleTime: Infinity,
-    refetchInterval: Infinity,
   });
 };

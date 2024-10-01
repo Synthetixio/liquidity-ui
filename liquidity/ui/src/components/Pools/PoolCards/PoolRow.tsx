@@ -16,7 +16,7 @@ import { Sparkles } from '@snx-v3/icons';
 import { formatNumber, formatNumberToUsd } from '@snx-v3/formatters';
 import { formatApr } from '../CollateralSection';
 import { Tooltip } from '@snx-v3/Tooltip';
-import { useTokenBalanceForChain } from '@snx-v3/useTokenBalance';
+import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { ZEROWEI } from '@snx-v3/constants';
@@ -54,7 +54,7 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
   // TODO: This will need refactoring
   const balanceAddress = isBase ? wrapperToken : collateralType?.tokenAddress;
 
-  const { data: balance } = useTokenBalanceForChain(balanceAddress, network);
+  const { data: balance } = useTokenBalance(balanceAddress, network);
   const navigate = useNavigate();
   const [queryParams] = useSearchParams();
 
