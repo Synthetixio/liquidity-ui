@@ -228,7 +228,7 @@ export const withERC7412 = async (
             target: call.to,
             callData: call.data,
             value: call.value ? ethers.BigNumber.from(call.value) : ethers.BigNumber.from(0),
-            requireSuccess: call.requireSuccess ?? true,
+            requireSuccess: call.requireSuccess ?? false,
           })),
         ]),
         value: calls.reduce(
