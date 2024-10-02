@@ -16,77 +16,36 @@ import {
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { ZEROWEI } from '@snx-v3/constants';
-import { formatNumber } from '@snx-v3/formatters';
-import { getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
-import { MAINNET, SEPOLIA, useNetwork } from '@snx-v3/useBlockchain';
+import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
-import { useEthBalance } from '@snx-v3/useEthBalance';
-import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
+import { useCombinedTokenBalance } from '@snx-v3/useCombinedTokenBalance';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { useParams } from '@snx-v3/useParams';
-import { useTokenBalance } from '@snx-v3/useTokenBalance';
-import { useTokenPrice } from '@snx-v3/useTokenPrice';
-import { useTransferableSynthetix } from '@snx-v3/useTransferableSynthetix';
 import { WithdrawIncrease } from '@snx-v3/WithdrawIncrease';
-import Wei from '@synthetixio/wei';
-import { FC, useContext, useMemo, useState } from 'react';
-import { TokenIcon } from '..';
+import { wei } from '@synthetixio/wei';
+import { useContext, useState } from 'react';
 import { MigrationBanner } from '../Migration/MigrationBanner';
+import { TokenIcon } from '../TokenIcon';
 
-export const InitialDepositUi: FC<{
-  collateralChange: Wei;
-  ethBalance?: Wei;
-  snxBalance?: {
-    transferable: Wei;
-    collateral?: Wei;
-  };
-  tokenBalance?: Wei;
-  displaySymbol: string;
-  symbol: string;
-  setCollateralChange: (val: Wei) => void;
-  onSubmit: () => void;
-  minDelegation: Wei;
-  hasAccount: boolean;
-  availableCollateral: Wei;
-}> = ({
-  collateralChange,
-  setCollateralChange,
-  displaySymbol,
-  symbol,
-  tokenBalance,
-  ethBalance,
-  snxBalance,
-  onSubmit,
-  minDelegation,
+export function InitialDeposit({
+  submit,
   hasAccount,
-  availableCollateral,
-}) => {
-  const [step, setStep] = useState(0);
-
-  const price = useTokenPrice(symbol);
+  liquidityPosition,
+}: {
+  submit: () => void;
+  hasAccount: boolean;
+  liquidityPosition?: LiquidityPosition;
+}) {
+  const { collateralChange, setCollateralChange } = useContext(ManagePositionContext);
   const { network } = useNetwork();
+  const { collateralSymbol } = useParams();
+  const { data: collateralType } = useCollateralType(collateralSymbol);
+  const { data: combinedTokenBalance } = useCombinedTokenBalance(collateralType);
+  const maxAmount = combinedTokenBalance?.balance || wei(0);
 
-  const combinedTokenBalance = useMemo(() => {
-    if (symbol === 'SNX') {
-      return snxBalance?.transferable || ZEROWEI;
-    }
-    if (symbol !== 'WETH') {
-      return tokenBalance || ZEROWEI;
-    }
-    if (!tokenBalance || !ethBalance) {
-      return ZEROWEI;
-    }
-    return tokenBalance.add(ethBalance);
-  }, [symbol, tokenBalance, ethBalance, snxBalance?.transferable]);
-
-  const maxAmount = useMemo(() => {
-    return combinedTokenBalance?.add(availableCollateral);
-  }, [availableCollateral, combinedTokenBalance]);
-
-  const overAvailableBalance = collateralChange.gt(maxAmount);
-
+  const [step, setStep] = useState(0);
   return (
     <Flex flexDirection="column">
       <Text color="gray.50" fontSize="20px" fontWeight={700}>
@@ -96,7 +55,7 @@ export const InitialDepositUi: FC<{
       <Divider my={5} bg="gray.900" />
       {step === 0 && (
         <>
-          <Text color="gray.50" fontSize="sm" fontWeight="700" mb={2}>
+          <Text color="gray.50" fontSize="sm" fontWeight="700" mb={2} whiteSpace="nowrap">
             Deposit & Lock Collateral
           </Text>
           <BorderBox display="flex" flexDirection="column" p={3} mb="6">
@@ -110,9 +69,15 @@ export const InitialDepositUi: FC<{
                   px={2.5}
                   width="fit-content"
                 >
-                  <Text display="flex" gap={2} alignItems="center" fontWeight="600">
-                    <TokenIcon symbol={symbol} width={16} height={16} />
-                    {displaySymbol}
+                  <Text
+                    display="flex"
+                    gap={2}
+                    alignItems="center"
+                    fontWeight="600"
+                    whiteSpace="nowrap"
+                  >
+                    <TokenIcon symbol={combinedTokenBalance?.main.symbol} width={16} height={16} />
+                    {combinedTokenBalance?.main.displayName}
                   </Text>
                 </BorderBox>
                 <Tooltip
@@ -125,18 +90,23 @@ export const InitialDepositUi: FC<{
                     >
                       <Flex gap="1">
                         <Text>Unlocked Balance:</Text>
-                        <Amount value={availableCollateral} />
+                        {liquidityPosition?.accountCollateral?.availableCollateral ? (
+                          <Amount value={liquidityPosition.accountCollateral.availableCollateral} />
+                        ) : null}
                       </Flex>
                       <Flex gap="1">
                         <Text>Wallet Balance:</Text>
-                        <Amount
-                          value={symbol === 'SNX' ? snxBalance?.transferable : tokenBalance}
-                        />
+                        <Amount value={combinedTokenBalance?.main.balance} />
                       </Flex>
-                      {symbol === 'WETH' ? (
-                        <Flex gap="1">
-                          <Text>ETH Balance:</Text>
-                          <Amount value={ethBalance} />
+                      {combinedTokenBalance?.swap ? (
+                        <Flex gap="1" key={combinedTokenBalance.swap.address}>
+                          <Text>{combinedTokenBalance.swap.displayName} Balance:</Text>
+                          <Amount value={combinedTokenBalance.swap.balance} />
+                          <Amount
+                            value={combinedTokenBalance.swap.estimatedBalance}
+                            prefix="(~"
+                            suffix={` ${combinedTokenBalance?.main.displayName})`}
+                          />
                         </Flex>
                       ) : null}
                     </Flex>
@@ -144,20 +114,22 @@ export const InitialDepositUi: FC<{
                 >
                   <Text fontSize="12px">
                     Balance: <Amount value={maxAmount} />
-                    <Text
-                      as="span"
-                      cursor="pointer"
-                      onClick={() => {
-                        if (!maxAmount) {
-                          return;
-                        }
-                        setCollateralChange(maxAmount);
-                      }}
-                      color="cyan.500"
-                      fontWeight={700}
-                    >
-                      &nbsp;Max
-                    </Text>
+                    {maxAmount?.gt(0) ? (
+                      <Text
+                        as="span"
+                        cursor="pointer"
+                        onClick={() => {
+                          if (!maxAmount) {
+                            return;
+                          }
+                          setCollateralChange(maxAmount);
+                        }}
+                        color="cyan.500"
+                        fontWeight={700}
+                      >
+                        &nbsp;Max
+                      </Text>
+                    ) : null}
                   </Text>
                 </Tooltip>
               </Flex>
@@ -165,7 +137,7 @@ export const InitialDepositUi: FC<{
                 <NumberInput
                   InputProps={{
                     'data-cy': 'deposit amount input',
-                    'data-max': combinedTokenBalance?.toString(),
+                    'data-max': maxAmount?.toString(),
                     type: 'number',
                     min: 0,
                   }}
@@ -173,62 +145,89 @@ export const InitialDepositUi: FC<{
                   onChange={(value) => {
                     setCollateralChange(value);
                   }}
-                  max={combinedTokenBalance}
+                  max={maxAmount}
                   min={ZEROWEI}
                 />
                 <Flex fontSize="xs" color="whiteAlpha.700" alignSelf="flex-end" gap="1">
-                  {price.gt(0) && <Amount prefix="$" value={collateralChange.abs().mul(price)} />}
+                  {combinedTokenBalance?.main?.price ? (
+                    <Amount
+                      prefix="$"
+                      value={collateralChange.abs().mul(combinedTokenBalance.main.price)}
+                    />
+                  ) : (
+                    '-'
+                  )}
                 </Flex>
               </Flex>
             </Flex>
           </BorderBox>
-          {symbol === 'SNX' && network && [MAINNET.id, SEPOLIA.id].includes(network.id) && (
-            <MigrationBanner network={network} type="alert" />
-          )}
-          <Collapse
-            in={
-              collateralChange.gt(0) && !overAvailableBalance && collateralChange.gte(minDelegation)
-            }
-            animateOpacity
-          >
-            <WithdrawIncrease />
-          </Collapse>
-          <Collapse
-            in={
-              collateralChange.gt(0) && collateralChange.lt(minDelegation) && !overAvailableBalance
-            }
-            animateOpacity
-          >
-            <Alert mb={6} status="error" borderRadius="6px">
-              <AlertIcon />
-              <AlertDescription>
-                Your deposit must be {formatNumber(parseFloat(minDelegation.toString()))} {symbol}{' '}
-                or higher
-              </AlertDescription>
-            </Alert>
-          </Collapse>
-          <Collapse in={overAvailableBalance} animateOpacity>
-            <Alert mb={6} status="error" borderRadius="6px">
-              <AlertIcon />
-              <AlertDescription>
-                You cannot Deposit & Lock more Collateral than your Balance amount
-              </AlertDescription>
-            </Alert>
-          </Collapse>
+          {collateralType?.symbol === 'SNX' && network
+            ? [MAINNET.id, SEPOLIA.id].includes(network.id) && (
+                <MigrationBanner network={network} type="alert" />
+              )
+            : null}
+
+          {collateralType ? (
+            <Collapse
+              in={
+                collateralChange.gt(0) &&
+                collateralChange.lte(maxAmount) &&
+                collateralChange.gte(collateralType.minDelegationD18)
+              }
+              animateOpacity
+            >
+              <WithdrawIncrease />
+            </Collapse>
+          ) : null}
+
+          {collateralType ? (
+            <Collapse
+              in={
+                collateralChange.gt(0) &&
+                collateralChange.lt(collateralType.minDelegationD18) &&
+                collateralChange.lte(maxAmount)
+              }
+              animateOpacity
+            >
+              <Alert mb={6} status="error" borderRadius="6px">
+                <AlertIcon />
+                <AlertDescription>
+                  <Amount
+                    prefix="Your deposit must be "
+                    value={collateralType.minDelegationD18}
+                    suffix={` ${combinedTokenBalance?.main.displayName} or higher`}
+                  />
+                </AlertDescription>
+              </Alert>
+            </Collapse>
+          ) : null}
+
+          {collateralChange && maxAmount ? (
+            <Collapse in={collateralChange.gt(maxAmount)} animateOpacity>
+              <Alert mb={6} status="error" borderRadius="6px">
+                <AlertIcon />
+                <AlertDescription>
+                  You cannot Deposit & Lock more Collateral than your Balance amount
+                </AlertDescription>
+              </Alert>
+            </Collapse>
+          ) : null}
           <Button
             data-cy="deposit submit"
             onClick={() => {
               if (hasAccount) {
-                onSubmit();
+                submit();
               } else {
                 setStep(1);
               }
             }}
             isDisabled={
-              collateralChange.lte(0) ||
-              combinedTokenBalance === undefined ||
-              collateralChange.lt(minDelegation) ||
-              overAvailableBalance
+              !collateralType ||
+              (collateralType &&
+                (collateralChange.lte(0) ||
+                  collateralChange.lt(collateralType.minDelegationD18))) ||
+              !combinedTokenBalance ||
+              collateralChange.gt(maxAmount)
             }
           >
             {collateralChange.lte(0) ? 'Enter Amount' : 'Deposit & Lock'}
@@ -259,7 +258,7 @@ export const InitialDepositUi: FC<{
           </UnorderedList>
           <Button
             onClick={() => {
-              onSubmit();
+              submit();
               setStep(0);
             }}
             mt={8}
@@ -270,45 +269,4 @@ export const InitialDepositUi: FC<{
       )}
     </Flex>
   );
-};
-
-export const InitialDeposit: FC<{
-  submit: () => void;
-  hasAccount: boolean;
-  liquidityPosition?: LiquidityPosition;
-}> = ({ submit, hasAccount, liquidityPosition }) => {
-  const { collateralChange, setCollateralChange } = useContext(ManagePositionContext);
-  const { network } = useNetwork();
-  const params = useParams();
-  const { data: collateralType } = useCollateralType(params.collateralSymbol);
-
-  const { data: transferrableSnx } = useTransferableSynthetix();
-
-  const { data: wrapperToken } = useGetWrapperToken(getSpotMarketId(params.collateralSymbol));
-  // TODO: This will need refactoring
-  const balanceAddress = isBaseAndromeda(network?.id, network?.preset)
-    ? wrapperToken
-    : collateralType?.tokenAddress;
-
-  const { data: tokenBalance } = useTokenBalance(balanceAddress);
-
-  const { data: ethBalance } = useEthBalance();
-
-  if (!collateralType) return null;
-
-  return (
-    <InitialDepositUi
-      displaySymbol={collateralType?.displaySymbol || ''}
-      tokenBalance={tokenBalance}
-      snxBalance={transferrableSnx}
-      ethBalance={ethBalance}
-      symbol={collateralType?.symbol || ''}
-      minDelegation={collateralType.minDelegationD18}
-      setCollateralChange={setCollateralChange}
-      collateralChange={collateralChange}
-      onSubmit={submit}
-      hasAccount={hasAccount}
-      availableCollateral={liquidityPosition?.accountCollateral.availableCollateral || ZEROWEI}
-    />
-  );
-};
+}
