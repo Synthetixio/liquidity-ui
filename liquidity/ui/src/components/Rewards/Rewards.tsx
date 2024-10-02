@@ -18,10 +18,10 @@ import { useParams } from '@snx-v3/useParams';
 import { useRewards } from '@snx-v3/useRewards';
 import { RewardsLoading } from './RewardsLoading';
 import { RewardsRow } from './RewardsRow';
-import { useClaimAllRewards } from '../../../../lib/useClaimAllRewards';
 import { useCallback, useMemo } from 'react';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { AllRewardsModal } from './AllRewardsModal';
+import { useClaimAllRewards } from '@snx-v3/useClaimAllRewards';
 
 export const Rewards = ({ ...props }: FlexProps) => {
   const { accountId, collateralSymbol, poolId } = useParams();
