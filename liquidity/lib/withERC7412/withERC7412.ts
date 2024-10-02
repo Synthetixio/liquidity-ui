@@ -228,7 +228,7 @@ export const withERC7412 = async (
             target: call.to,
             callData: call.data,
             value: call.value ? ethers.BigNumber.from(call.value) : ethers.BigNumber.from(0),
-            requireSuccess: call.requireSuccess ?? false,
+            requireSuccess: call.requireSuccess ?? true,
           })),
         ]),
         value: calls.reduce(
@@ -303,6 +303,7 @@ export const withERC7412 = async (
           [signedOffchainData]
         ),
         value: ethers.BigNumber.from(missingPriceUpdates.length),
+        requireSuccess: false,
       };
       // return [extraPriceUpdateTxn, ...calls.map()];
       console.log(`[${label}]`, { extraPriceUpdateTxn });
