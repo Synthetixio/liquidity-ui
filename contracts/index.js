@@ -21,3 +21,5 @@ export * from './importers/importRewardsDistributors';
 export * from './importers/importSynthTokens';
 export * from './importers/importSystemToken';
 export * from './importers/importStaticAaveUSDC';
+export * from './importers/importWETH';
+export * from './importers/importSNX';
