@@ -136,7 +136,7 @@ export const Rewards = ({ ...props }: FlexProps) => {
               <Tr>
                 <Td display="flex" alignItems="left" px={4} border="none" w="100%">
                   <Text color="gray.500" fontFamily="heading" fontSize="xs">
-                    Create a Position to see your earnings
+                    No Rewards Available
                   </Text>
                 </Td>
               </Tr>
