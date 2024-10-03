@@ -9,18 +9,14 @@ export function usePoolsList() {
     queryKey: ['poolsList'],
     queryFn: async () => {
       try {
-        const [pools, aprs, toros] = await Promise.all([
-          fetchPoolsList(),
-          fetchAprs(),
-          fetchTorosPool(),
-        ]);
+        const [pools, aprs] = await Promise.all([fetchPoolsList(), fetchAprs()]);
 
         const synthetixPools = pools.map((p, i) => ({
           ...p,
           apr: aprs[i],
         }));
 
-        return { synthetixPools, toros };
+        return { synthetixPools };
       } catch (error) {
         throw error;
       }
@@ -43,7 +39,7 @@ export function usePool(networkId: number, poolId: string) {
 
 const supportedNetworks = [MAINNET.id, BASE_ANDROMEDA.id, ARBITRUM.id];
 
-async function fetchTorosPool() {
+export async function fetchTorosPool(address: string) {
   return fetch('https://api-v2.dhedge.org/graphql', {
     method: 'POST',
     headers: {
@@ -60,7 +56,7 @@ async function fetchTorosPool() {
                 }
               }
             }`,
-      variables: { address: '0xc1e02884af4a283ca25ab63c45360d220d69da52' },
+      variables: { address },
     }),
   })
     .then((response) => response.json())
