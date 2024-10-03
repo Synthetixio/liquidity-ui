@@ -164,6 +164,7 @@ export const ManageAction = ({
                     setActiveAction(COLLATERALACTIONS[0].link);
                   }
                 }}
+                whiteSpace="nowrap"
               >
                 Manage Collateral
               </Tab>
@@ -176,6 +177,7 @@ export const ManageAction = ({
                     setActiveAction(debtActions[0].link);
                   }
                 }}
+                whiteSpace="nowrap"
               >
                 {`Manage ${isBase ? 'PnL' : 'Debt'}`}
               </Tab>
@@ -206,6 +208,8 @@ export const ManageAction = ({
                         fontWeight={700}
                         mt="2"
                         color={manageAction === action.link ? 'cyan.500' : 'white'}
+                        textAlign="center"
+                        lineHeight="1.1"
                       >
                         {action.title}
                       </Text>
@@ -237,6 +241,8 @@ export const ManageAction = ({
                         fontWeight={700}
                         mt="2"
                         color={manageAction === action.link ? 'cyan.500' : 'white'}
+                        textAlign="center"
+                        lineHeight="1.1"
                       >
                         {action.title}
                       </Text>
