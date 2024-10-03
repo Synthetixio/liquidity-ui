@@ -12,8 +12,9 @@ import {
 } from '@snx-v3/icons';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 import { ethers } from 'ethers';
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { MagicProvider } from './magic';
+import { useQuery } from '@tanstack/react-query';
 import SynthetixIcon from './SynthetixIcon.svg';
 import SynthetixLogo from './SynthetixLogo.svg';
 
@@ -293,27 +294,31 @@ export const appMetadata = {
 };
 
 export function useProviderForChain(network?: Network) {
-  return useMemo(() => {
-    return (
-      getMagicProvider() ??
-      (network ? new ethers.providers.JsonRpcProvider(network.rpcUrl()) : undefined)
-    );
-  }, [network]);
+  const { data: provider } = useQuery({
+    queryKey: [`${network?.id}-${network?.preset}`, 'ProviderForChain'],
+    queryFn: () => {
+      if (!network) {
+        throw 'no network';
+      }
+      return (
+        getMagicProvider() ??
+        (network ? new ethers.providers.JsonRpcProvider(network.rpcUrl()) : null)
+      );
+    },
+    staleTime: Infinity,
+    enabled: Boolean(network),
+  });
+
+  return provider;
 }
 
 export function useDefaultProvider() {
   const { network } = useNetwork();
-  return (
-    getMagicProvider() ??
-    (network ? new ethers.providers.JsonRpcProvider(network.rpcUrl()) : undefined)
-  );
+  return useProviderForChain(network);
 }
 
 export function useWallet() {
-  const [{ wallet }, conn, disconn] = useConnectWallet();
-
-  const connect = useCallback(conn, [conn]);
-  const disconnect = useCallback(disconn, [disconn]);
+  const [{ wallet }, connect, disconnect] = useConnectWallet();
 
   return useMemo(() => {
     if (!wallet) {
@@ -339,29 +344,28 @@ export function useWallet() {
 export function useNetwork() {
   const [{ connectedChain }, setChain] = useSetChain();
 
-  // Hydrate the network info
-  const network = NETWORKS.find((n) => n.hexId === connectedChain?.id);
-
-  const setNetwork = useCallback(
-    async (networkId: number) => {
+  return useMemo(() => {
+    const setNetwork = async (networkId: number) => {
       const newNetwork = NETWORKS.find((n) => n.id === networkId);
       if (!newNetwork) return;
       return await setChain({ chainId: newNetwork?.hexId });
-    },
-    [setChain]
-  );
+    };
 
-  if (!network) {
+    // Hydrate the network info
+    const network = NETWORKS.find((n) => n.hexId === connectedChain?.id);
+
+    if (!network) {
+      return {
+        network: undefined,
+        setNetwork,
+      };
+    }
+
     return {
-      network: undefined,
+      network,
       setNetwork,
     };
-  }
-
-  return {
-    network,
-    setNetwork,
-  };
+  }, [connectedChain?.id, setChain]);
 }
 
 export function useIsConnected(): boolean {

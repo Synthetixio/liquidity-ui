@@ -9,7 +9,11 @@ export function useRates() {
 
   return useQuery({
     queryKey: ['rates-mainnet'],
+    enabled: Boolean(mainnetProvider),
     queryFn: async function () {
+      if (!mainnetProvider) {
+        throw 'Miannet provider missing';
+      }
       const { address, abi } = await import(
         '@synthetixio/contracts/build/mainnet/deployment/ExchangeRates'
       );

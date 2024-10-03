@@ -1,33 +1,21 @@
 import { Contract } from '@ethersproject/contracts';
 import { importMulticall3 } from '@snx-v3/contracts';
-import {
-  Network,
-  useNetwork,
-  useProvider,
-  useProviderForChain,
-  useSigner,
-} from '@snx-v3/useBlockchain';
+import { Network, useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { useQuery } from '@tanstack/react-query';
 
 export function useMulticall3(customNetwork?: Network) {
   const { network } = useNetwork();
-  const provider = useProvider();
-  const signer = useSigner();
-  const providerForChain = useProviderForChain(customNetwork);
-  const signerOrProvider = signer || provider;
   const targetNetwork = customNetwork || network;
-  const withSigner = Boolean(signer);
+  const provider = useProviderForChain(targetNetwork);
+
   return useQuery({
-    queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'Multicall3', { withSigner }],
-    enabled: Boolean(signerOrProvider && targetNetwork),
+    queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'Multicall3'],
+    enabled: Boolean(provider && targetNetwork),
     queryFn: async function () {
-      if (!(signerOrProvider && targetNetwork)) throw new Error('OMFG');
-      if (providerForChain && customNetwork) {
-        const { address, abi } = await importMulticall3(targetNetwork.id, targetNetwork.preset);
-        return new Contract(address, abi, providerForChain);
-      }
-      const { address, abi } = await importMulticall3(targetNetwork?.id, targetNetwork?.preset);
-      return new Contract(address, abi, signerOrProvider);
+      if (!(provider && targetNetwork)) throw new Error('OMFG');
+
+      const { address, abi } = await importMulticall3(targetNetwork.id, targetNetwork.preset);
+      return new Contract(address, abi, provider);
     },
     staleTime: Infinity,
   });

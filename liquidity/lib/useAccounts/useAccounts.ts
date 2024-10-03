@@ -1,12 +1,15 @@
 import { useAccountProxy } from '@snx-v3/useAccountProxy';
 import { useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
+import { useMulticall3 } from '@snx-v3/useMulticall3';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { BigNumber } from 'ethers';
 
 export function useAccounts() {
   const { activeWallet } = useWallet();
   const { data: AccountProxy } = useAccountProxy();
   const { network } = useNetwork();
+  const { data: Multicall3 } = useMulticall3();
 
   return useQuery({
     queryKey: [
@@ -16,7 +19,8 @@ export function useAccounts() {
     ],
     enabled: Boolean(AccountProxy && activeWallet?.address),
     queryFn: async function () {
-      if (!(AccountProxy && activeWallet?.address)) throw new Error('Should be disabled');
+      if (!(AccountProxy && activeWallet?.address && Multicall3))
+        throw new Error('Should be disabled');
 
       const numberOfAccountTokens = await AccountProxy.balanceOf(activeWallet.address);
 
@@ -25,12 +29,20 @@ export function useAccounts() {
         return [];
       }
       const accountIndexes = Array.from(Array(numberOfAccountTokens.toNumber()).keys());
-      const accounts = await Promise.all(
-        accountIndexes.map(async (i) => {
-          if (!activeWallet?.address) throw new Error('OMG!');
-          return await AccountProxy.tokenOfOwnerByIndex(activeWallet.address, i);
-        })
-      );
+
+      const calls = accountIndexes.map((index) => ({
+        target: AccountProxy.address,
+        callData: AccountProxy.interface.encodeFunctionData('tokenOfOwnerByIndex', [
+          activeWallet.address,
+          index,
+        ]),
+      }));
+      const { returnData } = await Multicall3.callStatic.aggregate(calls);
+
+      const accounts = (returnData as string[]).map(
+        (data) => AccountProxy.interface.decodeFunctionResult('tokenOfOwnerByIndex', data)[0]
+      ) as BigNumber[];
+
       return accounts.map((accountId) => accountId.toString());
     },
     placeholderData: [],

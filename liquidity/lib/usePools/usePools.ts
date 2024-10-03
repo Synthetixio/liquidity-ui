@@ -22,7 +22,7 @@ export function usePools(customNetwork?: Network) {
   const { data: CoreProxy } = useCoreProxy(targetNetwork);
 
   return useQuery({
-    enabled: Boolean(targetNetwork),
+    enabled: Boolean(targetNetwork && CoreProxy),
     queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, CoreProxy?.address, 'Pools'],
     queryFn: async () => {
       if (!CoreProxy) {
