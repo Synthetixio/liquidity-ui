@@ -12,7 +12,7 @@ import {
 } from '@snx-v3/icons';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 import { ethers } from 'ethers';
-import React, { useMemo } from 'react';
+import React, { useCallback } from 'react';
 import { MagicProvider } from './magic';
 import { useQuery } from '@tanstack/react-query';
 import SynthetixIcon from './SynthetixIcon.svg';
@@ -320,52 +320,51 @@ export function useDefaultProvider() {
 export function useWallet() {
   const [{ wallet }, connect, disconnect] = useConnectWallet();
 
-  return useMemo(() => {
-    if (!wallet) {
-      return {
-        activeWallet: undefined,
-        walletsInfo: undefined,
-        connect,
-        disconnect,
-      };
-    }
-
-    const activeWallet = wallet?.accounts[0];
-
+  if (!wallet) {
     return {
-      activeWallet: activeWallet,
-      walletsInfo: wallet,
+      activeWallet: undefined,
+      walletsInfo: undefined,
       connect,
       disconnect,
     };
-  }, [connect, disconnect, wallet]);
+  }
+
+  const activeWallet = wallet?.accounts[0];
+
+  return {
+    activeWallet: activeWallet,
+    walletsInfo: wallet,
+    connect,
+    disconnect,
+  };
 }
 
 export function useNetwork() {
   const [{ connectedChain }, setChain] = useSetChain();
 
-  return useMemo(() => {
-    const setNetwork = async (networkId: number) => {
+  const setNetwork = useCallback(
+    async (networkId: number) => {
       const newNetwork = NETWORKS.find((n) => n.id === networkId);
       if (!newNetwork) return;
       return await setChain({ chainId: newNetwork?.hexId });
-    };
+    },
+    [setChain]
+  );
 
-    // Hydrate the network info
-    const network = NETWORKS.find((n) => n.hexId === connectedChain?.id);
+  // Hydrate the network info
+  const network = NETWORKS.find((n) => n.hexId === connectedChain?.id);
 
-    if (!network) {
-      return {
-        network: undefined,
-        setNetwork,
-      };
-    }
-
+  if (!network) {
     return {
-      network,
+      network: undefined,
       setNetwork,
     };
-  }, [connectedChain?.id, setChain]);
+  }
+
+  return {
+    network,
+    setNetwork,
+  };
 }
 
 export function useIsConnected(): boolean {
