@@ -123,9 +123,10 @@ export const ManageUi: FC<{
           <ManageStats liquidityPosition={liquidityPosition} />
           <Rewards />
         </BorderBox>
-        {!closePosition && (
+        {!closePosition ? (
           <Flex
-            maxW={['100%', '100%', '501px']}
+            maxWidth={['100%', '100%', '501px']}
+            width="100%"
             flex={1}
             alignSelf="flex-start"
             flexDirection="column"
@@ -150,9 +151,9 @@ export const ManageUi: FC<{
               </Text>
             )}
           </Flex>
-        )}
+        ) : null}
 
-        {closePosition && (
+        {closePosition ? (
           <BorderBox
             flex={1}
             maxW={['100%', '100%', '501px']}
@@ -166,7 +167,7 @@ export const ManageUi: FC<{
               onClose={() => setClosePosition(false)}
             />
           </BorderBox>
-        )}
+        ) : null}
       </Flex>
     </Box>
   );
