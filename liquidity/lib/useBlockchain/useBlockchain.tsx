@@ -277,13 +277,20 @@ export const appMetadata = {
   explore: 'https://blog.synthetix.io',
 };
 
-export function useProviderForChain(network?: Network) {
+export function useProviderForChain(customNetwork?: Network) {
+  const { network: activeNetwork } = useNetwork();
   return useMemo(() => {
-    return (
-      getMagicProvider() ??
-      (network ? new ethers.providers.JsonRpcProvider(network.rpcUrl()) : undefined)
-    );
-  }, [network]);
+    if (
+      customNetwork?.id === activeNetwork?.id &&
+      customNetwork?.preset === activeNetwork?.preset
+    ) {
+      const provider = getMagicProvider();
+      if (provider) {
+        return provider;
+      }
+    }
+    return customNetwork ? new ethers.providers.JsonRpcProvider(customNetwork.rpcUrl()) : undefined;
+  }, [customNetwork, activeNetwork]);
 }
 
 export function useDefaultProvider() {
