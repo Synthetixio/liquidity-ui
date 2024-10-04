@@ -213,7 +213,6 @@ export const withERC7412 = async (
   const Multicall3Contract = await importMulticall3(network.id, network.preset);
   const Multicall3Interface = new ethers.utils.Interface(Multicall3Contract.abi);
   const AllErrorsContract = await importAllErrors(network.id, network.preset);
-  const PythERC7412Wrapper = await importPythERC7412Wrapper(network.id, network.preset);
 
   while (true) {
     try {
@@ -294,6 +293,8 @@ export const withERC7412 = async (
         priceIds: missingPriceUpdates,
         isTestnet: network.isTestnet,
       });
+
+      const PythERC7412Wrapper = await importPythERC7412Wrapper(network.id, network.preset);
 
       const extraPriceUpdateTxn = {
         from,
