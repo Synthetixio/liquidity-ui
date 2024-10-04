@@ -5,7 +5,7 @@ import { FC } from 'react';
 export const AccountBanner: FC<FlexProps> = (props) => {
   const {
     data: accounts,
-    isLoading: isAccountsLoading,
+    isPending: isAccountsLoading,
     isFetching: isAccountsFetching,
   } = useAccounts();
   const {

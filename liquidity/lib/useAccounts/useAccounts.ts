@@ -17,7 +17,7 @@ export function useAccounts() {
       'Accounts',
       { accountAddress: activeWallet?.address, AccountProxy: AccountProxy?.address },
     ],
-    enabled: Boolean(AccountProxy && activeWallet?.address),
+    enabled: Boolean(AccountProxy && activeWallet?.address && Multicall3),
     queryFn: async function () {
       if (!(AccountProxy && activeWallet?.address && Multicall3))
         throw new Error('Should be disabled');

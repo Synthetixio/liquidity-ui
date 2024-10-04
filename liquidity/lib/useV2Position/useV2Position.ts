@@ -18,8 +18,9 @@ export function useV2Position(network: Network) {
         wallet: activeWallet?.address,
       },
     ],
+    enabled: Boolean(v2xSynthetix && activeWallet?.address && Multicall3),
     queryFn: async function () {
-      if (!(v2xSynthetix && Multicall3)) {
+      if (!(v2xSynthetix && Multicall3 && activeWallet?.address)) {
         throw 'should be disabled';
       }
 
@@ -73,7 +74,6 @@ export function useV2Position(network: Network) {
         transferableSynthetix,
       };
     },
-    enabled: Boolean(v2xSynthetix && activeWallet?.address && Multicall3),
     staleTime: Infinity,
   });
 }

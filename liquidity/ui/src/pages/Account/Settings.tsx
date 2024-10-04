@@ -11,7 +11,7 @@ export function Settings() {
   const isConnected = useIsConnected();
   const {
     data: accounts,
-    isLoading: isAccountsLoading,
+    isPending: isAccountsLoading,
     isFetching: isAccountsFetching,
   } = useAccounts();
 
