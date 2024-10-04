@@ -46,12 +46,6 @@ export async function importAllErrors(chainId, preset) {
       ]);
       return { address: undefined, abi };
     }
-    case '42161-arbthetix': {
-      const [{ default: abi }] = await Promise.all([
-        import('@synthetixio/v3-contracts/42161-arbthetix/AllErrors.readable.json'),
-      ]);
-      return { address: undefined, abi };
-    }
     default: {
       throw new Error(`Unsupported deployment ${deployment} for AllErrors`);
     }

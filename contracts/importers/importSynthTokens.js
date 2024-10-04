@@ -46,12 +46,6 @@ export async function importSynthTokens(chainId, preset) {
       ]);
       return synthTokens;
     }
-    case '42161-arbthetix': {
-      const [{ default: synthTokens }] = await Promise.all([
-        import('@synthetixio/v3-contracts/42161-arbthetix/synthTokens.json'),
-      ]);
-      return synthTokens;
-    }
     default: {
       throw new Error(`Unsupported deployment ${deployment} for SynthTokens`);
     }

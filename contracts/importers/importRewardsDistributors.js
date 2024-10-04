@@ -46,12 +46,6 @@ export async function importRewardsDistributors(chainId, preset) {
       ]);
       return rewardsDistributors;
     }
-    case '42161-arbthetix': {
-      const [{ default: rewardsDistributors }] = await Promise.all([
-        import('@synthetixio/v3-contracts/42161-arbthetix/rewardsDistributors.json'),
-      ]);
-      return rewardsDistributors;
-    }
     default: {
       throw new Error(`Unsupported deployment ${deployment} for RewardsDistributors`);
     }

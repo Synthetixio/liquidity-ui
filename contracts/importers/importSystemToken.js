@@ -46,12 +46,6 @@ export async function importSystemToken(chainId, preset) {
       ]);
       return systemToken;
     }
-    case '42161-arbthetix': {
-      const [{ default: systemToken }] = await Promise.all([
-        import('@synthetixio/v3-contracts/42161-arbthetix/systemToken.json'),
-      ]);
-      return systemToken;
-    }
     default: {
       throw new Error(`Unsupported deployment ${deployment} for SystemToken`);
     }
