@@ -7,7 +7,7 @@ import {
   importMulticall3,
   importPythERC7412Wrapper,
 } from '@snx-v3/contracts';
-import { Network, getMagicProvider } from '@snx-v3/useBlockchain';
+import { Network, deploymentHasERC7412, getMagicProvider } from '@snx-v3/useBlockchain';
 import { ethers } from 'ethers';
 
 export const ERC7412_ABI = [
@@ -198,6 +198,35 @@ function extractPriceId(parsedError: { name: string; args: string[] }) {
   }
 }
 
+async function getMulticallTransaction(
+  network: Network,
+  calls: (ethers.PopulatedTransaction & { requireSuccess?: boolean })[],
+  from: string,
+  provider: ethers.providers.JsonRpcProvider
+) {
+  const Multicall3Contract = await importMulticall3(network.id, network.preset);
+  const Multicall3Interface = new ethers.utils.Interface(Multicall3Contract.abi);
+
+  const multicallTxn = {
+    from: from ? from : getDefaultFromAddress(network.name),
+    to: Multicall3Contract.address,
+    data: Multicall3Interface.encodeFunctionData('aggregate3Value', [
+      calls.map((call) => ({
+        target: call.to,
+        callData: call.data,
+        value: call.value ? ethers.BigNumber.from(call.value) : ethers.BigNumber.from(0),
+        requireSuccess: call.requireSuccess ?? true,
+      })),
+    ]),
+    value: calls.reduce(
+      (totalValue, call) => (call.value ? totalValue.add(call.value) : totalValue),
+      ethers.BigNumber.from(0)
+    ),
+  };
+  const gasLimit = await provider.estimateGas(multicallTxn);
+  return { ...multicallTxn, gasLimit };
+}
+
 /**
  * If a tx requires ERC7412 pattern, wrap your tx with this function.
  */
@@ -210,33 +239,20 @@ export const withERC7412 = async (
   // Make sure we're always using JSONRpcProvider, the web3 provider coming from the signer might have bugs causing errors to miss revert data
   const jsonRpcProvider =
     getMagicProvider() ?? new ethers.providers.JsonRpcProvider(network.rpcUrl());
-  const Multicall3Contract = await importMulticall3(network.id, network.preset);
-  const Multicall3Interface = new ethers.utils.Interface(Multicall3Contract.abi);
+
+  if (!(await deploymentHasERC7412(network.id, network.preset))) {
+    return await getMulticallTransaction(network, calls, from, jsonRpcProvider);
+  }
+
   const AllErrorsContract = await importAllErrors(network.id, network.preset);
+  const PythERC7412Wrapper = await importPythERC7412Wrapper(network.id, network.preset);
 
   while (true) {
     try {
       if (window.localStorage.getItem('DEBUG') === 'true') {
         await logMulticall({ network, calls, label });
       }
-      const multicallTxn = {
-        from: from ? from : getDefaultFromAddress(network.name),
-        to: Multicall3Contract.address,
-        data: Multicall3Interface.encodeFunctionData('aggregate3Value', [
-          calls.map((call) => ({
-            target: call.to,
-            callData: call.data,
-            value: call.value ? ethers.BigNumber.from(call.value) : ethers.BigNumber.from(0),
-            requireSuccess: call.requireSuccess ?? true,
-          })),
-        ]),
-        value: calls.reduce(
-          (totalValue, call) => (call.value ? totalValue.add(call.value) : totalValue),
-          ethers.BigNumber.from(0)
-        ),
-      };
-      const gasLimit = await jsonRpcProvider.estimateGas(multicallTxn);
-      return { ...multicallTxn, gasLimit };
+      return await getMulticallTransaction(network, calls, from, jsonRpcProvider);
     } catch (error: Error | any) {
       console.error(error);
       let errorData = extractErrorData(error);
@@ -293,8 +309,6 @@ export const withERC7412 = async (
         priceIds: missingPriceUpdates,
         isTestnet: network.isTestnet,
       });
-
-      const PythERC7412Wrapper = await importPythERC7412Wrapper(network.id, network.preset);
 
       const extraPriceUpdateTxn = {
         from,

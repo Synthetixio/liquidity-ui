@@ -267,12 +267,10 @@ export const NETWORKS: Network[] = [
 ];
 
 export async function deploymentHasERC7412(chainId: number, preset: string) {
-  return importPythERC7412Wrapper(chainId, preset)
-    .then(
-      () => true,
-      () => false
-    )
-    .catch(() => false);
+  return importPythERC7412Wrapper(chainId, preset).then(
+    () => true,
+    () => false
+  );
 }
 
 export const DEFAULT_NETWORK =
