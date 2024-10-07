@@ -12,7 +12,7 @@ import { CRatioBadge } from '../../CRatioBar/CRatioBadge';
 import { TokenIcon } from '../../TokenIcon';
 import { DebtAmount } from './DebtAmount';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
-import { NETWORKS, useNetwork } from '@snx-v3/useBlockchain';
+import { useNetwork } from '@snx-v3/useBlockchain';
 
 interface PositionRow extends LiquidityPositionType {
   final: boolean;

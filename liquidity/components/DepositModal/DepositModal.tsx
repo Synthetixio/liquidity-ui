@@ -715,6 +715,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
       },
     ];
   }, [
+    collateral?.symbol,
     isBase,
     liquidityPosition?.collateralPrice,
     txSummary.collateralChange,

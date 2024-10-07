@@ -51,7 +51,9 @@ export function Multistep({
     >
       <Step status={status}>{step}</Step>
       <Flex direction="column">
-        <Text color="white" fontWeight={700}>{title}</Text>
+        <Text color="white" fontWeight={700}>
+          {title}
+        </Text>
         {subtitle ? (
           <Text as="div" fontSize="xs" opacity="0.66">
             {subtitle}
