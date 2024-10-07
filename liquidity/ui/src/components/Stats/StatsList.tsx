@@ -27,13 +27,13 @@ export const StatsList = () => {
 
   const { data: usdTokens } = useGetUSDTokens();
 
-  const { data: positions, isLoading: isLiquidityPositionLoading } = useLiquidityPositions({
+  const { data: positions, isPending: isLiquidityPositionLoading } = useLiquidityPositions({
     accountId: params.get('accountId') || undefined,
   });
 
-  const { data: collateralTypes, isLoading: isCollateralTypesLoading } = useCollateralTypes();
+  const { data: collateralTypes, isPending: isCollateralTypesLoading } = useCollateralTypes();
 
-  const { data: accountCollaterals, isLoading: isAccountCollateralsLoading } = useAccountCollateral(
+  const { data: accountCollaterals, isPending: isAccountCollateralsLoading } = useAccountCollateral(
     {
       accountId: params.get('accountId') || undefined,
     }
