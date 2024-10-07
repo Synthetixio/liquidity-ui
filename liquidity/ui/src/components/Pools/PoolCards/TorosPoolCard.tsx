@@ -133,7 +133,7 @@ export function TorosPoolCard({ token }: TorosPoolCardProps) {
           </Text>
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end" width="121px" textAlign="right">
-          <Specifics isToros collateralType={{address: vault.address, symbol: token}} />
+          <Specifics isToros collateralType={{ address: vault.address, symbol: token }} />
         </Flex>
         <Flex flex={1} minWidth="159px" alignItems="center" justifyContent="flex-end">
           <Link

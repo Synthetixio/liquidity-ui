@@ -9,10 +9,12 @@ import yieldOnYieldSvg from './yield-on-yield.svg';
 export const Specifics: React.FC<{
   network?: Network;
   isToros?: boolean;
-  collateralType?: CollateralType | {
-    address: string;
-    symbol: string;
-  };
+  collateralType?:
+    | CollateralType
+    | {
+        address: string;
+        symbol: string;
+      };
 }> = ({ network, isToros, collateralType }) => {
   const isBase = isBaseAndromeda(network?.id, network?.preset);
 
