@@ -12,7 +12,7 @@ export const PositionsList = () => {
   const { accountId } = useParams();
   const { network } = useNetwork();
 
-  const { data: positionsByKey, isLoading: isLiquidityPositionsLoading } = useLiquidityPositions({
+  const { data: positionsByKey, isPending: isLiquidityPositionsLoading } = useLiquidityPositions({
     accountId,
   });
 

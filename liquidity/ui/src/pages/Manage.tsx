@@ -185,17 +185,17 @@ export const Manage = () => {
   const { data: collateralType } = useCollateralType(collateralSymbolRaw);
   const { data: poolData } = usePoolData(poolId);
 
-  const { data: liquidityPosition, isLoading: isLoadingPosition } = useLiquidityPosition({
+  const { data: liquidityPosition, isPending: isPendingPosition } = useLiquidityPosition({
     tokenAddress: collateralType?.tokenAddress,
     accountId,
     poolId,
   });
 
   const collateralDisplayName = useCollateralDisplayName(collateralSymbol);
-  const { data: collateralTypes, isLoading: isLoadingCollaterals } = useCollateralTypes();
+  const { data: collateralTypes, isPending: isPendingCollaterals } = useCollateralTypes();
 
   const notSupported =
-    !isLoadingCollaterals &&
+    !isPendingCollaterals &&
     poolData &&
     collateralTypes?.length &&
     collateralDisplayName &&
@@ -212,14 +212,14 @@ export const Manage = () => {
         <>
           <UnsupportedCollateralAlert isOpen={Boolean(notSupported)} />
           {(!accountId ||
-            (!isLoadingPosition &&
+            (!isPendingPosition &&
               liquidityPosition &&
               liquidityPosition.collateralAmount.eq(0) &&
               liquidityPosition.accountCollateral.availableCollateral.eq(0))) && (
             <NoPosition liquidityPosition={liquidityPosition} />
           )}
           {accountId &&
-            ((!isLoadingPosition && liquidityPosition?.collateralAmount.gt(0)) ||
+            ((!isPendingPosition && liquidityPosition?.collateralAmount.gt(0)) ||
               liquidityPosition?.accountCollateral?.availableCollateral.gt(0)) && (
               <ManageUi
                 poolName={poolData?.name}
@@ -230,7 +230,7 @@ export const Manage = () => {
                 collateralType={collateralType}
               />
             )}
-          {isLoadingPosition && !!accountId && (
+          {isPendingPosition && !!accountId && (
             <ManageLoading poolName={poolData?.name} collateralSymbol={collateralSymbol} />
           )}
         </>

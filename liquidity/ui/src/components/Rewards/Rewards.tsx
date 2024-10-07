@@ -1,21 +1,86 @@
 import { InfoIcon } from '@chakra-ui/icons';
-import { FlexProps, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react';
+import {
+  Button,
+  Flex,
+  FlexProps,
+  Table,
+  TableContainer,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
+} from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useParams } from '@snx-v3/useParams';
 import { useRewards } from '@snx-v3/useRewards';
 import { RewardsLoading } from './RewardsLoading';
 import { RewardsRow } from './RewardsRow';
+import { useCallback, useMemo } from 'react';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { AllRewardsModal } from './AllRewardsModal';
+import { useClaimAllRewards } from '@snx-v3/useClaimAllRewards';
 
 export const Rewards = ({ ...props }: FlexProps) => {
   const { accountId, collateralSymbol, poolId } = useParams();
+  const { data: collateralData } = useCollateralType(collateralSymbol);
   const { isPending, data: rewards } = useRewards({ poolId, collateralSymbol, accountId });
+
+  const allRewards = useMemo(
+    () =>
+      rewards
+        ?.map(({ distributorAddress, payoutTokenAddress, claimableAmount }) => ({
+          poolId: poolId || '',
+          collateralAddress: collateralData?.tokenAddress || '',
+          accountId: accountId,
+          distributorAddress: distributorAddress,
+          amount: claimableAmount,
+          payoutTokenAddress,
+        }))
+        .filter(({ amount }) => amount.gt(0)) || [],
+    [accountId, collateralData?.tokenAddress, poolId, rewards]
+  );
+
+  const { exec: claimAll, txnState } = useClaimAllRewards(allRewards);
+
+  const onClick = useCallback(() => {
+    claimAll();
+  }, [claimAll]);
 
   return (
     <BorderBox bg="navy.700" py={4} px={4} flexDir="column" {...props}>
-      <Text color="gray.500" fontFamily="heading" lineHeight="4" fontSize="xs" mb="8px">
-        Rewards
-      </Text>
+      <AllRewardsModal
+        rewards={(rewards || [])
+          ?.filter((r) => r.claimableAmount.gt(0))
+          .map(({ claimableAmount, displaySymbol }) => ({
+            collateralSymbol: displaySymbol,
+            amount: claimableAmount.toNumber(),
+          }))}
+        txnStatus={txnState.txnStatus}
+        txnHash={txnState.txnHash}
+      />
+      <Flex alignItems="center" justifyContent="space-between">
+        <Text color="gray.500" fontFamily="heading" lineHeight="4" fontSize="xs" mb="8px">
+          Rewards
+        </Text>
+        <Button
+          size="sm"
+          variant="solid"
+          isDisabled={!allRewards.length}
+          _disabled={{
+            bg: 'gray.900',
+            backgroundImage: 'none',
+            color: 'gray.500',
+            opacity: 0.5,
+            cursor: 'not-allowed',
+          }}
+          onClick={onClick}
+        >
+          Claim
+        </Button>
+      </Flex>
 
       <TableContainer width="100%" mb="8px">
         <Table>
@@ -52,20 +117,6 @@ export const Rewards = ({ ...props }: FlexProps) => {
               >
                 Earnings
               </Th>
-              <Th
-                textTransform="unset"
-                color="transparent"
-                border="none"
-                fontFamily="heading"
-                fontSize="12px"
-                lineHeight="16px"
-                letterSpacing={0.6}
-                fontWeight={700}
-                px={4}
-                py={3}
-              >
-                Claim
-              </Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -78,16 +129,17 @@ export const Rewards = ({ ...props }: FlexProps) => {
                     claimableAmount={item.claimableAmount}
                     lifetimeClaimed={item.lifetimeClaimed}
                     distributorAddress={item.distributorAddress}
-                    payoutTokenAddress={item.payoutTokenAddress}
                   />
                 ))
               : null}
             {!isPending && rewards && rewards.length === 0 ? (
-              <Td display="flex" alignItems="left" px={4} border="none" w="100%">
-                <Text color="gray.500" fontFamily="heading" fontSize="xs">
-                  No Rewards Available
-                </Text>
-              </Td>
+              <Tr>
+                <Td display="flex" alignItems="left" px={4} border="none" w="100%">
+                  <Text color="gray.500" fontFamily="heading" fontSize="xs">
+                    No Rewards Available
+                  </Text>
+                </Td>
+              </Tr>
             ) : null}
           </Tbody>
         </Table>

@@ -88,7 +88,9 @@ export default function Header() {
           <Flex gap={3} flexWrap="wrap-reverse" justifyContent="center" alignItems="center">
             {/* Hide balance */}
             {/* <Balance isBase={isBase} balance={balance} /> */}
-            {network && [MAINNET.id, SEPOLIA.id] && <MigrateUSDButton network={network} />}
+            {network && [MAINNET.id, SEPOLIA.id].includes(network.id) ? (
+              <MigrateUSDButton network={network} />
+            ) : null}
             <NetworkController />
           </Flex>
         </Container>

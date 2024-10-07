@@ -1,5 +1,3 @@
-import { fetchPriceUpdates, priceUpdatesToPopulatedTx } from '@snx-v3/fetchPythPrices';
-import { useAllCollateralPriceIds } from '@snx-v3/useAllCollateralPriceIds';
 import { useDefaultProvider, useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
@@ -27,15 +25,14 @@ const isLockedSchema = z.boolean();
 export const usePoolConfiguration = (poolId?: string) => {
   const { network } = useNetwork();
   const { data: CoreProxy } = useCoreProxy();
-  const { data: collateralPriceUpdates } = useAllCollateralPriceIds();
   const provider = useDefaultProvider();
   const { data: priceUpdateTx } = useCollateralPriceUpdates();
 
   return useQuery({
-    enabled: Boolean(CoreProxy && poolId && collateralPriceUpdates),
+    enabled: Boolean(CoreProxy && poolId && network && provider),
     queryKey: [`${network?.id}-${network?.preset}`, 'PoolConfiguration', { poolId }],
     queryFn: async () => {
-      if (!CoreProxy || !poolId || !collateralPriceUpdates || !network || !provider) {
+      if (!(CoreProxy && poolId && network && provider)) {
         throw Error('usePoolConfiguration should not be enabled');
       }
       const marketsData: {
@@ -49,24 +46,18 @@ export const usePoolConfiguration = (poolId?: string) => {
         maxDebtShareValue: weightD18,
       }));
 
-      const collateralPriceCalls = await fetchPriceUpdates(
-        collateralPriceUpdates,
-        network.isTestnet
-      ).then((signedData) => priceUpdatesToPopulatedTx('0x', collateralPriceUpdates, signedData));
-
       const calls = await Promise.all(
         markets.map((m) => CoreProxy.populateTransaction.isMarketCapacityLocked(m.id))
       );
 
-      const allCalls = collateralPriceCalls.concat(calls);
       if (priceUpdateTx) {
-        allCalls.unshift(priceUpdateTx as any);
+        calls.unshift(priceUpdateTx as any);
       }
 
       const decoded = await erc7412Call(
         network,
         provider,
-        allCalls,
+        calls,
         (encoded) => {
           const result = Array.isArray(encoded) ? encoded : [encoded];
           return result.map((x) =>

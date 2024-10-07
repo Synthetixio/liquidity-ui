@@ -38,7 +38,7 @@ export function useAccounts() {
 }
 
 export function useCreateAccount() {
-  const { data: CoreProxy } = useCoreProxy({ isWrite: true });
+  const { data: CoreProxy } = useCoreProxy();
   const { network } = useNetwork();
   const client = useQueryClient();
   return {

@@ -1,8 +1,16 @@
-import { offchainMainnetEndpoint, offchainTestnetEndpoint } from '@snx-v3/constants';
 import { EvmPriceServiceConnection } from '@pythnetwork/pyth-evm-js';
-import { ethers, PopulatedTransaction, BigNumber } from 'ethers';
+import { offchainMainnetEndpoint, offchainTestnetEndpoint } from '@snx-v3/constants';
 import { Wei } from '@synthetixio/wei';
+import { BigNumber, ethers, PopulatedTransaction } from 'ethers';
 
+/**
+ * Fetches price updates from the price service based on the requested price updates.
+ * @deprecated This should not be used anywhere
+ *
+ * @param {Array} requestedPriceUpdates - The array of requested price updates.
+ * @param {boolean} isTestnet - Specifies whether the fetch is for testnet or mainnet.
+ * @returns {Promise<Array>} - The promise that resolves to an array of encoded price updates.
+ */
 export const fetchPriceUpdates = async (
   requestedPriceUpdates: { priceFeedId: string; stalenessTolerance: Wei }[],
   isTestnet: boolean
@@ -26,6 +34,16 @@ export const fetchPriceUpdates = async (
   });
 };
 
+/**
+ * Generates an array of PopulatedTransaction objects based on the given inputs.
+ * @deprecated This should not be used anywhere
+ *
+ * @param {string} from - The address from which the transactions will be initiated.
+ * @param {Object[]} oracleAddresses - An array of objects with an "address" property representing the oracle addresses.
+ * @param {string[]} signedOffchainData - An array of signed offchain data for each oracle address.
+ * @throws {Error} If the length of oracleAddresses and signedOffchainData arrays is not the same.
+ * @returns {Object[]} An array of PopulatedTransaction objects.
+ */
 export const priceUpdatesToPopulatedTx = (
   from: string,
   oracleAddresses: { address: string }[],

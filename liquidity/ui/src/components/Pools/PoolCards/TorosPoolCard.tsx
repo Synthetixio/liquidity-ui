@@ -1,21 +1,40 @@
 import { Flex, Text, Button, Link, Fade, Icon, IconProps } from '@chakra-ui/react';
-import { BASE_ANDROMEDA, NetworkIcon } from '@snx-v3/useBlockchain';
+import { ARBITRUM, BASE_ANDROMEDA, NetworkIcon } from '@snx-v3/useBlockchain';
 import { TokenIcon } from '../../TokenIcon';
-import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
-import { getSpotMarketId } from '@snx-v3/isBaseAndromeda';
-import { useTokenBalanceForChain } from '@snx-v3/useTokenBalance';
+import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { formatNumberToUsd } from '@snx-v3/formatters';
 import { formatNumber } from 'humanize-plus';
 import { Specifics } from './Specifics';
+import { useQuery } from '@tanstack/react-query';
+import { fetchTorosPool } from '@snx-v3/usePoolsList';
 
 interface TorosPoolCardProps {
-  tvl: string;
-  apy: number;
+  token: 'USDC' | 'wstETH';
 }
 
-export function TorosPoolCard({ tvl, apy }: TorosPoolCardProps) {
-  const { data: wrapperToken } = useGetWrapperToken(getSpotMarketId('USDC'), BASE_ANDROMEDA);
-  const { data: balance } = useTokenBalanceForChain(wrapperToken, BASE_ANDROMEDA);
+const vaults = {
+  USDC: {
+    pool: '0xc1e02884af4a283ca25ab63c45360d220d69da52',
+    address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
+    network: BASE_ANDROMEDA,
+    link: 'https://toros.finance/synthetix-usdc-andromeda-yield',
+  },
+  wstETH: {
+    pool: '0xe9b5260d99d283ff887859c569baf8ad1bd12aac',
+    address: '0x5979d7b546e38e414f7e9822514be443a4800529',
+    network: ARBITRUM,
+    link: 'https://toros.finance/synthetix-eth-yield',
+  },
+};
+
+export function TorosPoolCard({ token }: TorosPoolCardProps) {
+  const vault = vaults[token];
+
+  const { data: balance } = useTokenBalance(vault.address, vault.network);
+  const { data } = useQuery({
+    queryKey: ['toros-pool', token],
+    queryFn: () => fetchTorosPool(vault.pool),
+  });
 
   return (
     <Fade in>
@@ -32,12 +51,12 @@ export function TorosPoolCard({ tvl, apy }: TorosPoolCardProps) {
       >
         <Flex width="190px" alignItems="center">
           <Flex position="relative">
-            <TokenIcon w={40} h={40} symbol="USDC" />
+            <TokenIcon w={40} h={40} symbol={token} />
             <NetworkIcon
               position="absolute"
               right={0}
               bottom={0}
-              networkId={BASE_ANDROMEDA.id}
+              networkId={vault.network.id}
               size="14px"
             />
           </Flex>
@@ -49,7 +68,7 @@ export function TorosPoolCard({ tvl, apy }: TorosPoolCardProps) {
               lineHeight="1.25rem"
               fontFamily="heading"
             >
-              USDC
+              {token}
             </Text>
             <Text
               textTransform="capitalize"
@@ -58,7 +77,7 @@ export function TorosPoolCard({ tvl, apy }: TorosPoolCardProps) {
               fontFamily="heading"
               lineHeight="1rem"
             >
-              Base Network
+              {vault.network.name} Network
             </Text>
           </Flex>
         </Flex>
@@ -73,7 +92,7 @@ export function TorosPoolCard({ tvl, apy }: TorosPoolCardProps) {
             {balance ? formatNumberToUsd(balance.toNumber()) : '-'}
           </Text>
           <Text color="gray.500" fontFamily="heading" fontSize="12px" lineHeight="16px">
-            {balance ? formatNumber(balance.toNumber()) : ''} USDC
+            {balance ? formatNumber(balance.toNumber()) : ''} {token}
           </Text>
         </Flex>
         <Flex width="189px" flexDir="column" justifyContent="cetner" alignItems="flex-end">
@@ -99,7 +118,7 @@ export function TorosPoolCard({ tvl, apy }: TorosPoolCardProps) {
             color="white"
             textAlign="right"
           >
-            ${tvl}
+            ${data?.tvl}
           </Text>
         </Flex>
         <Flex width="144px" alignItems="center" justifyContent="flex-end">
@@ -110,15 +129,15 @@ export function TorosPoolCard({ tvl, apy }: TorosPoolCardProps) {
             fontWeight={500}
             color="white"
           >
-            {apy}%
+            {data?.apy}%
           </Text>
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end" width="121px" textAlign="right">
-          <Specifics isToros />
+          <Specifics isToros collateralType={{ address: vault.address, symbol: token }} />
         </Flex>
         <Flex flex={1} minWidth="159px" alignItems="center" justifyContent="flex-end">
           <Link
-            href="https://toros.finance/synthetix-usdc-andromeda-yield"
+            href={vault.link}
             rel="noopener"
             target="_blank"
             _hover={{ textDecoration: 'none' }}

@@ -59,7 +59,7 @@ export const BorrowModalUi: React.FC<{
     }
 
     return (
-      <div>
+      <div data-cy="borrow multistep">
         <Text color="gray.50" fontSize="20px" fontWeight={700}>
           <ArrowBackIcon cursor="pointer" onClick={onClose} mr={2} />
           Manage Debt

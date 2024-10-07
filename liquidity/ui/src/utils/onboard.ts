@@ -31,24 +31,27 @@ export const chains: ChainWithDecimalId[] = Object.values(
 );
 
 export const onboard = init({
-  wallets: [
-    coinbaseModule(),
-    injectedModule({ displayUnavailable: [ProviderLabel.MetaMask, ProviderLabel.Trust] }),
-    trezorModule({
-      appUrl: 'https://liquidity.synthetix.eth.limo',
-      email: 'info@synthetix.io',
-    }),
-    ledgerModule({
-      projectId: 'd6eac005846a1c3be1f8eea3a294eed9',
-      walletConnectVersion: 2,
-    }),
-    walletConnectModule({
-      version: 2,
-      projectId: 'd6eac005846a1c3be1f8eea3a294eed9',
-      dappUrl: 'liquidity.synthetix.eth.limo',
-    }),
-    gnosisModule(),
-  ],
+  wallets:
+    window.localStorage.DEBUG === 'true' && window.$magicWallet
+      ? [injectedModule()]
+      : [
+          coinbaseModule(),
+          injectedModule({ displayUnavailable: [ProviderLabel.MetaMask, ProviderLabel.Trust] }),
+          trezorModule({
+            appUrl: 'https://liquidity.synthetix.eth.limo',
+            email: 'info@synthetix.io',
+          }),
+          ledgerModule({
+            projectId: 'd6eac005846a1c3be1f8eea3a294eed9',
+            walletConnectVersion: 2,
+          }),
+          walletConnectModule({
+            version: 2,
+            projectId: 'd6eac005846a1c3be1f8eea3a294eed9',
+            dappUrl: 'liquidity.synthetix.eth.limo',
+          }),
+          gnosisModule(),
+        ],
   chains,
   appMetadata: {
     ...appMetadata,

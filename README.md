@@ -1,9 +1,5 @@
 # Synthetix Liquidity UI
 
-[![main](https://github.com/synthetixio/v3ui/actions/workflows/main.yml/badge.svg)](https://github.com/synthetixio/v3ui/actions/workflows/main.yml)
-
-## Install
-
 This repo uses Yarn workspaces to manage multiple packages in the same repo. To prepare the repository for use, run:
 
 ```sh
@@ -12,7 +8,21 @@ yarn install
 
 This will install all dependencies, wire dependencies between packages in this repo, and allow for you to build projects.
 
-## Testing Requirements
+Periodically we need to upgrade contacts:
+
+```sh
+yarn upgrade-contracts
+yarn dedupe
+```
+
+and browserlists:
+
+```sh
+yarn upgrade-browsers
+yarn dedupe
+```
+
+## Testing and local dev requirements
 
 1. Install `foundry`
 
@@ -48,16 +58,62 @@ Have `INFURA_KEY` env variable set
     yarn e2e:base
     ```
 
-## Upgrade contacts
+## Local development with fork and Magic Wallet
 
-```sh
-yarn upgrade-contracts
-yarn dedupe
-```
+Example for Arbitrum Mainnet
 
-## Upgrade browserlist
+All RPC calls in this mode will be made to `127.0.0.1:8585`
+and all transactions will be automatically signed, without any popups
 
-```sh
-yarn upgrade-browsers
-yarn dedupe
-```
+1.  Run Foundry Anvil fork
+
+    ```sh
+    yarn anvil:arbitrum
+    ```
+
+2.  Update all prices (optionally, to speed up UI as it will not need to attach price updates to each call)
+
+    ```sh
+    yarn update-prices:arbitrum
+    ```
+
+3.  Run Liquidity app locally
+
+    ```sh
+    yarn start
+    ```
+
+4.  Open app in browser
+
+    ```sh
+    open http://localhost:3000
+    ```
+
+5.  Open devtools and set `localStorage` values
+
+    ```js
+    localStorage.DEBUG = 'true';
+    localStorage.MAGIC_WALLET = '0xWalletAddress';
+    ```
+
+6.  Reload page and proceed with connecting your wallet through UI choosing "Metamask" in popup
+    (the only option)
+
+7.  If wallet needs some ETH balance you can use foundry's `cast` to set balance
+
+    ```sh
+    cast rpc anvil_setBalance 0xWalletAddress 10000000000000000000
+
+    # check your balance
+    cast balance 0xWalletAddress -e
+    ```
+
+8.  Periodically (once an hour or less) sync fork time and update prices.
+
+    ```sh
+    yarn update-prices:arbitrum
+    yarn sync-time
+    ```
+
+    Because price updates are coming from offchain server we need to bring fork's internal time to realtime,
+    otherwise we will will have empty `priceUpdateTx` but then consistently get `OracleDataRequiredError` for ALL price feeds

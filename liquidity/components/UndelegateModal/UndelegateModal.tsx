@@ -66,7 +66,7 @@ export const UndelegateModalUi: FC<{
     }
 
     return (
-      <div>
+      <div data-cy="undelegate multistep">
         <Text color="gray.50" fontSize="20px" fontWeight={700}>
           <ArrowBackIcon cursor="pointer" onClick={onClose} mr={2} />
           Manage Collateral

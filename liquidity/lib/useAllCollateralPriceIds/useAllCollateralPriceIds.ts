@@ -1,7 +1,7 @@
 import { deploymentHasERC7412, Network, useNetwork } from '@snx-v3/useBlockchain';
+import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useMulticall3 } from '@snx-v3/useMulticall3';
-import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useOracleManagerProxy } from '@snx-v3/useOracleManagerProxy';
 import { ZodBigNumber } from '@snx-v3/zod';
 import { wei } from '@synthetixio/wei';
@@ -21,14 +21,22 @@ const PythParametersSchema = z.object({
   stalenessTolerance: ZodBigNumber.transform((x) => wei(x)),
 });
 
-const EXTERNAL_NODE_TYPE = 2;
+const PYTH_NODE = 5;
 
+/**
+ * Fetches all collateral price ids
+ * @deprecated This should not be used anywhere
+ *
+ *
+ * @param {Network} [customNetwork] - Custom network object.
+ * @returns {QueryResult<Array<CollateralPriceId>>} The result of the query.
+ */
 export const useAllCollateralPriceIds = (customNetwork?: Network) => {
   const { network } = useNetwork();
   const targetNetwork = customNetwork || network;
   const { data: Multicall3 } = useMulticall3(customNetwork);
   const { data: OracleProxy } = useOracleManagerProxy(customNetwork);
-  const { data: CoreProxy } = useCoreProxy({ customNetwork });
+  const { data: CoreProxy } = useCoreProxy(customNetwork);
   const { data: collateralConfigs } = useCollateralTypes(false, customNetwork);
 
   return useQuery({
@@ -38,7 +46,7 @@ export const useAllCollateralPriceIds = (customNetwork?: Network) => {
         Multicall3 &&
         OracleProxy &&
         CoreProxy &&
-        !!collateralConfigs?.length
+        collateralConfigs?.length
     ),
     staleTime: Infinity,
     queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'AllCollateralPriceIds'],
@@ -79,7 +87,7 @@ export const useAllCollateralPriceIds = (customNetwork?: Network) => {
 
           const { nodeType, parameters } = NodeSchema.parse({ ...nodeResp });
 
-          if (nodeType !== EXTERNAL_NODE_TYPE) return undefined;
+          if (nodeType !== PYTH_NODE) return undefined;
 
           try {
             const [address, priceFeedId, stalenessTolerance] = ethers.utils.defaultAbiCoder.decode(

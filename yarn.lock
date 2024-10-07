@@ -5012,7 +5012,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/assertAddressType@workspace:*, @snx-v3/assertAddressType@workspace:liquidity/lib/assertAddressType":
+"@snx-v3/assertAddressType@workspace:liquidity/lib/assertAddressType":
   version: 0.0.0-use.local
   resolution: "@snx-v3/assertAddressType@workspace:liquidity/lib/assertAddressType"
   languageName: unknown
@@ -5042,7 +5042,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/contracts@workspace:contracts"
   dependencies:
-    "@synthetixio/v3-contracts": "npm:^6.10.0"
+    "@synthetixio/v3-contracts": "npm:^6.14.0"
     viem: "npm:^2.13.5"
   languageName: unknown
   linkType: soft
@@ -5063,7 +5063,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/fetchPythPrices@workspace:*, @snx-v3/fetchPythPrices@workspace:liquidity/lib/fetchPythPrices":
+"@snx-v3/fetchPythPrices@workspace:liquidity/lib/fetchPythPrices":
   version: 0.0.0-use.local
   resolution: "@snx-v3/fetchPythPrices@workspace:liquidity/lib/fetchPythPrices"
   dependencies:
@@ -5173,6 +5173,7 @@ __metadata:
     "@snx-v3/useApr": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useBorrow": "workspace:*"
+    "@snx-v3/useClaimAllRewards": "workspace:*"
     "@snx-v3/useClearDebt": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCollateralPrices": "workspace:*"
@@ -5222,10 +5223,10 @@ __metadata:
     "@types/react-helmet": "npm:^6.1.9"
     "@web3-onboard/coinbase": "npm:^2.4.1"
     "@web3-onboard/common": "npm:^2.4.2"
-    "@web3-onboard/gnosis": "npm:^2.3.1"
-    "@web3-onboard/injected-wallets": "npm:^2.11.1"
+    "@web3-onboard/gnosis": "npm:^2.3.2"
+    "@web3-onboard/injected-wallets": "npm:^2.11.2"
     "@web3-onboard/ledger": "npm:2.7.1"
-    "@web3-onboard/react": "npm:^2.9.1"
+    "@web3-onboard/react": "npm:^2.9.3"
     "@web3-onboard/trezor": "npm:^2.4.6"
     "@web3-onboard/walletconnect": "npm:^2.6.1"
     babel-loader: "npm:^9.1.3"
@@ -5357,7 +5358,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/useAllCollateralPriceIds@workspace:*, @snx-v3/useAllCollateralPriceIds@workspace:liquidity/lib/useAllCollateralPriceIds":
+"@snx-v3/useAllCollateralPriceIds@workspace:liquidity/lib/useAllCollateralPriceIds":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useAllCollateralPriceIds@workspace:liquidity/lib/useAllCollateralPriceIds"
   dependencies:
@@ -5444,7 +5445,7 @@ __metadata:
     "@snx-v3/constants": "workspace:*"
     "@snx-v3/contracts": "workspace:*"
     "@snx-v3/icons": "workspace:*"
-    "@web3-onboard/react": "npm:^2.9.1"
+    "@web3-onboard/react": "npm:^2.9.3"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -5481,22 +5482,43 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/useClaimAllRewards@workspace:*, @snx-v3/useClaimAllRewards@workspace:liquidity/lib/useClaimAllRewards":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useClaimAllRewards@workspace:liquidity/lib/useClaimAllRewards"
+  dependencies:
+    "@chakra-ui/react": "npm:^2.8.2"
+    "@snx-v3/tsHelpers": "workspace:*"
+    "@snx-v3/txnReducer": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useCollateralPriceUpdates": "workspace:*"
+    "@snx-v3/useCoreProxy": "workspace:*"
+    "@snx-v3/useGasOptions": "workspace:*"
+    "@snx-v3/useGasPrice": "workspace:*"
+    "@snx-v3/useGasSpeed": "workspace:*"
+    "@snx-v3/useSpotMarketProxy": "workspace:*"
+    "@snx-v3/withERC7412": "workspace:*"
+    "@synthetixio/wei": "npm:^2.74.4"
+    "@tanstack/react-query": "npm:^5.8.3"
+    ethers: "npm:^5.7.2"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/useClaimUnwrapRewards@workspace:liquidity/lib/useClaimUnwrapRewards":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useClaimUnwrapRewards@workspace:liquidity/lib/useClaimUnwrapRewards"
   dependencies:
     "@chakra-ui/react": "npm:^2.8.2"
-    "@snx-v3/fetchPythPrices": "workspace:*"
-    "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
-    "@snx-v3/useAllCollateralPriceIds": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useContractErrorParser": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useGasOptions": "workspace:*"
     "@snx-v3/useGasPrice": "workspace:*"
     "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/useSpotMarketProxy": "workspace:*"
+    "@snx-v3/useSynthTokens": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -5512,7 +5534,6 @@ __metadata:
     "@snx-v3/isBaseAndromeda": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
-    "@snx-v3/useAllCollateralPriceIds": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
@@ -5919,8 +5940,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/usePoolConfiguration@workspace:liquidity/lib/usePoolConfiguration"
   dependencies:
-    "@snx-v3/fetchPythPrices": "workspace:*"
-    "@snx-v3/useAllCollateralPriceIds": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
@@ -5950,7 +5969,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/usePools@workspace:liquidity/lib/usePools"
   dependencies:
-    "@snx-v3/contracts": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/zod": "workspace:*"
@@ -6044,6 +6062,7 @@ __metadata:
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useMulticall3": "workspace:*"
     "@snx-v3/useRewardsDistributors": "workspace:*"
+    "@snx-v3/useSynthTokens": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     ethers: "npm:^5.7.2"
@@ -6099,7 +6118,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/useSynthTokens@workspace:liquidity/lib/useSynthTokens":
+"@snx-v3/useSynthTokens@workspace:*, @snx-v3/useSynthTokens@workspace:liquidity/lib/useSynthTokens":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useSynthTokens@workspace:liquidity/lib/useSynthTokens"
   dependencies:
@@ -6141,10 +6160,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useTokenBalance@workspace:liquidity/lib/useTokenBalance"
   dependencies:
-    "@snx-v3/assertAddressType": "workspace:*"
-    "@snx-v3/constants": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/zod": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     ethers: "npm:^5.7.2"
@@ -6236,7 +6252,6 @@ __metadata:
     "@snx-v3/isBaseAndromeda": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
-    "@snx-v3/useAllCollateralPriceIds": "workspace:*"
     "@snx-v3/useApprove": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useClearDebt": "workspace:*"
@@ -6297,9 +6312,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useVaultsData@workspace:liquidity/lib/useVaultsData"
   dependencies:
-    "@snx-v3/fetchPythPrices": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
-    "@snx-v3/useAllCollateralPriceIds": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
@@ -6658,10 +6671,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@synthetixio/v3-contracts@npm:^6.10.0":
-  version: 6.10.0
-  resolution: "@synthetixio/v3-contracts@npm:6.10.0"
-  checksum: 10/ef4b1c0d37b01cc2b1dba1e077dc04a0235ac1d7e7725f7f068f7614cbe77de825dad64347e188d47bc50da38d66ef8e7e7452db9d827628984a7d0360954e10
+"@synthetixio/v3-contracts@npm:^6.14.0":
+  version: 6.14.0
+  resolution: "@synthetixio/v3-contracts@npm:6.14.0"
+  checksum: 10/6dafb7c4d355ba07c73243e1461d2e677e08a6aaa351ecf763efdc9f79ff64b004f555d9f93f81f6b8998729e790489593779b8e5684ac5c8c27715709c0f311
   languageName: node
   linkType: hard
 
@@ -8437,9 +8450,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@web3-onboard/core@npm:2.22.1":
-  version: 2.22.1
-  resolution: "@web3-onboard/core@npm:2.22.1"
+"@web3-onboard/core@npm:2.22.3":
+  version: 2.22.3
+  resolution: "@web3-onboard/core@npm:2.22.3"
   dependencies:
     "@web3-onboard/common": "npm:^2.4.1"
     bnc-sdk: "npm:^4.6.7"
@@ -8453,19 +8466,19 @@ __metadata:
     svelte: "npm:^3.49.0"
     svelte-i18n: "npm:^3.3.13"
     viem: "npm:2.12.0"
-  checksum: 10/659ca2d6d06d097e09ad535add6e927b7b2289dd11e32e8179e6842e5271a03c696b168ed3c78347192eca6432fed1349e6034037aa7dc7ae5f4c2774a3a95d5
+  checksum: 10/2525bb3b1cf4d893f45fb4f0becd5a889a59b1ba13f02b9f567d988eac57bae28ffd8a37e153bf87595ee15dee316d78938a9e008c241cc82a2b7b215760914c
   languageName: node
   linkType: hard
 
-"@web3-onboard/gnosis@npm:^2.3.1":
-  version: 2.3.1
-  resolution: "@web3-onboard/gnosis@npm:2.3.1"
+"@web3-onboard/gnosis@npm:^2.3.2":
+  version: 2.3.2
+  resolution: "@web3-onboard/gnosis@npm:2.3.2"
   dependencies:
     "@web3-onboard/common": "npm:^2.4.1"
   peerDependencies:
     "@safe-global/safe-apps-provider": ^0.18.2
     "@safe-global/safe-apps-sdk": ^8.0.0
-  checksum: 10/85afd37cdaf3059a990d7ee0c7ff8cd229e08256045739e74af5c1b41fcc1018c9bd804c791e4266236f6944c5d265fc233b8520738108620f0b5a12c1a041db
+  checksum: 10/88cdb2ebf6d72b18c1796385ba21835ca87ef632c29cec74aba10ae64034b7ee697efa4c4a011644ca00f09720b01b359089bd3093a267d3c8972083636b5523
   languageName: node
   linkType: hard
 
@@ -8483,14 +8496,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@web3-onboard/injected-wallets@npm:^2.11.1":
-  version: 2.11.1
-  resolution: "@web3-onboard/injected-wallets@npm:2.11.1"
+"@web3-onboard/injected-wallets@npm:^2.11.2":
+  version: 2.11.2
+  resolution: "@web3-onboard/injected-wallets@npm:2.11.2"
   dependencies:
     "@web3-onboard/common": "npm:^2.4.1"
     joi: "npm:17.9.1"
     lodash.uniqby: "npm:^4.7.0"
-  checksum: 10/76bab7d36aca520992de6d7a528f5a72e66d003fe34de6b1d26f3738206c3c5d5e40011370e5d8740d3283cf2480f19e8691cf97465aa58ea47d1b5213c165b4
+  checksum: 10/3dd84ac8c4c71b628ac5327603ab18e801460ff655d7724c7dbebb7d7e8595f0b1d822dde903633ed991fd7d293e930ee5178476edd0fbf7f1c80a790eaff878
   languageName: node
   linkType: hard
 
@@ -8508,16 +8521,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@web3-onboard/react@npm:^2.9.1":
-  version: 2.9.1
-  resolution: "@web3-onboard/react@npm:2.9.1"
+"@web3-onboard/react@npm:^2.9.3":
+  version: 2.9.3
+  resolution: "@web3-onboard/react@npm:2.9.3"
   dependencies:
     "@web3-onboard/common": "npm:^2.4.1"
-    "@web3-onboard/core": "npm:2.22.1"
+    "@web3-onboard/core": "npm:2.22.3"
     use-sync-external-store: "npm:1.0.0"
   peerDependencies:
     react: ">=16.8"
-  checksum: 10/47779aefe51e0308fba0c9cb861cf0227ff3618c579c1e0a06153ce36c84ffb9886cd47ea7232177448f7144b2f75bcd993f7a1e35c304ba12f874fffb195201
+  checksum: 10/cd59788e532d7e1085ff0bc24a4bc592a90ef050126d784faf4065cc2ceaf21fd4399030ae22f3f047277bc11506e573a31ce385fd68876873e576e9edee7b19
   languageName: node
   linkType: hard
 
@@ -9918,16 +9931,16 @@ __metadata:
   linkType: hard
 
 "browserslist@npm:4":
-  version: 4.23.3
-  resolution: "browserslist@npm:4.23.3"
+  version: 4.24.0
+  resolution: "browserslist@npm:4.24.0"
   dependencies:
-    caniuse-lite: "npm:^1.0.30001646"
-    electron-to-chromium: "npm:^1.5.4"
+    caniuse-lite: "npm:^1.0.30001663"
+    electron-to-chromium: "npm:^1.5.28"
     node-releases: "npm:^2.0.18"
     update-browserslist-db: "npm:^1.1.0"
   bin:
     browserslist: cli.js
-  checksum: 10/e266d18c6c6c5becf9a1a7aa264477677b9796387972e8fce34854bb33dc1666194dc28389780e5dc6566e68a95e87ece2ce222e1c4ca93c2b75b61dfebd5f1c
+  checksum: 10/26c1b8ba257a0b51b102080ba9d42945af2abaa8c4cf6da21cd47b3f123fc1e81640203b293214356c2c17d9d265bb3a5ed428b6d302f383576dd6ce8fd5036c
   languageName: node
   linkType: hard
 
@@ -10141,9 +10154,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:1":
-  version: 1.0.30001660
-  resolution: "caniuse-lite@npm:1.0.30001660"
-  checksum: 10/5d83f0b7e2075b7e31f114f739155dc6c21b0afe8cb61180f625a4903b0ccd3d7591a5f81c930f14efddfa57040203ba0890850b8a3738f6c7f17c7dd83b9de8
+  version: 1.0.30001666
+  resolution: "caniuse-lite@npm:1.0.30001666"
+  checksum: 10/c3b5a85f658d140ba53f6e99ee824935194c78effd6f3b7e62c2c0d17f8886a12f5d4ce775f8faf7172f8373fffef713ecfbef2702beb053d558e92d47844b10
   languageName: node
   linkType: hard
 
@@ -11685,10 +11698,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron-to-chromium@npm:^1.5.4":
-  version: 1.5.4
-  resolution: "electron-to-chromium@npm:1.5.4"
-  checksum: 10/ce64db25c399d33830e74e58bbc5ab7c06948669e204b6508e98c278ddaead1da1cbb356d15b55eb659f89d4d7bcf00944f08f96e886f1d3d065ba11744c5633
+"electron-to-chromium@npm:^1.5.28":
+  version: 1.5.31
+  resolution: "electron-to-chromium@npm:1.5.31"
+  checksum: 10/b1fc54bb6eca9a8e6ed3870d4d2de74f080b4e6384f3bbeef8c9d8911cbe3ccb1f57fd2c8f800b871841836134f2597a7edcb2e4dc644b9281b95fd0323cde46
   languageName: node
   linkType: hard
 

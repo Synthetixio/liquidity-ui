@@ -4,11 +4,11 @@ import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useMulticall3 } from '@snx-v3/useMulticall3';
 import { useRewardsDistributors } from '@snx-v3/useRewardsDistributors';
+import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { Wei, wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
 import { BigNumber } from 'ethers';
 import { z } from 'zod';
-import { useSynthTokens } from '../useSynthTokens';
 
 const RewardsResponseSchema = z.array(
   z.object({
@@ -62,7 +62,7 @@ export function useRewards({
   const { data: synthTokens } = useSynthTokens();
 
   const { data: Multicall3 } = useMulticall3(network);
-  const { data: CoreProxy } = useCoreProxy({ customNetwork: network });
+  const { data: CoreProxy } = useCoreProxy(network);
   const { data: rewardsDistributors } = useRewardsDistributors(network);
 
   // We need to filter the distributors, so we only query for this particular collateral type

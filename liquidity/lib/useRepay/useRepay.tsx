@@ -74,6 +74,7 @@ export const useRepay = ({
         const walletAddress = await signer.getAddress();
 
         const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
+
         if (priceUpdateTx) {
           calls.unshift(priceUpdateTx as any);
         }

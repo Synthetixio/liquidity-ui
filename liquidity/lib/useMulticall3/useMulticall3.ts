@@ -1,44 +1,34 @@
 import { Contract } from '@ethersproject/contracts';
-import { useQuery } from '@tanstack/react-query';
+import { importMulticall3 } from '@snx-v3/contracts';
 import {
   Network,
   useNetwork,
   useProvider,
   useProviderForChain,
   useSigner,
-  useWallet,
 } from '@snx-v3/useBlockchain';
-import { importMulticall3 } from '@snx-v3/contracts';
+import { useQuery } from '@tanstack/react-query';
 
 export function useMulticall3(customNetwork?: Network) {
   const { network } = useNetwork();
-  const providerForChain = useProviderForChain(customNetwork);
   const provider = useProvider();
   const signer = useSigner();
-  const signerOrProvider = signer || provider || providerForChain;
-  const withSigner = Boolean(signer);
-  const { activeWallet } = useWallet();
-
+  const providerForChain = useProviderForChain(customNetwork);
+  const signerOrProvider = signer || provider;
   const targetNetwork = customNetwork || network;
-
+  const withSigner = Boolean(signer);
   return useQuery({
-    queryKey: [
-      `${targetNetwork?.id}-${targetNetwork?.preset}`,
-      'Multicall3',
-      { withSigner },
-      activeWallet?.address,
-    ],
+    queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'Multicall3', { withSigner }],
+    enabled: Boolean(signerOrProvider && targetNetwork),
     queryFn: async function () {
+      if (!(signerOrProvider && targetNetwork)) throw new Error('OMFG');
       if (providerForChain && customNetwork) {
-        const { address, abi } = await importMulticall3(customNetwork.id, customNetwork.preset);
+        const { address, abi } = await importMulticall3(targetNetwork.id, targetNetwork.preset);
         return new Contract(address, abi, providerForChain);
       }
-
-      if (!network || !signerOrProvider) throw new Error('Network or signer not available');
-      const { address, abi } = await importMulticall3(network.id, network.preset);
+      const { address, abi } = await importMulticall3(targetNetwork?.id, targetNetwork?.preset);
       return new Contract(address, abi, signerOrProvider);
     },
-    enabled: Boolean(signerOrProvider),
     staleTime: Infinity,
   });
 }

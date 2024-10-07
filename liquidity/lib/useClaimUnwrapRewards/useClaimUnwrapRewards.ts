@@ -1,22 +1,19 @@
-import { useReducer } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { BigNumber } from 'ethers';
-import { useCoreProxy } from '@snx-v3/useCoreProxy';
+import { useToast } from '@chakra-ui/react';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
-
-import { useToast } from '@chakra-ui/react';
-import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
-import { fetchPriceUpdates, priceUpdatesToPopulatedTx } from '@snx-v3/fetchPythPrices';
-import { useAllCollateralPriceIds } from '@snx-v3/useAllCollateralPriceIds';
-import { getGasPrice } from '@snx-v3/useGasPrice';
-import { withERC7412 } from '@snx-v3/withERC7412';
-import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
-import { useGasSpeed } from '@snx-v3/useGasSpeed';
-import { notNil } from '@snx-v3/tsHelpers';
-import Wei from '@synthetixio/wei';
-import { useSynthTokens } from '../useSynthTokens';
+import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
+import { useCoreProxy } from '@snx-v3/useCoreProxy';
+import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
+import { getGasPrice } from '@snx-v3/useGasPrice';
+import { useGasSpeed } from '@snx-v3/useGasSpeed';
+import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
+import { useSynthTokens } from '@snx-v3/useSynthTokens';
+import { withERC7412 } from '@snx-v3/withERC7412';
+import Wei from '@synthetixio/wei';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { BigNumber } from 'ethers';
+import { useReducer } from 'react';
 
 export function useClaimUnwrapRewards({
   poolId,
@@ -38,12 +35,10 @@ export function useClaimUnwrapRewards({
   const { network } = useNetwork();
   const { data: SpotProxy } = useSpotMarketProxy();
   const signer = useSigner();
-  const { data: CoreProxy } = useCoreProxy({
-    isWrite: true,
-  });
+  const { data: CoreProxy } = useCoreProxy();
   const [txnState, dispatch] = useReducer(reducer, initialState);
   const client = useQueryClient();
-  const { data: collateralPriceUpdates } = useAllCollateralPriceIds();
+  const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
   const provider = useProvider();
   const { gasSpeed } = useGasSpeed();
   const { data: synthTokens } = useSynthTokens();
@@ -52,61 +47,44 @@ export function useClaimUnwrapRewards({
   const mutation = useMutation({
     mutationFn: async function () {
       try {
-        if (!amount || !signer) return;
-        if (!poolId || !collateralAddress || !accountId || !distributorAddress || !network)
+        if (!(signer && network && provider)) throw new Error('No signer or network');
+        if (!amount) return;
+        if (!poolId || !collateralAddress || !accountId || !distributorAddress)
           throw new Error('Parameters Undefined');
         if (!CoreProxy) throw new Error('CoreProxy undefined');
+        if (!SpotProxy) throw new Error('SpotProxy undefined');
 
         dispatch({ type: 'prompting' });
 
-        const transcations = [];
-        transcations.push(
-          CoreProxy.populateTransaction.claimRewards(
-            BigNumber.from(accountId),
-            BigNumber.from(poolId),
-            collateralAddress,
-            distributorAddress
-          )
+        const claimRewardsPopulatedTxnPromise = CoreProxy.populateTransaction.claimRewards(
+          BigNumber.from(accountId),
+          BigNumber.from(poolId),
+          collateralAddress,
+          distributorAddress
         );
 
         const synthToken = synthTokens?.find(
           (synth) => synth.address.toUpperCase() === payoutTokenAddress?.toUpperCase()
         );
 
-        if (synthToken) {
-          transcations.push(
-            SpotProxy?.populateTransaction.unwrap(
+        const unwrapPopulatedTxnPromise = synthToken
+          ? SpotProxy.populateTransaction.unwrap(
               synthToken.synthMarketId,
               amount.toBN(),
               amount.toBN().mul(98).div(100).toNumber().toFixed()
             )
-          );
-        }
-
-        const callsPromise = Promise.all(transcations.filter(notNil));
+          : undefined;
 
         const walletAddress = await signer.getAddress();
-        const collateralPriceCallsPromise = fetchPriceUpdates(
-          collateralPriceUpdates,
-          network?.isTestnet
-        ).then((signedData) =>
-          priceUpdatesToPopulatedTx(walletAddress, collateralPriceUpdates, signedData)
-        );
-
-        const [calls, gasPrices, collateralPriceCalls] = await Promise.all([
-          callsPromise,
-          getGasPrice({ provider: provider! }),
-          collateralPriceCallsPromise,
+        const callsPromise = Promise.all([
+          claimRewardsPopulatedTxnPromise,
+          ...(unwrapPopulatedTxnPromise ? [unwrapPopulatedTxnPromise] : []),
         ]);
-
-        const allCalls = collateralPriceCalls.concat(calls);
-
-        const erc7412Tx = await withERC7412(
-          network,
-          allCalls,
-          'useClaimUnwrapRewards',
-          walletAddress
-        );
+        const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
+        if (priceUpdateTx) {
+          calls.push(priceUpdateTx as any);
+        }
+        const erc7412Tx = await withERC7412(network, calls, 'useClaimUnwrapRewards', walletAddress);
 
         const gasOptionsForTransaction = formatGasPriceForTransaction({
           gasLimit: erc7412Tx.gasLimit,
@@ -173,6 +151,10 @@ export function useClaimUnwrapRewards({
 
         return 0;
       }
+    },
+    onSuccess: () => {
+      // After mutation withERC7412, we guaranteed to have updated all the prices, dont care about await
+      refetchPriceUpdateTx();
     },
   });
 

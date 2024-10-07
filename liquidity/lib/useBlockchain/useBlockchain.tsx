@@ -1,21 +1,27 @@
-import { ethers } from 'ethers';
-import React, { useMemo } from 'react';
+import { IconProps } from '@chakra-ui/react';
+import { INFURA_KEY as DEFAULT_INFURA_KEY } from '@snx-v3/constants';
+import { importPythERC7412Wrapper } from '@snx-v3/contracts';
 import {
+  ArbitrumIcon,
   BaseIcon,
   EthereumIcon,
   FailedIcon,
   LogoIcon,
   OptimismIcon,
-  ArbitrumIcon,
   SNXChainIcon,
 } from '@snx-v3/icons';
-import { INFURA_KEY as DEFAULT_INFURA_KEY } from '@snx-v3/constants';
+import { useConnectWallet, useSetChain } from '@web3-onboard/react';
+import { ethers } from 'ethers';
+import React, { useCallback, useMemo } from 'react';
+import { MagicProvider } from './magic';
 import SynthetixIcon from './SynthetixIcon.svg';
 import SynthetixLogo from './SynthetixLogo.svg';
-import { useConnectWallet, useSetChain } from '@web3-onboard/react';
-import { useCallback } from 'react';
-import { IconProps } from '@chakra-ui/react';
-import { importPythERC7412Wrapper } from '@snx-v3/contracts';
+
+export function getMagicProvider(): ethers.providers.JsonRpcProvider | undefined {
+  if (window.$magicWallet && window.$chainId) {
+    return new MagicProvider();
+  }
+}
 
 export type Network = {
   id: number;
@@ -287,15 +293,20 @@ export const appMetadata = {
 };
 
 export function useProviderForChain(network?: Network) {
-  return useMemo(
-    () => (network ? new ethers.providers.JsonRpcProvider(network.rpcUrl()) : undefined),
-    [network]
-  );
+  return useMemo(() => {
+    return (
+      getMagicProvider() ??
+      (network ? new ethers.providers.JsonRpcProvider(network.rpcUrl()) : undefined)
+    );
+  }, [network]);
 }
 
 export function useDefaultProvider() {
   const { network } = useNetwork();
-  return useProviderForChain(network);
+  return (
+    getMagicProvider() ??
+    (network ? new ethers.providers.JsonRpcProvider(network.rpcUrl()) : undefined)
+  );
 }
 
 export function useWallet() {
@@ -307,8 +318,8 @@ export function useWallet() {
   return useMemo(() => {
     if (!wallet) {
       return {
-        activeWallet: null,
-        walletsInfo: null,
+        activeWallet: undefined,
+        walletsInfo: undefined,
         connect,
         disconnect,
       };
@@ -323,12 +334,6 @@ export function useWallet() {
       disconnect,
     };
   }, [connect, disconnect, wallet]);
-}
-
-export function useGetNetwork(chainId: string) {
-  return useMemo(() => {
-    return NETWORKS.find((n) => n.hexId === chainId);
-  }, [chainId]);
 }
 
 export function useNetwork() {
@@ -366,28 +371,22 @@ export function useIsConnected(): boolean {
 
 export function useSigner() {
   const [{ wallet }] = useConnectWallet();
-
   return useMemo(() => {
     if (!wallet) {
-      return null;
+      return undefined;
     }
-
-    const provider = new ethers.providers.Web3Provider(wallet.provider, 'any');
-
+    const provider =
+      getMagicProvider() ?? new ethers.providers.Web3Provider(wallet.provider, 'any');
     return provider.getSigner();
   }, [wallet]);
 }
 
 export function useProvider() {
   const [{ wallet }] = useConnectWallet();
-
-  return useMemo(() => {
-    if (!wallet) {
-      return null;
-    }
-
-    const provider = new ethers.providers.Web3Provider(wallet.provider, 'any');
-
-    return provider;
-  }, [wallet]);
+  return useMemo(
+    () =>
+      getMagicProvider() ??
+      (wallet?.provider ? new ethers.providers.Web3Provider(wallet.provider, 'any') : undefined),
+    [wallet]
+  );
 }

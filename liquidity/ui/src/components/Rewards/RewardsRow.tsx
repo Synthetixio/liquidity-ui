@@ -1,23 +1,17 @@
-import { Button, Fade, Flex, Link, Td, Text, Tr } from '@chakra-ui/react';
+import { Fade, Flex, Link, Td, Text, Tr } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { etherscanLink } from '@snx-v3/etherscanLink';
 import { truncateAddress } from '@snx-v3/formatters';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useNetwork } from '@snx-v3/useBlockchain';
-import { useCollateralType } from '@snx-v3/useCollateralTypes';
-import { useParams } from '@snx-v3/useParams';
 import Wei, { wei } from '@synthetixio/wei';
 import { TokenIcon } from '../TokenIcon';
-import { RewardsModal } from './RewardsModal';
-import { useClaimUnwrapRewards } from '../../../../lib/useClaimUnwrapRewards';
-import { useCallback } from 'react';
 
 interface RewardsRowInterface {
   displaySymbol?: string;
   claimableAmount: Wei; // The immediate amount claimable as read from the contracts
   lifetimeClaimed: number;
   distributorAddress: string;
-  payoutTokenAddress: string;
 }
 
 export const RewardsRow = ({
@@ -25,36 +19,11 @@ export const RewardsRow = ({
   claimableAmount,
   lifetimeClaimed,
   distributorAddress,
-  payoutTokenAddress,
 }: RewardsRowInterface) => {
-  const { accountId, collateralSymbol, poolId } = useParams();
-
-  const { data: collateralData } = useCollateralType(collateralSymbol);
   const { network } = useNetwork();
-
-  const { exec: claimUnWrap, txnState } = useClaimUnwrapRewards({
-    poolId: poolId || '',
-    collateralAddress: collateralData?.tokenAddress || '',
-    accountId: accountId,
-    distributorAddress: distributorAddress,
-    amount: claimableAmount,
-    payoutTokenAddress,
-  });
-
-  const onClick = useCallback(() => {
-    claimUnWrap();
-  }, [claimUnWrap]);
-
-  const { txnStatus, txnHash } = txnState;
 
   return (
     <>
-      <RewardsModal
-        amount={claimableAmount.toNumber()}
-        collateralSymbol={displaySymbol}
-        txnStatus={txnStatus}
-        txnHash={txnHash}
-      />
       <Tr>
         <Td display="flex" alignItems="center" px={4} py={3} border="none" w="100%">
           <Fade in>
@@ -101,26 +70,6 @@ export const RewardsRow = ({
                 <Amount value={wei(lifetimeClaimed)} />
               </Text>
             )}
-          </Fade>
-        </Td>
-        <Td border="none" px="0px">
-          <Fade in>
-            <Button
-              w="100%"
-              size="sm"
-              variant="solid"
-              isDisabled={claimableAmount.eq(0)}
-              _disabled={{
-                bg: 'gray.900',
-                backgroundImage: 'none',
-                color: 'gray.500',
-                opacity: 0.5,
-                cursor: 'not-allowed',
-              }}
-              onClick={onClick}
-            >
-              {claimableAmount.gt(0) || !lifetimeClaimed ? 'Claim' : 'Claimed'}
-            </Button>
           </Fade>
         </Td>
       </Tr>

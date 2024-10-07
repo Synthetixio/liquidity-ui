@@ -1,11 +1,10 @@
 import { RewardsModal } from './RewardsModal';
-import injectedModule from '@web3-onboard/injected-wallets';
 import { init, Web3OnboardProvider } from '@web3-onboard/react';
 
 describe('RewardsModal', () => {
   it('should render RewardsModal', () => {
     const onboard = init({
-      wallets: [injectedModule()],
+      wallets: [],
       chains: [{ id: 1 }],
     });
 
