@@ -173,8 +173,8 @@ export const DepositModalUi: FC<{
           <>
             <Multistep
               step={2}
-              title="Wrap USDC into stataUSDc"
-              subtitle={<Text>This will wrap your USDC into stataUSDc to be deposited</Text>}
+              title="Wrap USDC into Static aUSDC"
+              subtitle={<Text>This will wrap your USDC into Static aUSDC to be deposited</Text>}
               status={{
                 failed: error?.step === State.wrapUSDC,
                 disabled: state.matches(State.success) && requireApproval,
@@ -184,8 +184,8 @@ export const DepositModalUi: FC<{
             />
             <Multistep
               step={3}
-              title="Approve stataUSDc transfer"
-              subtitle={<Text>You must approve your stataUSDc transfer before depositing.</Text>}
+              title="Approve Static aUSDC transfer"
+              subtitle={<Text>You must approve your Static aUSDC transfer before depositing.</Text>}
               status={{
                 failed: error?.step === State.approveStata,
                 disabled: state.matches(State.success) && requireApproval,
@@ -195,11 +195,11 @@ export const DepositModalUi: FC<{
             />
             <Multistep
               step={4}
-              title="Deposit and Lock stataUSDc"
+              title="Deposit and Lock Static aUSDC"
               subtitle={
                 <Text>
-                  This will deposit and lock <Amount value={collateralChange} suffix=" stataUSDc" />{' '}
-                  to {poolName}.
+                  This will deposit and lock{' '}
+                  <Amount value={collateralChange} suffix=" Static aUSDC" /> to {poolName}.
                 </Text>
               }
               status={{

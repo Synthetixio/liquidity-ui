@@ -24,9 +24,9 @@ it('should deposit additional USDC collateral', () => {
     .should('exist')
     .and('include.text', 'Open Liquidity Position')
     .and('include.text', 'Approve USDC transfer')
-    .and('include.text', 'Wrap USDC into stataUSDc')
-    .and('include.text', 'Approve stataUSDc transfer')
-    .and('include.text', 'Deposit and Lock stataUSDc')
+    .and('include.text', 'Wrap USDC into Static aUSDC')
+    .and('include.text', 'Approve Static aUSDC transfer')
+    .and('include.text', 'Deposit and Lock Static aUSDC')
     .and('include.text', 'This will deposit and lock 200 USDC to Spartan Council Pool.');
 
   cy.get('[data-cy="deposit confirm button"]')
