@@ -4,7 +4,6 @@ import { Network, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { MigrateUSDModal } from './MigrateUSDModal';
 import { TokenIcon } from '../TokenIcon';
 import { useLocation } from 'react-router-dom';
-import { useParams } from '@snx-v3/useParams';
 
 interface Props {
   network: Network;
@@ -15,14 +14,18 @@ export const MigrateUSDButton: FC<Props> = ({ network }) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const { network: currentNetwork } = useNetwork();
-  const { convert } = useParams();
+
   const { activeWallet } = useWallet();
 
   useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+
+    const convert = queryParams.get('convert');
+
     if (convert && convert.toLowerCase() === 'snxusd') {
       setIsOpen(true);
     }
-  }, [location.search, convert]);
+  }, [location.search]);
 
   if (!activeWallet || currentNetwork?.id !== network.id) {
     return null;

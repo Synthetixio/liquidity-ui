@@ -9,11 +9,7 @@ import { RewardsRow } from './RewardsRow';
 
 export const Rewards = ({ ...props }: FlexProps) => {
   const { accountId, collateralSymbol, poolId } = useParams();
-  const {
-    isPending,
-    data: rewards,
-    isLoading,
-  } = useRewards({ poolId, collateralSymbol, accountId });
+  const { isPending, data: rewards } = useRewards({ poolId, collateralSymbol, accountId });
 
   return (
     <BorderBox bg="navy.700" py={4} px={4} flexDir="column" {...props}>
@@ -73,7 +69,7 @@ export const Rewards = ({ ...props }: FlexProps) => {
             </Tr>
           </Thead>
           <Tbody>
-            {isLoading ? <RewardsLoading /> : null}
+            {isPending ? <RewardsLoading /> : null}
             {!isPending && rewards && rewards.length > 0
               ? rewards?.map((item) => (
                   <RewardsRow
@@ -92,15 +88,7 @@ export const Rewards = ({ ...props }: FlexProps) => {
                   No Rewards Available
                 </Text>
               </Td>
-            ) : (
-              rewards?.length === 0 && (
-                <Td display="flex" alignItems="left" px={4} border="none" w="100%">
-                  <Text color="gray.500" fontFamily="heading" fontSize="xs">
-                    Create a Position to see your earnings
-                  </Text>
-                </Td>
-              )
-            )}
+            ) : null}
           </Tbody>
         </Table>
       </TableContainer>
