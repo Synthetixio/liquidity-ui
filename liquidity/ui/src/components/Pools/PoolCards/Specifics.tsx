@@ -5,14 +5,17 @@ import { Network } from '@snx-v3/useBlockchain';
 export const Specifics: React.FC<{
   network?: Network;
   isToros?: boolean;
-  collateral?: string;
-}> = ({ network, isToros, collateral }) => {
+  collateralType?: CollateralType | {
+    address: string;
+    symbol: string;
+  };
+}> = ({ network, isToros, collateralType }) => {
   const isBase = isBaseAndromeda(network?.id, network?.preset);
 
   if (isToros) {
     return (
       <Flex alignItems="center" gap={2}>
-        {collateral?.toUpperCase() === 'wstETH'.toUpperCase() && (
+        {collateralType?.symbol?.toUpperCase() === 'wstETH'.toUpperCase() && (
           <Tooltip textAlign="left" label="Yield on yield" hasArrow>
             <svg
               width="15"
@@ -75,7 +78,7 @@ export const Specifics: React.FC<{
   }
 
   if (isBase) {
-    if (collateral?.toUpperCase() === 'stataUSDC'.toUpperCase()) {
+    if (collateralType?.symbol?.toUpperCase() === 'stataUSDC'.toUpperCase()) {
       return (
         <Tooltip textAlign="left" label="Yield on yield" hasArrow>
           <svg
