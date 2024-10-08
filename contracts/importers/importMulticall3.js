@@ -59,13 +59,6 @@ export async function importMulticall3(chainId, preset) {
       ]);
       return { address: meta.contracts.TrustedMulticallForwarder, abi };
     }
-    case '42161-arbthetix': {
-      const [{ default: meta }, { default: abi }] = await Promise.all([
-        import('@synthetixio/v3-contracts/42161-arbthetix/meta.json'),
-        import('@synthetixio/v3-contracts/42161-arbthetix/TrustedMulticallForwarder.readable.json'),
-      ]);
-      return { address: meta.contracts.TrustedMulticallForwarder, abi };
-    }
     case '421614-main': {
       const [{ default: meta }, { default: abi }] = await Promise.all([
         import('@synthetixio/v3-contracts/421614-main/meta.json'),

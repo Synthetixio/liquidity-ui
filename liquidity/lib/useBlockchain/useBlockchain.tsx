@@ -211,20 +211,6 @@ export const ARBITRUM: Network = {
   isTestnet: false,
 };
 
-export const ARBTHETIX: Network = {
-  id: 42161,
-  preset: 'arbthetix',
-  hexId: `0x${Number(42161).toString(16)}`,
-  token: 'ETH',
-  name: 'arbitrum',
-  rpcUrl: (INFURA_KEY?: string) =>
-    `https://arbitrum-mainnet.infura.io/v3/${INFURA_KEY ?? DEFAULT_INFURA_KEY}`,
-  label: 'Arbthetix (withdraw only)',
-  isSupported: false,
-  publicRpcUrl: 'https://arbiscan.io/',
-  isTestnet: false,
-};
-
 export const SNAX: Network = {
   id: 2192,
   preset: 'main',
@@ -261,7 +247,6 @@ export const NETWORKS: Network[] = [
   OPTIMISM_SEPOLIA,
   ARBITRUM_SEPOLIA,
   ARBITRUM,
-  ARBTHETIX,
   SNAX,
   SNAXTESTNET,
 ];

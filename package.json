@@ -29,8 +29,8 @@
     "deps:mismatched": "deps-mismatched",
     "deps:circular": "deps-circular",
     "deps:version": "deps-version",
-    "upgrade-browsers": "yarn up browserslist caniuse-lite --recursive",
-    "upgrade-contracts": "yarn up @synthetixio/v3-contracts --recursive",
+    "upgrade-browsers": "yarn up browserslist caniuse-lite --recursive && yarn dedupe",
+    "upgrade-contracts": "yarn up @synthetixio/v3-contracts --recursive && yarn dedupe",
     "svg": "svgo --config svgo.config.js --recursive ./",
     "svg:check": "yarn svg && git diff --exit-code **/*.svg",
     "download-cci-coverage": "download-cci-coverage"

@@ -53,13 +53,6 @@ export async function importSpotMarketProxy(chainId, preset) {
       ]);
       return { address: meta.contracts.SpotMarketProxy, abi };
     }
-    case '42161-arbthetix': {
-      const [{ default: meta }, { default: abi }] = await Promise.all([
-        import('@synthetixio/v3-contracts/42161-arbthetix/meta.json'),
-        import('@synthetixio/v3-contracts/42161-arbthetix/SpotMarketProxy.readable.json'),
-      ]);
-      return { address: meta.contracts.SpotMarketProxy, abi };
-    }
     default: {
       throw new Error(`Unsupported deployment ${deployment} for SpotMarketProxy`);
     }

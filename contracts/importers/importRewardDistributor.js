@@ -49,9 +49,6 @@ export async function importRewardDistributor(chainId, preset) {
     case '421614-main': {
       return { address: null, abi };
     }
-    case '42161-arbthetix': {
-      return { address: null, abi };
-    }
     default: {
       throw new Error(`Unsupported deployment ${deployment} for RewardsDistributor`);
     }

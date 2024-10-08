@@ -46,12 +46,6 @@ export async function importCollateralTokens(chainId, preset) {
       ]);
       return collateralTokens;
     }
-    case '42161-arbthetix': {
-      const [{ default: collateralTokens }] = await Promise.all([
-        import('@synthetixio/v3-contracts/42161-arbthetix/collateralTokens.json'),
-      ]);
-      return collateralTokens;
-    }
     default: {
       throw new Error(`Unsupported deployment ${deployment} for CollateralTokens`);
     }
