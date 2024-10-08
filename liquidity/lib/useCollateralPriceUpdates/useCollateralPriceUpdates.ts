@@ -1,73 +1,15 @@
 import { EvmPriceServiceConnection } from '@pythnetwork/pyth-evm-js';
 import { offchainMainnetEndpoint } from '@snx-v3/constants';
-import { importExtras, importMulticall3, importPythERC7412Wrapper } from '@snx-v3/contracts';
+import { importMulticall3, importPythERC7412Wrapper, importPythFeeds } from '@snx-v3/contracts';
 import { parseUnits } from '@snx-v3/format';
 import { Network, useDefaultProvider, useNetwork, useWallet } from '@snx-v3/useBlockchain';
-import { networksOffline } from '@snx-v3/usePoolsList';
+import { CollateralType } from '@snx-v3/useCollateralTypes';
 import { ERC7412_ABI } from '@snx-v3/withERC7412';
 import { wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
 
 const priceService = new EvmPriceServiceConnection(offchainMainnetEndpoint);
-
-function getAllPriceIdsEntries(extras: any) {
-  return Object.entries(extras).filter(
-    ([key, value]) =>
-      String(value).length === 66 &&
-      (key.startsWith('pyth_feed_id_') || (key.startsWith('pyth') && key.endsWith('FeedId')))
-  );
-}
-
-async function getPythFeedIds(network: Network) {
-  const extras = await importExtras(network.id, network.preset);
-  return getAllPriceIdsEntries(extras).map(([_key, value]) => value);
-}
-
-async function getPythFeedIdsFromCollateralList(
-  collateralList: {
-    symbol: string;
-  }[]
-) {
-  const extras = await Promise.all(
-    networksOffline.map((network) => importExtras(network.id, network.preset))
-  );
-
-  // Go over extras and find everything that starts with pyth and ends with FeedId, store in array
-  const priceIds = extras.map(getAllPriceIdsEntries).flat();
-
-  const deduped = Array.from(
-    new Set(
-      priceIds
-        .map(([key, priceId]) => {
-          if (key.startsWith('pyth_feed_id_')) {
-            return {
-              symbol: key.replace('pyth_feed_id_', '').toUpperCase(),
-              priceId,
-            };
-          }
-          if (key.startsWith('pyth') && key.endsWith('FeedId')) {
-            return {
-              symbol: key.replace('pyth', '').replace('FeedId', '').toUpperCase(),
-              priceId,
-            };
-          }
-          return { symbol: null, priceId: null };
-        })
-        .filter(({ symbol, priceId }) => symbol && priceId)
-    )
-  );
-
-  // Find the corresponding price feed id for each symbol
-  return collateralList.map((collateral) => {
-    const symbol = collateral.symbol === 'WETH' ? 'ETH' : collateral.symbol;
-    const id = deduped.find((x) => x.symbol?.toUpperCase() === symbol.toUpperCase());
-    return {
-      ...collateral,
-      priceId: id?.priceId,
-    };
-  });
-}
 
 const getPriceUpdates = async (
   priceIds: string[],
@@ -91,15 +33,12 @@ const getPriceUpdates = async (
   };
 };
 
-interface Collaterals {
-  symbol: string;
-  oracleId: string;
-  id: string;
-}
-
-export const useOfflinePrices = (collaterals?: Collaterals[]) => {
+/**
+ * @deprecated
+ */
+export const useOfflinePrices = (collaterals?: CollateralType[]) => {
   return useQuery({
-    queryKey: ['offline-prices', collaterals?.map((collateral) => collateral.id).join('-')],
+    queryKey: ['offline-prices', collaterals?.map((collateral) => collateral.address).join('-')],
     enabled: Boolean(collaterals && collaterals.length > 0),
     queryFn: async () => {
       if (!collaterals) {
@@ -128,11 +67,16 @@ export const useOfflinePrices = (collaterals?: Collaterals[]) => {
         return returnData;
       }
 
-      const collateralsWithPriceId = await getPythFeedIdsFromCollateralList(filteredCollaterals);
+      const collateralsWithPriceId = filteredCollaterals;
+      // const collateralsWithPriceId = await getPythFeedIdsFromCollateralList(filteredCollaterals);
       const prices = await priceService.getLatestPriceFeeds(
-        collateralsWithPriceId.map((x) => x.priceId) as string[]
+        collaterals
+          .filter((collateralType) => collateralType?.oracle)
+          // @ts-ignore
+          .map((x) => x.priceId) as string[]
       );
       prices?.forEach((item) => {
+        // @ts-ignore
         const col = collateralsWithPriceId.find(({ priceId }) => priceId === `0x${item.id}`);
         const price = item.getPriceUnchecked();
         if (col) {
@@ -155,7 +99,11 @@ export const useCollateralPriceUpdates = (customNetwork?: Network) => {
   const { activeWallet } = useWallet();
 
   return useQuery({
-    queryKey: [`${network?.id}-${network?.preset}`, 'price-updates', activeWallet?.address],
+    queryKey: [
+      `${network?.id}-${network?.preset}`,
+      'CollateralPriceUpdates',
+      activeWallet?.address,
+    ],
     enabled: Boolean(network?.id && network?.preset),
     queryFn: async () => {
       const stalenessTolerance = 3300; // normally we have tolerance of 3600, which leaves us with extra 5min
@@ -174,7 +122,7 @@ export const useCollateralPriceUpdates = (customNetwork?: Network) => {
           'function getLatestPrice(bytes32 priceId, uint256 stalenessTolerance) external view returns (int256)',
         ]);
 
-        const pythFeedIds = (await getPythFeedIds(network)) as string[];
+        const pythFeedIds = await importPythFeeds(network.id, network.preset);
         if (window.localStorage.getItem('DEBUG') === 'true') {
           // eslint-disable-next-line no-console
           console.log('[useCollateralPriceUpdates]', { pythFeedIds });

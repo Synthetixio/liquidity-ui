@@ -13,6 +13,7 @@ export const useTokenPrice = (symbol?: string) => {
   const omCollateralPrices = collateralTypes?.filter((item) => item.symbol === 'stataUSDC');
 
   const { data: collateralPrices } = useOfflinePrices(
+    // @ts-ignore
     (pythCollateralPrices || []).map((item) => ({
       id: item.tokenAddress,
       oracleId: item.oracleNodeId,

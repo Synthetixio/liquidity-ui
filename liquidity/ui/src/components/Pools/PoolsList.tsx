@@ -1,87 +1,56 @@
-import { useReducer, useMemo } from 'react';
-import { Flex, Heading, Text, Divider } from '@chakra-ui/react';
-import { ChainFilter, CollateralFilter, PoolCard } from './';
-import { TorosPoolCard } from './PoolCards/TorosPoolCard';
-import { usePoolsList } from '@snx-v3/usePoolsList';
-import { PoolCardsLoading } from './PoolCards/PoolCardsLoading';
-import { useOfflinePrices } from '@snx-v3/useCollateralPriceUpdates';
-import { CollateralType, useCollateralTypes } from '@snx-v3/useCollateralTypes';
-import { ARBITRUM, BASE_ANDROMEDA, MAINNET } from '@snx-v3/useBlockchain';
+import { Divider, Flex, Heading, Text } from '@chakra-ui/react';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { ARBITRUM, BASE_ANDROMEDA, MAINNET } from '@snx-v3/useBlockchain';
+import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
+import { usePoolsList } from '@snx-v3/usePoolsList';
 import { useRewardsDistributors } from '@snx-v3/useRewardsDistributors';
-import { useOraclePrice } from '@snx-v3/useOraclePrice';
+import { useMemo, useReducer } from 'react';
+import { ChainFilter, CollateralFilter } from './';
 import { Balloon } from './Balloon';
+import { PoolCardsLoading } from './PoolCards/PoolCardsLoading';
+import { PoolRow } from './PoolCards/PoolRow';
+import { TorosPoolCard } from './PoolCards/TorosPoolCard';
 
 export const PoolsList = () => {
   const [state, dispatch] = useReducer(poolsReducer, { collaterals: [], chains: [] });
-  const { data, isLoading: isPoolsListLoading } = usePoolsList();
+  const { data, isPending: isPoolsListLoading } = usePoolsList();
 
-  const { data: BaseCollateralTypes, isLoading: isBaseCollateralLoading } = useCollateralTypes(
+  const { data: BaseCollateralTypes, isPending: isBaseCollateralLoading } = useCollateralTypes(
     false,
     BASE_ANDROMEDA
   );
 
-  const { data: ArbitrumCollateralTypes, isLoading: isArbCollateralLoading } = useCollateralTypes(
+  const { data: ArbitrumCollateralTypes, isPending: isArbCollateralLoading } = useCollateralTypes(
     false,
     ARBITRUM
   );
 
-  const { data: MainnetCollateralTypes, isLoading: isMainCollateralLoading } = useCollateralTypes(
+  const { data: MainnetCollateralTypes, isPending: isMainCollateralLoading } = useCollateralTypes(
     false,
     MAINNET
   );
 
-  const allCollaterals: CollateralType[] = useMemo(() => {
-    if (!BaseCollateralTypes || !ArbitrumCollateralTypes || !MainnetCollateralTypes) {
-      return [];
-    }
-
-    // We want to filter out assets that don't have a pyth price feed
-
-    return BaseCollateralTypes.concat(ArbitrumCollateralTypes)
-      .concat(MainnetCollateralTypes)
-      .filter((item) => item.displaySymbol !== 'stataUSDC');
-  }, [ArbitrumCollateralTypes, BaseCollateralTypes, MainnetCollateralTypes]);
-
-  const { data: collateralPrices, isLoading: isLoadingCollateralPrices } = useOfflinePrices(
-    allCollaterals.map((item) => ({
-      id: item.tokenAddress,
-      oracleId: item.oracleNodeId,
-      symbol: item.symbol,
-    }))
-  );
-
-  // Fetch stata price from oracle manager
-  const stata = BaseCollateralTypes?.find((item) => item.symbol === 'stataUSDC');
-
-  const { data: stataPrice, isLoading: isStataPriceLoading } = useOraclePrice(
-    stata?.oracleNodeId,
-    BASE_ANDROMEDA
-  );
-
   // Arb Rewards
-  const { data: ArbitrumRewards, isLoading: isArbitrumRewardsLoading } =
+  const { data: ArbitrumRewards, isPending: isArbitrumRewardsLoading } =
     useRewardsDistributors(ARBITRUM);
 
   // Base Rewards
-  const { data: BaseRewards, isLoading: isBaseRewardsLoading } =
+  const { data: BaseRewards, isPending: isBaseRewardsLoading } =
     useRewardsDistributors(BASE_ANDROMEDA);
 
   // Mainnet Rewards
-  const { data: MainRewards, isLoading: isMainRewardsLoading } = useRewardsDistributors(MAINNET);
+  const { data: MainRewards, isPending: isMainRewardsLoading } = useRewardsDistributors(MAINNET);
 
   const { collaterals, chains } = state;
 
   const isLoading =
     isPoolsListLoading ||
-    isLoadingCollateralPrices ||
     isBaseCollateralLoading ||
     isArbCollateralLoading ||
     isMainCollateralLoading ||
     isArbitrumRewardsLoading ||
     isBaseRewardsLoading ||
-    isMainRewardsLoading ||
-    isStataPriceLoading;
+    isMainRewardsLoading;
 
   const filteredPools = useMemo(() => {
     return (
@@ -161,12 +130,6 @@ export const PoolsList = () => {
     chains,
     collaterals,
   ]);
-
-  const allCollateralPrices = useMemo(() => {
-    if (stata && stataPrice) {
-      return collateralPrices?.concat({ symbol: 'stataUSDC', price: stataPrice?.price.toBN() });
-    }
-  }, [stata, collateralPrices, stataPrice]);
 
   return (
     <Flex mt={6} flexDirection="column">
@@ -267,38 +230,24 @@ export const PoolsList = () => {
           <TorosPoolCard token="wstETH" />
         ) : null}
         {filteredPools?.length > 0
-          ? filteredPools.map(
-              ({ network, poolInfo, apr, collateralTypes, rewardsDistributors }) => {
-                const { pool } = poolInfo[0];
-
-                const filteredCollateralTypes = collateralTypes?.filter((collateralType) => {
-                  if (!collaterals.length) {
-                    return true;
-                  }
-
-                  return collaterals.includes(collateralType.symbol);
-                });
-
-                const rewardsPayoutTokens = [
-                  ...new Set(
-                    rewardsDistributors?.map(({ payoutToken }: any) =>
-                      payoutToken.symbol.toUpperCase()
-                    )
-                  ),
-                ] as string[];
-
-                return (
-                  <PoolCard
-                    key={network.hexId}
-                    collateralTypes={filteredCollateralTypes}
-                    collateralPrices={allCollateralPrices}
-                    apr={apr}
-                    network={network}
-                    pool={pool}
-                    rewardsPayoutTokens={rewardsPayoutTokens}
-                  />
-                );
-              }
+          ? filteredPools.flatMap(
+              ({ network, poolInfo, apr, collateralTypes }) =>
+                collateralTypes
+                  ?.filter((collateralType) => {
+                    if (!collaterals.length) {
+                      return true;
+                    }
+                    return collaterals.includes(collateralType.symbol);
+                  })
+                  ?.map((collateralType) => (
+                    <PoolRow
+                      key={collateralType.tokenAddress + network.id}
+                      pool={poolInfo[0].pool}
+                      network={network}
+                      apr={apr}
+                      collateralType={collateralType}
+                    />
+                  ))
             )
           : null}
 

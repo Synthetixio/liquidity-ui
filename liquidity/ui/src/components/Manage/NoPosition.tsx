@@ -7,9 +7,8 @@ import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { useAccounts } from '@snx-v3/useAccounts';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
-import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { useParams } from '@snx-v3/useParams';
-import { FC, useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { CRatioBar } from '../CRatioBar/CRatioBar';
 import { InitialDeposit } from '../InitialDeposit';
 import { Rewards } from '../Rewards';
@@ -18,12 +17,9 @@ import { DebtStats } from './DebtStats';
 import { PnlStats } from './PnlStats';
 import { PositionTitle } from './PositionTitle';
 
-export const NoPosition: FC<{
-  poolName?: string;
-  liquidityPosition?: LiquidityPosition;
-}> = ({ liquidityPosition, poolName }) => {
-  const { collateralSymbol, accountId } = useParams();
-  const { data: collateralType } = useCollateralType(collateralSymbol);
+export function NoPosition() {
+  const params = useParams();
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
 
   const { refetch } = useAccounts();
   const { collateralChange, setCollateralChange, setDebtChange } =
@@ -34,30 +30,21 @@ export const NoPosition: FC<{
   return (
     <Box mb={12} mt={8}>
       <Box px={[0, 6]}>
-        <PositionTitle collateralSymbol={collateralSymbol} poolName={poolName} isOpen />
+        <PositionTitle />
       </Box>
       <Flex mt={6} flexDirection={['column', 'column', 'row']} gap={4}>
         <BorderBox gap={4} flex={1} p={6} flexDirection="column" bg="navy.700" height="fit-content">
           <Flex direction={['column', 'row']} gap={4}>
             <CollateralStats
-              liquidityPosition={liquidityPosition}
               collateralType={collateralType}
               newCollateralAmount={collateralChange}
               collateralValue={ZEROWEI}
               hasChanges={collateralChange.gt(0)}
             />
             {isBaseAndromeda(network?.id, network?.preset) ? (
-              <PnlStats
-                debt={liquidityPosition ? liquidityPosition.debt : ZEROWEI}
-                newDebt={ZEROWEI}
-                hasChanges={false}
-              />
+              <PnlStats debt={ZEROWEI} newDebt={ZEROWEI} hasChanges={false} />
             ) : (
-              <DebtStats
-                debt={liquidityPosition ? liquidityPosition.debt : ZEROWEI}
-                newDebt={ZEROWEI}
-                hasChanges={false}
-              />
+              <DebtStats debt={ZEROWEI} newDebt={ZEROWEI} hasChanges={false} />
             )}
           </Flex>
 
@@ -82,19 +69,9 @@ export const NoPosition: FC<{
           bg="navy.700"
           height="fit-content"
         >
-          {!txnModalOpen && (
-            <InitialDeposit
-              submit={() => {
-                setTxnModalOpen('deposit');
-              }}
-              hasAccount={!!accountId}
-              liquidityPosition={liquidityPosition}
-            />
-          )}
-
+          {!txnModalOpen ? <InitialDeposit submit={() => setTxnModalOpen('deposit')} /> : null}
           {txnModalOpen === 'deposit' ? (
             <DepositModal
-              liquidityPosition={liquidityPosition}
               onClose={() => {
                 setCollateralChange(ZEROWEI);
                 setDebtChange(ZEROWEI);
@@ -109,4 +86,4 @@ export const NoPosition: FC<{
       </Flex>
     </Box>
   );
-};
+}

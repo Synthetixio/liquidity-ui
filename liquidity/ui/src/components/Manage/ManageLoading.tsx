@@ -1,16 +1,12 @@
 import { Box, Divider, Flex, Skeleton } from '@chakra-ui/react';
-import { FC } from 'react';
-import { PositionTitle } from './PositionTitle';
 import { BorderBox } from '@snx-v3/BorderBox';
+import { PositionTitle } from './PositionTitle';
 
-export const ManageLoading: FC<{
-  collateralSymbol?: string;
-  poolName?: string;
-}> = ({ collateralSymbol, poolName }) => {
+export function ManageLoading() {
   return (
     <Box mb={12} mt={8}>
       <Box px={[0, 6]}>
-        <PositionTitle collateralSymbol={collateralSymbol} poolName={poolName} isOpen />
+        <PositionTitle />
       </Box>
       <Flex mt={6} flexDirection={['column', 'column', 'row']} gap={4}>
         <BorderBox gap={4} flex={1} p={6} flexDirection="column" bg="navy.700" height="fit-content">
@@ -54,4 +50,4 @@ export const ManageLoading: FC<{
       </Flex>
     </Box>
   );
-};
+}
