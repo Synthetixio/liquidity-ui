@@ -6048,6 +6048,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/useSNX@workspace:liquidity/lib/useSNX":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useSNX@workspace:liquidity/lib/useSNX"
+  dependencies:
+    "@ethersproject/contracts": "npm:^5.7.0"
+    "@snx-v3/contracts": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/useSpotMarketProxy@workspace:*, @snx-v3/useSpotMarketProxy@workspace:liquidity/lib/useSpotMarketProxy":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useSpotMarketProxy@workspace:liquidity/lib/useSpotMarketProxy"
@@ -6055,6 +6067,30 @@ __metadata:
     "@ethersproject/contracts": "npm:^5.7.0"
     "@snx-v3/contracts": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
+"@snx-v3/useStaticAaveUSDC@workspace:*, @snx-v3/useStaticAaveUSDC@workspace:liquidity/lib/useStaticAaveUSDC":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useStaticAaveUSDC@workspace:liquidity/lib/useStaticAaveUSDC"
+  dependencies:
+    "@ethersproject/contracts": "npm:^5.7.0"
+    "@snx-v3/contracts": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
+"@snx-v3/useStaticAaveUSDCRate@workspace:liquidity/lib/useStaticAaveUSDCRate":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useStaticAaveUSDCRate@workspace:liquidity/lib/useStaticAaveUSDCRate"
+  dependencies:
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useStaticAaveUSDC": "workspace:*"
+    "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6153,6 +6189,18 @@ __metadata:
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     ethers: "npm:^5.7.2"
+  languageName: unknown
+  linkType: soft
+
+"@snx-v3/useUSDC@workspace:liquidity/lib/useUSDC":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useUSDC@workspace:liquidity/lib/useUSDC"
+  dependencies:
+    "@ethersproject/contracts": "npm:^5.7.0"
+    "@snx-v3/contracts": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    react: "npm:^18.2.0"
   languageName: unknown
   linkType: soft
 
@@ -6265,6 +6313,18 @@ __metadata:
     "@tanstack/react-query": "npm:^5.8.3"
     react: "npm:^18.2.0"
     zod: "npm:^3.22.4"
+  languageName: unknown
+  linkType: soft
+
+"@snx-v3/useWETH@workspace:liquidity/lib/useWETH":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useWETH@workspace:liquidity/lib/useWETH"
+  dependencies:
+    "@ethersproject/contracts": "npm:^5.7.0"
+    "@snx-v3/contracts": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    react: "npm:^18.2.0"
   languageName: unknown
   linkType: soft
 
