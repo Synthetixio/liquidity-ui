@@ -18,7 +18,7 @@ import { BorderBox } from '@snx-v3/BorderBox';
 import { ZEROWEI } from '@snx-v3/constants';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
-import { useNetwork } from '@snx-v3/useBlockchain';
+import { MAINNET, SEPOLIA, useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useCombinedTokenBalance } from '@snx-v3/useCombinedTokenBalance';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
@@ -31,17 +31,15 @@ import { TokenIcon } from '../TokenIcon';
 
 export function InitialDeposit({
   submit,
-  hasAccount,
   liquidityPosition,
 }: {
   submit: () => void;
-  hasAccount: boolean;
   liquidityPosition?: LiquidityPosition;
 }) {
+  const params = useParams();
   const { collateralChange, setCollateralChange } = useContext(ManagePositionContext);
   const { network } = useNetwork();
-  const { collateralSymbol } = useParams();
-  const { data: collateralType } = useCollateralType(collateralSymbol);
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { data: combinedTokenBalance } = useCombinedTokenBalance(collateralType);
   const maxAmount = combinedTokenBalance?.balance || wei(0);
 
@@ -215,7 +213,7 @@ export function InitialDeposit({
           <Button
             data-cy="deposit submit"
             onClick={() => {
-              if (hasAccount) {
+              if (params.accountId) {
                 submit();
               } else {
                 setStep(1);

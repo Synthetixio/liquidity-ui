@@ -1,5 +1,7 @@
-import { Flex, Button, Text, Fade } from '@chakra-ui/react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Button, Fade, Flex, Text } from '@chakra-ui/react';
+import { formatNumber, formatNumberToUsd } from '@snx-v3/formatters';
+import { Sparkles } from '@snx-v3/icons';
+import { Tooltip } from '@snx-v3/Tooltip';
 import {
   MAINNET,
   Network,
@@ -8,64 +10,46 @@ import {
   useNetwork,
   useWallet,
 } from '@snx-v3/useBlockchain';
+import { type CollateralType } from '@snx-v3/useCollateralTypes';
+import { useCombinedTokenBalance } from '@snx-v3/useCombinedTokenBalance';
 import { wei } from '@synthetixio/wei';
-import { BigNumberish } from 'ethers';
-import { TokenIcon } from '../../TokenIcon';
-import { CollateralType } from '@snx-v3/useCollateralTypes';
-import { Sparkles } from '@snx-v3/icons';
-import { formatNumber, formatNumberToUsd } from '@snx-v3/formatters';
-import { formatApr } from '../CollateralSection';
-import { Tooltip } from '@snx-v3/Tooltip';
-import { useTokenBalance } from '@snx-v3/useTokenBalance';
-import { getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
-import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
-import { ZEROWEI } from '@snx-v3/constants';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MigrationBanner } from '../../Migration/MigrationBanner';
+import { TokenIcon } from '../../TokenIcon';
+import { formatApr } from '../CollateralSection';
 import { Specifics } from './Specifics';
 
 interface CollateralTypeWithDeposited extends CollateralType {
   collateralDeposited: string;
 }
 
-export interface Props {
+export function PoolRow({
+  pool,
+  network,
+  apr,
+  collateralType,
+}: {
   collateralType: CollateralTypeWithDeposited;
   pool: {
     name: string;
     id: string;
   };
   network: Network;
-  collateralPrices?: {
-    symbol: string;
-    price: BigNumberish;
-  }[];
   apr: {
     combinedApr: number;
     cumulativePnl: number;
     collateralAprs: any[];
   };
-}
+}) {
+  const { data: combinedTokenBalance } = useCombinedTokenBalance(collateralType, network);
 
-export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }: Props) => {
-  const { data: wrapperToken } = useGetWrapperToken(
-    getSpotMarketId(collateralType.symbol),
-    network
-  );
-  const isBase = isBaseAndromeda(network?.id, network?.preset);
-  // TODO: This will need refactoring
-  const balanceAddress = isBase ? wrapperToken : collateralType?.tokenAddress;
-
-  const { data: balance } = useTokenBalance(balanceAddress, network);
   const navigate = useNavigate();
   const [queryParams] = useSearchParams();
 
   const { network: currentNetwork, setNetwork } = useNetwork();
   const { connect } = useWallet();
 
-  const price = wei(
-    collateralPrices?.find(
-      (price) => price.symbol.toUpperCase() === collateralType.symbol.toUpperCase()
-    )?.price || ZEROWEI
-  );
+  const price = combinedTokenBalance?.main.price;
 
   const collateralApr = apr.collateralAprs.find(
     (apr) => apr.collateralType === collateralType.tokenAddress.toLowerCase()
@@ -111,7 +95,7 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
         <Flex px={4} flexDir="row" w="100%" gap={4}>
           <Flex width="190px" alignItems="center" _hover={{ cursor: 'pointer' }} onClick={onClick}>
             <Flex position="relative">
-              <TokenIcon w={40} h={40} symbol={collateralType.symbol} />
+              <TokenIcon w={40} h={40} symbol={combinedTokenBalance?.main.symbol} />
               <NetworkIcon
                 position="absolute"
                 right={0}
@@ -128,7 +112,7 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
                 lineHeight="1.25rem"
                 fontFamily="heading"
               >
-                {collateralType.symbol}
+                {combinedTokenBalance?.main.displayName}
               </Text>
               <Text
                 textTransform="capitalize"
@@ -149,10 +133,15 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
               lineHeight="28px"
               color="white"
             >
-              {balance ? formatNumberToUsd(balance.mul(price).toNumber()) : '-'}
+              {combinedTokenBalance?.balance
+                ? formatNumberToUsd(combinedTokenBalance.balance.mul(price).toNumber())
+                : '-'}
             </Text>
             <Text color="gray.500" fontFamily="heading" fontSize="12px" lineHeight="16px">
-              {balance ? formatNumber(balance.toNumber()) : ''} {collateralType.symbol}
+              {combinedTokenBalance?.balance
+                ? formatNumber(combinedTokenBalance.balance.toNumber())
+                : ''}{' '}
+              {combinedTokenBalance?.main.displayName}
             </Text>
           </Flex>
           <Flex width="189px" flexDir="column" justifyContent="cetner" alignItems="flex-end">
@@ -250,4 +239,4 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
       </Flex>
     </Fade>
   );
-};
+}
