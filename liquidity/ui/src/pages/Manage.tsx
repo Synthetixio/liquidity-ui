@@ -215,7 +215,6 @@ export const Manage = () => {
           <UnsupportedCollateralAlert isOpen={Boolean(notSupported)} />
 
           {!params.accountId && isPendingLiquidityPosition ? (
-            //
             <NoPosition liquidityPosition={liquidityPosition} />
           ) : null}
 
