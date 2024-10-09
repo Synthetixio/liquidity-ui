@@ -1,3 +1,4 @@
+import { ArrowBackIcon } from '@chakra-ui/icons';
 import {
   Alert,
   AlertDescription,
@@ -6,11 +7,11 @@ import {
   Collapse,
   Divider,
   Flex,
+  Link,
   ListItem,
   Text,
   Tooltip,
   UnorderedList,
-  Link,
 } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
@@ -18,10 +19,11 @@ import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useEthBalance } from '@snx-v3/useEthBalance';
+import { useParams } from '@snx-v3/useParams';
+import { useTokenPrice } from '@snx-v3/useTokenPrice';
+import { useTransferableSynthetix } from '@snx-v3/useTransferableSynthetix';
 import Wei from '@synthetixio/wei';
 import { FC, useContext, useMemo, useState } from 'react';
-import { useParams } from '@snx-v3/useParams';
-import { useTransferableSynthetix } from '@snx-v3/useTransferableSynthetix';
 import { TokenIcon } from '..';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { MAINNET, SEPOLIA, useNetwork } from '@snx-v3/useBlockchain';
@@ -34,10 +36,8 @@ import {
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { WithdrawIncrease } from '@snx-v3/WithdrawIncrease';
 import { formatNumber } from '@snx-v3/formatters';
-import { ArrowBackIcon } from '@chakra-ui/icons';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { ONEWEI, ZEROWEI } from '@snx-v3/constants';
-import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { MigrationBanner } from '../Migration/MigrationBanner';
 import { useStataUSDCRate } from '@snx-v3/useStataUSDCRate';
 

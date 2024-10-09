@@ -1,22 +1,22 @@
 import { InfoIcon } from '@chakra-ui/icons';
-import { Flex, Skeleton, Text } from '@chakra-ui/react';
+import { Flex, Text } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
-import { FC } from 'react';
 import { currency } from '@snx-v3/format';
-import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { CollateralType } from '@snx-v3/useCollateralTypes';
-import Wei from '@synthetixio/wei';
-import { ChangeStat } from '../ChangeStat';
-import { useNetwork } from '@snx-v3/useBlockchain';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { Tooltip } from '@snx-v3/Tooltip';
+import { useNetwork } from '@snx-v3/useBlockchain';
+import { type Wei } from '@synthetixio/wei';
+import { ChangeStat } from '../ChangeStat';
 
-export const PnlStats: FC<{
-  liquidityPosition?: LiquidityPosition;
-  collateralType?: CollateralType;
+export function PnlStats({
+  debt,
+  newDebt,
+  hasChanges,
+}: {
+  debt: Wei;
   newDebt: Wei;
   hasChanges: boolean;
-}> = ({ liquidityPosition, collateralType, newDebt, hasChanges }) => {
+}) {
   const { network } = useNetwork();
   const isBase = isBaseAndromeda(network?.id, network?.preset);
   return (
@@ -51,25 +51,21 @@ export const PnlStats: FC<{
           </Tooltip>
         </Flex>
         <Flex width="100%">
-          {newDebt.eq(0) || (liquidityPosition && collateralType) ? (
-            <ChangeStat
-              value={liquidityPosition?.debt.mul(-1) || newDebt}
-              newValue={newDebt.mul(-1)}
-              formatFn={(val: Wei) =>
-                currency(val, {
-                  currency: 'USD',
-                  style: 'currency',
-                  maximumFractionDigits: 4,
-                })
-              }
-              withColor
-              hasChanges={hasChanges}
-            />
-          ) : (
-            <Skeleton width="100%">Lorem ipsum (this wont be displaye debt) </Skeleton>
-          )}
+          <ChangeStat
+            value={debt.mul(-1)}
+            newValue={newDebt.mul(-1)}
+            formatFn={(val: Wei) =>
+              currency(val, {
+                currency: 'USD',
+                style: 'currency',
+                maximumFractionDigits: 4,
+              })
+            }
+            withColor
+            hasChanges={hasChanges}
+          />
         </Flex>
       </Flex>
     </BorderBox>
   );
-};
+}

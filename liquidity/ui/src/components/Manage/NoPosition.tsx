@@ -1,5 +1,6 @@
 import { Box, Flex } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
+import { ZEROWEI } from '@snx-v3/constants';
 import DepositModal from '@snx-v3/DepositModal';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
@@ -9,7 +10,6 @@ import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { useParams } from '@snx-v3/useParams';
 import { FC, useContext, useState } from 'react';
-import { ZEROWEI } from '@snx-v3/constants';
 import { CRatioBar } from '../CRatioBar/CRatioBar';
 import { InitialDeposit } from '../InitialDeposit';
 import { Rewards } from '../Rewards';
@@ -49,19 +49,15 @@ export const NoPosition: FC<{
               hasChanges={collateralChange.gt(0)}
               stataUSDCRate={stataUSDCRate}
             />
-
-            {isBaseAndromeda(network?.id, network?.preset) && (
+            {isBaseAndromeda(network?.id, network?.preset) ? (
               <PnlStats
-                liquidityPosition={liquidityPosition}
-                collateralType={collateralType}
+                debt={liquidityPosition ? liquidityPosition.debt : ZEROWEI}
                 newDebt={ZEROWEI}
                 hasChanges={false}
               />
-            )}
-            {!isBaseAndromeda(network?.id, network?.preset) && (
+            ) : (
               <DebtStats
-                liquidityPosition={liquidityPosition}
-                collateralType={collateralType}
+                debt={liquidityPosition ? liquidityPosition.debt : ZEROWEI}
                 newDebt={ZEROWEI}
                 hasChanges={false}
               />
@@ -76,7 +72,6 @@ export const NoPosition: FC<{
                 liquidationCratio={(collateralType?.liquidationRatioD18?.toNumber() || 0) * 100}
                 newCratio={collateralChange.gt(0) ? Number.MAX_SAFE_INTEGER : 0}
                 targetCratio={(collateralType?.issuanceRatioD18.toNumber() || 0) * 100}
-                isLoading={false}
               />
             </BorderBox>
           )}

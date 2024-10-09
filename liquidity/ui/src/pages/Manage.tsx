@@ -126,9 +126,10 @@ export const ManageUi: FC<{
           <ManageStats liquidityPosition={liquidityPosition} />
           <Rewards />
         </BorderBox>
-        {!closePosition && (
+        {!closePosition ? (
           <Flex
-            maxW={['100%', '100%', '501px']}
+            maxWidth={['100%', '100%', '501px']}
+            width="100%"
             flex={1}
             alignSelf="flex-start"
             flexDirection="column"
@@ -153,9 +154,9 @@ export const ManageUi: FC<{
               </Text>
             )}
           </Flex>
-        )}
+        ) : null}
 
-        {closePosition && (
+        {closePosition ? (
           <BorderBox
             flex={1}
             maxW={['100%', '100%', '501px']}
@@ -169,26 +170,26 @@ export const ManageUi: FC<{
               onClose={() => setClosePosition(false)}
             />
           </BorderBox>
-        )}
+        ) : null}
       </Flex>
     </Box>
   );
 };
 
 export const Manage = () => {
-  const { accountId, collateralSymbol: collateralSymbolRaw, poolId } = useParams();
-  const collateralSymbol = useNormalisedCollateralSymbol(collateralSymbolRaw);
+  const params = useParams();
+  const collateralSymbol = useNormalisedCollateralSymbol(params.collateralSymbol);
 
   const { network } = useNetwork();
   const { activeWallet } = useWallet();
 
-  const { data: collateralType } = useCollateralType(collateralSymbolRaw);
-  const { data: poolData } = usePoolData(poolId);
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
+  const { data: poolData } = usePoolData(params.poolId);
 
-  const { data: liquidityPosition, isPending: isPendingPosition } = useLiquidityPosition({
+  const { data: liquidityPosition, isPending: isPendingLiquidityPosition } = useLiquidityPosition({
     tokenAddress: collateralType?.tokenAddress,
-    accountId,
-    poolId,
+    accountId: params.accountId,
+    poolId: params.poolId,
   });
 
   const collateralDisplayName = useCollateralDisplayName(collateralSymbol);
@@ -205,36 +206,46 @@ export const Manage = () => {
       )
     );
 
+  const hasPosition = liquidityPosition && liquidityPosition.collateralAmount.gt(0);
+  const hasAvailableCollateral =
+    liquidityPosition && liquidityPosition.accountCollateral.availableCollateral.gt(0);
+
   return (
     <ManagePositionProvider>
       <WatchAccountBanner />
-      {!!activeWallet && (
+      {activeWallet ? (
         <>
           <UnsupportedCollateralAlert isOpen={Boolean(notSupported)} />
-          {(!accountId ||
-            (!isPendingPosition &&
-              liquidityPosition &&
-              liquidityPosition.collateralAmount.eq(0) &&
-              liquidityPosition.accountCollateral.availableCollateral.eq(0))) && (
+
+          {!params.accountId && isPendingLiquidityPosition ? (
             <NoPosition liquidityPosition={liquidityPosition} />
-          )}
-          {accountId &&
-            ((!isPendingPosition && liquidityPosition?.collateralAmount.gt(0)) ||
-              liquidityPosition?.accountCollateral?.availableCollateral.gt(0)) && (
-              <ManageUi
-                poolName={poolData?.name}
-                poolId={poolId}
-                liquidityPosition={liquidityPosition}
-                network={network}
-                collateralSymbol={collateralSymbol}
-                collateralType={collateralType}
-              />
-            )}
-          {isPendingPosition && !!accountId && (
+          ) : null}
+
+          {params.accountId && isPendingLiquidityPosition ? (
             <ManageLoading poolName={poolData?.name} collateralSymbol={collateralSymbol} />
-          )}
+          ) : null}
+
+          {params.accountId &&
+          !isPendingLiquidityPosition &&
+          !hasPosition &&
+          !hasAvailableCollateral ? (
+            <NoPosition liquidityPosition={liquidityPosition} />
+          ) : null}
+
+          {params.accountId &&
+          !isPendingLiquidityPosition &&
+          (hasPosition || hasAvailableCollateral) ? (
+            <ManageUi
+              poolName={poolData?.name}
+              poolId={params.poolId}
+              liquidityPosition={liquidityPosition}
+              network={network}
+              collateralSymbol={collateralSymbol}
+              collateralType={collateralType}
+            />
+          ) : null}
         </>
-      )}
+      ) : null}
     </ManagePositionProvider>
   );
 };

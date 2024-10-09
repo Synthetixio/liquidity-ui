@@ -2,7 +2,6 @@ import { InfoIcon } from '@chakra-ui/icons';
 import {
   Button,
   Flex,
-  FlexProps,
   Table,
   TableContainer,
   Tbody,
@@ -14,43 +13,43 @@ import {
 } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { Tooltip } from '@snx-v3/Tooltip';
+import { useClaimAllRewards } from '@snx-v3/useClaimAllRewards';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useParams } from '@snx-v3/useParams';
 import { useRewards } from '@snx-v3/useRewards';
+import React from 'react';
+import { AllRewardsModal } from './AllRewardsModal';
 import { RewardsLoading } from './RewardsLoading';
 import { RewardsRow } from './RewardsRow';
-import { useCallback, useMemo } from 'react';
-import { useCollateralType } from '@snx-v3/useCollateralTypes';
-import { AllRewardsModal } from './AllRewardsModal';
-import { useClaimAllRewards } from '@snx-v3/useClaimAllRewards';
 
-export const Rewards = ({ ...props }: FlexProps) => {
-  const { accountId, collateralSymbol, poolId } = useParams();
-  const { data: collateralData } = useCollateralType(collateralSymbol);
-  const { isPending, data: rewards } = useRewards({ poolId, collateralSymbol, accountId });
+export function Rewards() {
+  const params = useParams();
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
+  const { isPending, data: rewards } = useRewards({
+    poolId: params.poolId,
+    collateralSymbol: params.collateralSymbol,
+    accountId: params.accountId,
+  });
 
-  const allRewards = useMemo(
+  const allRewards = React.useMemo(
     () =>
       rewards
         ?.map(({ distributorAddress, payoutTokenAddress, claimableAmount }) => ({
-          poolId: poolId || '',
-          collateralAddress: collateralData?.tokenAddress || '',
-          accountId: accountId,
+          poolId: params.poolId || '',
+          collateralAddress: collateralType?.tokenAddress || '',
+          accountId: params.accountId,
           distributorAddress: distributorAddress,
           amount: claimableAmount,
           payoutTokenAddress,
         }))
         .filter(({ amount }) => amount.gt(0)) || [],
-    [accountId, collateralData?.tokenAddress, poolId, rewards]
+    [params.accountId, collateralType?.tokenAddress, params.poolId, rewards]
   );
 
   const { exec: claimAll, txnState } = useClaimAllRewards(allRewards);
 
-  const onClick = useCallback(() => {
-    claimAll();
-  }, [claimAll]);
-
   return (
-    <BorderBox bg="navy.700" py={4} px={4} flexDir="column" {...props}>
+    <BorderBox bg="navy.700" py={4} px={4} flexDir="column">
       <AllRewardsModal
         rewards={(rewards || [])
           ?.filter((r) => r.claimableAmount.gt(0))
@@ -76,7 +75,7 @@ export const Rewards = ({ ...props }: FlexProps) => {
             opacity: 0.5,
             cursor: 'not-allowed',
           }}
-          onClick={onClick}
+          onClick={() => claimAll()}
         >
           Claim
         </Button>
@@ -120,8 +119,29 @@ export const Rewards = ({ ...props }: FlexProps) => {
             </Tr>
           </Thead>
           <Tbody>
-            {isPending ? <RewardsLoading /> : null}
-            {!isPending && rewards && rewards.length > 0
+            {!params.accountId ? (
+              <Tr>
+                <Td display="flex" alignItems="left" px={4} border="none" w="100%">
+                  <Text color="gray.500" fontFamily="heading" fontSize="xs">
+                    Create a Position to see your earnings
+                  </Text>
+                </Td>
+              </Tr>
+            ) : null}
+
+            {params.accountId && isPending ? <RewardsLoading /> : null}
+
+            {params.accountId && !isPending && rewards && rewards.length === 0 ? (
+              <Tr>
+                <Td display="flex" alignItems="left" px={4} border="none" w="100%">
+                  <Text color="gray.500" fontFamily="heading" fontSize="xs">
+                    No Rewards Available
+                  </Text>
+                </Td>
+              </Tr>
+            ) : null}
+
+            {params.accountId && !isPending && rewards && rewards.length > 0
               ? rewards?.map((item) => (
                   <RewardsRow
                     key={item.address}
@@ -132,18 +152,9 @@ export const Rewards = ({ ...props }: FlexProps) => {
                   />
                 ))
               : null}
-            {!isPending && rewards && rewards.length === 0 ? (
-              <Tr>
-                <Td display="flex" alignItems="left" px={4} border="none" w="100%">
-                  <Text color="gray.500" fontFamily="heading" fontSize="xs">
-                    No Rewards Available
-                  </Text>
-                </Td>
-              </Tr>
-            ) : null}
           </Tbody>
         </Table>
       </TableContainer>
     </BorderBox>
   );
-};
+}

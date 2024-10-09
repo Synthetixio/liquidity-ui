@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react';
-import { PoolsList } from '../components/Pools';
+import { PoolsList } from '../components/Pools/PoolsList';
 
 export function Pools() {
   return (

@@ -20,4 +20,7 @@ export * from './importers/importMintableTokens';
 export * from './importers/importRewardsDistributors';
 export * from './importers/importSynthTokens';
 export * from './importers/importSystemToken';
-export * from './importers/importStataUSDC';
+export * from './importers/importStaticAaveUSDC';
+export * from './importers/importWETH';
+export * from './importers/importSNX';
+export * from './importers/importUSDC';

@@ -1,33 +1,26 @@
 import { InfoIcon } from '@chakra-ui/icons';
-import { Flex, Skeleton, Text, Tooltip } from '@chakra-ui/react';
+import { Flex, Text, Tooltip } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
-import { FC } from 'react';
-import { currency } from '@snx-v3/format';
-import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { CollateralType } from '@snx-v3/useCollateralTypes';
-import Wei from '@synthetixio/wei';
-import { ZEROWEI } from '@snx-v3/constants';
-import { ChangeStat } from '../ChangeStat';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { useNetwork } from '@snx-v3/useBlockchain';
+import { type Wei } from '@synthetixio/wei';
+import { ChangeStat } from '../ChangeStat';
 import { DebtAmount } from '../Positions/PositionsTable/DebtAmount';
 
-export const DebtStats: FC<{
-  liquidityPosition?: LiquidityPosition;
-  collateralType?: CollateralType;
+export function DebtStats({
+  debt,
+  newDebt,
+  hasChanges,
+}: {
+  debt: Wei;
   newDebt: Wei;
   hasChanges: boolean;
-  isLoading?: boolean;
-}> = ({ liquidityPosition, collateralType, newDebt, hasChanges, isLoading }) => {
+}) {
   const { network } = useNetwork();
   const isBase = isBaseAndromeda(network?.id, network?.preset);
   return (
     <BorderBox p={4} flex="1" flexDirection="row" bg="navy.700">
-      <Flex
-        opacity={!liquidityPosition && !isLoading ? '40%' : '100%'}
-        flexDirection="column"
-        width="100%"
-      >
+      <Flex flexDirection="column" width="100%">
         <Flex alignItems="center" mb="4px">
           <Text color="gray.500" fontSize="xs" fontFamily="heading" lineHeight="16px">
             Debt
@@ -57,31 +50,14 @@ export const DebtStats: FC<{
           </Tooltip>
         </Flex>
         <Flex width="100%">
-          {isLoading ? (
-            <Skeleton width="100%">Lorem ipsum (this wont be displaye debt) </Skeleton>
-          ) : liquidityPosition && collateralType ? (
-            <ChangeStat
-              value={liquidityPosition.debt}
-              newValue={newDebt}
-              formatFn={(val: Wei) => <DebtAmount debt={val} as="span" />}
-              hasChanges={hasChanges}
-            />
-          ) : (
-            <ChangeStat
-              value={ZEROWEI}
-              newValue={ZEROWEI}
-              formatFn={(val: Wei) =>
-                currency(val, {
-                  currency: 'USD',
-                  style: 'currency',
-                  maximumFractionDigits: 4,
-                })
-              }
-              hasChanges={false}
-            />
-          )}
+          <ChangeStat
+            value={debt}
+            newValue={newDebt}
+            formatFn={(val: Wei) => <DebtAmount debt={val} as="span" />}
+            hasChanges={hasChanges}
+          />
         </Flex>
       </Flex>
     </BorderBox>
   );
-};
+}

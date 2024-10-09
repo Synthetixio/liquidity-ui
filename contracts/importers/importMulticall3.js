@@ -36,7 +36,7 @@ export async function importMulticall3(chainId, preset) {
     }
     case '10-main': {
       const { optimism } = await import('viem/chains');
-      return { address: optimism.contracts.multicall3.address, abi: abi };
+      return { address: optimism.contracts.multicall3.address, abi };
     }
     case '8453-andromeda': {
       const [{ default: meta }, { default: abi }] = await Promise.all([
