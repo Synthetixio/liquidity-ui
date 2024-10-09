@@ -142,7 +142,9 @@ export function PositionRow({
         <Fade in>
           <Flex flexDirection="column" alignItems="flex-end">
             <Text color="white" lineHeight="1.25rem" fontFamily="heading" fontSize="sm">
-              {apr && apr > 0 ? (isStataUSDC ? apr + stataUSDCAPRParsed : apr).toFixed(2).concat('%') : '-'}
+              {apr && apr > 0
+                ? (isStataUSDC ? apr + stataUSDCAPRParsed : apr).toFixed(2).concat('%')
+                : '-'}
             </Text>
             {hasRewards && (
               <Text
