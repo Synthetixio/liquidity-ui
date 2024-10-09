@@ -1,5 +1,4 @@
 import { importCollateralTokens } from '@snx-v3/contracts';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { Network, useNetwork } from '@snx-v3/useBlockchain';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { wei, Wei } from '@synthetixio/wei';
@@ -70,26 +69,9 @@ export function useCollateralTypes(includeDelegationOff = false, customNetwork?:
 
       const collateralTypes = (await loadCollateralTypes(targetNetwork.id, targetNetwork.preset))
         .map((collateralType) => {
-          const isBase = isBaseAndromeda(targetNetwork?.id, targetNetwork?.preset);
-          if (isBase && collateralType.symbol === 'sUSDC') {
-            return {
-              ...collateralType,
-              symbol: 'USDC',
-              displaySymbol: 'USDC',
-              name: 'USD Coin',
-            };
-          }
-          if (isBase && collateralType.symbol === 'sStataUSDC') {
-            return {
-              ...collateralType,
-              symbol: 'stataUSDC',
-              displaySymbol: 'stataUSDC',
-              name: 'Static aUSDC',
-            };
-          }
           return {
             ...collateralType,
-            displaySymbol: collateralType.displaySymbol ?? collateralType.symbol,
+            displaySymbol: collateralType.symbol,
           };
         })
         .filter((collateralType) => collateralType.tokenAddress !== systemToken.address);
