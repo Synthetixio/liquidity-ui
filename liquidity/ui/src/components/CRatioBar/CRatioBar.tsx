@@ -1,5 +1,5 @@
 import { InfoIcon, TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
-import { Box, Flex, Text, Tooltip } from '@chakra-ui/react';
+import { Box, Flex, Progress, Text, Tooltip } from '@chakra-ui/react';
 import { FC } from 'react';
 import { CRatioAmount } from './CRatioAmount';
 import { CRatioBadge } from './CRatioBadge';
@@ -24,6 +24,18 @@ export const CRatioBarUi: FC<{
         liquidationCratio: liquidationCratio,
         cRatio: currentCRatio,
       });
+
+  const newBarSize = getProgressSize({
+    cRatio: newCratio,
+    targetCratio: targetCratio,
+    liquidationCratio: liquidationCratio,
+  });
+
+  const currentBarSize = getProgressSize({
+    cRatio: currentCRatio,
+    targetCratio: targetCratio,
+    liquidationCratio: liquidationCratio,
+  });
 
   return (
     <Flex flexDir="column" gap="2">
@@ -90,15 +102,42 @@ export const CRatioBarUi: FC<{
             tooltipText="Min point at which you can borrow assets"
           />
         </>
+
+        <Box top={0} bottom={0} height="12px" position="absolute" margin="auto" width="100%">
+          <Progress
+            variant={
+              currentBarSize < newBarSize && !(currentBarSize >= 100 && newBarSize > 100)
+                ? `update-${variant}`
+                : variant
+            }
+            top={0}
+            bottom={0}
+            height="12px"
+            position="absolute"
+            margin="auto"
+            left="0"
+            width="100%"
+            value={Math.min(newBarSize, currentBarSize)}
+          />
+          <Progress
+            variant={currentBarSize >= newBarSize ? `update-${variant}` : variant}
+            top={0}
+            bottom={0}
+            height="12px"
+            position="absolute"
+            margin="auto"
+            width="100%"
+            left={`${Math.min(newBarSize, currentBarSize)}%`}
+            display={newCratio === 0 ? 'none' : 'block'}
+            value={Math.abs(newBarSize - currentBarSize)}
+          />
+        </Box>
+
         <Box
           bg={variant}
           height="12px"
           position="absolute"
-          left={`${getProgressSize({
-            cRatio: newCratio,
-            targetCratio: targetCratio,
-            liquidationCratio: liquidationCratio,
-          })}%`}
+          left={`${newBarSize}%`}
           top={0}
           bottom={0}
           margin="auto"
