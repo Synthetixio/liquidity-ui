@@ -4,6 +4,7 @@ import { ARBITRUM, BASE_ANDROMEDA, MAINNET } from '@snx-v3/useBlockchain';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { usePoolsList } from '@snx-v3/usePoolsList';
 import { useRewardsDistributors } from '@snx-v3/useRewardsDistributors';
+import { wei } from '@synthetixio/wei';
 import { useMemo, useReducer } from 'react';
 import { ChainFilter, CollateralFilter } from './';
 import { Balloon } from './Balloon';
@@ -56,10 +57,11 @@ export const PoolsList = () => {
     return (
       data?.synthetixPools
         .map(({ network, poolInfo, apr }) => {
-          const collateralDeposited = poolInfo.map(({ collateral_type }) => ({
-            collateralDeposited: collateral_type.total_amount_deposited,
-            tokenAddress: collateral_type.id,
-          }));
+          const totalDeposits = poolInfo.reduce((result, { collateral_type }) => {
+            const key = collateral_type.id.toLowerCase();
+            result.set(key, collateral_type.total_amount_deposited);
+            return result;
+          }, new Map());
 
           let collaterals: typeof ArbitrumCollateralTypes = [];
           let rewardsDistributors: any = {};
@@ -75,20 +77,12 @@ export const PoolsList = () => {
             rewardsDistributors = MainRewards;
           }
 
-          const collateralTypes = collaterals?.map((item) => ({
-            ...item,
-            collateralDeposited:
-              collateralDeposited.find(
-                ({ tokenAddress }) => tokenAddress.toLowerCase() === item.tokenAddress.toLowerCase()
-              )?.collateralDeposited || '0',
-          }));
-
           return {
             network,
             poolInfo,
             apr,
-            collateralDeposited,
-            collateralTypes,
+            totalDeposits,
+            collateralTypes: collaterals,
             rewardsDistributors,
           };
         })
@@ -231,7 +225,7 @@ export const PoolsList = () => {
         ) : null}
         {filteredPools?.length > 0
           ? filteredPools.flatMap(
-              ({ network, poolInfo, apr, collateralTypes }) =>
+              ({ network, poolInfo, apr, collateralTypes, totalDeposits }) =>
                 collateralTypes
                   ?.filter((collateralType) => {
                     if (!collaterals.length) {
@@ -246,6 +240,15 @@ export const PoolsList = () => {
                       network={network}
                       apr={apr}
                       collateralType={collateralType}
+                      totalDeposit={
+                        totalDeposits.has(collateralType.tokenAddress.toLowerCase())
+                          ? wei(
+                              totalDeposits.get(collateralType.tokenAddress.toLowerCase()),
+                              collateralType.decimals,
+                              true
+                            ).scale(18)
+                          : wei(0)
+                      }
                     />
                   ))
             )

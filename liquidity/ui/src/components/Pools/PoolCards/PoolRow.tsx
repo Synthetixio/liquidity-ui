@@ -12,29 +12,28 @@ import {
 } from '@snx-v3/useBlockchain';
 import { type CollateralType } from '@snx-v3/useCollateralTypes';
 import { useCombinedTokenBalance } from '@snx-v3/useCombinedTokenBalance';
-import { wei } from '@synthetixio/wei';
+import { type Wei } from '@synthetixio/wei';
+import { ethers } from 'ethers';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MigrationBanner } from '../../Migration/MigrationBanner';
 import { TokenIcon } from '../../TokenIcon';
 import { formatApr } from '../CollateralSection';
 import { Specifics } from './Specifics';
 
-interface CollateralTypeWithDeposited extends CollateralType {
-  collateralDeposited: string;
-}
-
 export function PoolRow({
-  pool,
   network,
-  apr,
+  pool,
   collateralType,
+  totalDeposit,
+  apr,
 }: {
-  collateralType: CollateralTypeWithDeposited;
+  network: Network;
   pool: {
     name: string;
     id: string;
   };
-  network: Network;
+  collateralType: CollateralType;
+  totalDeposit?: Wei;
   apr: {
     combinedApr: number;
     cumulativePnl: number;
@@ -167,11 +166,9 @@ export function PoolRow({
               color="white"
               textAlign="right"
             >
-              {price
+              {price && totalDeposit
                 ? formatNumberToUsd(
-                    wei(collateralType.collateralDeposited, Number(collateralType.decimals), true)
-                      .mul(price)
-                      .toNumber()
+                    totalDeposit.mul(price.div(ethers.utils.parseEther('1'))).toNumber()
                   )
                 : 0}
             </Text>
