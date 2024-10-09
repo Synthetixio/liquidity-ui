@@ -1,42 +1,31 @@
 import { Network, useNetwork } from '@snx-v3/useBlockchain';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
-import { ZodBigNumber } from '@snx-v3/zod';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
-import { z } from 'zod';
-
-export const PoolIdSchema = ZodBigNumber.transform((x) => x.toString());
-
-export const PoolSchema = z.object({
-  id: PoolIdSchema,
-  name: z.string().default('Unnamed Pool'),
-  isPreferred: z.boolean(),
-});
-
-export const PoolsSchema = z.array(PoolSchema);
 
 export function usePools(customNetwork?: Network) {
   const { network } = useNetwork();
   const targetNetwork = customNetwork || network;
-
   const { data: CoreProxy } = useCoreProxy(targetNetwork);
 
   return useQuery({
-    enabled: Boolean(targetNetwork),
-    queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, CoreProxy?.address, 'Pools'],
+    enabled: Boolean(CoreProxy),
+    queryKey: [
+      `${targetNetwork?.id}-${targetNetwork?.preset}`,
+      'Pools',
+      { CoreProxy: CoreProxy?.address },
+    ],
     queryFn: async () => {
-      if (!CoreProxy) {
-        throw 'usePools is missing required data';
-      }
+      if (!CoreProxy) throw 'OMFG';
 
-      const [prefferedPoolId, approvedPoolIds] = await Promise.all([
+      const [preferredPoolId, approvedPoolIds] = await Promise.all([
         CoreProxy.callStatic.getPreferredPool(),
         CoreProxy.callStatic.getApprovedPools(),
       ]);
 
       const incompletePools = [
         {
-          id: prefferedPoolId,
+          id: preferredPoolId,
           isPreferred: true,
         },
       ].concat(
@@ -50,13 +39,11 @@ export function usePools(customNetwork?: Network) {
         incompletePools.map(async ({ id }) => await CoreProxy.getPoolName(id))
       );
 
-      const poolsRaw = incompletePools.map(({ id, isPreferred }, i) => ({
-        id,
-        isPreferred,
-        name: poolNames[i],
+      return incompletePools.map((pool, i) => ({
+        id: `${pool.id}`,
+        name: poolNames[i] || 'Unnamed Pool',
+        isPreferred: pool.isPreferred,
       }));
-
-      return PoolsSchema.parse(poolsRaw);
     },
   });
 }

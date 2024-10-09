@@ -5971,11 +5971,9 @@ __metadata:
   dependencies:
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/zod": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
-    zod: "npm:^3.22.4"
   languageName: unknown
   linkType: soft
 
