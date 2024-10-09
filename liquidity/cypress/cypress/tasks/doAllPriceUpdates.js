@@ -22,7 +22,7 @@ export async function doAllPriceUpdates({ privateKey }) {
     )
     .map(([_key, value]) => value);
   console.log({ feedIds });
-  const batches = splitIntoChunks(feedIds, 20);
+  const batches = splitIntoChunks(feedIds, 200);
 
   for (const batch of batches) {
     console.log({ batch });
