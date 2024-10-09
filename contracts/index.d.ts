@@ -95,6 +95,12 @@ declare module '@snx-v3/contracts' {
       oracleNodeId: string;
       tokenAddress: string;
       minDelegationD18: string;
+      oracle: {
+        constPrice?: string;
+        externalContract?: string;
+        stalenessTolerance?: string;
+        pythFeedId?: string;
+      };
     }[]
   >;
 
@@ -151,4 +157,6 @@ declare module '@snx-v3/contracts' {
     chainId?: number,
     preset?: string
   ): Promise<{ address: string; abi: string[] }>;
+
+  function importPythFeeds(chainId?: number, preset?: string): Promise<string[]>;
 }
