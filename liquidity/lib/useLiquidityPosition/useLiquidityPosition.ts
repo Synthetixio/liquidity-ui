@@ -11,7 +11,6 @@ import { ZodBigNumber } from '@snx-v3/zod';
 import Wei, { wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
-import { useMemo } from 'react';
 import { z } from 'zod';
 
 const PositionCollateralSchema = z.object({
@@ -85,11 +84,6 @@ export const useLiquidityPosition = ({
   const provider = useProviderForChain(network!);
   const { data: collateralTypes } = useCollateralTypes(true);
 
-  const priceUpdateTxHash = useMemo(
-    () => (priceUpdateTx?.data ? stringToHash(priceUpdateTx?.data) : null),
-    [priceUpdateTx?.data]
-  );
-
   return useQuery({
     queryKey: [
       `${network?.id}-${network?.preset}`,
@@ -99,9 +93,11 @@ export const useLiquidityPosition = ({
         pool: poolId,
         token: tokenAddress,
         systemToken: systemToken?.address,
-        provider: !!provider,
       },
-      { priceUpdateTxHash },
+      {
+        contracts: stringToHash([CoreProxy?.address].join()),
+        priceUpdateTx: stringToHash(priceUpdateTx?.data),
+      },
     ],
     staleTime: 60000 * 5,
     enabled: Boolean(
