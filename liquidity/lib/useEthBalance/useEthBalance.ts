@@ -5,7 +5,7 @@ import { wei } from '@synthetixio/wei';
 
 const BalanceSchema = ZodBigNumber.transform((x) => wei(x));
 
-export function useEthBalance(networkId?: number) {
+export function useEthBalance() {
   const { activeWallet } = useWallet();
   const provider = useDefaultProvider();
   const { network } = useNetwork();
@@ -16,10 +16,10 @@ export function useEthBalance(networkId?: number) {
       'EthBalance',
       { accountAddress: activeWallet?.address },
     ],
+    enabled: Boolean(provider && activeWallet),
     queryFn: async () => {
-      if (!activeWallet || !provider) throw Error('useEthBalance should not be enabled');
+      if (!(provider && activeWallet)) throw 'OMFG';
       return BalanceSchema.parse(await provider.getBalance(activeWallet.address));
     },
-    enabled: Boolean((networkId ?? network?.id) && activeWallet?.address),
   });
 }
