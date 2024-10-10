@@ -63,7 +63,7 @@ export async function fetchTorosPool(address: string) {
     .then(({ data }) => {
       return {
         tvl: compactInteger(data.fund.totalValue / 1e18, 1),
-        apy: data.fund.apy.monthly,
+        apy: data.fund.apy.weekly,
       };
     });
 }

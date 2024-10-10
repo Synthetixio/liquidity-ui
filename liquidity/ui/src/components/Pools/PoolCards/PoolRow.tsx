@@ -72,9 +72,9 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
 
   const collateralApr = apr.collateralAprs.find(
     (apr) => apr.collateralType === collateralType.tokenAddress.toLowerCase()
-  ) || { apr28d: 0, apr28dRewards: 0, apr28dPnl: 0 };
+  ) || { apr7d: 0, apr7dRewards: 0, apr7dPnl: 0 };
 
-  const { apr28d, apr28dRewards, apr28dPnl } = collateralApr;
+  const { apr7d, apr7dRewards, apr7dPnl } = collateralApr;
 
   const onClick = async () => {
     try {
@@ -199,8 +199,8 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
               color="white"
             >
               {isBase && collateralType.symbol === 'stataUSDC' && stataUSDC
-                ? formatApr(apr28d * 100 + stataUSDC, network?.id)
-                : formatApr(apr28d * 100, network?.id)}
+                ? formatApr(apr7d * 100 + stataUSDC, network?.id)
+                : formatApr(apr7d * 100, network?.id)}
               <Tooltip
                 label={
                   <Flex direction="column">
@@ -208,15 +208,15 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
                       <Text fontWeight={700} mr={2}>
                         Total APR:
                       </Text>
-                      <Text fontWeight={700}>{formatApr(apr28d * 100, network?.id)}</Text>
+                      <Text fontWeight={700}>{formatApr(apr7d * 100, network?.id)}</Text>
                     </Flex>
                     <Flex justifyContent="space-between">
                       <Text mr={2}>Performance:</Text>
-                      <Text>{formatApr(apr28dPnl * 100, network?.id)}</Text>
+                      <Text>{formatApr(apr7dPnl * 100, network?.id)}</Text>
                     </Flex>
                     <Flex justifyContent="space-between">
                       <Text mr={2}>Rewards: </Text>
-                      <Text>{formatApr(apr28dRewards * 100, network?.id)}</Text>
+                      <Text>{formatApr(apr7dRewards * 100, network?.id)}</Text>
                     </Flex>
                   </Flex>
                 }

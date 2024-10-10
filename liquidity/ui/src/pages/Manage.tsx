@@ -112,8 +112,8 @@ export const ManageUi: FC<{
               </Text>
             </Tooltip>
             <Text fontWeight="bold" fontSize="20px" color="white" lineHeight="36px">
-              {poolData && positionApr?.apr28d > 0
-                ? `${(positionApr.apr28d * 100 + (isStataUSDC ? stataUSDCAPRParsed : 0))
+              {poolData && positionApr?.apr7d > 0
+                ? `${(positionApr.apr7d * 100 + (isStataUSDC ? stataUSDCAPRParsed : 0))
                     .toFixed(2)
                     ?.concat('%')}`
                 : '-'}
