@@ -366,7 +366,7 @@ export function useSigner() {
   const provider = useProvider();
   const { activeWallet } = useWallet();
   const { data: signer } = useQuery({
-    queryKey: ['Wallet signer', activeWallet],
+    queryKey: ['Wallet signer', activeWallet?.address],
     enabled: Boolean(provider && activeWallet),
     queryFn: () => {
       if (!(provider && activeWallet)) throw 'OMFG';
