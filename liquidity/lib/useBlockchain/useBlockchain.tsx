@@ -363,22 +363,16 @@ export function useIsConnected(): boolean {
 }
 
 export function useSigner() {
-  const [{ wallet }] = useConnectWallet();
-
+  const provider = useProvider();
+  const { activeWallet } = useWallet();
   const { data: signer } = useQuery({
-    queryKey: [wallet?.accounts.map((a) => a.address), 'Signer'],
-    enabled: Boolean(wallet),
+    queryKey: ['Wallet signer', activeWallet],
+    enabled: Boolean(provider && activeWallet),
     queryFn: () => {
-      if (!wallet) {
-        throw 'No wallet';
-      }
-      const provider =
-        getMagicProvider() ?? new ethers.providers.Web3Provider(wallet.provider, 'any');
-      return provider.getSigner();
+      if (!(provider && activeWallet)) throw 'OMFG';
+      return provider.getSigner(activeWallet.address);
     },
-    staleTime: Infinity,
   });
-
   return signer;
 }
 
@@ -386,15 +380,12 @@ export function useProvider() {
   const [{ wallet }] = useConnectWallet();
 
   const { data: provider } = useQuery({
-    queryKey: [wallet?.accounts.map((a) => a.address), 'Provider'],
+    queryKey: ['Wallet provider', wallet?.accounts.map((a) => a.address)],
     enabled: Boolean(wallet),
     queryFn: () => {
-      if (!wallet) {
-        throw 'No wallet';
-      }
+      if (!wallet) throw 'OMFG';
       return getMagicProvider() ?? new ethers.providers.Web3Provider(wallet.provider, 'any');
     },
-    staleTime: Infinity,
   });
 
   return provider;
