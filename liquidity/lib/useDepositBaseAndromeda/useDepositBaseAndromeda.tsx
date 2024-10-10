@@ -67,6 +67,7 @@ export const useDepositBaseAndromeda = ({
       ) {
         return;
       }
+
       if (collateralChange.eq(0)) return;
 
       try {
@@ -86,7 +87,6 @@ export const useDepositBaseAndromeda = ({
           : CoreProxy.populateTransaction['createAccount(uint128)'](BigNumber.from(id));
 
         const amount = collateralChange.sub(availableCollateral);
-
         const collateralAmount = amount.gt(0)
           ? parseUnits(amount.toString(), 6)
           : BigNumber.from(0);
