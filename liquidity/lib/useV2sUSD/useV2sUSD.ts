@@ -1,15 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import { Network, useNetwork } from '@snx-v3/useBlockchain';
+import { Network } from '@snx-v3/useBlockchain';
 import { useV2xSynthetix } from '@snx-v3/useV2xSynthetix';
 import { utils } from 'ethers';
 
-export function useV2sUSD(customNetwork?: Network) {
-  const { data: v2xSynthetix } = useV2xSynthetix(customNetwork);
-  const { network } = useNetwork();
-  const targetNetwork = customNetwork || network;
+export function useV2sUSD(network: Network) {
+  const { data: v2xSynthetix } = useV2xSynthetix(network);
 
   return useQuery({
-    queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'v2-sUSD'],
+    queryKey: [`${network?.id}-${network?.preset}`, 'v2-sUSD'],
     queryFn: async function () {
       if (!v2xSynthetix) {
         return;

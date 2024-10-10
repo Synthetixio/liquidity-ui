@@ -2,6 +2,7 @@ import { utils } from 'ethers';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useMutation } from '@tanstack/react-query';
 import { useMulticall3 } from '@snx-v3/useMulticall3';
+import { useSigner } from '@snx-v3/useBlockchain';
 
 type Permissions = Array<string>;
 const getPermissionDiff = (
@@ -37,10 +38,11 @@ export const useManagePermissions = ({
 }) => {
   const { data: CoreProxy } = useCoreProxy();
   const { data: multicall } = useMulticall3();
+  const signer = useSigner();
 
   return useMutation({
     mutationFn: async () => {
-      if (!CoreProxy || !multicall) {
+      if (!CoreProxy || !multicall || !signer) {
         return;
       }
 
@@ -69,7 +71,7 @@ export const useManagePermissions = ({
           requireSuccess: true,
         }));
 
-        const tx = await multicall.aggregate3([...grantCalls, ...revokeCalls]);
+        const tx = await multicall.connect(signer).aggregate3([...grantCalls, ...revokeCalls]);
         await tx.wait();
       } catch (error: any) {
         throw error;

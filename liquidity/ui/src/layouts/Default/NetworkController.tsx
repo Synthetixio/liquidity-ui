@@ -33,7 +33,7 @@ export function NetworkController() {
   const { network: activeNetwork, setNetwork } = useNetwork();
   const {
     data: accounts,
-    isLoading: isAccountsLoading,
+    isPending: isAccountsLoading,
     isFetching: isAccountsFetching,
   } = useAccounts();
   const createAccount = useCreateAccount();

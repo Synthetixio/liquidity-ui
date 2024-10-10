@@ -10,7 +10,7 @@ export const WatchAccountBanner: FC = () => {
   const { accountId } = useParams();
   const {
     data: accounts,
-    isLoading: isAccountsLoading,
+    isPending: isAccountsLoading,
     isFetching: isAccountsFetching,
   } = useAccounts();
 

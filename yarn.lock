@@ -5354,7 +5354,9 @@ __metadata:
     "@snx-v3/useAccountProxy": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
+    "@snx-v3/useMulticall3": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
+    ethers: "npm:^5.7.2"
   languageName: unknown
   linkType: soft
 
@@ -5445,6 +5447,7 @@ __metadata:
     "@snx-v3/constants": "workspace:*"
     "@snx-v3/contracts": "workspace:*"
     "@snx-v3/icons": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
     "@web3-onboard/react": "npm:^2.9.3"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
@@ -5836,6 +5839,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useManagePermissions@workspace:liquidity/lib/useManagePermissions"
   dependencies:
+    "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useMulticall3": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -6322,6 +6326,7 @@ __metadata:
   resolution: "@snx-v3/useV2Position@workspace:liquidity/lib/useV2Position"
   dependencies:
     "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useMulticall3": "workspace:*"
     "@snx-v3/useV2xSynthetix": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
