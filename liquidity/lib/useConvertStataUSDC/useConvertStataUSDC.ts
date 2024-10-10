@@ -7,7 +7,7 @@ import { BigNumberish } from 'ethers';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { parseTxError } from '@snx-v3/parser';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useStataUSDC } from '@snx-v3/useStataUSDC';
+import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
 
 export function useConvertStataUSDC({
   amount,
@@ -17,7 +17,7 @@ export function useConvertStataUSDC({
   depositToAave: boolean;
 }) {
   const signer = useSigner();
-  const { data: stataUSDC } = useStataUSDC();
+  const { data: stataUSDC } = useStaticAaveUSDC();
   const { gasSpeed } = useGasSpeed();
   const provider = useDefaultProvider();
   const queryClient = useQueryClient();

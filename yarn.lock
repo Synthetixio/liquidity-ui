@@ -5199,7 +5199,7 @@ __metadata:
     "@snx-v3/useRepay": "workspace:*"
     "@snx-v3/useRewards": "workspace:^"
     "@snx-v3/useRewardsDistributors": "workspace:*"
-    "@snx-v3/useStataUSDCRate": "workspace:*"
+    "@snx-v3/useStaticAaveUSDCRate": "workspace:*"
     "@snx-v3/useSystemToken": "workspace:*"
     "@snx-v3/useTokenBalance": "workspace:*"
     "@snx-v3/useTokenPrice": "workspace:*"
@@ -5627,7 +5627,7 @@ __metadata:
     "@snx-v3/useGasOptions": "workspace:*"
     "@snx-v3/useGasPrice": "workspace:*"
     "@snx-v3/useGasSpeed": "workspace:*"
-    "@snx-v3/useStataUSDC": "workspace:*"
+    "@snx-v3/useStaticAaveUSDC": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     ethers: "npm:^5.7.2"
@@ -6107,31 +6107,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/useStataUSDC@workspace:*, @snx-v3/useStataUSDC@workspace:liquidity/lib/useStataUSDC":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/useStataUSDC@workspace:liquidity/lib/useStataUSDC"
-  dependencies:
-    "@ethersproject/contracts": "npm:^5.7.0"
-    "@snx-v3/contracts": "workspace:*"
-    "@snx-v3/useBlockchain": "workspace:*"
-    "@tanstack/react-query": "npm:^5.8.3"
-    react: "npm:^18.2.0"
-  languageName: unknown
-  linkType: soft
-
-"@snx-v3/useStataUSDCRate@workspace:*, @snx-v3/useStataUSDCRate@workspace:liquidity/lib/useStataUSDCRate":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/useStataUSDCRate@workspace:liquidity/lib/useStataUSDCRate"
-  dependencies:
-    "@snx-v3/isBaseAndromeda": "workspace:*"
-    "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useStataUSDC": "workspace:*"
-    "@synthetixio/wei": "npm:^2.74.4"
-    "@tanstack/react-query": "npm:^5.8.3"
-    react: "npm:^18.2.0"
-  languageName: unknown
-  linkType: soft
-
 "@snx-v3/useStaticAaveUSDC@workspace:*, @snx-v3/useStaticAaveUSDC@workspace:liquidity/lib/useStaticAaveUSDC":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useStaticAaveUSDC@workspace:liquidity/lib/useStaticAaveUSDC"
@@ -6144,7 +6119,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/useStaticAaveUSDCRate@workspace:liquidity/lib/useStaticAaveUSDCRate":
+"@snx-v3/useStaticAaveUSDCRate@workspace:*, @snx-v3/useStaticAaveUSDCRate@workspace:liquidity/lib/useStaticAaveUSDCRate":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useStaticAaveUSDCRate@workspace:liquidity/lib/useStaticAaveUSDCRate"
   dependencies:

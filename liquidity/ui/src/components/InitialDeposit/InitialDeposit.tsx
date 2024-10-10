@@ -39,7 +39,7 @@ import { formatNumber } from '@snx-v3/formatters';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { ONEWEI, ZEROWEI } from '@snx-v3/constants';
 import { MigrationBanner } from '../Migration/MigrationBanner';
-import { useStataUSDCRate } from '@snx-v3/useStataUSDCRate';
+import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
 
 export const InitialDepositUi: FC<{
   collateralChange: Wei;
@@ -72,7 +72,7 @@ export const InitialDepositUi: FC<{
   const [step, setStep] = useState(0);
   const price = useTokenPrice(symbol);
   const { network } = useNetwork();
-  const { data: stataUSDCRate } = useStataUSDCRate();
+  const { data: stataUSDCRate } = useStaticAaveUSDCRate();
   const { data: usdcBalance } = useTokenBalance(getUSDCOnBase(network?.id));
   const isStataUSDC = displaySymbol === 'stataUSDC';
   const collaterChangeTo27 = new Wei(collateralChange, 27);

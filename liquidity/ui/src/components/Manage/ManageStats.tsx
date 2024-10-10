@@ -13,7 +13,7 @@ import { FC, useContext } from 'react';
 import { CRatioBar } from '../CRatioBar/CRatioBar';
 import { CollateralStats } from './CollateralStats';
 import { ZEROWEI } from '@snx-v3/constants';
-import { useStataUSDCRate } from '@snx-v3/useStataUSDCRate';
+import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
 import { DebtStats } from './DebtStats';
 import { PnlStats } from './PnlStats';
 
@@ -112,7 +112,7 @@ export const ManageStats = ({ liquidityPosition }: { liquidityPosition?: Liquidi
     debtChange: debtChange,
   });
 
-  const { data: stataUSDCRate } = useStataUSDCRate();
+  const { data: stataUSDCRate } = useStaticAaveUSDCRate();
 
   return (
     <ManageStatsUi

@@ -17,7 +17,7 @@ import { CollateralStats } from './CollateralStats';
 import { DebtStats } from './DebtStats';
 import { PnlStats } from './PnlStats';
 import { PositionTitle } from './PositionTitle';
-import { useStataUSDCRate } from '@snx-v3/useStataUSDCRate';
+import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
 
 export const NoPosition: FC<{
   poolName?: string;
@@ -31,7 +31,7 @@ export const NoPosition: FC<{
     useContext(ManagePositionContext);
   const [txnModalOpen, setTxnModalOpen] = useState<'deposit' | null>(null);
   const { network } = useNetwork();
-  const { data: stataUSDCRate } = useStataUSDCRate();
+  const { data: stataUSDCRate } = useStaticAaveUSDCRate();
 
   return (
     <Box mb={12} mt={8}>
