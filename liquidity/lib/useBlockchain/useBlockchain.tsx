@@ -285,6 +285,7 @@ export function useProviderForChain(customNetwork?: Network) {
     customNetwork?.id === activeNetwork?.id && customNetwork?.preset === activeNetwork?.preset;
   const { data: provider } = useQuery({
     queryKey: [`${network?.id}-${network?.preset}`, 'ProviderForChain', { isDefaultChain }],
+    enabled: Boolean(network),
     queryFn: () => {
       if (!network) throw 'OMFG';
       if (isDefaultChain) {
@@ -295,8 +296,6 @@ export function useProviderForChain(customNetwork?: Network) {
       }
       return network ? new ethers.providers.JsonRpcProvider(network.rpcUrl()) : null;
     },
-    staleTime: Infinity,
-    enabled: Boolean(network),
   });
 
   return provider;
