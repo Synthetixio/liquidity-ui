@@ -7,7 +7,7 @@ import {
   useProviderForChain,
   useSigner,
 } from '@snx-v3/useBlockchain';
-import { importStataUSDC } from '@snx-v3/contracts';
+import { importStaticAaveUSDC } from '@snx-v3/contracts';
 
 export function useStataUSDC(customNetwork?: Network) {
   const providerForChain = useProviderForChain(customNetwork);
@@ -22,7 +22,7 @@ export function useStataUSDC(customNetwork?: Network) {
     queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'stataUSDC', { withSigner }],
     queryFn: async function () {
       if (providerForChain && customNetwork) {
-        const { address: lmAddress, abi: lmAbi } = await importStataUSDC(
+        const { address: lmAddress, abi: lmAbi } = await importStaticAaveUSDC(
           customNetwork.id,
           customNetwork.preset
         );
@@ -31,7 +31,7 @@ export function useStataUSDC(customNetwork?: Network) {
       const signerOrProvider = signer || provider;
       if (!signerOrProvider || !network) throw new Error('Should be disabled CP');
 
-      const { address: lmAddress, abi: lmAbi } = await importStataUSDC(
+      const { address: lmAddress, abi: lmAbi } = await importStaticAaveUSDC(
         network?.id,
         network?.preset
       );
