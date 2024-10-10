@@ -54,7 +54,7 @@ export const loadAccountCollateral = async ({
         totalLocked: wei(totalLocked),
         symbol: '',
         displaySymbol: '',
-        decimals: '',
+        decimals: 18,
       };
     });
   };
@@ -83,7 +83,10 @@ export function useAccountCollateral({
       'AccountCollateral',
       { accountId },
       { systemToken: systemToken?.address },
-      { priceUpdateTx: stringToHash(priceUpdateTx?.data) },
+      {
+        contracts: stringToHash([CoreProxy?.address].join()),
+        priceUpdateTx: stringToHash(priceUpdateTx?.data),
+      },
     ],
     enabled: Boolean(
       network &&
@@ -139,7 +142,7 @@ export function useAccountCollateral({
         return Object.assign(x, {
           symbol: collateralType?.symbol ?? '',
           displaySymbol: collateralType?.displaySymbol ?? '',
-          decimals: collateralType?.decimals ?? '18',
+          decimals: collateralType?.decimals ?? 18,
         });
       });
     },

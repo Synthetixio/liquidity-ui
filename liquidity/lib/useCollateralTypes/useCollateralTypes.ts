@@ -1,50 +1,55 @@
 import { importCollateralTokens } from '@snx-v3/contracts';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { Network, useNetwork } from '@snx-v3/useBlockchain';
-import { ZodBigNumber } from '@snx-v3/zod';
-import { wei } from '@synthetixio/wei';
+import { useSystemToken } from '@snx-v3/useSystemToken';
+import { wei, Wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
-import { z } from 'zod';
-import { useSystemToken } from '@snx-v3/useSystemToken';
 
-const CollateralConfigurationSchema = z.object({
-  symbol: z.string(),
-  name: z.string(),
-  decimals: z.number().transform((x) => String(x)),
-  depositingEnabled: z.boolean(),
-  issuanceRatioD18: ZodBigNumber.transform((x) => wei(x)),
-  liquidationRatioD18: ZodBigNumber.transform((x) => wei(x)),
-  liquidationRewardD18: ZodBigNumber.transform((x) => wei(x)),
-  oracleNodeId: z.string(),
-  tokenAddress: z.string().startsWith('0x'), // As of current version in zod this will be a string: https://github.com/colinhacks/zod/issues/1747
-  minDelegationD18: ZodBigNumber.transform((x) => wei(x)),
-});
+export type CollateralType = {
+  address: string;
+  symbol: string;
+  displaySymbol: string;
+  name: string;
+  decimals: number;
+  depositingEnabled: boolean;
+  issuanceRatioD18: Wei;
+  liquidationRatioD18: Wei;
+  liquidationRewardD18: Wei;
+  minDelegationD18: Wei;
+  oracleNodeId: string;
+  tokenAddress: string;
+  oracle: {
+    constPrice?: Wei;
+    externalContract?: string;
+    stalenessTolerance?: string;
+    pythFeedId?: string;
+  };
+};
 
-const CollateralTypeSchema = CollateralConfigurationSchema.extend({
-  displaySymbol: z.string(),
-});
-
-export type CollateralType = z.infer<typeof CollateralTypeSchema>;
-
-async function loadCollateralTypes(chainId: number, preset: string): Promise<CollateralType[]> {
-  const tokenConfigsRaw = await importCollateralTokens(chainId, preset);
-
-  const tokenConfigs = tokenConfigsRaw
+async function loadCollateralTypes(chainId: number, preset: string) {
+  return (await importCollateralTokens(chainId, preset))
     .map((config) => ({
-      ...config,
-      issuanceRatioD18: ethers.BigNumber.from(config.issuanceRatioD18),
-      liquidationRatioD18: ethers.BigNumber.from(config.liquidationRatioD18),
-      liquidationRewardD18: ethers.BigNumber.from(config.liquidationRewardD18),
-      minDelegationD18: ethers.BigNumber.from(config.minDelegationD18),
+      address: config.address,
+      symbol: config.symbol,
+      displaySymbol: config.symbol,
+      name: config.name,
+      decimals: config.decimals,
+      depositingEnabled: config.depositingEnabled,
+      issuanceRatioD18: wei(config.issuanceRatioD18, 18, true),
+      liquidationRatioD18: wei(config.liquidationRatioD18, 18, true),
+      liquidationRewardD18: wei(config.liquidationRewardD18, 18, true),
+      minDelegationD18: wei(config.minDelegationD18, 18, true),
+      oracleNodeId: config.oracleNodeId,
+      tokenAddress: config.tokenAddress,
+      oracle: {
+        constPrice: config.oracle.constPrice ? wei(config.oracle.constPrice, 18, true) : undefined,
+        externalContract: config.oracle.externalContract,
+        stalenessTolerance: config.oracle.stalenessTolerance,
+        pythFeedId: config.oracle.pythFeedId,
+      },
     }))
-    .map((x) => CollateralConfigurationSchema.parse({ ...x }))
     .filter(({ depositingEnabled }) => depositingEnabled);
-
-  return tokenConfigs.map((config) => ({
-    ...config,
-    displaySymbol: config.symbol,
-  }));
 }
 
 export function useCollateralTypes(includeDelegationOff = false, customNetwork?: Network) {
@@ -52,7 +57,7 @@ export function useCollateralTypes(includeDelegationOff = false, customNetwork?:
   const targetNetwork = customNetwork || network;
   const { data: systemToken } = useSystemToken(customNetwork);
 
-  const query = useQuery({
+  return useQuery({
     enabled: Boolean(targetNetwork?.id && targetNetwork?.preset && systemToken),
     queryKey: [
       `${targetNetwork?.id}-${targetNetwork?.preset}`,
@@ -93,22 +98,16 @@ export function useCollateralTypes(includeDelegationOff = false, customNetwork?:
         return collateralTypes;
       }
 
-      // By default we only return collateral types that have minDelegationD18 < MaxUint256
+      // Return collateral types that have minDelegationD18 < MaxUint256
       // When minDelegationD18 === MaxUint256, delegation is effectively disabled
       return collateralTypes.filter((collateralType) =>
         collateralType.minDelegationD18.lt(ethers.constants.MaxUint256)
-      ) as CollateralType[];
+      );
     },
     // one hour in ms
     staleTime: Infinity,
     placeholderData: [],
   });
-
-  return {
-    ...query,
-    isLoading:
-      query.isLoading || !Boolean(targetNetwork?.id && targetNetwork?.preset && systemToken),
-  };
 }
 
 export function useCollateralType(collateralSymbol?: string) {
