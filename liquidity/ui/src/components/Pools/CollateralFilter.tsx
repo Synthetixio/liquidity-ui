@@ -3,15 +3,15 @@ import { Flex, Button } from '@chakra-ui/react';
 import { TokenIcon } from '../TokenIcon';
 import { PoolsFilterAction } from './PoolsList';
 
-const supportedCollateralTypes = ['WETH', 'SNX', 'USDC', 'ARB'];
+const supportedCollateralTypes = ['WETH', 'SNX', 'USDC', 'ARB', 'wstETH'];
 
 interface CollateralFilterProps {
-  activeCollateral: string[];
+  activeCollaterals: string[];
   dispatch: Dispatch<PoolsFilterAction>;
 }
 
-export const CollateralFilter = ({ activeCollateral, dispatch }: CollateralFilterProps) => {
-  const isAllActive = activeCollateral.length === 0;
+export const CollateralFilter = ({ activeCollaterals, dispatch }: CollateralFilterProps) => {
+  const isAllActive = activeCollaterals.length === 0;
 
   return (
     <Flex justifyContent="center">
@@ -31,7 +31,7 @@ export const CollateralFilter = ({ activeCollateral, dispatch }: CollateralFilte
         All Collaterals
       </Flex>
       {supportedCollateralTypes.map((collateral) => {
-        const isActive = activeCollateral.includes(collateral);
+        const isActive = activeCollaterals.includes(collateral);
 
         const toggle = () => {
           if (isActive) {

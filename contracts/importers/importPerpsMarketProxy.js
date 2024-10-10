@@ -53,13 +53,6 @@ export async function importPerpsMarketProxy(chainId, preset) {
       ]);
       return { address: meta.contracts.PerpsMarketProxy, abi };
     }
-    case '42161-arbthetix': {
-      const [{ default: meta }, { default: abi }] = await Promise.all([
-        import('@synthetixio/v3-contracts/42161-arbthetix/meta.json'),
-        import('@synthetixio/v3-contracts/42161-arbthetix/PerpsMarketProxy.readable.json'),
-      ]);
-      return { address: meta.contracts.PerpsMarketProxy, abi };
-    }
     default: {
       throw new Error(`Unsupported deployment ${deployment} for PerpsMarketProxy`);
     }

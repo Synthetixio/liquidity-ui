@@ -1,20 +1,20 @@
-import { FC, useContext } from 'react';
 import { Flex, Text } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
-import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { calculateCRatio } from '@snx-v3/calculations';
+import { ZEROWEI } from '@snx-v3/constants';
+import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
+import { useNetwork } from '@snx-v3/useBlockchain';
 import { CollateralType, useCollateralType } from '@snx-v3/useCollateralTypes';
+import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { useParams } from '@snx-v3/useParams';
 import { validatePosition } from '@snx-v3/validatePosition';
-import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import Wei, { wei } from '@synthetixio/wei';
-import { calculateCRatio } from '@snx-v3/calculations';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
-import { useNetwork } from '@snx-v3/useBlockchain';
+import { FC, useContext } from 'react';
 import { CRatioBar } from '../CRatioBar/CRatioBar';
-import { PnlStats } from './PnlStats';
-import { DebtStats } from './DebtStats';
 import { CollateralStats } from './CollateralStats';
-import { ZEROWEI } from '@snx-v3/constants';
+import { DebtStats } from './DebtStats';
+import { PnlStats } from './PnlStats';
 
 export const ManageStatsUi: FC<{
   liquidityPosition?: LiquidityPosition;
@@ -52,25 +52,21 @@ export const ManageStatsUi: FC<{
           collateralValue={collateralValue}
           hasChanges={hasChanges}
         />
-
-        {isBaseAndromeda(network?.id, network?.preset) && (
+        {isBaseAndromeda(network?.id, network?.preset) ? (
           <PnlStats
-            liquidityPosition={liquidityPosition}
-            collateralType={collateralType}
+            debt={liquidityPosition ? liquidityPosition.debt : ZEROWEI}
             newDebt={newDebt}
             hasChanges={hasChanges}
           />
-        )}
-        {!isBaseAndromeda(network?.id, network?.preset) && (
+        ) : (
           <DebtStats
-            liquidityPosition={liquidityPosition}
-            collateralType={collateralType}
+            debt={liquidityPosition ? liquidityPosition.debt : ZEROWEI}
             newDebt={newDebt}
             hasChanges={hasChanges}
           />
         )}
       </Flex>
-      {!isBaseAndromeda(network?.id, network?.preset) && (
+      {!isBaseAndromeda(network?.id, network?.preset) ? (
         <BorderBox py={4} px={6} flexDirection="column" bg="navy.700">
           <CRatioBar
             hasChanges={hasChanges}
@@ -86,10 +82,9 @@ export const ManageStatsUi: FC<{
                 : newCratio.toNumber() * 100
             }
             targetCratio={(collateralType?.issuanceRatioD18.toNumber() || 0) * 100}
-            isLoading={false}
           />
         </BorderBox>
-      )}
+      ) : null}
     </Flex>
   );
 };

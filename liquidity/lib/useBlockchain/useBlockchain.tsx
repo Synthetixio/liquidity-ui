@@ -10,11 +10,11 @@ import {
   OptimismIcon,
   SNXChainIcon,
 } from '@snx-v3/icons';
+import { useQuery } from '@tanstack/react-query';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 import { ethers } from 'ethers';
 import React, { useCallback } from 'react';
 import { MagicProvider } from './magic';
-import { useQuery } from '@tanstack/react-query';
 import SynthetixIcon from './SynthetixIcon.svg';
 import SynthetixLogo from './SynthetixLogo.svg';
 
@@ -212,20 +212,6 @@ export const ARBITRUM: Network = {
   isTestnet: false,
 };
 
-export const ARBTHETIX: Network = {
-  id: 42161,
-  preset: 'arbthetix',
-  hexId: `0x${Number(42161).toString(16)}`,
-  token: 'ETH',
-  name: 'arbitrum',
-  rpcUrl: (INFURA_KEY?: string) =>
-    `https://arbitrum-mainnet.infura.io/v3/${INFURA_KEY ?? DEFAULT_INFURA_KEY}`,
-  label: 'Arbthetix (withdraw only)',
-  isSupported: false,
-  publicRpcUrl: 'https://arbiscan.io/',
-  isTestnet: false,
-};
-
 export const SNAX: Network = {
   id: 2192,
   preset: 'main',
@@ -262,7 +248,6 @@ export const NETWORKS: Network[] = [
   OPTIMISM_SEPOLIA,
   ARBITRUM_SEPOLIA,
   ARBITRUM,
-  ARBTHETIX,
   SNAX,
   SNAXTESTNET,
 ];
@@ -293,17 +278,22 @@ export const appMetadata = {
   explore: 'https://blog.synthetix.io',
 };
 
-export function useProviderForChain(network?: Network) {
+export function useProviderForChain(customNetwork?: Network) {
+  const { network: activeNetwork } = useNetwork();
+  const network = customNetwork ?? activeNetwork;
+  const isDefaultChain =
+    customNetwork?.id === activeNetwork?.id && customNetwork?.preset === activeNetwork?.preset;
   const { data: provider } = useQuery({
-    queryKey: [`${network?.id}-${network?.preset}`, 'ProviderForChain'],
+    queryKey: [`${network?.id}-${network?.preset}`, 'ProviderForChain', { isDefaultChain }],
     queryFn: () => {
-      if (!network) {
-        throw 'no network';
+      if (!network) throw 'OMFG';
+      if (isDefaultChain) {
+        const provider = getMagicProvider();
+        if (provider) {
+          return provider;
+        }
       }
-      return (
-        getMagicProvider() ??
-        (network ? new ethers.providers.JsonRpcProvider(network.rpcUrl()) : null)
-      );
+      return network ? new ethers.providers.JsonRpcProvider(network.rpcUrl()) : null;
     },
     staleTime: Infinity,
     enabled: Boolean(network),

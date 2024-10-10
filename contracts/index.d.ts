@@ -118,10 +118,36 @@ declare module '@snx-v3/contracts' {
       symbol: string;
       name: string;
       decimals: number;
+      token: {
+        address: string;
+        symbol: string;
+        name: string;
+        decimals: number;
+      };
     }[]
   >;
 
   function importAllErrors(
+    chainId?: number,
+    preset?: string
+  ): Promise<{ address: string; abi: string[] }>;
+
+  function importStaticAaveUSDC(
+    chainId?: number,
+    preset?: string
+  ): Promise<{ address: string; abi: string[] }>;
+
+  function importWETH(
+    chainId?: number,
+    preset?: string
+  ): Promise<{ address: string; abi: string[] }>;
+
+  function importSNX(
+    chainId?: number,
+    preset?: string
+  ): Promise<{ address: string; abi: string[] }>;
+
+  function importUSDC(
     chainId?: number,
     preset?: string
   ): Promise<{ address: string; abi: string[] }>;

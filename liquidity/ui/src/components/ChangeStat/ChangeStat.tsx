@@ -43,6 +43,7 @@ export const ChangeStat: FC<{
         textAlign="center"
         opacity={value.eq(0) ? '70%' : undefined}
         color={withColor && value.gt(0) ? 'green.700' : value.lt(0) ? 'red.700' : 'gray.50'}
+        whiteSpace="nowrap"
       >
         {formatFn(value)}
       </Text>
@@ -55,6 +56,7 @@ export const ChangeStat: FC<{
             color={
               withColor && newValue.gt(0) ? 'green.700' : newValue.lt(0) ? 'red.700' : 'gray.50'
             }
+            whiteSpace="nowrap"
           >
             {formatFn(newValue)}
           </Text>

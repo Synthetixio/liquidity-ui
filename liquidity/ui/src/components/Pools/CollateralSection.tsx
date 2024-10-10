@@ -1,40 +1,30 @@
 import {
   Button,
-  Table,
   Fade,
   Flex,
   Skeleton,
+  Table,
   TableContainer,
-  Text,
   Tbody,
+  Td,
+  Text,
   Th,
   Thead,
   Tr,
-  Td,
 } from '@chakra-ui/react';
-import { useVaultsData, VaultsDataType } from '@snx-v3/useVaultsData';
-import React, { FC, useMemo } from 'react';
-import { wei } from '@synthetixio/wei';
-import { formatNumber, formatNumberToUsd, formatPercent } from '@snx-v3/formatters';
-import { useParams } from '@snx-v3/useParams';
 import { BorderBox } from '@snx-v3/BorderBox';
-import { useApr } from '@snx-v3/useApr';
+import { calculateCRatio } from '@snx-v3/calculations';
+import { formatNumber, formatNumberToUsd, formatPercent } from '@snx-v3/formatters';
+import { Sparkles } from '@snx-v3/icons';
 import { Tooltip } from '@snx-v3/Tooltip';
-import {
-  ARBITRUM,
-  BASE_ANDROMEDA,
-  NETWORKS,
-  Network,
-  useNetwork,
-  useWallet,
-} from '@snx-v3/useBlockchain';
-import { useOfflinePrices } from '@snx-v3/useCollateralPriceUpdates';
-import { BigNumberish } from 'ethers';
+import { useApr } from '@snx-v3/useApr';
+import { ARBITRUM, NETWORKS, useNetwork, useWallet } from '@snx-v3/useBlockchain';
+import { useParams } from '@snx-v3/useParams';
+import { useVaultsData, VaultsDataType } from '@snx-v3/useVaultsData';
+import { wei } from '@synthetixio/wei';
+import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { TokenIcon } from '../TokenIcon';
-import { CollateralType, useCollateralTypes } from '@snx-v3/useCollateralTypes';
-import { calculateCRatio } from '@snx-v3/calculations';
-import { Sparkles } from '@snx-v3/icons';
 
 export const calculateVaultTotals = (vaultsData: VaultsDataType) => {
   const zeroValues = { collateral: { value: wei(0), amount: wei(0) }, debt: wei(0) };
@@ -50,27 +40,22 @@ export const calculateVaultTotals = (vaultsData: VaultsDataType) => {
   }, zeroValues);
 };
 
-export const CollateralSectionUi: FC<{
-  vaultsData: VaultsDataType;
-  collateralPrices?: { symbol: string; price: BigNumberish }[];
-  apr?: {
-    combinedApr: number;
-    cumulativePnl: number;
-    collateralAprs: any[];
-  };
-  isAprLoading?: boolean;
-  isVaultsLoading?: boolean;
-  network: Network | undefined;
-  poolId: string | undefined;
-}> = ({ vaultsData, apr, isAprLoading, isVaultsLoading, network, poolId }) => {
+export function formatApr(apr?: number, networkId?: number) {
+  if (!networkId || !apr || apr <= 0) return '-';
+
+  return `${apr.toFixed(2)}%`;
+}
+
+export const CollateralSection = () => {
+  const { poolId, networkId } = useParams();
+  const network = NETWORKS.find((n) => n.id === Number(networkId));
+  const { data: vaultsData, isPending: isVaultsLoading } = useVaultsData(Number(poolId), network);
+  const { data: aprData, isPending: isAprLoading } = useApr(network);
   const navigate = useNavigate();
   const [queryParams] = useSearchParams();
-
   const { network: currentNetwork, setNetwork } = useNetwork();
   const { connect } = useWallet();
-
   const { collateral: totalCollateral, debt: totalDebt } = calculateVaultTotals(vaultsData);
-
   const isInTotalProfit = totalDebt.lt(0);
 
   return (
@@ -174,7 +159,7 @@ export const CollateralSectionUi: FC<{
               <Tooltip label="APR is averaged over the trailing 28 days and is comprised of both performance and rewards">
                 <Text fontWeight={700} fontSize="xl" color="white" textAlign="end">
                   {network?.id === ARBITRUM.id ? 'Up to ' : ''}
-                  {formatApr(apr?.combinedApr, network?.id)}
+                  {formatApr(aprData?.combinedApr, network?.id)}
                 </Text>
               </Tooltip>
             </Fade>
@@ -321,9 +306,9 @@ export const CollateralSectionUi: FC<{
                 vaultCollateral.collateral.value
               );
 
-              const collateralApr = apr?.collateralAprs.find(
-                (a) =>
-                  a.collateralType.toLowerCase() ===
+              const collateralApr = aprData?.collateralAprs.find(
+                (collateralAprData: { collateralType: string }) =>
+                  collateralAprData.collateralType.toLowerCase() ===
                   vaultCollateral.collateralType.tokenAddress.toLowerCase()
               );
 
@@ -523,49 +508,3 @@ export const CollateralSectionUi: FC<{
     </Flex>
   );
 };
-
-export const CollateralSection = () => {
-  const { poolId, networkId } = useParams();
-
-  const network = NETWORKS.find((n) => n.id === Number(networkId));
-
-  const { data: vaultsData, isLoading: isVaultsLoading } = useVaultsData(Number(poolId), network);
-  const { data: aprData, isLoading: isAprLoading } = useApr(network);
-
-  const { data: BaseCollateralTypes } = useCollateralTypes(false, BASE_ANDROMEDA);
-  const { data: ArbitrumCollateralTypes } = useCollateralTypes(false, ARBITRUM);
-
-  const allCollaterals: CollateralType[] = useMemo(() => {
-    if (!BaseCollateralTypes || !ArbitrumCollateralTypes) {
-      return [];
-    }
-
-    return BaseCollateralTypes.concat(ArbitrumCollateralTypes);
-  }, [ArbitrumCollateralTypes, BaseCollateralTypes]);
-
-  const { data: collateralPrices } = useOfflinePrices(
-    allCollaterals.map((item) => ({
-      id: item.tokenAddress,
-      oracleId: item.oracleNodeId,
-      symbol: item.symbol,
-    }))
-  );
-
-  return (
-    <CollateralSectionUi
-      vaultsData={vaultsData}
-      collateralPrices={collateralPrices}
-      apr={aprData}
-      isAprLoading={isAprLoading}
-      isVaultsLoading={isVaultsLoading}
-      network={network}
-      poolId={poolId}
-    />
-  );
-};
-
-export function formatApr(apr?: number, networkId?: number) {
-  if (!networkId || !apr || apr <= 0) return '-';
-
-  return `${apr.toFixed(2)}%`;
-}

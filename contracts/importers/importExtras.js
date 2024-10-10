@@ -46,12 +46,6 @@ export async function importExtras(chainId, preset) {
       ]);
       return extras;
     }
-    case '42161-arbthetix': {
-      const [{ default: extras }] = await Promise.all([
-        import('@synthetixio/v3-contracts/42161-arbthetix/extras.json'),
-      ]);
-      return extras;
-    }
     default: {
       throw new Error(`Unsupported deployment ${deployment} for Extras`);
     }

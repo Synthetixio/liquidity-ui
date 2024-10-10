@@ -1,41 +1,41 @@
-import { useMemo } from 'react';
 import { Flex, Text } from '@chakra-ui/react';
-import { StatBox } from './StatBox';
-import { useSearchParams } from 'react-router-dom';
+import { Amount } from '@snx-v3/Amount';
+import { ZEROWEI } from '@snx-v3/constants';
+import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
+import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralPrices } from '@snx-v3/useCollateralPrices';
+import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
+import { useGetUSDTokens } from '@snx-v3/useGetUSDTokens';
 import { useLiquidityPositions } from '@snx-v3/useLiquidityPositions';
+import { useParams } from '@snx-v3/useParams';
+import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenBalances } from '@snx-v3/useTokenBalance';
+import { wei } from '@synthetixio/wei';
+import { useMemo } from 'react';
 import {
   calculateAssets,
   calculateTotalAssetsAvailable,
   calculateTotalAssetsLocked,
 } from '../../utils/assets';
 import { calculateDebt } from '../../utils/positions';
-import { useNetwork } from '@snx-v3/useBlockchain';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
-import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
-import { useGetUSDTokens } from '@snx-v3/useGetUSDTokens';
-import { useSystemToken } from '@snx-v3/useSystemToken';
-import { Amount } from '@snx-v3/Amount';
-import { ZEROWEI } from '@snx-v3/constants';
-import { wei } from '@synthetixio/wei';
+import { StatBox } from './StatBox';
 
 export const StatsList = () => {
-  const [params] = useSearchParams();
+  const params = useParams();
   const { network } = useNetwork();
 
   const { data: usdTokens } = useGetUSDTokens();
 
-  const { data: positions, isPending: isLiquidityPositionLoading } = useLiquidityPositions({
-    accountId: params.get('accountId') || undefined,
-  });
+  const { data: liquidityPositions, isPending: isPendingLiquidityPositions } =
+    useLiquidityPositions({
+      accountId: params.accountId,
+    });
+  const { data: collateralTypes, isPending: isPendingCollateralTypes } = useCollateralTypes();
 
-  const { data: collateralTypes, isPending: isCollateralTypesLoading } = useCollateralTypes();
-
-  const { data: accountCollaterals, isPending: isAccountCollateralsLoading } = useAccountCollateral(
+  const { data: accountCollaterals, isPending: isPendingAccountCollaterals } = useAccountCollateral(
     {
-      accountId: params.get('accountId') || undefined,
+      accountId: params.accountId,
     }
   );
 
@@ -45,8 +45,8 @@ export const StatsList = () => {
         []
       : accountCollaterals?.map((collateral) => collateral.tokenAddress) || [];
 
-  const { data: userTokenBalances, isLoading: tokenBalancesIsLoading } = useTokenBalances(
-    collateralAddresses.filter((a) => !!a)
+  const { data: userTokenBalances, isPending: isPendingTokenBalances } = useTokenBalances(
+    collateralAddresses.filter(Boolean)
   );
 
   const associatedUserBalances = userTokenBalances?.map((balance, index) => {
@@ -56,7 +56,7 @@ export const StatsList = () => {
     };
   });
 
-  const { data: collateralPrices, isLoading: isCollateralPricesLoading } = useCollateralPrices();
+  const { data: collateralPrices, isPending: isPendingCollateralPrices } = useCollateralPrices();
 
   const isBase = isBaseAndromeda(network?.id, network?.preset);
 
@@ -83,22 +83,22 @@ export const StatsList = () => {
     ]
   );
 
-  const debt = calculateDebt(positions);
+  const debt = calculateDebt(liquidityPositions);
   const totalAssets = calculateTotalAssetsAvailable(assets);
   const totalLocked = calculateTotalAssetsLocked(assets);
 
-  const isLoading =
-    isAccountCollateralsLoading ||
-    tokenBalancesIsLoading ||
-    isCollateralPricesLoading ||
-    isLiquidityPositionLoading ||
-    isCollateralTypesLoading;
+  const isPending =
+    isPendingAccountCollaterals ||
+    isPendingTokenBalances ||
+    isPendingCollateralPrices ||
+    isPendingLiquidityPositions ||
+    isPendingCollateralTypes;
 
   return (
     <Flex flexWrap="wrap" w="100%" gap="4" mt={6}>
       <StatBox
         title="Available to Lock"
-        isLoading={isLoading}
+        isLoading={Boolean(params.accountId && isPending)}
         value={<Amount prefix="$" value={wei(totalAssets || '0')} />}
         label={
           <>
@@ -112,7 +112,7 @@ export const StatsList = () => {
       />
       <StatBox
         title="Total Locked"
-        isLoading={isLoading}
+        isLoading={Boolean(params.accountId && isPending)}
         value={<Amount prefix="$" value={wei(totalLocked || '0')} />}
         label={
           <>
@@ -122,7 +122,7 @@ export const StatsList = () => {
       />
       <StatBox
         title={`Total ${isBase ? 'PNL' : 'Debt'}`}
-        isLoading={isLoading}
+        isLoading={Boolean(params.accountId && isPending)}
         value={<Amount prefix="$" value={debt?.abs() || ZEROWEI} />}
         label={
           <>

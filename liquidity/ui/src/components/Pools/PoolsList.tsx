@@ -13,7 +13,7 @@ import { useOraclePrice } from '@snx-v3/useOraclePrice';
 import { Balloon } from './Balloon';
 
 export const PoolsList = () => {
-  const [state, dispatch] = useReducer(poolsReducer, { collateral: [], chain: [] });
+  const [state, dispatch] = useReducer(poolsReducer, { collaterals: [], chains: [] });
   const { data, isLoading: isPoolsListLoading } = usePoolsList();
 
   const { data: BaseCollateralTypes, isLoading: isBaseCollateralLoading } = useCollateralTypes(
@@ -70,11 +70,7 @@ export const PoolsList = () => {
   // Mainnet Rewards
   const { data: MainRewards, isLoading: isMainRewardsLoading } = useRewardsDistributors(MAINNET);
 
-  const { collateral, chain } = state;
-
-  const showToros =
-    (chain.length === 0 || chain.includes(BASE_ANDROMEDA.id)) &&
-    (collateral.length === 0 || collateral.includes('USDC'));
+  const { collaterals, chains } = state;
 
   const isLoading =
     isPoolsListLoading ||
@@ -129,13 +125,13 @@ export const PoolsList = () => {
         })
         .filter((pool) => {
           const { network, collateralTypes } = pool;
-          if (chain.length > 0 && !chain.includes(network.id)) {
+          if (chains.length > 0 && !chains.includes(network.id)) {
             return false;
           }
 
           const isCollateralFiltered = collateralTypes?.some((collateralType) =>
-            collateral.length
-              ? !!collateral.find((collateral) => {
+            collaterals.length
+              ? !!collaterals.find((collateral) => {
                   if (
                     isBaseAndromeda(network.id, network.preset) &&
                     collateralType.symbol.toUpperCase() === 'SUSDC'
@@ -162,8 +158,8 @@ export const PoolsList = () => {
     BaseRewards,
     MainnetCollateralTypes,
     MainRewards,
-    chain,
-    collateral,
+    chains,
+    collaterals,
   ]);
 
   const allCollateralPrices = useMemo(() => {
@@ -178,8 +174,8 @@ export const PoolsList = () => {
         Pools
       </Heading>
       <Flex flexWrap="wrap" gap={4} justifyContent="space-between" my={6}>
-        <ChainFilter activeChains={state.chain} dispatch={dispatch} />
-        <CollateralFilter activeCollateral={state.collateral} dispatch={dispatch} />
+        <ChainFilter activeChains={state.chains} dispatch={dispatch} />
+        <CollateralFilter activeCollaterals={state.collaterals} dispatch={dispatch} />
       </Flex>
       <Flex minW="1200px" overflowX="auto" direction="column" gap={4}>
         <Divider width="100%" />
@@ -262,11 +258,26 @@ export const PoolsList = () => {
           <Flex minW="159px" flex="1" />
         </Flex>
         {isLoading && !filteredPools?.length ? <PoolCardsLoading /> : null}
-        {showToros ? <TorosPoolCard tvl={data?.toros.tvl || ''} apy={data?.toros.apy} /> : null}
+        {(!chains.length || chains.includes(BASE_ANDROMEDA.id)) &&
+        (!collaterals.length || collaterals.includes('USDC')) ? (
+          <TorosPoolCard token="USDC" />
+        ) : null}
+        {(!chains.length || chains.includes(ARBITRUM.id)) &&
+        (!collaterals.length || collaterals.includes('wstETH')) ? (
+          <TorosPoolCard token="wstETH" />
+        ) : null}
         {filteredPools?.length > 0
           ? filteredPools.map(
               ({ network, poolInfo, apr, collateralTypes, rewardsDistributors }) => {
                 const { pool } = poolInfo[0];
+
+                const filteredCollateralTypes = collateralTypes?.filter((collateralType) => {
+                  if (!collaterals.length) {
+                    return true;
+                  }
+
+                  return collaterals.includes(collateralType.symbol);
+                });
 
                 const rewardsPayoutTokens = [
                   ...new Set(
@@ -279,7 +290,7 @@ export const PoolsList = () => {
                 return (
                   <PoolCard
                     key={network.hexId}
-                    collateralTypes={collateralTypes}
+                    collateralTypes={filteredCollateralTypes}
                     collateralPrices={allCollateralPrices}
                     apr={apr}
                     network={network}
@@ -317,8 +328,8 @@ export const PoolsList = () => {
 };
 
 interface PoolsFilterState {
-  collateral: string[];
-  chain: number[];
+  collaterals: string[];
+  chains: number[];
 }
 
 export interface PoolsFilterAction {
@@ -342,14 +353,14 @@ function poolsReducer(state: PoolsFilterState, action: PoolsFilterAction): Pools
         return {
           ...state,
           // Only one collateral active at once
-          collateral: [action.payload.collateral],
+          collaterals: [action.payload.collateral],
         };
       }
 
     case 'REMOVE_COLLATERAL':
       return {
         ...state,
-        collateral: state.collateral.filter((item) => item !== action.payload?.collateral),
+        collaterals: state.collaterals.filter((item) => item !== action.payload?.collateral),
       };
 
     case 'ADD_CHAIN':
@@ -357,26 +368,26 @@ function poolsReducer(state: PoolsFilterState, action: PoolsFilterAction): Pools
         // Only one chain active at once
         return {
           ...state,
-          chain: [action.payload.chain],
+          chains: [action.payload.chain],
         };
       }
 
     case 'REMOVE_CHAIN':
       return {
         ...state,
-        chain: state.chain.filter((item) => item !== action.payload?.chain),
+        chains: state.chains.filter((item) => item !== action.payload?.chain),
       };
 
     case 'RESET_COLLATERAL':
       return {
-        collateral: [],
-        chain: state.chain,
+        collaterals: [],
+        chains: state.chains,
       };
 
     case 'RESET_CHAIN':
       return {
-        collateral: state.collateral,
-        chain: [],
+        collaterals: state.collaterals,
+        chains: [],
       };
 
     default:
