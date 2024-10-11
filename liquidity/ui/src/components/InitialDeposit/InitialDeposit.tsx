@@ -224,7 +224,7 @@ export const InitialDepositUi: FC<{
             in={
               collateralChange.gt(0) && isStataUSDC
                 ? stataUSDCBalanceAfterWrapping.lt(minDelegationTo27)
-                : collateralChange.gte(minDelegation) && !overAvailableBalance
+                : collateralChange.lt(minDelegation) && !overAvailableBalance
             }
             animateOpacity
           >

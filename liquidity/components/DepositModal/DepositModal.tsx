@@ -5,6 +5,7 @@ import {
   getSpotMarketId,
   getStataUSDCOnBase,
   getUSDCOnBase,
+  getWrappedStataUSDCOnBase,
   isBaseAndromeda,
 } from '@snx-v3/isBaseAndromeda';
 import { Multistep } from '@snx-v3/Multistep';
@@ -30,7 +31,7 @@ import type { StateFrom } from 'xstate';
 import { DepositMachine, Events, ServiceNames, State } from './DepositMachine';
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
-import { ZEROWEI } from '@snx-v3/constants';
+import { ONEWEI, ZEROWEI } from '@snx-v3/constants';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { ChangeStat } from '../../ui/src/components/ChangeStat';
@@ -39,6 +40,8 @@ import { TransactionSummary } from '../../ui/src/components/TransactionSummary/T
 import { currency } from '@snx-v3/format';
 import { useConvertStataUSDC } from '@snx-v3/useConvertStataUSDC';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
+import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
+import { formatUnits } from 'ethers/lib/utils';
 
 export const DepositModalUi: FC<{
   collateralChange: Wei;
@@ -79,7 +82,9 @@ export const DepositModalUi: FC<{
     state.matches(State.approve) || state.matches(State.deposit) || state.matches(State.wrap);
 
   const isWETH = collateralType?.symbol === 'WETH';
-  const isStataUSDC = collateralType?.tokenAddress === getStataUSDCOnBase(networkId);
+  const isStataUSDC =
+    collateralType?.tokenAddress.toLowerCase() ===
+    getWrappedStataUSDCOnBase(networkId).toLowerCase();
 
   const stepNumbers = {
     wrap: isWETH ? 1 : 0,
@@ -223,7 +228,7 @@ export const DepositModalUi: FC<{
                   </Text>
                 ) : (
                   <>
-                    {availableCollateral && availableCollateral.gt(wei(0)) ? (
+                    {availableCollateral && availableCollateral.gt(ZEROWEI) ? (
                       <>
                         {availableCollateral.gte(collateralChange) ? (
                           <Text>
@@ -331,12 +336,9 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
       collateral.tokenAddress.toLowerCase() === liquidityPosition?.tokenAddress.toLowerCase()
   )[0];
   const isBase = isBaseAndromeda(network?.id, network?.preset);
-  const isStataUSDC = collateralTypes
-    ? collateralTypes?.filter(
-        (collateral) =>
-          collateral.tokenAddress.toLowerCase() === getStataUSDCOnBase(network?.id).toLowerCase()
-      ).length >= 1
-    : false;
+
+  const isStataUSDC =
+    collateral?.tokenAddress.toLowerCase() === getWrappedStataUSDCOnBase(network?.id).toLowerCase();
 
   const { data: wrapperToken } = useGetWrapperToken(getSpotMarketId(collateralSymbol));
 
@@ -347,22 +349,40 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   const { data: stataUSDCTokenBalance, refetch: refetchStataUSDCBalance } = useTokenBalance(
     getStataUSDCOnBase(network?.id)
   );
+  const { data: stataUSDCRate } = useStaticAaveUSDCRate();
 
-  const collateralNeeded = collateralChange.sub(availableCollateral);
-  const hasEnoughStataUSDCBalance = collateralNeeded.lte(wei(stataUSDCTokenBalance || wei(0), 18));
+  const collateralNeeded = collateralChange.sub(availableCollateral || '0');
 
-  const amountToApprove = () => {
-    if (collateralNeeded.eq(0)) return 0;
-    if (isBase && isStataUSDC && hasEnoughStataUSDCBalance) return 0;
-    if (isBase && isStataUSDC)
-      return utils.parseUnits(collateralNeeded.toString(), collateral?.decimals);
-    if (isBase) return utils.parseUnits(collateralNeeded.toString(), collateral?.decimals);
+  const stataUSDCAmount = useMemo(() => {
+    if (isBase && isStataUSDC) {
+      return utils.parseUnits(
+        new Wei(collateralNeeded || ZEROWEI, 27)
+          .div(stataUSDCRate || ONEWEI)
+          .toNumber()
+          .toFixed(6),
+        6
+      );
+    }
+
     return 0;
-  };
+  }, [collateralNeeded, isBase, isStataUSDC, stataUSDCRate]);
+
+  const hasEnoughStataUSDCBalance = stataUSDCTokenBalance?.gte(stataUSDCAmount || '0');
+
+  const amountToApprove = useMemo(() => {
+    if (collateralNeeded.eq(0) || (isStataUSDC && hasEnoughStataUSDCBalance)) {
+      return 0;
+    }
+    if (isStataUSDC) {
+      return utils.parseUnits(collateralNeeded.toString(), 6);
+    }
+
+    return utils.parseUnits(collateralNeeded.toString(), collateral?.decimals);
+  }, [collateral?.decimals, collateralNeeded, hasEnoughStataUSDCBalance, isStataUSDC]);
 
   const { approve, requireApproval } = useApprove({
-    contractAddress: isBase && isStataUSDC ? getUSDCOnBase(network?.id) : collateralAddress,
-    amount: amountToApprove(),
+    contractAddress: isBase ? getUSDCOnBase(network?.id) : collateralAddress,
+    amount: amountToApprove,
     spender: isBase
       ? isStataUSDC
         ? getStataUSDCOnBase(network?.id)
@@ -372,9 +392,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
 
   const { approve: approveStataUSDC, requireApproval: requireStataUSDCApproval } = useApprove({
     contractAddress: getStataUSDCOnBase(network?.id),
-    amount: collateralNeeded.gt(0)
-      ? utils.parseUnits(collateralNeeded.toString(), collateral?.decimals)
-      : 0,
+    amount: stataUSDCAmount,
     spender: SpotProxy?.address,
   });
   const toast = useToast({ isClosable: true, duration: 9000 });
@@ -387,7 +405,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   const wrapAmount =
     collateral?.symbol === 'WETH' && collateralNeeded.gt(wethBalance || 0)
       ? collateralNeeded.sub(wethBalance || 0)
-      : wei(0);
+      : ZEROWEI;
 
   const { data: pool } = usePool(poolId);
 
@@ -396,27 +414,20 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
     newAccountId,
     poolId: poolId,
     collateralTypeAddress: collateralAddress,
-    collateralChange,
+    collateralChange: collateralChange,
     currentCollateral,
-    availableCollateral: availableCollateral || wei(0),
+    availableCollateral: availableCollateral || ZEROWEI,
     decimals: Number(collateral?.decimals) || 18,
   });
-
-  const stataAfterWrapping = () => {
-    if (collateralChange.gte(stataUSDCTokenBalance || wei(0))) {
-      return stataUSDCTokenBalance || wei(0);
-    }
-    return collateralChange;
-  };
 
   const { exec: depositBaseAndromeda } = useDepositBaseAndromeda({
     accountId,
     newAccountId,
     poolId,
     collateralTypeAddress: collateralAddress,
-    collateralChange: isStataUSDC ? stataAfterWrapping() : collateralChange,
+    collateralChange: isStataUSDC ? wei(formatUnits(stataUSDCAmount, 6)) : collateralChange,
     currentCollateral,
-    availableCollateral: availableCollateral || wei(0),
+    availableCollateral: availableCollateral || ZEROWEI,
     collateralSymbol,
   });
 
@@ -485,6 +496,9 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
         }
       },
       [ServiceNames.wrapUSDCToStataUSDC]: async () => {
+        if (hasEnoughStataUSDCBalance || !isStataUSDC) {
+          return;
+        }
         try {
           toast({
             title: 'Wrapping USDC to StataUSDC',
@@ -622,7 +636,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
       // We do this to ensure the success state displays the wrap amount used before deposit
       return;
     }
-    send(Events.SET_WRAP_AMOUNT, { wrapAmount: wei(wrapAmountString) });
+    send(Events.SET_WRAP_AMOUNT, { wrapAmount: wei(wrapAmountString || '0') });
   }, [wrapAmountString, send, isSuccessOrDeposit]);
 
   useEffect(() => {
@@ -725,7 +739,9 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
 
   return (
     <DepositModalUi
-      collateralChange={collateralChange}
+      collateralChange={
+        isStataUSDC ? wei(formatUnits(stataUSDCAmount, 6) || '0', 18) : collateralChange
+      }
       isOpen={isOpen}
       onClose={onClose}
       collateralType={collateral}
@@ -735,7 +751,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
       }}
       onSubmit={onSubmit}
       poolName={pool?.name || ''}
-      availableCollateral={availableCollateral || wei(0)}
+      availableCollateral={availableCollateral || ZEROWEI}
       title={title}
       txSummary={<TransactionSummary items={txSummaryItems} />}
       hasEnoughStataUSDC={hasEnoughStataUSDCBalance}

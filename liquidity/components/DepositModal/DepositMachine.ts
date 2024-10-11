@@ -163,7 +163,7 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
           { target: State.approve, cond: (context) => context.requireApproval },
           {
             target: State.wrapUSDC,
-            cond: (context) => context.isStataUSDC && context.hasEnoughStataUSDC,
+            cond: (context) => context.isStataUSDC && !context.hasEnoughStataUSDC,
           },
           {
             target: State.approveStata,
@@ -198,7 +198,7 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
           },
           {
             target: State.approveStata,
-            cond: (context) => context.isStataUSDC,
+            cond: (context) => context.isStataUSDC && context.requireStataUSDCApproval,
           },
           {
             target: State.deposit,
@@ -221,9 +221,15 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
             error: (_context, event) => ({ error: event.data, step: FailedSteps.wrapUSDC }),
           }),
         },
-        onDone: {
-          target: State.success,
-        },
+        onDone: [
+          {
+            target: State.approveStata,
+            cond: (context) => context.isStataUSDC && context.requireStataUSDCApproval,
+          },
+          {
+            target: State.deposit,
+          },
+        ],
       },
     },
     [State.approveStata]: {
@@ -236,7 +242,7 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
           }),
         },
         onDone: {
-          target: State.success,
+          target: State.deposit,
         },
       },
     },
@@ -270,6 +276,16 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
           {
             target: State.deposit,
             cond: (c) => c.error?.step === FailedSteps.deposit,
+            actions: assign({ error: (_) => null }),
+          },
+          {
+            target: State.approveStata,
+            cond: (c) => c.error?.step === FailedSteps.approveStata,
+            actions: assign({ error: (_) => null }),
+          },
+          {
+            target: State.wrapUSDC,
+            cond: (c) => c.error?.step === FailedSteps.wrapUSDC,
             actions: assign({ error: (_) => null }),
           },
         ],
