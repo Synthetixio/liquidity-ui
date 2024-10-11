@@ -98,7 +98,7 @@ export const ManageUi: FC<{
         />
         {poolData && (
           <Flex alignItems={['center', 'flex-end']} direction="column">
-            <Tooltip label="APR is averaged over the trailing 28 days and is comprised of both performance and rewards">
+            <Tooltip label="APR is averaged over the trailing 7 days and is comprised of both performance and rewards">
               <Text
                 fontFamily="heading"
                 fontSize="sm"

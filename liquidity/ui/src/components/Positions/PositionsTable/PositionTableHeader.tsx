@@ -48,7 +48,7 @@ export function PositionTableHeader({ isBase }: { isBase: boolean }) {
               label={
                 <Flex flexDirection="column" alignItems="start">
                   <Text textAlign="left" fontSize="14px">
-                    APR is averaged over the trailing 28 days and is comprised of both performance
+                    APR is averaged over the trailing 7 days and is comprised of both performance
                     and rewards
                   </Text>
                 </Flex>
