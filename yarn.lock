@@ -5598,12 +5598,10 @@ __metadata:
     "@snx-v3/isBaseAndromeda": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useSystemToken": "workspace:*"
-    "@snx-v3/zod": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
-    zod: "npm:^3.22.4"
   languageName: unknown
   linkType: soft
 
@@ -5990,6 +5988,16 @@ __metadata:
     "@snx-v3/useBlockchain": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
     humanize-plus: "npm:^1.8.2"
+  languageName: unknown
+  linkType: soft
+
+"@snx-v3/usePythFeeds@workspace:liquidity/lib/usePythFeeds":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/usePythFeeds@workspace:liquidity/lib/usePythFeeds"
+  dependencies:
+    "@snx-v3/contracts": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
   languageName: unknown
   linkType: soft
 
