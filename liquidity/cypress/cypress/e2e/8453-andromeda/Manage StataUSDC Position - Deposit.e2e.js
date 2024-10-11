@@ -50,5 +50,7 @@ it('should deposit additional USDC collateral', () => {
     .should('include.text', 'Execute Transaction')
     .click();
 
-  cy.get('[data-cy="manage stats collateral"]').should('exist').and('include.text', '269 stataUSDC');
+  cy.get('[data-cy="manage stats collateral"]')
+    .should('exist')
+    .and('include.text', '269 stataUSDC');
 });
