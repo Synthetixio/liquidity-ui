@@ -1,13 +1,7 @@
 import { Button, Divider, Text, useToast, Link } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { ContractError } from '@snx-v3/ContractError';
-import {
-  getSpotMarketId,
-  getStataUSDCOnBase,
-  getUSDCOnBase,
-  getWrappedStataUSDCOnBase,
-  isBaseAndromeda,
-} from '@snx-v3/isBaseAndromeda';
+import { getWrappedStataUSDCOnBase, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { Multistep } from '@snx-v3/Multistep';
 import { useApprove } from '@snx-v3/useApprove';
 import { useNetwork } from '@snx-v3/useBlockchain';
@@ -16,7 +10,6 @@ import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useDeposit } from '@snx-v3/useDeposit';
 import { useDepositBaseAndromeda } from '@snx-v3/useDepositBaseAndromeda';
-import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { useParams } from '@snx-v3/useParams';
 import { usePool } from '@snx-v3/usePools';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
@@ -37,11 +30,13 @@ import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { ChangeStat } from '../../ui/src/components/ChangeStat';
 import { CRatioChangeStat } from '../../ui/src/components/CRatioBar/CRatioChangeStat';
 import { TransactionSummary } from '../../ui/src/components/TransactionSummary/TransactionSummary';
-import { currency } from '@snx-v3/format';
+import { currency, parseUnits } from '@snx-v3/format';
 import { useConvertStataUSDC } from '@snx-v3/useConvertStataUSDC';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
 import { formatUnits } from 'ethers/lib/utils';
+import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
+import { useUSDC } from '../../lib/useUSDC';
 
 export const DepositModalUi: FC<{
   collateralChange: Wei;
@@ -312,21 +307,11 @@ export type DepositModalProps = FC<{
 }>;
 
 export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquidityPosition }) => {
-  const { collateralChange, setCollateralChange } = useContext(ManagePositionContext);
-  const currentCollateral = liquidityPosition?.collateralAmount ?? ZEROWEI;
-  const availableCollateral = liquidityPosition?.accountCollateral.availableCollateral ?? ZEROWEI;
-
-  const [txSummary, setTxSummary] = useState({
-    currentCollateral: ZEROWEI,
-    collateralChange: ZEROWEI,
-    currentDebt: ZEROWEI,
-  });
-
   const navigate = useNavigate();
   const { collateralSymbol, poolId, accountId } = useParams();
   const queryClient = useQueryClient();
   const { network } = useNetwork();
-
+  const { collateralChange, setCollateralChange } = useContext(ManagePositionContext);
   const { data: CoreProxy } = useCoreProxy();
   const { data: SpotProxy } = useSpotMarketProxy();
   const { data: collateralTypes } = useCollateralTypes();
@@ -336,62 +321,101 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
       collateral.tokenAddress.toLowerCase() === liquidityPosition?.tokenAddress.toLowerCase()
   )[0];
   const isBase = isBaseAndromeda(network?.id, network?.preset);
-
   const isStataUSDC =
     collateral?.tokenAddress.toLowerCase() === getWrappedStataUSDCOnBase(network?.id).toLowerCase();
+  const isUSDC = collateral?.symbol.toLowerCase() === 'usdc';
 
-  const { data: wrapperToken } = useGetWrapperToken(getSpotMarketId(collateralSymbol));
+  const currentCollateral = liquidityPosition?.collateralAmount ?? ZEROWEI;
+  const availableCollateral = liquidityPosition?.accountCollateral.availableCollateral ?? ZEROWEI;
 
-  const collateralAddress = isBaseAndromeda(network?.id, network?.preset)
-    ? wrapperToken
-    : liquidityPosition?.tokenAddress;
-
-  const { data: stataUSDCTokenBalance, refetch: refetchStataUSDCBalance } = useTokenBalance(
-    getStataUSDCOnBase(network?.id)
-  );
-  const { data: stataUSDCRate } = useStaticAaveUSDCRate();
-
-  const collateralNeeded = collateralChange.sub(availableCollateral || '0');
-
-  const stataUSDCAmount = useMemo(() => {
-    if (isBase && isStataUSDC) {
-      return utils.parseUnits(
-        new Wei(collateralNeeded || ZEROWEI, 27)
-          .div(stataUSDCRate || ONEWEI)
-          .toNumber()
-          .toFixed(6),
-        6
-      );
-    }
-
-    return 0;
-  }, [collateralNeeded, isBase, isStataUSDC, stataUSDCRate]);
-
-  const hasEnoughStataUSDCBalance = stataUSDCTokenBalance?.gte(stataUSDCAmount || '0');
-
-  const amountToApprove = useMemo(() => {
-    if (collateralNeeded.eq(0) || (isStataUSDC && hasEnoughStataUSDCBalance)) {
-      return 0;
-    }
-    if (isStataUSDC) {
-      return utils.parseUnits(collateralNeeded.toString(), 6);
-    }
-
-    return utils.parseUnits(collateralNeeded.toString(), collateral?.decimals);
-  }, [collateral?.decimals, collateralNeeded, hasEnoughStataUSDCBalance, isStataUSDC]);
-
-  const { approve, requireApproval } = useApprove({
-    contractAddress: isBase ? getUSDCOnBase(network?.id) : collateralAddress,
-    amount: amountToApprove,
-    spender: isBase
-      ? isStataUSDC
-        ? getStataUSDCOnBase(network?.id)
-        : SpotProxy?.address
-      : CoreProxy?.address,
+  const [txSummary, setTxSummary] = useState({
+    currentCollateral: ZEROWEI,
+    collateralChange: ZEROWEI,
+    currentDebt: ZEROWEI,
   });
 
+  const { data: USDC } = useUSDC();
+  const { data: stataUSDC } = useStaticAaveUSDC();
+  const { data: stataUSDCRate } = useStaticAaveUSDCRate();
+  const { data: stataUSDCTokenBalance, refetch: refetchStataUSDCBalance } = useTokenBalance(
+    stataUSDC?.address
+  );
+
+  // stataUSDC Balance: 10
+  // USDC balance: 100
+  // Available Balance: 5
+
+  //110 USDC => 100 stataUSDC
+
+  const collateralAddress = collateral?.address;
+
+  const collateralNeeded = useMemo(() => {
+    if (isBase && isStataUSDC) {
+      const stataUSDCChange = wei(
+        wei(collateralChange || ZEROWEI, 27)
+          .div(stataUSDCRate || ONEWEI)
+          .toNumber()
+          .toFixed(6)
+      );
+      return stataUSDCChange.sub(availableCollateral).sub(stataUSDCTokenBalance);
+    } else {
+      return collateralChange.sub(availableCollateral);
+    }
+  }, [
+    availableCollateral,
+    collateralChange,
+    isBase,
+    isStataUSDC,
+    stataUSDCRate,
+    stataUSDCTokenBalance,
+  ]);
+
+  const amountToApprove = useMemo(() => {
+    if (collateralNeeded.lte(0)) {
+      return 0;
+    }
+    if (isBase) {
+      if (isStataUSDC) {
+        return utils.parseUnits(
+          wei(collateralNeeded || ZEROWEI, 27)
+            .mul(stataUSDCRate || ONEWEI)
+            .toNumber()
+            .toFixed(6),
+          6
+        );
+      } else {
+        return parseUnits(collateralNeeded, 6);
+      }
+    }
+    return utils.parseUnits(collateralNeeded.toString(), collateral?.decimals);
+  }, [collateral?.decimals, collateralNeeded, isBase, isStataUSDC, stataUSDCRate]);
+  const { approve, requireApproval } = useApprove({
+    contractAddress: isBase ? USDC?.address : collateralAddress,
+    amount: amountToApprove,
+    spender: isBase ? (isStataUSDC ? stataUSDC?.address : SpotProxy?.address) : CoreProxy?.address,
+  });
+
+  const stataUSDCAmount = useMemo(() => {
+    if (isBase) {
+      if (isStataUSDC) {
+        const stataUSDCChange = wei(
+          wei(collateralChange || ZEROWEI, 27)
+            .div(stataUSDCRate || ONEWEI)
+            .toNumber()
+            .toFixed(6)
+        );
+
+        return utils.parseUnits(stataUSDCChange.toNumber().toFixed(6), 6);
+      } else {
+        return parseUnits(collateralNeeded, 6);
+      }
+    }
+    return 0;
+  }, [collateralChange, collateralNeeded, isBase, isStataUSDC, stataUSDCRate]);
+  const hasEnoughStataUSDCBalance = stataUSDCTokenBalance?.gte(collateralNeeded || '0');
+
   const { approve: approveStataUSDC, requireApproval: requireStataUSDCApproval } = useApprove({
-    contractAddress: getStataUSDCOnBase(network?.id),
+    contractAddress: stataUSDC?.address,
     amount: stataUSDCAmount,
     spender: SpotProxy?.address,
   });
@@ -432,7 +456,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   });
 
   const { mutateAsync: wrapUSDCToStataUSDC } = useConvertStataUSDC({
-    amount: utils.parseUnits(collateralNeeded.toString(), 6),
+    amount: amountToApprove,
     depositToAave: true,
   });
   const errorParserCoreProxy = useContractErrorParser(CoreProxy);
