@@ -5235,7 +5235,6 @@ __metadata:
     react-i18next: "npm:^13.4.1"
     react-refresh: "npm:^0.14.0"
     react-router-dom: "npm:^6.18.0"
-    react-timer-hook: "npm:^3.0.7"
     stream-browserify: "npm:^3.0.0"
     style-loader: "npm:^3.3.3"
     terser-webpack-plugin: "npm:^5.3.9"
@@ -5458,18 +5457,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/useBurnMintFee@workspace:liquidity/lib/useBurnMintFee":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/useBurnMintFee@workspace:liquidity/lib/useBurnMintFee"
-  dependencies:
-    "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useCoreProxy": "workspace:*"
-    "@tanstack/react-query": "npm:^5.8.3"
-    ethers: "npm:^5.7.2"
-    react: "npm:^18.2.0"
-  languageName: unknown
-  linkType: soft
-
 "@snx-v3/useClaimAllRewards@workspace:*, @snx-v3/useClaimAllRewards@workspace:liquidity/lib/useClaimAllRewards":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useClaimAllRewards@workspace:liquidity/lib/useClaimAllRewards"
@@ -5484,29 +5471,6 @@ __metadata:
     "@snx-v3/useGasPrice": "workspace:*"
     "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/useSpotMarketProxy": "workspace:*"
-    "@snx-v3/withERC7412": "workspace:*"
-    "@synthetixio/wei": "npm:^2.74.4"
-    "@tanstack/react-query": "npm:^5.8.3"
-    ethers: "npm:^5.7.2"
-    react: "npm:^18.2.0"
-  languageName: unknown
-  linkType: soft
-
-"@snx-v3/useClaimUnwrapRewards@workspace:liquidity/lib/useClaimUnwrapRewards":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/useClaimUnwrapRewards@workspace:liquidity/lib/useClaimUnwrapRewards"
-  dependencies:
-    "@chakra-ui/react": "npm:^2.8.2"
-    "@snx-v3/txnReducer": "workspace:*"
-    "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useCollateralPriceUpdates": "workspace:*"
-    "@snx-v3/useContractErrorParser": "workspace:*"
-    "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useGasOptions": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@snx-v3/useGasSpeed": "workspace:*"
-    "@snx-v3/useSpotMarketProxy": "workspace:*"
-    "@snx-v3/useSynthTokens": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -5809,18 +5773,6 @@ __metadata:
     "@snx-v3/useMulticall3": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
     ethers: "npm:^5.7.2"
-  languageName: unknown
-  linkType: soft
-
-"@snx-v3/useMarketNamesById@workspace:liquidity/lib/useMarketNamesById":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/useMarketNamesById@workspace:liquidity/lib/useMarketNamesById"
-  dependencies:
-    "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useMulticall3": "workspace:*"
-    "@tanstack/react-query": "npm:^5.8.3"
-    ethers: "npm:^5.7.2"
-    zod: "npm:^3.22.4"
   languageName: unknown
   linkType: soft
 
@@ -6127,23 +6079,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/useTeleport@workspace:liquidity/lib/useTeleport":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/useTeleport@workspace:liquidity/lib/useTeleport"
-  dependencies:
-    "@snx-v3/txnReducer": "workspace:*"
-    "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useGasOptions": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@snx-v3/useGasSpeed": "workspace:*"
-    "@synthetixio/wei": "npm:^2.74.4"
-    "@tanstack/react-query": "npm:^5.8.3"
-    ethers: "npm:^5.7.2"
-    react: "npm:^18.2.0"
-  languageName: unknown
-  linkType: soft
-
 "@snx-v3/useTokenBalance@workspace:*, @snx-v3/useTokenBalance@workspace:liquidity/lib/useTokenBalance":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useTokenBalance@workspace:liquidity/lib/useTokenBalance"
@@ -6152,18 +6087,6 @@ __metadata:
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     ethers: "npm:^5.7.2"
-  languageName: unknown
-  linkType: soft
-
-"@snx-v3/useTokenInfo@workspace:liquidity/lib/useTokenInfo":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/useTokenInfo@workspace:liquidity/lib/useTokenInfo"
-  dependencies:
-    "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useMulticall3": "workspace:*"
-    "@tanstack/react-query": "npm:^5.8.3"
-    ethers: "npm:^5.7.2"
-    react: "npm:^18.2.0"
   languageName: unknown
   linkType: soft
 
