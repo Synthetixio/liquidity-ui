@@ -1,17 +1,33 @@
 import { Flex, Heading, Text } from '@chakra-ui/react';
-import { FC } from 'react';
-import { useCollateralDisplayName } from '../../pages';
 import { NetworkIcon, useNetwork } from '@snx-v3/useBlockchain';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { useCombinedTokenBalance } from '@snx-v3/useCombinedTokenBalance';
+import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { useParams } from '@snx-v3/useParams';
+import { usePoolData } from '@snx-v3/usePoolData';
 import { useNavigate } from 'react-router-dom';
 import { TokenIcon } from '../TokenIcon';
 
-export const PositionTitle: FC<{
-  collateralSymbol?: string;
-  poolName?: string;
-  isOpen?: boolean;
-  poolId?: string;
-}> = ({ collateralSymbol, poolName, isOpen, poolId }) => {
-  const collateralDisplayName = useCollateralDisplayName(collateralSymbol);
+export function PositionTitle() {
+  const params = useParams();
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
+  const { data: poolData } = usePoolData(params.poolId);
+
+  const { data: combinedTokenBalance } = useCombinedTokenBalance(collateralType);
+
+  const { data: liquidityPosition, isPending: isPendingLiquidityPosition } = useLiquidityPosition({
+    tokenAddress: collateralType?.tokenAddress,
+    accountId: params.accountId,
+    poolId: params.poolId,
+  });
+
+  const hasPosition = liquidityPosition && liquidityPosition.collateralAmount.gt(0);
+  const hasAvailableCollateral =
+    liquidityPosition && liquidityPosition.accountCollateral.availableCollateral.gt(0);
+  const isNewPosition =
+    !params.accountId ||
+    (params.accountId && !isPendingLiquidityPosition && !hasPosition && !hasAvailableCollateral);
+
   const { network } = useNetwork();
   const navigate = useNavigate();
 
@@ -25,7 +41,7 @@ export const PositionTitle: FC<{
         display="flex"
       >
         <TokenIcon
-          symbol={collateralDisplayName || ''}
+          symbol={combinedTokenBalance?.main.symbol}
           height={42}
           width={42}
           fill="#0B0B22"
@@ -41,7 +57,11 @@ export const PositionTitle: FC<{
           display="flex"
           alignItems="center"
         >
-          {isOpen ? 'Open ' : ''} {collateralDisplayName} Liquidity Position
+          {isNewPosition ? (
+            <>Open {combinedTokenBalance?.main.displayName} Liquidity Position</>
+          ) : (
+            <>{combinedTokenBalance?.main.displayName} Liquidity Position</>
+          )}
         </Heading>
         <Heading
           ml={4}
@@ -51,9 +71,9 @@ export const PositionTitle: FC<{
           display="flex"
           alignItems="center"
           _hover={{ cursor: 'pointer' }}
-          onClick={() => navigate(`/pools/${network?.id}/${poolId}`)}
+          onClick={() => navigate(`/pools/${network?.id}/${params.poolId}`)}
         >
-          {poolName && <Text mr={2}>{poolName}</Text>}
+          {poolData?.name && <Text mr={2}>{poolData?.name}</Text>}
           <Flex
             mt={0.25}
             alignItems="center"
@@ -68,4 +88,4 @@ export const PositionTitle: FC<{
       </Flex>
     </Flex>
   );
-};
+}
