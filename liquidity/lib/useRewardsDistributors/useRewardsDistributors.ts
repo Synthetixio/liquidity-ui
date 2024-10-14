@@ -1,24 +1,21 @@
+import { importRewardsDistributors } from '@snx-v3/contracts';
 import { Network, useNetwork } from '@snx-v3/useBlockchain';
 import { useQuery } from '@tanstack/react-query';
-import { importRewardsDistributors } from '@snx-v3/contracts';
 
 export function useRewardsDistributors(customNetwork?: Network) {
   const { network } = useNetwork();
   const targetNetwork = customNetwork || network;
 
   return useQuery({
-    enabled: Boolean(targetNetwork),
     queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'RewardsDistributors'],
+    enabled: Boolean(targetNetwork),
     queryFn: async function () {
-      if (!targetNetwork) {
-        throw new Error('OMG');
-      }
-      const rewardDistributors = await importRewardsDistributors(
-        targetNetwork?.id,
-        targetNetwork?.preset
-      );
-      return rewardDistributors;
+      if (!targetNetwork) throw new Error('OMFG');
+
+      return importRewardsDistributors(targetNetwork.id, targetNetwork.preset);
     },
     staleTime: Infinity,
+    // On some chains this is not available, and that is expected
+    throwOnError: false,
   });
 }

@@ -1,34 +1,21 @@
-import { Contract } from '@ethersproject/contracts';
 import { importUSDProxy } from '@snx-v3/contracts';
-import {
-  Network,
-  useNetwork,
-  useProvider,
-  useProviderForChain,
-  useSigner,
-} from '@snx-v3/useBlockchain';
+import { Network, useNetwork } from '@snx-v3/useBlockchain';
 import { useQuery } from '@tanstack/react-query';
 
 export function useUSDProxy(customNetwork?: Network) {
   const { network } = useNetwork();
-  const provider = useProvider();
-  const signer = useSigner();
-  const providerForChain = useProviderForChain(customNetwork);
-  const signerOrProvider = signer || provider;
   const targetNetwork = customNetwork || network;
-  const withSigner = Boolean(signer);
+
   return useQuery({
-    queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'USDProxy', { withSigner }],
-    enabled: Boolean(signerOrProvider && targetNetwork),
+    queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'USDProxy'],
+    enabled: Boolean(targetNetwork),
     queryFn: async function () {
-      if (!(signerOrProvider && targetNetwork)) throw new Error('OMFG');
-      if (providerForChain && customNetwork) {
-        const { address, abi } = await importUSDProxy(targetNetwork.id, targetNetwork.preset);
-        return new Contract(address, abi, providerForChain);
-      }
-      const { address, abi } = await importUSDProxy(targetNetwork?.id, targetNetwork?.preset);
-      return new Contract(address, abi, signerOrProvider);
+      if (!targetNetwork) throw new Error('OMFG');
+
+      return importUSDProxy(targetNetwork.id, targetNetwork.preset);
     },
     staleTime: Infinity,
+    // On some chains this is not available, and that is expected
+    throwOnError: false,
   });
 }
