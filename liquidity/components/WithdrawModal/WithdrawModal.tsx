@@ -1,25 +1,24 @@
-import { Button, Divider, Text, useToast, Link } from '@chakra-ui/react';
-import React, { FC, useCallback, useContext, useState } from 'react';
-import { Multistep } from '@snx-v3/Multistep';
-import { Wei } from '@synthetixio/wei';
-import { useWithdraw } from '@snx-v3/useWithdraw';
-import { useAccountSpecificCollateral } from '@snx-v3/useAccountCollateral';
-import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
-import { useCoreProxy } from '@snx-v3/useCoreProxy';
-import { ContractError } from '@snx-v3/ContractError';
-import { useQueryClient } from '@tanstack/react-query';
-import { useNetwork } from '@snx-v3/useBlockchain';
 import { ArrowBackIcon } from '@chakra-ui/icons';
-import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
-import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
-import { ZEROWEI } from '@snx-v3/constants';
-import { useWithdrawBaseAndromeda } from '@snx-v3/useWithdrawBaseAndromeda';
-import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
-import { useParams } from '@snx-v3/useParams';
+import { Button, Divider, Link, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
-import { useSystemToken } from '@snx-v3/useSystemToken';
+import { ZEROWEI } from '@snx-v3/constants';
+import { ContractError } from '@snx-v3/ContractError';
+import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
+import { Multistep } from '@snx-v3/Multistep';
+import { useAccountSpecificCollateral } from '@snx-v3/useAccountCollateral';
+import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
+import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { useParams } from '@snx-v3/useParams';
+import { useSystemToken } from '@snx-v3/useSystemToken';
+import { useWithdraw } from '@snx-v3/useWithdraw';
+import { useWithdrawBaseAndromeda } from '@snx-v3/useWithdrawBaseAndromeda';
+import { Wei } from '@synthetixio/wei';
+import { useQueryClient } from '@tanstack/react-query';
+import React, { FC, useCallback, useContext, useState } from 'react';
+import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
 
 export const WithdrawModalUi: FC<{
   amount: Wei;
@@ -130,8 +129,7 @@ export function WithdrawModal({
   const { withdrawAmount, setWithdrawAmount } = useContext(ManagePositionContext);
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
-  const { data: CoreProxy } = useCoreProxy();
-  const errorParserCoreProxy = useContractErrorParser(CoreProxy);
+  const errorParser = useContractErrorParser();
   const accountId = liquidityPosition?.accountId;
 
   const { data: systemToken } = useSystemToken();
@@ -210,7 +208,7 @@ export function WithdrawModal({
         status: 'error',
       }));
 
-      const contractError = errorParserCoreProxy(error);
+      const contractError = errorParser(error);
       if (contractError) {
         console.error(new Error(contractError.name), contractError);
       }
@@ -229,7 +227,7 @@ export function WithdrawModal({
     }
   }, [
     accountId,
-    errorParserCoreProxy,
+    errorParser,
     network?.id,
     network?.preset,
     onClose,
