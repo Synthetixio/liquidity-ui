@@ -174,7 +174,7 @@ async function logMulticall({
   );
 }
 
-function extractErrorData(error: Error | any) {
+export function extractErrorData(error: Error | any) {
   return (
     error?.error?.error?.error?.data ||
     error?.error?.error?.data ||

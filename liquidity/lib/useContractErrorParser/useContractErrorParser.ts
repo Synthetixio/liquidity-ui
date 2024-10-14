@@ -1,6 +1,15 @@
-import { ethers, utils } from 'ethers';
+import { useAllErrors } from '@snx-v3/useAllErrors';
+import { extractErrorData, PYTH_ERRORS } from '@snx-v3/withERC7412';
+import { ethers } from 'ethers';
 import { useCallback } from 'react';
-import { ERC7412_ABI } from '@snx-v3/withERC7412';
+
+const ERC721_ERRORS = [
+  'error CannotSelfApprove(address addr)',
+  'error InvalidTransferRecipient(address addr)',
+  'error InvalidOwner(address addr)',
+  'error TokenDoesNotExist(uint256 id)',
+  'error TokenAlreadyMinted(uint256 id)',
+];
 
 export type ContractErrorType = {
   data: string;
@@ -9,37 +18,27 @@ export type ContractErrorType = {
   args: Record<string, any>;
 };
 
-export function useContractErrorParser(Contract?: ethers.Contract) {
+export function useContractErrorParser() {
+  const { data: AllErrors } = useAllErrors();
+
   return useCallback(
     (error: any): ContractErrorType | undefined => {
-      if (!Contract) {
+      if (!AllErrors) {
         return undefined;
       }
       try {
-        const errorData = error?.error?.data?.data || error?.error?.error?.data; // add more options as we find them
+        const errorData = extractErrorData(error);
         if (!errorData) {
           console.error({ error }); // intentional logging as object so we can inspect all properties
           return undefined;
         }
+        const AllErrorsInterface = new ethers.utils.Interface([
+          ...AllErrors.abi,
+          ...PYTH_ERRORS,
+          ...ERC721_ERRORS,
+        ]);
 
-        const contractAbi = Contract.interface.format(utils.FormatTypes.full) as string[];
-        const newContract = new ethers.Contract(
-          Contract.address,
-          Array.from(
-            new Set(
-              contractAbi.concat(ERC7412_ABI).concat([
-                // ERC721 errors
-                'error CannotSelfApprove(address addr)',
-                'error InvalidTransferRecipient(address addr)',
-                'error InvalidOwner(address addr)',
-                'error TokenDoesNotExist(uint256 id)',
-                'error TokenAlreadyMinted(uint256 id)',
-              ])
-            )
-          ), // uniq
-          Contract.signer || Contract.provider
-        );
-        const errorParsed = newContract.interface.parseError(errorData);
+        const errorParsed = AllErrorsInterface.parseError(errorData);
         const errorArgs = Object.fromEntries(
           Object.entries(errorParsed.args)
             .filter(([key]) => `${parseInt(key)}` !== key)
@@ -80,6 +79,6 @@ export function useContractErrorParser(Contract?: ethers.Contract) {
         return undefined;
       }
     },
-    [Contract]
+    [AllErrors]
   );
 }
