@@ -1,4 +1,5 @@
-import { Network, useNetwork } from '@snx-v3/useBlockchain';
+import { contractsHash } from '@snx-v3/tsHelpers';
+import { Network, useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
@@ -7,20 +8,23 @@ export function usePools(customNetwork?: Network) {
   const { network } = useNetwork();
   const targetNetwork = customNetwork || network;
   const { data: CoreProxy } = useCoreProxy(targetNetwork);
+  const provider = useProviderForChain(targetNetwork);
 
   return useQuery({
-    enabled: Boolean(CoreProxy),
+    enabled: Boolean(provider && CoreProxy),
     queryKey: [
       `${targetNetwork?.id}-${targetNetwork?.preset}`,
       'Pools',
-      { CoreProxy: CoreProxy?.address },
+      { contractsHash: contractsHash([CoreProxy]) },
     ],
     queryFn: async () => {
-      if (!CoreProxy) throw 'OMFG';
+      if (!(provider && CoreProxy)) throw 'OMFG';
+
+      const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
 
       const [preferredPoolId, approvedPoolIds] = await Promise.all([
-        CoreProxy.callStatic.getPreferredPool(),
-        CoreProxy.callStatic.getApprovedPools(),
+        CoreProxyContract.getPreferredPool(),
+        CoreProxyContract.getApprovedPools(),
       ]);
 
       const incompletePools = [
@@ -36,7 +40,7 @@ export function usePools(customNetwork?: Network) {
       );
 
       const poolNames = await Promise.all(
-        incompletePools.map(async ({ id }) => await CoreProxy.getPoolName(id))
+        incompletePools.map(async ({ id }) => await CoreProxyContract.getPoolName(id))
       );
 
       return incompletePools.map((pool, i) => ({
@@ -49,11 +53,16 @@ export function usePools(customNetwork?: Network) {
 }
 
 export function usePool(poolId?: string, customNetwork?: Network) {
-  const { isFetching, error, data } = usePools(customNetwork);
+  const { network } = useNetwork();
+  const targetNetwork = customNetwork || network;
+  const { data: pools } = usePools(targetNetwork);
 
-  return {
-    isLoading: isFetching,
-    error,
-    data: data?.find((item) => item.id === poolId),
-  };
+  return useQuery({
+    queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'Pool', { poolId }],
+    enabled: Boolean(pools),
+    queryFn: () => {
+      if (!pools) throw 'OMFG';
+      return pools.find((item) => `${item.id}` === `${poolId}`);
+    },
+  });
 }

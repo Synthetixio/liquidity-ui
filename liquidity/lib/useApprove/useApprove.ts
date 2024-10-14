@@ -1,12 +1,12 @@
-import { useReducer } from 'react';
-import { useAllowance } from '@snx-v3/useAllowance';
-import { BigNumberish, ethers } from 'ethers';
-import { useMutation } from '@tanstack/react-query';
-import { useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { initialState, reducer } from '@snx-v3/txnReducer';
+import { useAllowance } from '@snx-v3/useAllowance';
+import { useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
+import { useMutation } from '@tanstack/react-query';
+import { BigNumberish, ethers } from 'ethers';
+import { useReducer } from 'react';
 
 export const approveAbi = ['function approve(address spender, uint256 amount) returns (bool)'];
 
@@ -50,9 +50,11 @@ export const useApprove = (
         const gasPricesPromised = getGasPrice({ provider });
         const gasLimitPromised = contract.estimateGas.approve(spender, amountToAppove);
 
-        const populatedTxnPromised = contract.populateTransaction.approve(spender, amountToAppove, {
-          gasLimit: gasLimitPromised,
-        });
+        const populatedTxnPromised = contract
+          .connect(signer)
+          .populateTransaction.approve(spender, amountToAppove, {
+            gasLimit: gasLimitPromised,
+          });
 
         const [gasPrices, gasLimit, populatedTxn] = await Promise.all([
           gasPricesPromised,

@@ -8,12 +8,13 @@ import Wei, { wei } from '@synthetixio/wei';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { parseTxError } from '@snx-v3/parser';
 import { useQueryClient } from '@tanstack/react-query';
+import { ethers } from 'ethers';
 
 export function useMigrateUSD({ amount }: { amount: Wei }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const signer = useSigner();
-  const { data: legacyMarket } = useLegacyMarket();
+  const { data: LegacyMarket } = useLegacyMarket();
   const { gasSpeed } = useGasSpeed();
   const provider = useDefaultProvider();
   const queryClient = useQueryClient();
@@ -21,14 +22,20 @@ export function useMigrateUSD({ amount }: { amount: Wei }) {
 
   const migrate = useCallback(async () => {
     try {
-      if (!legacyMarket || !signer) {
-        return;
+      if (!(LegacyMarket && signer)) {
+        throw 'OMFG';
       }
       setIsLoading(true);
       setIsSuccess(false);
-      const gasPrices = await getGasPrice({ provider: signer!.provider });
+      const gasPrices = await getGasPrice({ provider: signer.provider });
 
-      const transaction = await legacyMarket.populateTransaction.convertUSD(amount.toBN());
+      const LegacyMarketContract = new ethers.Contract(
+        LegacyMarket.address,
+        LegacyMarket.abi,
+        signer
+      );
+
+      const transaction = await LegacyMarketContract.populateTransaction.convertUSD(amount.toBN());
       const gasLimit = await provider?.estimateGas(transaction);
 
       const gasOptionsForTransaction = formatGasPriceForTransaction({
@@ -48,13 +55,20 @@ export function useMigrateUSD({ amount }: { amount: Wei }) {
         queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
       });
     } catch (error) {
-      const parsedError = parseTxError(error);
-      const errorResult = legacyMarket?.interface.parseError(parsedError as string);
-      console.error('error:', errorResult);
+      if (LegacyMarket) {
+        try {
+          const LegacyMarketInterface = new ethers.utils.Interface(LegacyMarket.abi);
+          const parsedError = parseTxError(error);
+          const errorResult = LegacyMarketInterface.parseError(parsedError as string);
+          console.error('error:', errorResult);
+        } catch {
+          // whatever
+        }
+      }
       setIsLoading(false);
       throw error;
     }
-  }, [amount, gasSpeed, legacyMarket, network?.id, network?.preset, provider, queryClient, signer]);
+  }, [amount, gasSpeed, LegacyMarket, network?.id, network?.preset, provider, queryClient, signer]);
 
   return {
     migrate,
