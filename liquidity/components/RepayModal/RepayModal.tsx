@@ -1,5 +1,7 @@
-import { Button, Divider, Text, useToast, Link, Flex, Skeleton } from '@chakra-ui/react';
+import { ArrowBackIcon } from '@chakra-ui/icons';
+import { Button, Divider, Flex, Link, Skeleton, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
+import { ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
 import { parseUnits } from '@snx-v3/format';
 import { getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
@@ -15,17 +17,15 @@ import { useParams } from '@snx-v3/useParams';
 import { useRepay } from '@snx-v3/useRepay';
 import { useRepayBaseAndromeda } from '@snx-v3/useRepayBaseAndromeda';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
-import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useSystemToken } from '@snx-v3/useSystemToken';
+import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import Wei from '@synthetixio/wei';
 import { useQueryClient } from '@tanstack/react-query';
 import { useMachine } from '@xstate/react';
 import { useCallback, useContext, useEffect } from 'react';
 import type { StateFrom } from 'xstate';
-import { Events, RepayMachine, ServiceNames, State } from './RepayMachine';
-import { ArrowBackIcon } from '@chakra-ui/icons';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
-import { ZEROWEI } from '@snx-v3/constants';
+import { Events, RepayMachine, ServiceNames, State } from './RepayMachine';
 
 export const RepayModalUi: React.FC<{
   onClose: () => void;
@@ -166,7 +166,7 @@ export const RepayModal: React.FC<{
   const { data: CoreProxy } = useCoreProxy();
   const { data: SpotProxy } = useSpotMarketProxy();
 
-  const errorParserCoreProxy = useContractErrorParser(CoreProxy);
+  const errorParser = useContractErrorParser();
   const amountToDeposit = debtChange.abs().sub(availableCollateral || 0);
 
   const { data: wrapperToken } = useGetWrapperToken(getSpotMarketId(params.collateralSymbol));
@@ -196,7 +196,7 @@ export const RepayModal: React.FC<{
 
           await approve(Boolean(state.context.infiniteApproval));
         } catch (error: any) {
-          const contractError = errorParserCoreProxy(error);
+          const contractError = errorParser(error);
           if (contractError) {
             console.error(new Error(contractError.name), contractError);
           }
@@ -249,7 +249,7 @@ export const RepayModal: React.FC<{
             variant: 'left-accent',
           });
         } catch (error: any) {
-          const contractError = errorParserCoreProxy(error);
+          const contractError = errorParser(error);
           if (contractError) {
             console.error(new Error(contractError.name), contractError);
           }
