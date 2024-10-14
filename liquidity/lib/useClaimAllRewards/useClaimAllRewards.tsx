@@ -46,12 +46,14 @@ export function useClaimAllRewards(
     mutationFn: async function () {
       try {
         if (!signer || !network || !provider) throw new Error('No signer or network');
-        if (!rewards.filter(({ amount }) => amount?.gt(0)).length || !signer || !network) return;
+        if (!rewards.filter(({ amount }) => amount?.gt(0)).length) return;
         if (!CoreProxy) throw new Error('CoreProxy undefined');
+        if (!SpotProxy) throw new Error('SpotProxy undefined');
+        if (!synthTokens) throw new Error('synthTokens undefined');
 
         dispatch({ type: 'prompting' });
 
-        const transcations: (Promise<PopulatedTransaction> | undefined)[] = [];
+        const transactions: (Promise<PopulatedTransaction> | undefined)[] = [];
 
         rewards.forEach(
           ({
@@ -62,7 +64,7 @@ export function useClaimAllRewards(
             amount,
             payoutTokenAddress,
           }) => {
-            transcations.push(
+            transactions.push(
               CoreProxy.populateTransaction.claimRewards(
                 BigNumber.from(accountId),
                 BigNumber.from(poolId),
@@ -71,22 +73,21 @@ export function useClaimAllRewards(
               )
             );
 
-            const synthToken = synthTokens?.find(
+            const synthToken = synthTokens.find(
               (synth) => synth.address.toUpperCase() === payoutTokenAddress?.toUpperCase()
             );
-
-            if (synthToken) {
-              transcations.push(
-                SpotProxy?.populateTransaction.unwrap(
+            if (synthToken && amount && amount.gt(0)) {
+              transactions.push(
+                SpotProxy.populateTransaction.unwrap(
                   synthToken.synthMarketId,
-                  amount?.toBN(),
-                  amount?.toBN().sub(amount?.toBN().div(100))
+                  amount.toBN(),
+                  amount.toBN().sub(amount?.toBN().div(100))
                 )
               );
             }
           }
         );
-        const callsPromise = Promise.all(transcations.filter(notNil));
+        const callsPromise = Promise.all(transactions.filter(notNil));
         const walletAddress = await signer.getAddress();
 
         const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
