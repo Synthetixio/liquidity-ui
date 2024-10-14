@@ -15,6 +15,12 @@ import { fetchOraclePrice } from '@snx-v3/useOraclePrice';
 
 const priceService = new EvmPriceServiceConnection(offchainMainnetEndpoint);
 
+export async function fetchPythPrice(pythFeedId: string) {
+  const priceFeeds = await priceService.getLatestPriceFeeds([pythFeedId]);
+  const price = priceFeeds?.[0].getPriceUnchecked();
+  return price ? wei(price.price, 18 + price.expo) : wei(0);
+}
+
 export async function fetchCollateralPrice({
   collateralType,
   network,
@@ -26,15 +32,13 @@ export async function fetchCollateralPrice({
 }) {
   // Constant price
   if (collateralType.oracle.constPrice) {
-    return collateralType?.oracle.constPrice;
+    return collateralType.oracle.constPrice;
   }
 
   // Pyth oracle
   if (collateralType.oracle.pythFeedId) {
     // TODO: We can optimise this by pre-fetching all prices for all the feeds and cache for a while
-    const priceFeeds = await priceService.getLatestPriceFeeds([collateralType.oracle.pythFeedId]);
-    const price = priceFeeds?.[0].getPriceUnchecked();
-    return price ? wei(price.price, 18 + price.expo) : wei(0);
+    return fetchPythPrice(collateralType.oracle.pythFeedId);
   }
 
   if (collateralType.oracle.externalContract) {
@@ -44,6 +48,14 @@ export async function fetchCollateralPrice({
       targetNetwork: network,
     });
     return oraclePrice.price;
+  }
+
+  // Special case for SNX
+  // TODO: SNX uses Chainlink oracle price, we should refactor price fetcher to resolve it from Chainlink instead
+  // At this moment existing implementation relies on Pyth price, so there is no change in functionality
+  if (collateralType.symbol === 'SNX' && collateralType.name === 'Synthetix Network Token') {
+    const SNX_PYTH_FEED = '0x39d020f60982ed892abbcd4a06a276a9f9b7bfbce003204c110b6e488f502da3';
+    return fetchPythPrice(SNX_PYTH_FEED);
   }
 
   // fallback to 0 price, realistically this fallback should never happen,
@@ -133,7 +145,10 @@ export function useCombinedTokenBalance(collateralType?: CollateralType, customN
         collateralType.address.toLowerCase() === `${SNXContract.address}`.toLowerCase()
       ) {
         const [transferableSynthetix, price] = await Promise.all([
-          SNXContract.transferableSynthetix(walletAddress),
+          SNXContract.transferableSynthetix(walletAddress).catch((e: Error) => {
+            console.error(e);
+            return wei(0);
+          }), // if account has no SNX
           fetchCollateralPrice({ network, provider, collateralType }),
         ]);
         const combinedBalance = wei(0).add(transferableSynthetix);
