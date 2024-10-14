@@ -8,7 +8,7 @@ import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import Wei from '@synthetixio/wei';
 import { useMutation } from '@tanstack/react-query';
-import { BigNumber } from 'ethers';
+import { ethers } from 'ethers';
 import { useReducer } from 'react';
 
 export const useBorrow = ({
@@ -54,9 +54,10 @@ export const useBorrow = ({
       try {
         dispatch({ type: 'prompting' });
 
-        const populatedTxnPromised = CoreProxy.populateTransaction.mintUsd(
-          BigNumber.from(accountId),
-          BigNumber.from(poolId),
+        const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
+        const populatedTxnPromised = CoreProxyContract.populateTransaction.mintUsd(
+          ethers.BigNumber.from(accountId),
+          ethers.BigNumber.from(poolId),
           collateralTypeAddress,
           debtChange.abs().toBN()
         );

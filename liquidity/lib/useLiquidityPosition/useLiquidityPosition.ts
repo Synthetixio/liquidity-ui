@@ -1,4 +1,4 @@
-import { stringToHash } from '@snx-v3/tsHelpers';
+import { stringToHash, contractsHash } from '@snx-v3/tsHelpers';
 import { AccountCollateralType, loadAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { loadPrices } from '@snx-v3/useCollateralPrices';
@@ -14,7 +14,7 @@ import { ethers } from 'ethers';
 import { z } from 'zod';
 
 const PositionCollateralSchema = z.object({
-  value: ZodBigNumber.transform((x) => wei(x)).optional(), // This is currently only removed on base-goreli
+  value: ZodBigNumber.transform((x) => wei(x)).optional(),
   amount: ZodBigNumber.transform((x) => wei(x)),
 });
 
@@ -81,7 +81,7 @@ export const useLiquidityPosition = ({
   const { data: systemToken } = useSystemToken();
   const { network } = useNetwork();
   const { data: priceUpdateTx } = useCollateralPriceUpdates();
-  const provider = useProviderForChain(network!);
+  const provider = useProviderForChain(network);
   const { data: collateralTypes } = useCollateralTypes(true);
 
   return useQuery({
@@ -92,14 +92,12 @@ export const useLiquidityPosition = ({
       {
         pool: poolId,
         token: tokenAddress,
-        systemToken: systemToken?.address,
       },
       {
-        contracts: stringToHash([CoreProxy?.address].join()),
+        contractsHash: contractsHash([CoreProxy, systemToken]),
         priceUpdateTx: stringToHash(priceUpdateTx?.data),
       },
     ],
-    staleTime: 60000 * 5,
     enabled: Boolean(
       CoreProxy && accountId && poolId && tokenAddress && systemToken && network && provider
     ),
@@ -109,13 +107,14 @@ export const useLiquidityPosition = ({
       ) {
         throw Error('useLiquidityPosition not ready');
       }
+      const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
       const { calls: priceCalls, decoder: priceDecoder } = await loadPrices({
         collateralAddresses: [tokenAddress],
-        CoreProxy,
+        CoreProxy: CoreProxyContract,
       });
 
       const { calls: positionCalls, decoder: positionDecoder } = await loadPosition({
-        CoreProxy,
+        CoreProxy: CoreProxyContract,
         accountId,
         poolId,
         tokenAddress,
@@ -125,6 +124,7 @@ export const useLiquidityPosition = ({
         await loadAccountCollateral({
           accountId,
           tokenAddresses: [tokenAddress, systemToken.address],
+          provider,
           CoreProxy,
         });
 

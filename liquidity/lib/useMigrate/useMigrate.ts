@@ -1,13 +1,15 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useDefaultProvider, useNetwork, useSigner } from '@snx-v3/useBlockchain';
-import { useCallback, useMemo, useState } from 'react';
-import { getGasPrice } from '@snx-v3/useGasPrice';
-import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { ZEROWEI } from '@snx-v3/constants';
-import { wei } from '@synthetixio/wei';
-import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { parseTxError } from '@snx-v3/parser';
+import { contractsHash } from '@snx-v3/tsHelpers';
+import { useDefaultProvider, useNetwork, useSigner } from '@snx-v3/useBlockchain';
+import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
+import { getGasPrice } from '@snx-v3/useGasPrice';
+import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useLegacyMarket } from '@snx-v3/useLegacyMarket';
+import { wei } from '@synthetixio/wei';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { ethers } from 'ethers';
+import { useCallback, useMemo, useState } from 'react';
 
 export function useMigrate() {
   const [isLoading, setIsLoading] = useState(false);
@@ -15,29 +17,40 @@ export function useMigrate() {
   const { network } = useNetwork();
   const provider = useDefaultProvider();
   const signer = useSigner();
-  const { data: legacyMarket } = useLegacyMarket();
+  const { data: LegacyMarket } = useLegacyMarket();
   const { gasSpeed } = useGasSpeed();
   const queryClient = useQueryClient();
 
   const accountId = useMemo(() => Math.floor(Math.random() * 1000000000000).toString(), []);
 
   const { data: transaction } = useQuery({
-    queryKey: [`${network?.id}-${network?.preset}`, 'MigrateTxn'],
+    queryKey: [
+      `${network?.id}-${network?.preset}`,
+      'MigrateTxn',
+      { contractsHash: contractsHash([LegacyMarket]) },
+    ],
+    enabled: Boolean(signer && LegacyMarket),
     queryFn: async function () {
-      if (!legacyMarket || !signer) {
-        return;
-      }
-      const signerAddress = await signer!.getAddress();
-      const populateTransaction = await legacyMarket.populateTransaction.migrate(accountId, {
-        from: signerAddress,
-      });
+      if (!(LegacyMarket && signer)) throw 'OMFG';
+
+      const LegacyMarketContract = new ethers.Contract(
+        LegacyMarket.address,
+        LegacyMarket.abi,
+        signer
+      );
+
+      const signerAddress = await signer.getAddress();
+      const populateTransaction = await LegacyMarketContract.populateTransaction.migrate(
+        accountId,
+        { from: signerAddress }
+      );
       try {
         const [gasLimit, feeData] = await Promise.all([
           await provider?.estimateGas(populateTransaction),
           await provider?.getFeeData(),
         ]);
 
-        const gasPrices = await getGasPrice({ provider: signer!.provider });
+        const gasPrices = await getGasPrice({ provider: signer.provider });
         const gasOptionsForTransaction = formatGasPriceForTransaction({
           gasLimit: wei(gasLimit || ZEROWEI).toBN(),
           gasPrices,
@@ -50,30 +63,39 @@ export function useMigrate() {
           gasPrice: feeData?.gasPrice,
         };
       } catch (error) {
-        const parsedError = parseTxError(error);
-        const errorResult = legacyMarket.interface.parseError(parsedError as string);
-        console.error('error:', errorResult);
-
+        if (LegacyMarket) {
+          try {
+            const LegacyMarketInterface = new ethers.utils.Interface(LegacyMarket.abi);
+            const parsedError = parseTxError(error);
+            const errorResult = LegacyMarketInterface.parseError(parsedError as string);
+            console.error('error:', errorResult);
+          } catch {
+            // whatever
+          }
+        }
         return null;
       }
     },
-    enabled: Boolean(signer && !!legacyMarket),
-    staleTime: 60 * 1000,
   });
 
   const migrate = useCallback(async () => {
     try {
-      if (!legacyMarket || !transaction) {
-        return;
-      }
+      if (!(LegacyMarket && signer && transaction)) throw 'OMFG';
       setIsLoading(true);
       setIsSuccess(false);
-      const gasPrices = await getGasPrice({ provider: signer!.provider });
-      const signerAddress = await signer!.getAddress();
+      const gasPrices = await getGasPrice({ provider: signer.provider });
+      const signerAddress = await signer.getAddress();
 
-      const populateTransaction = await legacyMarket.populateTransaction.migrate(accountId, {
-        from: signerAddress,
-      });
+      const LegacyMarketContract = new ethers.Contract(
+        LegacyMarket.address,
+        LegacyMarket.abi,
+        signer
+      );
+
+      const populateTransaction = await LegacyMarketContract.populateTransaction.migrate(
+        accountId,
+        { from: signerAddress }
+      );
       const gasLimit = await provider?.estimateGas(populateTransaction);
 
       const gasOptionsForTransaction = formatGasPriceForTransaction({
@@ -82,9 +104,9 @@ export function useMigrate() {
         gasSpeed,
       });
 
-      const txn = await legacyMarket
-        .connect(signer!)
-        .migrate(accountId, { ...gasOptionsForTransaction });
+      const txn = await LegacyMarketContract.migrate(accountId, {
+        ...gasOptionsForTransaction,
+      });
       await txn.wait();
 
       setIsLoading(false);
@@ -100,7 +122,7 @@ export function useMigrate() {
   }, [
     accountId,
     gasSpeed,
-    legacyMarket,
+    LegacyMarket,
     network?.id,
     network?.preset,
     provider,

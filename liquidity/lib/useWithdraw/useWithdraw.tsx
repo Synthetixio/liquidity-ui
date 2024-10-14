@@ -58,7 +58,8 @@ export const useWithdraw = ({
           ? parseUnits(amount.toString(), decimals)
           : BigNumber.from(0);
 
-        const populatedTxnPromised = CoreProxy.populateTransaction.withdraw(
+        const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
+        const populatedTxnPromised = CoreProxyContract.populateTransaction.withdraw(
           BigNumber.from(accountId),
           collateralTypeAddress,
           collateralAmount

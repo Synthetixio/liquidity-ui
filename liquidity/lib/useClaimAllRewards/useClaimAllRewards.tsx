@@ -14,8 +14,8 @@ import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import Wei from '@synthetixio/wei';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { BigNumber, PopulatedTransaction } from 'ethers';
-import { useReducer } from 'react';
+import { ethers } from 'ethers';
+import React from 'react';
 
 export function useClaimAllRewards(
   rewards: {
@@ -30,10 +30,10 @@ export function useClaimAllRewards(
   const toast = useToast({ isClosable: true, duration: 9000 });
 
   const { network } = useNetwork();
-  const { data: SpotProxy } = useSpotMarketProxy();
+  const { data: SpotMarketProxy } = useSpotMarketProxy();
   const signer = useSigner();
   const { data: CoreProxy } = useCoreProxy();
-  const [txnState, dispatch] = useReducer(reducer, initialState);
+  const [txnState, dispatch] = React.useReducer(reducer, initialState);
   const client = useQueryClient();
   const provider = useProvider();
   const { gasSpeed } = useGasSpeed();
@@ -48,12 +48,19 @@ export function useClaimAllRewards(
         if (!signer || !network || !provider) throw new Error('No signer or network');
         if (!rewards.filter(({ amount }) => amount?.gt(0)).length) return;
         if (!CoreProxy) throw new Error('CoreProxy undefined');
-        if (!SpotProxy) throw new Error('SpotProxy undefined');
+        if (!SpotMarketProxy) throw new Error('SpotMarketProxy undefined');
         if (!synthTokens) throw new Error('synthTokens undefined');
 
         dispatch({ type: 'prompting' });
 
-        const transactions: (Promise<PopulatedTransaction> | undefined)[] = [];
+        const transactions: (Promise<ethers.PopulatedTransaction> | undefined)[] = [];
+
+        const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
+        const SpotMarketProxyContract = new ethers.Contract(
+          SpotMarketProxy.address,
+          SpotMarketProxy.abi,
+          signer
+        );
 
         rewards.forEach(
           ({
@@ -65,9 +72,9 @@ export function useClaimAllRewards(
             payoutTokenAddress,
           }) => {
             transactions.push(
-              CoreProxy.populateTransaction.claimRewards(
-                BigNumber.from(accountId),
-                BigNumber.from(poolId),
+              CoreProxyContract.populateTransaction.claimRewards(
+                ethers.BigNumber.from(accountId),
+                ethers.BigNumber.from(poolId),
                 collateralAddress,
                 distributorAddress
               )
@@ -78,7 +85,7 @@ export function useClaimAllRewards(
             );
             if (synthToken && amount && amount.gt(0)) {
               transactions.push(
-                SpotProxy.populateTransaction.unwrap(
+                SpotMarketProxyContract.populateTransaction.unwrap(
                   synthToken.synthMarketId,
                   amount.toBN(),
                   amount.toBN().mul(98).div(100).toNumber().toFixed()
@@ -110,11 +117,11 @@ export function useClaimAllRewards(
 
         const res = await tx.wait();
 
-        let claimedAmount: BigNumber | undefined;
+        let claimedAmount: ethers.BigNumber | undefined;
 
         res.logs.forEach((log: any) => {
-          if (log.topics[0] === CoreProxy.interface.getEventTopic('RewardsClaimed')) {
-            const { amount } = CoreProxy.interface.decodeEventLog(
+          if (log.topics[0] === CoreProxyContract.interface.getEventTopic('RewardsClaimed')) {
+            const { amount } = CoreProxyContract.interface.decodeEventLog(
               'RewardsClaimed',
               log.data,
               log.topics
