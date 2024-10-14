@@ -1,20 +1,21 @@
-import { Contract } from '@ethersproject/contracts';
 import { importAccountProxy } from '@snx-v3/contracts';
-import { useDefaultProvider, useNetwork } from '@snx-v3/useBlockchain';
+import { Network, useNetwork } from '@snx-v3/useBlockchain';
 import { useQuery } from '@tanstack/react-query';
 
-export function useAccountProxy() {
+export function useAccountProxy(customNetwork?: Network) {
   const { network } = useNetwork();
-  const provider = useDefaultProvider();
+  const targetNetwork = customNetwork || network;
 
   return useQuery({
-    queryKey: [`${network?.id}-${network?.preset}`, 'AccountProxy'],
-    enabled: Boolean(provider && network),
+    queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'AccountProxy'],
+    enabled: Boolean(targetNetwork),
     queryFn: async function () {
-      if (!(provider && network)) throw new Error('OMFG');
-      const { address, abi } = await importAccountProxy(network.id, network?.preset);
-      return new Contract(address, abi, provider);
+      if (!targetNetwork) throw new Error('OMFG');
+
+      return importAccountProxy(targetNetwork.id, targetNetwork.preset);
     },
     staleTime: Infinity,
+    // On some chains this is not available, and that is expected
+    throwOnError: false,
   });
 }

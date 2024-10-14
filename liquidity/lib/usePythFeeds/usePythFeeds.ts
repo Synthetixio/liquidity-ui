@@ -10,11 +10,12 @@ export function usePythFeeds(customNetwork?: Network) {
     queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'PythFeeds'],
     enabled: Boolean(targetNetwork),
     queryFn: async function () {
-      if (!targetNetwork) {
-        throw new Error('OMFG');
-      }
-      return await importPythFeeds(targetNetwork.id, targetNetwork.preset);
+      if (!targetNetwork) throw new Error('OMFG');
+
+      return importPythFeeds(targetNetwork.id, targetNetwork.preset);
     },
     staleTime: Infinity,
+    // On some chains this is not available, and that is expected
+    throwOnError: false,
   });
 }
