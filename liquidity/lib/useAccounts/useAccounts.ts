@@ -4,25 +4,37 @@ import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useMulticall3 } from '@snx-v3/useMulticall3';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BigNumber } from 'ethers';
+import { useProvider, useSigner } from '@snx-v3/useBlockchain';
+import { contractsHash } from '@snx-v3/tsHelpers';
+import { ethers } from 'ethers';
 
 export function useAccounts() {
   const { activeWallet } = useWallet();
-  const { data: AccountProxy } = useAccountProxy();
   const { network } = useNetwork();
+  const provider = useProvider();
+  const { data: AccountProxy } = useAccountProxy();
   const { data: Multicall3 } = useMulticall3();
+  const walletAddress = activeWallet?.address;
 
   return useQuery({
     queryKey: [
       `${network?.id}-${network?.preset}`,
       'Accounts',
-      { accountAddress: activeWallet?.address, AccountProxy: AccountProxy?.address },
+      { walletAddress },
+      { contractsHash: contractsHash([AccountProxy, Multicall3]) },
     ],
-    enabled: Boolean(AccountProxy && activeWallet?.address && Multicall3),
+    enabled: Boolean(provider && walletAddress && AccountProxy && Multicall3),
     queryFn: async function () {
-      if (!(AccountProxy && activeWallet?.address && Multicall3))
-        throw new Error('Should be disabled');
+      if (!(provider && walletAddress && AccountProxy && Multicall3)) throw 'OMFG';
 
-      const numberOfAccountTokens = await AccountProxy.balanceOf(activeWallet.address);
+      const AccountProxyContract = new ethers.Contract(
+        AccountProxy.address,
+        AccountProxy.abi,
+        provider
+      );
+      const Multicall3Contract = new ethers.Contract(Multicall3.address, Multicall3.abi, provider);
+
+      const numberOfAccountTokens = await AccountProxyContract.balanceOf(activeWallet.address);
 
       if (numberOfAccountTokens.eq(0)) {
         // No accounts created yet
@@ -32,15 +44,16 @@ export function useAccounts() {
 
       const calls = accountIndexes.map((index) => ({
         target: AccountProxy.address,
-        callData: AccountProxy.interface.encodeFunctionData('tokenOfOwnerByIndex', [
+        callData: AccountProxyContract.interface.encodeFunctionData('tokenOfOwnerByIndex', [
           activeWallet.address,
           index,
         ]),
       }));
-      const { returnData } = await Multicall3.callStatic.aggregate(calls);
+      const { returnData } = await Multicall3Contract.callStatic.aggregate(calls);
 
       const accounts = (returnData as string[]).map(
-        (data) => AccountProxy.interface.decodeFunctionResult('tokenOfOwnerByIndex', data)[0]
+        (data) =>
+          AccountProxyContract.interface.decodeFunctionResult('tokenOfOwnerByIndex', data)[0]
       ) as BigNumber[];
 
       return accounts.map((accountId) => accountId.toString());
@@ -51,6 +64,7 @@ export function useAccounts() {
 
 export function useCreateAccount() {
   const { data: CoreProxy } = useCoreProxy();
+  const signer = useSigner();
   const { network } = useNetwork();
   const client = useQueryClient();
   return {
@@ -58,10 +72,10 @@ export function useCreateAccount() {
     mutation: useMutation({
       mutationFn: async function () {
         try {
-          if (!CoreProxy) {
-            throw new Error('OMG');
-          }
-          const tx = await CoreProxy['createAccount()']();
+          if (!(CoreProxy && signer)) throw 'OMFG';
+
+          const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
+          const tx = await CoreProxyContract['createAccount()']();
           const res = await tx.wait();
 
           await client.invalidateQueries({
@@ -71,8 +85,8 @@ export function useCreateAccount() {
           let newAccountId: string | undefined;
 
           res.logs.forEach((log: any) => {
-            if (log.topics[0] === CoreProxy.interface.getEventTopic('AccountCreated')) {
-              const accountId = CoreProxy.interface.decodeEventLog(
+            if (log.topics[0] === CoreProxyContract.interface.getEventTopic('AccountCreated')) {
+              const accountId = CoreProxyContract.interface.decodeEventLog(
                 'AccountCreated',
                 log.data,
                 log.topics

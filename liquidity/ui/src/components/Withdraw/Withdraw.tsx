@@ -4,7 +4,7 @@ import { BorderBox } from '@snx-v3/BorderBox';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
-import { useAccountSpecificCollateral } from '@snx-v3/useAccountCollateral';
+import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useAccountCollateralUnlockDate } from '@snx-v3/useAccountCollateralUnlockDate';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
@@ -32,10 +32,7 @@ export const Withdraw = ({
   const isBase = isBaseAndromeda(network?.id, network?.preset);
 
   const { data: systemToken } = useSystemToken();
-  const { data: systemTokenBalance } = useAccountSpecificCollateral(
-    accountId,
-    systemToken?.address
-  );
+  const { data: systemTokenBalance } = useAccountCollateral(accountId, systemToken?.address);
 
   const maxWithdrawable = useMemo(() => {
     if (isBase) {

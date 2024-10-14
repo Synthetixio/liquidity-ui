@@ -15,7 +15,7 @@ import { useUSDProxy } from '@snx-v3/useUSDProxy';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import { Wei } from '@synthetixio/wei';
 import { useMutation } from '@tanstack/react-query';
-import { BigNumber, constants, utils } from 'ethers';
+import { ethers } from 'ethers';
 import { useReducer } from 'react';
 
 export const useWithdrawBaseAndromeda = ({
@@ -36,7 +36,7 @@ export const useWithdrawBaseAndromeda = ({
   const [txnState, dispatch] = useReducer(reducer, initialState);
   const { data: CoreProxy } = useCoreProxy();
   const { data: SpotProxy } = useSpotMarketProxy();
-  const { data: UsdProxy } = useUSDProxy();
+  const { data: USDProxy } = useUSDProxy();
   const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
   const { network } = useNetwork();
   const { data: usdTokens } = useGetUSDTokens();
@@ -48,7 +48,9 @@ export const useWithdrawBaseAndromeda = ({
   const mutation = useMutation({
     mutationFn: async () => {
       if (!signer || !network || !provider) throw new Error('No signer or network');
-      if (!(CoreProxy && SpotProxy && accountId && usdTokens?.sUSD && usdTokens.snxUSD)) {
+      if (
+        !(CoreProxy && SpotProxy && USDProxy && accountId && usdTokens?.sUSD && usdTokens.snxUSD)
+      ) {
         throw new Error('Not ready');
       }
 
@@ -73,45 +75,57 @@ export const useWithdrawBaseAndromeda = ({
 
         const gasPricesPromised = getGasPrice({ provider });
 
+        const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
+        const USDProxyContract = new ethers.Contract(USDProxy.address, USDProxy.abi, signer);
+        const SpotProxyContract = new ethers.Contract(SpotProxy.address, SpotProxy.abi, signer);
+
         const withdraw_collateral = wrappedCollateralAmount.gt(0)
-          ? CoreProxy.populateTransaction.withdraw(
-              BigNumber.from(accountId),
+          ? CoreProxyContract.populateTransaction.withdraw(
+              ethers.BigNumber.from(accountId),
               accountCollateral?.tokenAddress,
               wrappedCollateralAmount.toBN()
             )
           : undefined;
 
         const withdraw_snxUSD = snxUSDAmount.gt(0)
-          ? CoreProxy.populateTransaction.withdraw(
-              BigNumber.from(accountId),
+          ? CoreProxyContract.populateTransaction.withdraw(
+              ethers.BigNumber.from(accountId),
               usdTokens?.snxUSD,
               snxUSDAmount.toBN()
             )
           : undefined;
+
         const snxUSDApproval = snxUSDAmount.gt(0)
-          ? UsdProxy?.populateTransaction.approve(SpotProxy.address, snxUSDAmount.toBN())
+          ? USDProxyContract.populateTransaction.approve(SpotProxy.address, snxUSDAmount.toBN())
           : undefined;
         const buy_wrappedCollateral = snxUSDAmount.gt(0)
-          ? SpotProxy.populateTransaction.buy(
+          ? SpotProxyContract.populateTransaction.buy(
               spotMarketId,
               snxUSDAmount.toBN(),
               0,
-              constants.AddressZero
+              ethers.constants.AddressZero
             )
           : undefined;
 
         const synthAmount = snxUSDAmount.gt(0)
-          ? (await SpotProxy.callStatic.quoteBuyExactIn(spotMarketId, snxUSDAmount.toBN(), 0))
-              .synthAmount
+          ? (
+              await SpotProxyContract.callStatic.quoteBuyExactIn(
+                spotMarketId,
+                snxUSDAmount.toBN(),
+                0
+              )
+            ).synthAmount
           : ZEROWEI;
         const withdrawAmount = availableCollateral.add(synthAmount);
 
-        const unwrapTxnPromised = SpotProxy.populateTransaction.unwrap(
+        const unwrapTxnPromised = SpotProxyContract.populateTransaction.unwrap(
           spotMarketId,
           withdrawAmount.toBN(),
           // 2% slippage
           Number(
-            utils.formatUnits(withdrawAmount.toBN().mul(98).div(100).toString(), 12).toString()
+            ethers.utils
+              .formatUnits(withdrawAmount.toBN().mul(98).div(100).toString(), 12)
+              .toString()
           ).toFixed()
         );
 

@@ -4,14 +4,13 @@ import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
-
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import Wei, { wei } from '@synthetixio/wei';
 import { useMutation } from '@tanstack/react-query';
-import { BigNumber } from 'ethers';
+import { ethers } from 'ethers';
 import { useReducer } from 'react';
 
 export const useDeposit = ({
@@ -67,29 +66,32 @@ export const useDeposit = ({
         const walletAddress = await signer.getAddress();
         const id = accountId ?? newAccountId;
 
+        const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
         // create account only when no account exists
         const createAccount = accountId
           ? undefined
-          : CoreProxy.populateTransaction['createAccount(uint128)'](BigNumber.from(id));
+          : CoreProxyContract.populateTransaction['createAccount(uint128)'](
+              ethers.BigNumber.from(id)
+            );
 
         const amount = collateralChange.sub(availableCollateral);
 
         const collateralAmount = amount.gt(0)
           ? parseUnits(amount.toString(), decimals)
-          : BigNumber.from(0);
+          : ethers.BigNumber.from(0);
 
         // optionally deposit if available collateral not enough
         const deposit = collateralAmount.gt(0)
-          ? CoreProxy.populateTransaction.deposit(
-              BigNumber.from(id),
+          ? CoreProxyContract.populateTransaction.deposit(
+              ethers.BigNumber.from(id),
               collateralTypeAddress,
               collateralAmount // only deposit what's needed
             )
           : undefined;
 
-        const delegate = CoreProxy.populateTransaction.delegateCollateral(
-          BigNumber.from(id),
-          BigNumber.from(poolId),
+        const delegate = CoreProxyContract.populateTransaction.delegateCollateral(
+          ethers.BigNumber.from(id),
+          ethers.BigNumber.from(poolId),
           collateralTypeAddress,
           currentCollateral.add(collateralChange).toBN(),
           wei(1).toBN()

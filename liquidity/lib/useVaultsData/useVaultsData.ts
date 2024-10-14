@@ -6,6 +6,7 @@ import { erc7412Call } from '@snx-v3/withERC7412';
 import { ZodBigNumber } from '@snx-v3/zod';
 import { wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
+import { ethers } from 'ethers';
 import { z } from 'zod';
 
 const VaultCollateralSchema = z
@@ -37,15 +38,19 @@ export const useVaultsData = (poolId?: number, customNetwork?: Network) => {
         throw Error('useVaultsData should not be enabled when missing data');
       }
 
+      const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
       const collateralCallsP = Promise.all(
         collateralTypes.map((collateralType) =>
-          CoreProxy.populateTransaction.getVaultCollateral(poolId, collateralType.tokenAddress)
+          CoreProxyContract.populateTransaction.getVaultCollateral(
+            poolId,
+            collateralType.tokenAddress
+          )
         )
       );
 
       const debtCallsP = Promise.all(
         collateralTypes.map((collateralType) =>
-          CoreProxy.populateTransaction.getVaultDebt(poolId, collateralType.tokenAddress)
+          CoreProxyContract.populateTransaction.getVaultDebt(poolId, collateralType.tokenAddress)
         )
       );
 
@@ -73,9 +78,10 @@ export const useVaultsData = (poolId?: number, customNetwork?: Network) => {
             const debtBytes =
               debtResult[i] || '0x0000000000000000000000000000000000000000000000000000000000000000';
 
-            const decodedDebt = CoreProxy.interface.decodeFunctionResult('getVaultDebt', debtBytes);
+            const CoreProxyInterface = new ethers.utils.Interface(CoreProxy.abi);
 
-            const decodedCollateral = CoreProxy.interface.decodeFunctionResult(
+            const decodedDebt = CoreProxyInterface.decodeFunctionResult('getVaultDebt', debtBytes);
+            const decodedCollateral = CoreProxyInterface.decodeFunctionResult(
               'getVaultCollateral',
               bytes
             );

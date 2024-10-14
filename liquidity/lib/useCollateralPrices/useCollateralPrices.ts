@@ -1,4 +1,5 @@
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { stringToHash, contractsHash } from '@snx-v3/tsHelpers';
 import {
   Network,
   useDefaultProvider,
@@ -77,9 +78,8 @@ export const useCollateralPrices = (customNetwork?: Network) => {
       `${targetNetwork?.id}-${targetNetwork?.preset}`,
       'CollateralPrices',
       {
-        collateralAddresses: collateralAddresses?.filter(
-          (item, pos) => collateralAddresses.indexOf(item) === pos
-        ),
+        collaterals: stringToHash(collateralAddresses?.sort().join()),
+        contractsHash: contractsHash([CoreProxy]),
       },
     ],
     queryFn: async () => {
@@ -93,7 +93,11 @@ export const useCollateralPrices = (customNetwork?: Network) => {
         throw 'useCollateralPrices missing required data';
       }
 
-      const { calls, decoder } = await loadPrices({ CoreProxy, collateralAddresses });
+      const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
+      const { calls, decoder } = await loadPrices({
+        CoreProxy: CoreProxyContract,
+        collateralAddresses,
+      });
 
       const allCalls = [...calls];
 

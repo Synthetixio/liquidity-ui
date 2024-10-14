@@ -15,7 +15,7 @@ import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import Wei, { wei } from '@synthetixio/wei';
 import { useMutation } from '@tanstack/react-query';
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { useReducer } from 'react';
 
 export const useDepositBaseAndromeda = ({
@@ -80,23 +80,38 @@ export const useDepositBaseAndromeda = ({
         dispatch({ type: 'prompting' });
         const id = accountId ?? newAccountId;
 
+        const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
+        const SpotMarketProxyContract = new ethers.Contract(
+          SpotMarketProxy.address,
+          SpotMarketProxy.abi,
+          signer
+        );
+
         // create account only when no account exists
         const createAccount = accountId
           ? undefined
-          : CoreProxy.populateTransaction['createAccount(uint128)'](BigNumber.from(id));
+          : CoreProxyContract.populateTransaction['createAccount(uint128)'](
+              ethers.BigNumber.from(id)
+            );
 
         const amount = collateralChange.sub(availableCollateral);
 
         const collateralAmount = amount.gt(0)
           ? parseUnits(amount.toString(), 6)
-          : BigNumber.from(0);
+          : ethers.BigNumber.from(0);
 
         const spotMarketId = getSpotMarketId(collateralSymbol);
-        const amountD18 = amount.gt(0) ? parseUnits(amount.toString(), 18) : BigNumber.from(0);
+        const amountD18 = amount.gt(0)
+          ? parseUnits(amount.toString(), 18)
+          : ethers.BigNumber.from(0);
 
         // Wrap
         const wrap = collateralAmount.gt(0)
-          ? SpotMarketProxy.populateTransaction.wrap(spotMarketId, collateralAmount, amountD18)
+          ? SpotMarketProxyContract.populateTransaction.wrap(
+              spotMarketId,
+              collateralAmount,
+              amountD18
+            )
           : undefined;
 
         // Synth
@@ -104,24 +119,24 @@ export const useDepositBaseAndromeda = ({
         if (!synthAddress) {
           throw 'synth not found';
         }
-        const synthContract = new ethers.Contract(synthAddress, approveAbi, signer);
+        const SynthContract = new ethers.Contract(synthAddress, approveAbi, signer);
 
         const synthApproval = amountD18.gt(0)
-          ? synthContract.populateTransaction.approve(CoreProxy.address, amountD18)
+          ? SynthContract.populateTransaction.approve(CoreProxy.address, amountD18)
           : undefined;
 
         // optionally deposit if available collateral not enough
         const deposit = amountD18.gt(0)
-          ? CoreProxy.populateTransaction.deposit(
-              BigNumber.from(id),
+          ? CoreProxyContract.populateTransaction.deposit(
+              ethers.BigNumber.from(id),
               synthAddress,
               amountD18 // only deposit what's needed
             )
           : undefined;
 
-        const delegate = CoreProxy.populateTransaction.delegateCollateral(
-          BigNumber.from(id),
-          BigNumber.from(poolId),
+        const delegate = CoreProxyContract.populateTransaction.delegateCollateral(
+          ethers.BigNumber.from(id),
+          ethers.BigNumber.from(poolId),
           synthAddress,
           currentCollateral.toBN().add(parseUnits(collateralChange.toString(), 18)).toString(),
           wei(1).toBN()
