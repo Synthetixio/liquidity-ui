@@ -5364,6 +5364,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/useAllErrors@workspace:liquidity/lib/useAllErrors":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useAllErrors@workspace:liquidity/lib/useAllErrors"
+  dependencies:
+    "@ethersproject/contracts": "npm:^5.7.0"
+    "@snx-v3/contracts": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/useAllowance@workspace:*, @snx-v3/useAllowance@workspace:liquidity/lib/useAllowance":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useAllowance@workspace:liquidity/lib/useAllowance"
