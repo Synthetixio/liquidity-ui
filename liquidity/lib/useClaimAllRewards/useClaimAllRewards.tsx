@@ -1,20 +1,21 @@
-import { useReducer } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { BigNumber, PopulatedTransaction } from 'ethers';
-import { useCoreProxy } from '@snx-v3/useCoreProxy';
+import { useToast } from '@chakra-ui/react';
+import { ContractError } from '@snx-v3/ContractError';
+import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
-
-import { useToast } from '@chakra-ui/react';
-import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
-import { getGasPrice } from '@snx-v3/useGasPrice';
-import { withERC7412 } from '@snx-v3/withERC7412';
-import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
-import { useGasSpeed } from '@snx-v3/useGasSpeed';
-import { notNil } from '@snx-v3/tsHelpers';
-import Wei from '@synthetixio/wei';
-import { useSynthTokens } from '../useSynthTokens';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
+import { useCoreProxy } from '@snx-v3/useCoreProxy';
+import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
+import { getGasPrice } from '@snx-v3/useGasPrice';
+import { useGasSpeed } from '@snx-v3/useGasSpeed';
+import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
+import { useSynthTokens } from '@snx-v3/useSynthTokens';
+import { withERC7412 } from '@snx-v3/withERC7412';
+import Wei from '@synthetixio/wei';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { BigNumber, PopulatedTransaction } from 'ethers';
+import { useReducer } from 'react';
 
 export function useClaimAllRewards(
   rewards: {
@@ -38,6 +39,8 @@ export function useClaimAllRewards(
   const { gasSpeed } = useGasSpeed();
   const { data: synthTokens } = useSynthTokens();
   const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
+
+  const errorParser = useContractErrorParser();
 
   const mutation = useMutation({
     mutationFn: async function () {
@@ -134,12 +137,21 @@ export function useClaimAllRewards(
 
         return claimedAmount;
       } catch (error: any) {
+        const contractError = errorParser(error);
+        if (contractError) {
+          console.error(new Error(contractError.name), contractError);
+        }
+
         dispatch({ type: 'error', payload: { error } });
 
         toast.closeAll();
         toast({
           title: 'Claiming failed',
-          description: 'Please try again.',
+          description: contractError ? (
+            <ContractError contractError={contractError} />
+          ) : (
+            'Please try again.'
+          ),
           status: 'error',
           variant: 'left-accent',
         });
