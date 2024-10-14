@@ -1,4 +1,3 @@
-export * from './Assets';
 export * from './CollateralAlert';
 export * from './Rewards';
 export * from './SynthSkeleton';
