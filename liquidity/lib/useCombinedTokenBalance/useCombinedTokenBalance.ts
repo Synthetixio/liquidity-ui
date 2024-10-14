@@ -1,4 +1,4 @@
-import { stringToHash } from '@snx-v3/tsHelpers';
+import { contractsHash } from '@snx-v3/tsHelpers';
 import { Network, useNetwork, useProviderForChain, useWallet } from '@snx-v3/useBlockchain';
 import { CollateralType } from '@snx-v3/useCollateralTypes';
 import { useSNX } from '@snx-v3/useSNX';
@@ -69,10 +69,10 @@ export function useCombinedTokenBalance(collateralType?: CollateralType, customN
   const network = customNetwork || activeNetwork;
   const provider = useProviderForChain(network);
 
-  const { data: WETHContract, isPending: isPendingWETH } = useWETH(network);
-  const { data: SNXContract, isPending: isPendingSNX } = useSNX(network);
-  const { data: AaveUSDCContract, isPending: isPendingAaveUSDC } = useStaticAaveUSDC(network);
-  const { data: USDCContract, isPending: isPendingUSDC } = useUSDC(network);
+  const { data: WETH, isPending: isPendingWETH } = useWETH(network);
+  const { data: SNX, isPending: isPendingSNX } = useSNX(network);
+  const { data: AaveUSDC, isPending: isPendingAaveUSDC } = useStaticAaveUSDC(network);
+  const { data: USDC, isPending: isPendingUSDC } = useUSDC(network);
   const { data: SynthTokens, isPending: isPendingSynthTokens } = useSynthTokens(network);
 
   // We dont want to over-fetch and we should only enable query when all the underlying contracts are resolved
@@ -81,21 +81,15 @@ export function useCombinedTokenBalance(collateralType?: CollateralType, customN
 
   const walletAddress = activeWallet?.address;
 
-  const contractsHash = stringToHash(
-    [WETHContract, SNXContract, AaveUSDCContract, USDCContract, ...(SynthTokens ?? [])]
-      .map((t) => t?.address)
-      .filter(Boolean)
-      .sort()
-      .join()
-  );
-
   return useQuery({
     queryKey: [
       `${network?.id}-${network?.preset}`,
       'CombinedTokenBalance',
       { walletAddress },
       { tokenAddress: collateralType?.address ?? '' },
-      { contractsHash },
+      {
+        contractsHash: contractsHash([WETH, SNX, AaveUSDC, USDC, ...(SynthTokens ?? [])]),
+      },
     ],
     enabled: Boolean(network && provider && walletAddress && collateralType && !isPending),
     queryFn: async function () {
@@ -104,9 +98,10 @@ export function useCombinedTokenBalance(collateralType?: CollateralType, customN
       if (
         // When dealing with WETH collateral we also add ETH balance
         // and later automatically wrap extra ETH
-        WETHContract &&
-        collateralType.address.toLowerCase() === `${WETHContract.address}`.toLowerCase()
+        WETH &&
+        collateralType.address.toLowerCase() === `${WETH.address}`.toLowerCase()
       ) {
+        const WETHContract = new ethers.Contract(WETH.address, WETH.abi, provider);
         const [balance, decimals, ethBalance, price] = await Promise.all([
           WETHContract.balanceOf(walletAddress),
           WETHContract.decimals(),
@@ -141,9 +136,10 @@ export function useCombinedTokenBalance(collateralType?: CollateralType, customN
       if (
         // When working with SNX token we should show only transferable amount,
         // as balanceOf includes locked and unusable SNX too
-        SNXContract &&
-        collateralType.address.toLowerCase() === `${SNXContract.address}`.toLowerCase()
+        SNX &&
+        collateralType.address.toLowerCase() === `${SNX.address}`.toLowerCase()
       ) {
+        const SNXContract = new ethers.Contract(SNX.address, SNX.abi, provider);
         const [transferableSynthetix, price] = await Promise.all([
           SNXContract.transferableSynthetix(walletAddress).catch((e: Error) => {
             console.error(e);
@@ -169,14 +165,16 @@ export function useCombinedTokenBalance(collateralType?: CollateralType, customN
 
       if (
         // Special case of extra swapping of USDC -> Static aUSDC -> Synth Static aUSDC
-        AaveUSDCContract &&
+        AaveUSDC &&
         SynthTokens &&
-        USDCContract
+        USDC
       ) {
+        const AaveUSDCContract = new ethers.Contract(AaveUSDC.address, AaveUSDC.abi, provider);
+        const USDCContract = new ethers.Contract(USDC.address, USDC.abi, provider);
+
         const synthTokenAaveUSDC = SynthTokens.find(
           (synth) =>
-            `${AaveUSDCContract.address}`.toLowerCase() ===
-              `${synth.token.address}`.toLowerCase() &&
+            `${AaveUSDC.address}`.toLowerCase() === `${synth.token.address}`.toLowerCase() &&
             collateralType.address.toLowerCase() === `${synth.address}`.toLowerCase()
         );
         if (synthTokenAaveUSDC) {
@@ -219,7 +217,7 @@ export function useCombinedTokenBalance(collateralType?: CollateralType, customN
               price: priceAaveUSDC,
             },
             swap: {
-              address: USDCContract.address,
+              address: USDC.address,
               symbol: 'USDC',
               displayName: 'USDC',
               decimals: 6,
