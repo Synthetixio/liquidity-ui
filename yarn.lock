@@ -4698,7 +4698,6 @@ __metadata:
     "@snx-v3/useBorrow": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useContractErrorParser": "workspace:*"
-    "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
     "@snx-v3/useSystemToken": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
@@ -4724,7 +4723,6 @@ __metadata:
     "@snx-v3/useBorrow": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useContractErrorParser": "workspace:*"
-    "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useLiquidityPosition": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
     "@snx-v3/useSystemToken": "workspace:*"
@@ -4950,7 +4948,6 @@ __metadata:
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useContractErrorParser": "workspace:*"
-    "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useLiquidityPosition": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
     "@snx-v3/useUndelegate": "workspace:*"
@@ -4988,7 +4985,6 @@ __metadata:
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useContractErrorParser": "workspace:*"
-    "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useLiquidityPosition": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
     "@snx-v3/useSystemToken": "workspace:*"
@@ -5364,11 +5360,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/useAllErrors@workspace:liquidity/lib/useAllErrors":
+"@snx-v3/useAllErrors@workspace:*, @snx-v3/useAllErrors@workspace:liquidity/lib/useAllErrors":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useAllErrors@workspace:liquidity/lib/useAllErrors"
   dependencies:
-    "@ethersproject/contracts": "npm:^5.7.0"
     "@snx-v3/contracts": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -5474,15 +5469,18 @@ __metadata:
   resolution: "@snx-v3/useClaimAllRewards@workspace:liquidity/lib/useClaimAllRewards"
   dependencies:
     "@chakra-ui/react": "npm:^2.8.2"
+    "@snx-v3/ContractError": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
+    "@snx-v3/useContractErrorParser": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useGasOptions": "workspace:*"
     "@snx-v3/useGasPrice": "workspace:*"
     "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/useSpotMarketProxy": "workspace:*"
+    "@snx-v3/useSynthTokens": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -5570,6 +5568,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useContractErrorParser@workspace:liquidity/lib/useContractErrorParser"
   dependencies:
+    "@snx-v3/useAllErrors": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
