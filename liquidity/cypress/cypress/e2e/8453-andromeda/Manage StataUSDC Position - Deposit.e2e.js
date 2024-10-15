@@ -31,6 +31,7 @@ it('should deposit additional USDC collateral', () => {
   cy.get('[data-cy="deposit confirm button"]')
     .should('include.text', 'Execute Transaction')
     .click();
+  cy.wait(10000);
 
   cy.get('[data-cy="manage stats collateral"]')
     .should('exist')
