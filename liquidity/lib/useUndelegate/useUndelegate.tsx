@@ -54,7 +54,7 @@ export const useUndelegate = ({
         const callsPromise = Promise.all([populatedTxnPromised]);
         const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
         if (priceUpdateTx) {
-          calls.push(priceUpdateTx as any);
+          calls.unshift(priceUpdateTx as any);
         }
 
         const erc7412Tx = await withERC7412(network, calls, 'useUndelegate', walletAddress);

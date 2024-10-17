@@ -1,6 +1,5 @@
-import { stringToHash } from '@snx-v3/tsHelpers';
 import { Network, useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
-import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { getPriceUpdates, getPythFeedIds } from '@snx-v3/useCollateralPriceUpdates';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { erc7412Call } from '@snx-v3/withERC7412';
@@ -23,8 +22,6 @@ export const useVaultsData = (poolId?: number, customNetwork?: Network) => {
 
   const provider = useProviderForChain(targetNetwork);
 
-  const { data: priceUpdateTx } = useCollateralPriceUpdates(customNetwork);
-
   return useQuery({
     queryKey: [
       `${targetNetwork?.id}-${targetNetwork?.preset}`,
@@ -32,7 +29,6 @@ export const useVaultsData = (poolId?: number, customNetwork?: Network) => {
       {
         pool: poolId,
         tokens: collateralTypes ? collateralTypes?.map((x) => x.tokenAddress).sort() : [],
-        priceUpdateTx: stringToHash(priceUpdateTx?.data),
       },
     ],
     enabled: Boolean(CoreProxy && collateralTypes && poolId && targetNetwork && provider),
@@ -55,9 +51,12 @@ export const useVaultsData = (poolId?: number, customNetwork?: Network) => {
 
       const calls = await Promise.all([collateralCallsP, debtCallsP]);
 
-      if (priceUpdateTx) {
-        calls.unshift(priceUpdateTx as any);
-      }
+      calls.unshift(
+        (await getPriceUpdates(
+          (await getPythFeedIds(targetNetwork)) as string[],
+          targetNetwork
+        )) as any
+      );
 
       return await erc7412Call(
         targetNetwork,

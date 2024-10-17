@@ -2,7 +2,7 @@ import { stringToHash } from '@snx-v3/tsHelpers';
 import { AccountCollateralType, loadAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { loadPrices } from '@snx-v3/useCollateralPrices';
-import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { getPriceUpdates, getPythFeedIds } from '@snx-v3/useCollateralPriceUpdates';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useSystemToken } from '@snx-v3/useSystemToken';
@@ -80,7 +80,6 @@ export const useLiquidityPosition = ({
   const { data: CoreProxy } = useCoreProxy();
   const { data: systemToken } = useSystemToken();
   const { network } = useNetwork();
-  const { data: priceUpdateTx } = useCollateralPriceUpdates();
   const provider = useProviderForChain(network!);
   const { data: collateralTypes } = useCollateralTypes(true);
 
@@ -94,10 +93,7 @@ export const useLiquidityPosition = ({
         token: tokenAddress,
         systemToken: systemToken?.address,
       },
-      {
-        contracts: stringToHash([CoreProxy?.address].join()),
-        priceUpdateTx: stringToHash(priceUpdateTx?.data),
-      },
+      { contracts: stringToHash([CoreProxy?.address].join()) },
     ],
     staleTime: 60000 * 5,
     enabled: Boolean(
@@ -130,9 +126,9 @@ export const useLiquidityPosition = ({
 
       const allCalls = priceCalls.concat(positionCalls).concat(accountCollateralCalls);
 
-      if (priceUpdateTx) {
-        allCalls.unshift(priceUpdateTx as any);
-      }
+      allCalls.unshift(
+        (await getPriceUpdates((await getPythFeedIds(network)) as string[], network)) as any
+      );
 
       return await erc7412Call(
         network,

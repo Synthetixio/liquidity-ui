@@ -1,12 +1,11 @@
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
-import { stringToHash } from '@snx-v3/tsHelpers';
 import {
   Network,
   useDefaultProvider,
   useNetwork,
   useProviderForChain,
 } from '@snx-v3/useBlockchain';
-import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { getPriceUpdates, getPythFeedIds } from '@snx-v3/useCollateralPriceUpdates';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useGetUSDTokens } from '@snx-v3/useGetUSDTokens';
@@ -69,7 +68,6 @@ export const useCollateralPrices = (customNetwork?: Network) => {
 
   const connectedProvider = useDefaultProvider();
   const offlineProvider = useProviderForChain(customNetwork);
-  const { data: priceUpdateTx } = useCollateralPriceUpdates(customNetwork);
 
   const provider = customNetwork ? offlineProvider : connectedProvider;
 
@@ -82,7 +80,6 @@ export const useCollateralPrices = (customNetwork?: Network) => {
         collateralAddresses: collateralAddresses?.filter(
           (item, pos) => collateralAddresses.indexOf(item) === pos
         ),
-        priceUpdateTx: stringToHash(priceUpdateTx?.data),
       },
     ],
     queryFn: async () => {
@@ -99,9 +96,12 @@ export const useCollateralPrices = (customNetwork?: Network) => {
       const { calls, decoder } = await loadPrices({ CoreProxy, collateralAddresses });
 
       const allCalls = [...calls];
-      if (priceUpdateTx) {
-        allCalls.unshift(priceUpdateTx as any);
-      }
+      allCalls.unshift(
+        (await getPriceUpdates(
+          (await getPythFeedIds(targetNetwork)) as string[],
+          targetNetwork
+        )) as any
+      );
 
       const prices = await erc7412Call(
         targetNetwork,

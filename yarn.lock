@@ -5511,7 +5511,6 @@ __metadata:
     "@snx-v3/format": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/usePoolsList": "workspace:*"
-    "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     ethers: "npm:^5.7.2"
@@ -5524,7 +5523,6 @@ __metadata:
   resolution: "@snx-v3/useCollateralPrices@workspace:liquidity/lib/useCollateralPrices"
   dependencies:
     "@snx-v3/isBaseAndromeda": "workspace:*"
-    "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
@@ -6236,7 +6234,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useVaultsData@workspace:liquidity/lib/useVaultsData"
   dependencies:
-    "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"

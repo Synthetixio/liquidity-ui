@@ -1,8 +1,8 @@
 import { calculateCRatio } from '@snx-v3/calculations';
-import { keyBy, stringToHash } from '@snx-v3/tsHelpers';
+import { keyBy } from '@snx-v3/tsHelpers';
 import { useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { loadPrices } from '@snx-v3/useCollateralPrices';
-import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { getPriceUpdates, getPythFeedIds } from '@snx-v3/useCollateralPriceUpdates';
 import { CollateralType, useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { loadPosition } from '@snx-v3/useLiquidityPosition';
@@ -41,7 +41,6 @@ export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => 
   const { data: CoreProxy } = useCoreProxy();
   const { data: pools } = usePools();
   const { data: collateralTypes } = useCollateralTypes();
-  const { data: priceUpdateTx } = useCollateralPriceUpdates();
 
   const { network } = useNetwork();
   const provider = useProviderForChain(network!);
@@ -54,10 +53,9 @@ export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => 
       {
         pools: pools ? pools.map((pool) => pool.id).sort() : [],
         tokens: collateralTypes ? collateralTypes.map((x) => x.tokenAddress).sort() : [],
-        priceUpdateTx: stringToHash(priceUpdateTx?.data),
       },
     ],
-    staleTime: 60000 * 5,
+    staleTime: 60_000 * 5,
     enabled: Boolean(network && provider && CoreProxy && accountId && collateralTypes && pools),
     queryFn: async () => {
       if (!(network && provider && CoreProxy && accountId && collateralTypes && pools)) {
@@ -103,9 +101,9 @@ export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => 
       const allCalls = priceCalls.concat(positionCalls).concat(availableCollateralCalls);
       const singlePositionDecoder = positionCallsAndData.at(0)?.decoder;
 
-      if (priceUpdateTx) {
-        allCalls.unshift(priceUpdateTx as any);
-      }
+      allCalls.unshift(
+        (await getPriceUpdates((await getPythFeedIds(network)) as string[], network)) as any
+      );
 
       return await erc7412Call(
         network,
