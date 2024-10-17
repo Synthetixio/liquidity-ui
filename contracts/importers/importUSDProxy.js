@@ -53,13 +53,6 @@ export async function importUSDProxy(chainId, preset) {
       ]);
       return { address: meta.contracts.USDProxy, abi };
     }
-    case '42161-arbthetix': {
-      const [{ default: meta }, { default: abi }] = await Promise.all([
-        import('@synthetixio/v3-contracts/42161-arbthetix/meta.json'),
-        import('@synthetixio/v3-contracts/42161-arbthetix/USDProxy.readable.json'),
-      ]);
-      return { address: meta.contracts.USDProxy, abi };
-    }
     default: {
       throw new Error(`Unsupported deployment ${deployment} for USDProxy`);
     }

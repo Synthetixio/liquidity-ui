@@ -34,11 +34,11 @@ export async function fetchApr(networkId?: number) {
     const data = await response.json();
 
     const highestAprCollateral = data?.sort(
-      (a: { apr28d: number }, b: { apr28d: number }) => b.apr28d - a.apr28d
+      (a: { apr7d: number }, b: { apr7d: number }) => b.apr7d - a.apr7d
     )[0];
 
     return {
-      combinedApr: highestAprCollateral.apr28d * 100,
+      combinedApr: highestAprCollateral.apr7d * 100,
       cumulativePnl: isSupported ? highestAprCollateral.cumulativePnl : 0,
       collateralAprs: data,
     };

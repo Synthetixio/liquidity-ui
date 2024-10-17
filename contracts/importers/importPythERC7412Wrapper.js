@@ -39,13 +39,6 @@ export async function importPythERC7412Wrapper(chainId, preset) {
       ]);
       return { address: meta.contracts.PythERC7412Wrapper, abi };
     }
-    case '42161-arbthetix': {
-      const [{ default: meta }, { default: abi }] = await Promise.all([
-        import('@synthetixio/v3-contracts/42161-arbthetix/meta.json'),
-        import('@synthetixio/v3-contracts/42161-arbthetix/PythERC7412Wrapper.readable.json'),
-      ]);
-      return { address: meta.contracts.PythERC7412Wrapper, abi };
-    }
     default: {
       throw new Error(`Unsupported deployment ${deployment} for PythERC7412Wrapper`);
     }

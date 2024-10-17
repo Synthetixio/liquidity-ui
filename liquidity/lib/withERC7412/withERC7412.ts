@@ -6,8 +6,9 @@ import {
   importCoreProxy,
   importMulticall3,
   importPythERC7412Wrapper,
+  importPythVerfier,
 } from '@snx-v3/contracts';
-import { Network, getMagicProvider } from '@snx-v3/useBlockchain';
+import { Network, deploymentHasERC7412, getMagicProvider } from '@snx-v3/useBlockchain';
 import { ethers } from 'ethers';
 
 export const ERC7412_ABI = [
@@ -75,12 +76,7 @@ async function fetchOffchainData({
     isTestnet ? offchainTestnetEndpoint : offchainMainnetEndpoint
   );
   const signedOffchainData = await priceService.getPriceFeedsUpdateData(priceIds);
-  const updateType = 1;
-  const stalenessTolerance = 3300;
-  return ethers.utils.defaultAbiCoder.encode(
-    ['uint8', 'uint64', 'bytes32[]', 'bytes[]'],
-    [updateType, stalenessTolerance, priceIds, signedOffchainData]
-  );
+  return signedOffchainData;
 }
 
 function parseError(
@@ -198,6 +194,35 @@ function extractPriceId(parsedError: { name: string; args: string[] }) {
   }
 }
 
+async function getMulticallTransaction(
+  network: Network,
+  calls: (ethers.PopulatedTransaction & { requireSuccess?: boolean })[],
+  from: string,
+  provider: ethers.providers.JsonRpcProvider
+) {
+  const Multicall3Contract = await importMulticall3(network.id, network.preset);
+  const Multicall3Interface = new ethers.utils.Interface(Multicall3Contract.abi);
+
+  const multicallTxn = {
+    from: from ? from : getDefaultFromAddress(network.name),
+    to: Multicall3Contract.address,
+    data: Multicall3Interface.encodeFunctionData('aggregate3Value', [
+      calls.map((call) => ({
+        target: call.to,
+        callData: call.data,
+        value: call.value ? ethers.BigNumber.from(call.value) : ethers.BigNumber.from(0),
+        requireSuccess: call.requireSuccess ?? true,
+      })),
+    ]),
+    value: calls.reduce(
+      (totalValue, call) => (call.value ? totalValue.add(call.value) : totalValue),
+      ethers.BigNumber.from(0)
+    ),
+  };
+  const gasLimit = await provider.estimateGas(multicallTxn);
+  return { ...multicallTxn, gasLimit };
+}
+
 /**
  * If a tx requires ERC7412 pattern, wrap your tx with this function.
  */
@@ -210,34 +235,20 @@ export const withERC7412 = async (
   // Make sure we're always using JSONRpcProvider, the web3 provider coming from the signer might have bugs causing errors to miss revert data
   const jsonRpcProvider =
     getMagicProvider() ?? new ethers.providers.JsonRpcProvider(network.rpcUrl());
-  const Multicall3Contract = await importMulticall3(network.id, network.preset);
-  const Multicall3Interface = new ethers.utils.Interface(Multicall3Contract.abi);
+
+  if (!(await deploymentHasERC7412(network.id, network.preset))) {
+    return await getMulticallTransaction(network, calls, from, jsonRpcProvider);
+  }
+
   const AllErrorsContract = await importAllErrors(network.id, network.preset);
-  const PythERC7412Wrapper = await importPythERC7412Wrapper(network.id, network.preset);
+  const PythVerfier = await importPythVerfier(network.id, network.preset);
 
   while (true) {
     try {
       if (window.localStorage.getItem('DEBUG') === 'true') {
         await logMulticall({ network, calls, label });
       }
-      const multicallTxn = {
-        from: from ? from : getDefaultFromAddress(network.name),
-        to: Multicall3Contract.address,
-        data: Multicall3Interface.encodeFunctionData('aggregate3Value', [
-          calls.map((call) => ({
-            target: call.to,
-            callData: call.data,
-            value: call.value ? ethers.BigNumber.from(call.value) : ethers.BigNumber.from(0),
-            requireSuccess: call.requireSuccess ?? true,
-          })),
-        ]),
-        value: calls.reduce(
-          (totalValue, call) => (call.value ? totalValue.add(call.value) : totalValue),
-          ethers.BigNumber.from(0)
-        ),
-      };
-      const gasLimit = await jsonRpcProvider.estimateGas(multicallTxn);
-      return { ...multicallTxn, gasLimit };
+      return await getMulticallTransaction(network, calls, from, jsonRpcProvider);
     } catch (error: Error | any) {
       console.error(error);
       let errorData = extractErrorData(error);
@@ -284,25 +295,25 @@ export const withERC7412 = async (
           }
         }
       }
-      console.log(`[${label}]`, { missingPriceUpdates });
-      if (missingPriceUpdates.length < 1) {
+      const missingPriceUpdatesUnique = Array.from(new Set(missingPriceUpdates));
+      console.log(`[${label}]`, { missingPriceUpdates: missingPriceUpdatesUnique });
+      if (missingPriceUpdatesUnique.length < 1) {
         // some other kind of error that's not related to price
         throw error;
       }
 
       const signedOffchainData = await fetchOffchainData({
-        priceIds: missingPriceUpdates,
+        priceIds: missingPriceUpdatesUnique,
         isTestnet: network.isTestnet,
       });
 
       const extraPriceUpdateTxn = {
         from,
-        to: PythERC7412Wrapper.address,
-        data: new ethers.utils.Interface(PythERC7412Wrapper.abi).encodeFunctionData(
-          'fulfillOracleQuery',
-          [signedOffchainData]
-        ),
-        value: ethers.BigNumber.from(missingPriceUpdates.length),
+        to: PythVerfier.address,
+        data: new ethers.utils.Interface(PythVerfier.abi).encodeFunctionData('updatePriceFeeds', [
+          signedOffchainData,
+        ]),
+        value: ethers.BigNumber.from(missingPriceUpdatesUnique.length),
         requireSuccess: false,
       };
       // return [extraPriceUpdateTxn, ...calls.map()];

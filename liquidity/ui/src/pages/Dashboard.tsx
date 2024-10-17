@@ -13,27 +13,15 @@ export function Dashboard() {
         <title>Synthetix Liquidity V3</title>
         <meta name="description" content="Synthetix V3 - Dashboard" />
       </Helmet>
-      <Flex
-        pt={{
-          base: 2,
-          sm: 10,
-        }}
-        flexDir="column"
-        mb={16}
-      >
+      <Flex pt={{ base: 2, sm: 10 }} flexDir="column" mb={16}>
         {network && [MAINNET.id, SEPOLIA.id].includes(network.id) && (
           <MigrationBanner network={network} type="alert" />
         )}
-
         <Heading color="gray.50" fontSize="1.5rem">
           Dashboard
         </Heading>
-
         <WatchAccountBanner />
-
         <StatsList />
-        {/* Leave commented out for now */}
-        {/* <AssetsList /> */}
         <PositionsList />
       </Flex>
     </>

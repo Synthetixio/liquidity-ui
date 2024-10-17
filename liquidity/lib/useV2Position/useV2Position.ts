@@ -1,36 +1,70 @@
 import { useQuery } from '@tanstack/react-query';
-import { Network, useNetwork, useWallet } from '@snx-v3/useBlockchain';
+import { Network, useWallet } from '@snx-v3/useBlockchain';
 import { useV2xSynthetix } from '@snx-v3/useV2xSynthetix';
 import { wei } from '@synthetixio/wei';
 import { utils } from 'ethers';
+import { useMulticall3 } from '@snx-v3/useMulticall3';
 
-export function useV2Position(customNetwork?: Network) {
-  const { data: v2xSynthetix } = useV2xSynthetix(customNetwork);
-  const { network } = useNetwork();
+export function useV2Position(network: Network) {
+  const { data: v2xSynthetix } = useV2xSynthetix(network);
   const { activeWallet } = useWallet();
-  const targetNetwork = customNetwork || network;
+  const { data: Multicall3 } = useMulticall3(network);
 
   return useQuery({
     queryKey: [
-      `${targetNetwork?.id}-${targetNetwork?.preset}`,
+      `${network?.id}-${network?.preset}`,
       'V2Position',
       {
         wallet: activeWallet?.address,
       },
     ],
+    enabled: Boolean(v2xSynthetix && activeWallet?.address && Multicall3),
     queryFn: async function () {
-      if (!v2xSynthetix) {
-        return;
+      if (!(v2xSynthetix && Multicall3 && activeWallet?.address)) {
+        throw 'should be disabled';
       }
-      const [collateral, balance, debt, cratio, transferableSynthetix] = await Promise.all([
-        wei(await v2xSynthetix.collateral(activeWallet?.address)),
-        wei(await v2xSynthetix.balanceOf(activeWallet?.address)),
-        wei(
-          await v2xSynthetix.debtBalanceOf(activeWallet?.address, utils.formatBytes32String('sUSD'))
-        ),
-        wei(await v2xSynthetix.collateralisationRatio(activeWallet?.address)),
-        wei(await v2xSynthetix.transferableSynthetix(activeWallet?.address)),
-      ]);
+
+      const calls = [
+        {
+          target: v2xSynthetix.address,
+          callData: v2xSynthetix.interface.encodeFunctionData('collateral', [
+            activeWallet?.address,
+          ]),
+        },
+        {
+          target: v2xSynthetix.address,
+          callData: v2xSynthetix.interface.encodeFunctionData('balanceOf', [activeWallet?.address]),
+        },
+
+        {
+          target: v2xSynthetix.address,
+          callData: v2xSynthetix.interface.encodeFunctionData('debtBalanceOf', [
+            activeWallet?.address,
+            utils.formatBytes32String('sUSD'),
+          ]),
+        },
+        {
+          target: v2xSynthetix.address,
+          callData: v2xSynthetix.interface.encodeFunctionData('collateralisationRatio', [
+            activeWallet?.address,
+          ]),
+        },
+        {
+          target: v2xSynthetix.address,
+          callData: v2xSynthetix.interface.encodeFunctionData('transferableSynthetix', [
+            activeWallet?.address,
+          ]),
+        },
+      ];
+      const { returnData } = await Multicall3.callStatic.aggregate(calls);
+
+      const [collateral, balance, debt, cratio, transferableSynthetix] = [
+        wei(v2xSynthetix.interface.decodeFunctionResult('collateral', returnData[0])[0]),
+        wei(v2xSynthetix.interface.decodeFunctionResult('collateral', returnData[1])[0]),
+        wei(v2xSynthetix.interface.decodeFunctionResult('collateral', returnData[2])[0]),
+        wei(v2xSynthetix.interface.decodeFunctionResult('collateral', returnData[3])[0]),
+        wei(v2xSynthetix.interface.decodeFunctionResult('collateral', returnData[4])[0]),
+      ];
 
       return {
         collateral,
@@ -40,7 +74,6 @@ export function useV2Position(customNetwork?: Network) {
         transferableSynthetix,
       };
     },
-    enabled: Boolean(v2xSynthetix && activeWallet?.address),
     staleTime: Infinity,
   });
 }

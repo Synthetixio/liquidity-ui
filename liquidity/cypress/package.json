@@ -4,9 +4,9 @@
   "main": "index.ts",
   "version": "0.0.9",
   "scripts": {
-    "anvil:arbitrum": "anvil --auto-impersonate --chain-id 42161 --fork-url https://arbitrum-mainnet.infura.io/v3/$INFURA_KEY --timeout 5000 --retries 0 --no-rate-limit --steps-tracing",
-    "anvil:sepolia": "anvil --auto-impersonate --chain-id 11155111 --fork-url https://sepolia.infura.io/v3/$INFURA_KEY --timeout 5000 --retries 0 --no-rate-limit --steps-tracing",
-    "anvil:base": "anvil --auto-impersonate --chain-id 8453 --fork-url https://base-mainnet.infura.io/v3/$INFURA_KEY --timeout 5000 --retries 0 --no-rate-limit --steps-tracing",
+    "anvil:arbitrum": "anvil --auto-impersonate --chain-id 42161 --fork-url wss://arbitrum-mainnet.infura.io/ws/v3/$INFURA_KEY --timeout 5000 --retries 0 --no-rate-limit --steps-tracing",
+    "anvil:sepolia": "anvil --auto-impersonate --chain-id 11155111 --fork-url wss://sepolia.infura.io/ws/v3/$INFURA_KEY --timeout 5000 --retries 0 --no-rate-limit --steps-tracing",
+    "anvil:base": "anvil --auto-impersonate --chain-id 8453 --fork-url wss://base-mainnet.infura.io/ws/v3/$INFURA_KEY --timeout 5000 --retries 0 --no-rate-limit --steps-tracing",
     "cy": "NODE_ENV=test cypress open --component --browser chrome",
     "e2e:arbitrum": "NODE_ENV=test CYPRESS_CHAIN_ID=42161 CYPRESS_PRESET=main cypress open --e2e --browser chrome --config specPattern='./cypress/e2e/42161-main/*.e2e.js'",
     "e2e:base": "NODE_ENV=test CYPRESS_CHAIN_ID=8453 CYPRESS_PRESET=andromeda cypress open --e2e --browser chrome --config specPattern='./cypress/e2e/8453-andromeda/*.e2e.js'",

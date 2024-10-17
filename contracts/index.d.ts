@@ -95,6 +95,12 @@ declare module '@snx-v3/contracts' {
       oracleNodeId: string;
       tokenAddress: string;
       minDelegationD18: string;
+      oracle: {
+        constPrice?: string;
+        externalContract?: string;
+        stalenessTolerance?: string;
+        pythFeedId?: string;
+      };
     }[]
   >;
 
@@ -118,10 +124,43 @@ declare module '@snx-v3/contracts' {
       symbol: string;
       name: string;
       decimals: number;
+      token: {
+        address: string;
+        symbol: string;
+        name: string;
+        decimals: number;
+      };
     }[]
   >;
 
   function importAllErrors(
+    chainId?: number,
+    preset?: string
+  ): Promise<{ address: string; abi: string[] }>;
+
+  function importStaticAaveUSDC(
+    chainId?: number,
+    preset?: string
+  ): Promise<{ address: string; abi: string[] }>;
+
+  function importWETH(
+    chainId?: number,
+    preset?: string
+  ): Promise<{ address: string; abi: string[] }>;
+
+  function importSNX(
+    chainId?: number,
+    preset?: string
+  ): Promise<{ address: string; abi: string[] }>;
+
+  function importUSDC(
+    chainId?: number,
+    preset?: string
+  ): Promise<{ address: string; abi: string[] }>;
+
+  function importPythFeeds(chainId?: number, preset?: string): Promise<string[]>;
+
+  function importPythVerfier(
     chainId?: number,
     preset?: string
   ): Promise<{ address: string; abi: string[] }>;

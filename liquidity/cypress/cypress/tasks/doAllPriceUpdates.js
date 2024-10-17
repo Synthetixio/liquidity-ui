@@ -15,14 +15,18 @@ export async function doAllPriceUpdates({ privateKey }) {
   const extras = await importExtras(process.env.CYPRESS_CHAIN_ID, process.env.CYPRESS_PRESET);
   const priceVerificationContract =
     extras.pyth_price_verification_address || extras.pythPriceVerificationAddress;
-  const feedIds = Object.entries(extras)
-    .filter(
-      ([key]) =>
-        key.startsWith('pyth_feed_id_') || (key.startsWith('pyth') && key.endsWith('FeedId'))
+  const feedIds = Array.from(
+    new Set(
+      Object.entries(extras)
+        .filter(
+          ([key]) =>
+            key.startsWith('pyth_feed_id_') || (key.startsWith('pyth') && key.endsWith('FeedId'))
+        )
+        .map(([_key, value]) => value)
     )
-    .map(([_key, value]) => value);
+  );
   console.log({ feedIds });
-  const batches = splitIntoChunks(feedIds, 20);
+  const batches = splitIntoChunks(feedIds, 200);
 
   for (const batch of batches) {
     console.log({ batch });

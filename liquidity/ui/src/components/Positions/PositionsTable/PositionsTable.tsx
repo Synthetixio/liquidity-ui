@@ -117,7 +117,7 @@ export const PositionsTable = ({
                         {...position}
                         final={index === positions.length - 1}
                         isBase={isBase}
-                        apr={positionApr?.apr28d * 100}
+                        apr={positionApr?.apr7d * 100}
                         systemTokenSymbol={systemToken?.symbol}
                       />
                     );
