@@ -1,69 +1,70 @@
 import { useQuery } from '@tanstack/react-query';
-import { Network, useWallet } from '@snx-v3/useBlockchain';
+import { Network, useWallet, useProviderForChain } from '@snx-v3/useBlockchain';
 import { useV2xSynthetix } from '@snx-v3/useV2xSynthetix';
 import { wei } from '@synthetixio/wei';
-import { utils } from 'ethers';
 import { useMulticall3 } from '@snx-v3/useMulticall3';
+import { contractsHash } from '@snx-v3/tsHelpers';
+import { ethers } from 'ethers';
 
 export function useV2Position(network: Network) {
-  const { data: v2xSynthetix } = useV2xSynthetix(network);
   const { activeWallet } = useWallet();
+  const provider = useProviderForChain(network);
   const { data: Multicall3 } = useMulticall3(network);
+  const { data: V2xSynthetix } = useV2xSynthetix(network);
+  const walletAddress = activeWallet?.address;
 
   return useQuery({
     queryKey: [
       `${network?.id}-${network?.preset}`,
       'V2Position',
-      {
-        wallet: activeWallet?.address,
-      },
+      { walletAddress },
+      { contractsHash: contractsHash([V2xSynthetix, Multicall3]) },
     ],
-    enabled: Boolean(v2xSynthetix && activeWallet?.address && Multicall3),
+    enabled: Boolean(provider && walletAddress && V2xSynthetix && Multicall3),
     queryFn: async function () {
-      if (!(v2xSynthetix && Multicall3 && activeWallet?.address)) {
-        throw 'should be disabled';
-      }
+      if (!(provider && walletAddress && V2xSynthetix && Multicall3)) throw 'OMFG';
+      const V2xSynthetixInterface = new ethers.utils.Interface(V2xSynthetix.abi);
 
       const calls = [
         {
-          target: v2xSynthetix.address,
-          callData: v2xSynthetix.interface.encodeFunctionData('collateral', [
-            activeWallet?.address,
-          ]),
+          target: V2xSynthetix.address,
+          callData: V2xSynthetixInterface.encodeFunctionData('collateral', [walletAddress]),
         },
         {
-          target: v2xSynthetix.address,
-          callData: v2xSynthetix.interface.encodeFunctionData('balanceOf', [activeWallet?.address]),
+          target: V2xSynthetix.address,
+          callData: V2xSynthetixInterface.encodeFunctionData('balanceOf', [walletAddress]),
         },
 
         {
-          target: v2xSynthetix.address,
-          callData: v2xSynthetix.interface.encodeFunctionData('debtBalanceOf', [
-            activeWallet?.address,
-            utils.formatBytes32String('sUSD'),
+          target: V2xSynthetix.address,
+          callData: V2xSynthetixInterface.encodeFunctionData('debtBalanceOf', [
+            walletAddress,
+            ethers.utils.formatBytes32String('sUSD'),
           ]),
         },
         {
-          target: v2xSynthetix.address,
-          callData: v2xSynthetix.interface.encodeFunctionData('collateralisationRatio', [
-            activeWallet?.address,
+          target: V2xSynthetix.address,
+          callData: V2xSynthetixInterface.encodeFunctionData('collateralisationRatio', [
+            walletAddress,
           ]),
         },
         {
-          target: v2xSynthetix.address,
-          callData: v2xSynthetix.interface.encodeFunctionData('transferableSynthetix', [
-            activeWallet?.address,
+          target: V2xSynthetix.address,
+          callData: V2xSynthetixInterface.encodeFunctionData('transferableSynthetix', [
+            walletAddress,
           ]),
         },
       ];
-      const { returnData } = await Multicall3.callStatic.aggregate(calls);
+
+      const Multicall3Contract = new ethers.Contract(Multicall3.address, Multicall3.abi, provider);
+      const { returnData } = await Multicall3Contract.callStatic.aggregate(calls);
 
       const [collateral, balance, debt, cratio, transferableSynthetix] = [
-        wei(v2xSynthetix.interface.decodeFunctionResult('collateral', returnData[0])[0]),
-        wei(v2xSynthetix.interface.decodeFunctionResult('collateral', returnData[1])[0]),
-        wei(v2xSynthetix.interface.decodeFunctionResult('collateral', returnData[2])[0]),
-        wei(v2xSynthetix.interface.decodeFunctionResult('collateral', returnData[3])[0]),
-        wei(v2xSynthetix.interface.decodeFunctionResult('collateral', returnData[4])[0]),
+        wei(V2xSynthetixInterface.decodeFunctionResult('collateral', returnData[0])[0]),
+        wei(V2xSynthetixInterface.decodeFunctionResult('collateral', returnData[1])[0]),
+        wei(V2xSynthetixInterface.decodeFunctionResult('collateral', returnData[2])[0]),
+        wei(V2xSynthetixInterface.decodeFunctionResult('collateral', returnData[3])[0]),
+        wei(V2xSynthetixInterface.decodeFunctionResult('collateral', returnData[4])[0]),
       ];
 
       return {
@@ -74,6 +75,5 @@ export function useV2Position(network: Network) {
         transferableSynthetix,
       };
     },
-    staleTime: Infinity,
   });
 }

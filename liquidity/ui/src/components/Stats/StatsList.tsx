@@ -2,7 +2,7 @@ import { Flex, Text } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { ZEROWEI } from '@snx-v3/constants';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
-import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
+import { useAccountCollaterals } from '@snx-v3/useAccountCollateral';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralPrices } from '@snx-v3/useCollateralPrices';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
@@ -33,11 +33,8 @@ export const StatsList = () => {
     });
   const { data: collateralTypes, isPending: isPendingCollateralTypes } = useCollateralTypes();
 
-  const { data: accountCollaterals, isPending: isPendingAccountCollaterals } = useAccountCollateral(
-    {
-      accountId: params.accountId,
-    }
-  );
+  const { data: accountCollaterals, isPending: isPendingAccountCollaterals } =
+    useAccountCollaterals({ accountId: params.accountId });
 
   const collateralAddresses =
     isBaseAndromeda(network?.id, network?.preset) && usdTokens?.USDC

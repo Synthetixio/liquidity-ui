@@ -29,7 +29,7 @@ import { ChangeStat } from '../ChangeStat';
 import { currency } from '@snx-v3/format';
 import { TransactionSummary } from '../TransactionSummary/TransactionSummary';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
-import { useAccountSpecificCollateral } from '@snx-v3/useAccountCollateral';
+import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -297,10 +297,7 @@ export const Undelegate = ({ liquidityPosition }: { liquidityPosition?: Liquidit
 
   const isBase = isBaseAndromeda(network?.id, network?.preset);
   const { data: systemToken } = useSystemToken();
-  const { data: systemTokenBalance } = useAccountSpecificCollateral(
-    accountId,
-    systemToken?.address
-  );
+  const { data: systemTokenBalance } = useAccountCollateral(accountId, systemToken?.address);
 
   const [queryParams] = useSearchParams();
   const navigate = useNavigate();

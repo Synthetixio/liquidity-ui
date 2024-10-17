@@ -6,7 +6,7 @@ import { ContractError } from '@snx-v3/ContractError';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
-import { useAccountSpecificCollateral } from '@snx-v3/useAccountCollateral';
+import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
@@ -133,10 +133,7 @@ export function WithdrawModal({
   const accountId = liquidityPosition?.accountId;
 
   const { data: systemToken } = useSystemToken();
-  const { data: systemTokenBalance } = useAccountSpecificCollateral(
-    accountId,
-    systemToken?.address
-  );
+  const { data: systemTokenBalance } = useAccountCollateral(accountId, systemToken?.address);
 
   const { mutation: withdrawMain } = useWithdraw({
     amount: withdrawAmount,

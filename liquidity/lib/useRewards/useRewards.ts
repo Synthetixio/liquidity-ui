@@ -1,5 +1,5 @@
 import { getSubgraphUrl } from '@snx-v3/constants';
-import { useNetwork } from '@snx-v3/useBlockchain';
+import { useNetwork, useProvider } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useMulticall3 } from '@snx-v3/useMulticall3';
@@ -7,8 +7,9 @@ import { useRewardsDistributors } from '@snx-v3/useRewardsDistributors';
 import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { Wei, wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
-import { BigNumber } from 'ethers';
 import { z } from 'zod';
+import { contractsHash } from '@snx-v3/tsHelpers';
+import { ethers } from 'ethers';
 
 const RewardsResponseSchema = z.array(
   z.object({
@@ -59,6 +60,7 @@ export function useRewards({
   const { data: collateralType } = useCollateralType(collateralSymbol);
   const collateralAddress = collateralType?.tokenAddress;
   const { network } = useNetwork();
+  const provider = useProvider();
   const { data: synthTokens } = useSynthTokens();
 
   const { data: Multicall3 } = useMulticall3(network);
@@ -80,10 +82,6 @@ export function useRewards({
           )
       : [];
 
-  const distributorsCacheKey = filteredDistributors.map((distributor) =>
-    distributor.address.slice(2, 6)
-  );
-
   return useQuery({
     enabled: Boolean(
       network &&
@@ -100,7 +98,14 @@ export function useRewards({
       'Rewards',
       { accountId },
       { collateralAddress },
-      { distributors: distributorsCacheKey },
+      {
+        contractsHash: contractsHash([
+          CoreProxy,
+          Multicall3,
+          ...filteredDistributors,
+          ...(synthTokens ?? []),
+        ]),
+      },
     ],
     queryFn: async () => {
       if (
@@ -146,11 +151,13 @@ export function useRewards({
         const historicalData = returnData.slice(0, filteredDistributors.length);
         const metaData = returnData.slice(filteredDistributors.length);
 
+        const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
+
         // Get claimable amount for each distributor
         const calls = filteredDistributors.map(({ address }: { address: string }) =>
-          CoreProxy.populateTransaction.getAvailableRewards(
-            BigNumber.from(accountId),
-            BigNumber.from(poolId),
+          CoreProxyContract.populateTransaction.getAvailableRewards(
+            ethers.BigNumber.from(accountId),
+            ethers.BigNumber.from(poolId),
             collateralAddress.toLowerCase(),
             address.toLowerCase()
           )
@@ -163,10 +170,18 @@ export function useRewards({
           callData: tx.data,
         }));
 
-        const data = await Multicall3.callStatic.aggregate(multicallData);
+        const Multicall3Contract = new ethers.Contract(
+          Multicall3.address,
+          Multicall3.abi,
+          provider
+        );
+        const data = await Multicall3Contract.callStatic.aggregate(multicallData);
 
         const amounts = data.returnData.map((data: string) => {
-          const amount = CoreProxy.interface.decodeFunctionResult('getAvailableRewards', data)[0];
+          const amount = CoreProxyContract.interface.decodeFunctionResult(
+            'getAvailableRewards',
+            data
+          )[0];
           return wei(amount);
         });
 
