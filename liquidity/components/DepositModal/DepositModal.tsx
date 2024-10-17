@@ -1,7 +1,11 @@
-import { Button, Divider, Text, useToast, Link } from '@chakra-ui/react';
+import { ArrowBackIcon } from '@chakra-ui/icons';
+import { Button, Divider, Link, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
+import { ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
+import { currency } from '@snx-v3/format';
 import { getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
 import { useApprove } from '@snx-v3/useApprove';
 import { useNetwork } from '@snx-v3/useBlockchain';
@@ -11,6 +15,7 @@ import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useDeposit } from '@snx-v3/useDeposit';
 import { useDepositBaseAndromeda } from '@snx-v3/useDepositBaseAndromeda';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
+import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { useParams } from '@snx-v3/useParams';
 import { usePool } from '@snx-v3/usePools';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
@@ -22,16 +27,11 @@ import { utils } from 'ethers';
 import { FC, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { generatePath, useLocation, useNavigate } from 'react-router-dom';
 import type { StateFrom } from 'xstate';
-import { DepositMachine, Events, ServiceNames, State } from './DepositMachine';
-import { ArrowBackIcon } from '@chakra-ui/icons';
-import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
-import { ZEROWEI } from '@snx-v3/constants';
-import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
-import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { ChangeStat } from '../../ui/src/components/ChangeStat';
 import { CRatioChangeStat } from '../../ui/src/components/CRatioBar/CRatioChangeStat';
+import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
 import { TransactionSummary } from '../../ui/src/components/TransactionSummary/TransactionSummary';
-import { currency } from '@snx-v3/format';
+import { DepositMachine, Events, ServiceNames, State } from './DepositMachine';
 
 export const DepositModalUi: FC<{
   collateralChange: Wei;
@@ -320,7 +320,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
     collateralSymbol,
   });
 
-  const errorParserCoreProxy = useContractErrorParser(CoreProxy);
+  const errorParser = useContractErrorParser();
 
   const [state, send] = useMachine(DepositMachine, {
     services: {
@@ -328,7 +328,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
         try {
           await wrapEth(state.context.wrapAmount);
         } catch (error: any) {
-          const contractError = errorParserCoreProxy(error);
+          const contractError = errorParser(error);
           if (contractError) {
             console.error(new Error(contractError.name), contractError);
           }
@@ -360,7 +360,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
 
           await approve(Boolean(state.context.infiniteApproval));
         } catch (error: any) {
-          const contractError = errorParserCoreProxy(error);
+          const contractError = errorParser(error);
           if (contractError) {
             console.error(new Error(contractError.name), contractError);
           }
@@ -437,7 +437,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
             variant: 'left-accent',
           });
         } catch (error: any) {
-          const contractError = errorParserCoreProxy(error);
+          const contractError = errorParser(error);
           if (contractError) {
             console.error(new Error(contractError.name), contractError);
           }

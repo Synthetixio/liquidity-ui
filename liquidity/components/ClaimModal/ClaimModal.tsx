@@ -1,24 +1,23 @@
-import { Button, Divider, Text, useToast, Link, Flex, Skeleton } from '@chakra-ui/react';
+import { ArrowBackIcon } from '@chakra-ui/icons';
+import { Button, Divider, Flex, Link, Skeleton, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
-import Wei, { wei } from '@synthetixio/wei';
-import { TransactionStatus } from '@snx-v3/txnReducer';
-import { Multistep } from '@snx-v3/Multistep';
-import { useCallback, useContext, useMemo } from 'react';
-import { useParams } from '@snx-v3/useParams';
-import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
-import { useCollateralType } from '@snx-v3/useCollateralTypes';
-import { useCoreProxy } from '@snx-v3/useCoreProxy';
-import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
+import { ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
-import { useQueryClient } from '@tanstack/react-query';
+import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
+import { Multistep } from '@snx-v3/Multistep';
+import { TransactionStatus } from '@snx-v3/txnReducer';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useBorrow } from '@snx-v3/useBorrow';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
-import { ArrowBackIcon } from '@chakra-ui/icons';
-import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
-import { useSystemToken } from '@snx-v3/useSystemToken';
-import { ZEROWEI } from '@snx-v3/constants';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { useParams } from '@snx-v3/useParams';
+import { useSystemToken } from '@snx-v3/useSystemToken';
+import Wei, { wei } from '@synthetixio/wei';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCallback, useContext, useMemo } from 'react';
+import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
 
 export const ClaimModalUi: React.FC<{
   onClose: () => void;
@@ -147,8 +146,7 @@ export const ClaimModal: React.FC<{
   });
 
   const toast = useToast({ isClosable: true, duration: 9000 });
-  const { data: CoreProxy } = useCoreProxy();
-  const errorParserCoreProxy = useContractErrorParser(CoreProxy);
+  const errorParser = useContractErrorParser();
   const execBorrowWithErrorParser = useCallback(async () => {
     try {
       await execBorrow();
@@ -166,7 +164,7 @@ export const ClaimModal: React.FC<{
 
       setDebtChange(ZEROWEI);
     } catch (error: any) {
-      const contractError = errorParserCoreProxy(error);
+      const contractError = errorParser(error);
       if (contractError) {
         console.error(new Error(contractError.name), contractError);
       }
@@ -190,7 +188,7 @@ export const ClaimModal: React.FC<{
     network?.id,
     network?.preset,
     setDebtChange,
-    errorParserCoreProxy,
+    errorParser,
     toast,
     isBorrow,
   ]);

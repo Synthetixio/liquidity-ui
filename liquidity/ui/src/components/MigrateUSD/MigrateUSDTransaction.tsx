@@ -1,26 +1,31 @@
 import { Button, Text, useToast, VStack } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
+import { ZEROWEI } from '@snx-v3/constants';
+import { ContractError } from '@snx-v3/ContractError';
 import { Multistep } from '@snx-v3/Multistep';
 import { useApprove } from '@snx-v3/useApprove';
-import { Wei } from '@synthetixio/wei';
-import { FC, useCallback, useState } from 'react';
 import { Network } from '@snx-v3/useBlockchain';
-import { useV2sUSD } from '@snx-v3/useV2sUSD';
+import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useLegacyMarket } from '@snx-v3/useLegacyMarket';
 import { useMigrateUSD } from '@snx-v3/useMigrateUSD';
-import { StepSuccess } from './StepSuccess';
-import { ZEROWEI } from '@snx-v3/constants';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useUSDProxy } from '@snx-v3/useUSDProxy';
+import { useV2sUSD } from '@snx-v3/useV2sUSD';
+import { Wei } from '@synthetixio/wei';
+import { useCallback, useState } from 'react';
+import { StepSuccess } from './StepSuccess';
 
-type Props = FC<{
+export function MigrateUSDTransaction({
+  onSuccess,
+  amount,
+  network,
+  onBack,
+}: {
   amount: Wei;
   network: Network;
   onSuccess: () => void;
   onBack: () => void;
-}>;
-
-export const MigrateUSDTransaction: Props = ({ onSuccess, amount, network, onBack }) => {
+}) {
   const { data: legacyMarket } = useLegacyMarket();
 
   const { data: v2_sUSD } = useV2sUSD(network);
@@ -51,6 +56,7 @@ export const MigrateUSDTransaction: Props = ({ onSuccess, amount, network, onBac
     amount,
   });
 
+  const errorParser = useContractErrorParser();
   const onSubmit = useCallback(async () => {
     try {
       if (txState.step > 2) {
@@ -94,13 +100,22 @@ export const MigrateUSDTransaction: Props = ({ onSuccess, amount, network, onBac
         variant: 'left-accent',
       });
     } catch (error) {
+      const contractError = errorParser(error);
+      if (contractError) {
+        console.error(new Error(contractError.name), contractError);
+      }
       setTxState((state) => ({
         step: state.step,
         status: 'error',
       }));
+      toast.closeAll();
       toast({
         title: 'Migration failed',
-        description: 'Please try again.',
+        description: contractError ? (
+          <ContractError contractError={contractError} />
+        ) : (
+          'Please try again.'
+        ),
         status: 'error',
         variant: 'left-accent',
       });
@@ -108,6 +123,7 @@ export const MigrateUSDTransaction: Props = ({ onSuccess, amount, network, onBac
   }, [
     amount,
     approve,
+    errorParser,
     infiniteApproval,
     migrate,
     onSuccess,
@@ -182,4 +198,4 @@ export const MigrateUSDTransaction: Props = ({ onSuccess, amount, network, onBac
       )}
     </VStack>
   );
-};
+}

@@ -1,13 +1,15 @@
-import { Button, Divider, Text, useToast, Link } from '@chakra-ui/react';
+import { ArrowBackIcon } from '@chakra-ui/icons';
+import { Button, Divider, Link, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
+import { ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
+import { currency } from '@snx-v3/format';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { CollateralType, useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
-import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { useParams } from '@snx-v3/useParams';
 import { useUndelegate } from '@snx-v3/useUndelegate';
@@ -17,14 +19,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useMachine } from '@xstate/react';
 import { FC, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { StateFrom } from 'xstate';
-import { Events, ServiceNames, State, UndelegateMachine } from './UndelegateMachine';
-import { ArrowBackIcon } from '@chakra-ui/icons';
-import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
-import { ZEROWEI } from '@snx-v3/constants';
 import { ChangeStat } from '../../ui/src/components/ChangeStat';
-import { currency } from '@snx-v3/format';
 import { CRatioChangeStat } from '../../ui/src/components/CRatioBar/CRatioChangeStat';
+import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
 import { TransactionSummary } from '../../ui/src/components/TransactionSummary/TransactionSummary';
+import { Events, ServiceNames, State, UndelegateMachine } from './UndelegateMachine';
 
 export const UndelegateModalUi: FC<{
   amount: Wei;
@@ -153,8 +152,7 @@ export const UndelegateModal: UndelegateModalProps = ({ onClose, isOpen, liquidi
     liquidityPosition,
   });
 
-  const { data: CoreProxy } = useCoreProxy();
-  const errorParserCoreProxy = useContractErrorParser(CoreProxy);
+  const errorParser = useContractErrorParser();
 
   const isBase = isBaseAndromeda(network?.id, network?.preset);
   const [state, send] = useMachine(UndelegateMachine, {
@@ -193,7 +191,7 @@ export const UndelegateModal: UndelegateModalProps = ({ onClose, isOpen, liquidi
 
           setCollateralChange(ZEROWEI);
         } catch (error: any) {
-          const contractError = errorParserCoreProxy(error);
+          const contractError = errorParser(error);
           if (contractError) {
             console.error(new Error(contractError.name), contractError);
           }
