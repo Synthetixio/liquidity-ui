@@ -1,7 +1,6 @@
 import { Flex, Text } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { calculateCRatio } from '@snx-v3/calculations';
-import { ZEROWEI } from '@snx-v3/constants';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { useNetwork } from '@snx-v3/useBlockchain';
@@ -13,6 +12,8 @@ import Wei, { wei } from '@synthetixio/wei';
 import { FC, useContext } from 'react';
 import { CRatioBar } from '../CRatioBar/CRatioBar';
 import { CollateralStats } from './CollateralStats';
+import { ZEROWEI } from '@snx-v3/constants';
+import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
 import { DebtStats } from './DebtStats';
 import { PnlStats } from './PnlStats';
 
@@ -23,6 +24,7 @@ export const ManageStatsUi: FC<{
   newDebt: Wei;
   newCratio: Wei;
   collateralValue: Wei;
+  stataUSDCRate?: Wei;
   debt: Wei;
   cRatio: Wei;
   hasChanges: boolean;
@@ -32,6 +34,7 @@ export const ManageStatsUi: FC<{
   collateralValue,
   cRatio,
   newCollateralAmount,
+  stataUSDCRate,
   newCratio,
   newDebt,
   hasChanges,
@@ -51,6 +54,7 @@ export const ManageStatsUi: FC<{
           newCollateralAmount={newCollateralAmount}
           collateralValue={collateralValue}
           hasChanges={hasChanges}
+          stataUSDCRate={stataUSDCRate}
         />
         {isBaseAndromeda(network?.id, network?.preset) ? (
           <PnlStats
@@ -108,6 +112,8 @@ export const ManageStats = ({ liquidityPosition }: { liquidityPosition?: Liquidi
     debtChange: debtChange,
   });
 
+  const { data: stataUSDCRate } = useStaticAaveUSDCRate();
+
   return (
     <ManageStatsUi
       hasChanges={hasChanges}
@@ -117,6 +123,7 @@ export const ManageStats = ({ liquidityPosition }: { liquidityPosition?: Liquidi
       liquidityPosition={liquidityPosition}
       collateralType={collateralType}
       cRatio={cRatio}
+      stataUSDCRate={stataUSDCRate}
       collateralValue={collateralValue}
       debt={liquidityPosition?.debt || ZEROWEI}
     />
