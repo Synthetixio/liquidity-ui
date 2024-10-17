@@ -295,14 +295,15 @@ export const withERC7412 = async (
           }
         }
       }
-      console.log(`[${label}]`, { missingPriceUpdates });
-      if (missingPriceUpdates.length < 1) {
+      const missingPriceUpdatesUnique = Array.from(new Set(missingPriceUpdates));
+      console.log(`[${label}]`, { missingPriceUpdates: missingPriceUpdatesUnique });
+      if (missingPriceUpdatesUnique.length < 1) {
         // some other kind of error that's not related to price
         throw error;
       }
 
       const signedOffchainData = await fetchOffchainData({
-        priceIds: missingPriceUpdates,
+        priceIds: missingPriceUpdatesUnique,
         isTestnet: network.isTestnet,
       });
 
@@ -312,7 +313,7 @@ export const withERC7412 = async (
         data: new ethers.utils.Interface(PythVerfier.abi).encodeFunctionData('updatePriceFeeds', [
           signedOffchainData,
         ]),
-        value: ethers.BigNumber.from(missingPriceUpdates.length),
+        value: ethers.BigNumber.from(missingPriceUpdatesUnique.length),
         requireSuccess: false,
       };
       // return [extraPriceUpdateTxn, ...calls.map()];
