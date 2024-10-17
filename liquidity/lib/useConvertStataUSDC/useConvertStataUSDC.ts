@@ -32,13 +32,6 @@ export function useConvertStataUSDC({
 
         const gasPrices = await getGasPrice({ provider: signer!.provider });
 
-        console.log('useConvertStataUSDC', {
-          amount: amount.toString(),
-          activeWallet: activeWallet?.address,
-          d: 0,
-          depositToAave,
-        });
-
         const transaction = await stataUSDC.populateTransaction.deposit(
           amount.toString(),
           activeWallet?.address,
