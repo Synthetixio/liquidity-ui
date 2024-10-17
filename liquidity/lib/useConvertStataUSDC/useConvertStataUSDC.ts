@@ -1,4 +1,4 @@
-import { useDefaultProvider, useSigner } from '@snx-v3/useBlockchain';
+import { useDefaultProvider, useSigner, useWallet } from '@snx-v3/useBlockchain';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { ZEROWEI } from '@snx-v3/constants';
@@ -21,6 +21,7 @@ export function useConvertStataUSDC({
   const { gasSpeed } = useGasSpeed();
   const provider = useDefaultProvider();
   const queryClient = useQueryClient();
+  const { activeWallet } = useWallet();
 
   return useMutation({
     mutationFn: async () => {
@@ -31,9 +32,16 @@ export function useConvertStataUSDC({
 
         const gasPrices = await getGasPrice({ provider: signer!.provider });
 
+        console.log('useConvertStataUSDC', {
+          amount: amount.toString(),
+          activeWallet: activeWallet?.address,
+          d: 0,
+          depositToAave,
+        });
+
         const transaction = await stataUSDC.populateTransaction.deposit(
-          amount,
-          await signer.getAddress(),
+          amount.toString(),
+          activeWallet?.address,
           0,
           depositToAave
         );

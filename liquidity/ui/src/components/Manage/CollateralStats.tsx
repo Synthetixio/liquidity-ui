@@ -41,7 +41,9 @@ export function CollateralStats({
                 newValue={newCollateralAmount}
                 formatFn={(val: Wei) => {
                   if (collateralType.displaySymbol === 'stataUSDC') {
-                    return `${currency(new Wei(val, 27).div(stataUSDCRate || ONEWEI))} Static aUSDC`;
+                    return `${currency(
+                      new Wei(val, 27).div(stataUSDCRate || ONEWEI)
+                    )} Static aUSDC`;
                   }
                   return `${currency(val)} ${collateralType.displaySymbol}`;
                 }}

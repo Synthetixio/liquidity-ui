@@ -43,6 +43,10 @@ export const useDepositBaseAndromeda = ({
   const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
   const { data: usdTokens } = useGetUSDTokens();
   const { data: collateralType } = useCollateralType(collateralSymbol);
+  // const { data: synthTokens } = useSynthTokens();
+  // const synth = synthTokens?.find(
+  //   (synth) => synth.address.toLowerCase() === collateralType?.tokenAddress.toLowerCase()
+  // );
 
   const { gasSpeed } = useGasSpeed();
 
@@ -93,6 +97,9 @@ export const useDepositBaseAndromeda = ({
 
         const spotMarketId = getSpotMarketId(collateralSymbol);
         const amountD18 = amount.gt(0) ? parseUnits(amount.toString(), 18) : BigNumber.from(0);
+
+        // const TokenContract = new ethers.Contract(synth?.token.address || '', tokenAbi, signer);
+        // const balance = await TokenContract.balanceOf(await signer.getAddress());
 
         // Wrap
         const wrap = collateralAmount.gt(0)

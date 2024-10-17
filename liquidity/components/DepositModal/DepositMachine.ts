@@ -19,28 +19,30 @@ export const Events = {
 export const State = {
   idle: 'idle',
   wrap: 'wrap',
-  approve: 'approve',
+  approveCollateral: 'approveCollateral',
   wrapUSDC: 'wrapUSDC',
-  approveStata: 'approveStata',
+  approveUSDCForStata: 'approveUSDCForStata',
   deposit: 'deposit',
   failed: 'failed',
   success: 'success',
 } as const;
 
 const FailedSteps = {
-  [State.approve]: State.approve,
+  [State.approveCollateral]: State.approveCollateral,
   [State.wrap]: State.wrap,
   [State.deposit]: State.deposit,
   [State.wrapUSDC]: State.wrapUSDC,
-  [State.approveStata]: State.approveStata,
+  [State.approveUSDCForStata]: State.approveUSDCForStata,
 } as const;
 
 export const ServiceNames = {
   wrapEth: 'wrapEth',
-  approveWETH: 'approveWETH',
+
+  approveUSDCForStata: 'approveUSDCForStata',
+  wrapUSDCToStataUSDC: 'wrapUSDCToStataUSDC',
+
+  approveCollateral: 'approveCollateral',
   executeDeposit: 'executeDeposit',
-  wrapUSDCToStataUSDC: 'executeWrapUSDC',
-  approveStataUSDC: 'approveStataUSDC',
 } as const;
 
 type Context = {
@@ -86,7 +88,7 @@ type MachineState =
       context: Context & { error: null };
     }
   | {
-      value: StateType['approve'];
+      value: StateType['approveCollateral'];
       context: Context & { error: null };
     }
   | {
@@ -98,7 +100,7 @@ type MachineState =
       context: Context & { error: null };
     }
   | {
-      value: StateType['approveStata'];
+      value: StateType['approveUSDCForStata'];
       context: Context & { error: null };
     }
   | {
@@ -159,16 +161,19 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
     [State.idle]: {
       on: {
         [Events.RUN]: [
-          { target: State.wrap, cond: (context) => context.wrapAmount.gt(0) },
-          { target: State.approve, cond: (context) => context.requireApproval },
           {
-            target: State.wrapUSDC,
-            cond: (context) => context.isStataUSDC && !context.hasEnoughStataUSDC,
+            target: State.wrap,
+            cond: (context) => context.wrapAmount.gt(0),
           },
           {
-            target: State.approveStata,
+            target: State.approveUSDCForStata,
             cond: (context) => context.isStataUSDC && context.requireStataUSDCApproval,
           },
+          {
+            target: State.wrapUSDC,
+            cond: (context) => context.isStataUSDC,
+          },
+          { target: State.approveCollateral, cond: (context) => context.requireApproval },
           { target: State.deposit },
         ],
       },
@@ -183,32 +188,29 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
           }),
         },
         onDone: [
-          { target: State.approve, cond: (context) => context.requireApproval },
+          {
+            target: State.approveUSDCForStata,
+            cond: (context) => context.requireStataUSDCApproval && context.isStataUSDC,
+          },
+          { target: State.approveCollateral, cond: (context) => context.requireApproval },
           { target: State.deposit },
         ],
       },
     },
-    [State.approve]: {
+    [State.approveUSDCForStata]: {
       invoke: {
-        src: ServiceNames.approveWETH,
-        onDone: [
-          {
-            target: State.wrapUSDC,
-            cond: (context) => context.isStataUSDC && !context.hasEnoughStataUSDC,
-          },
-          {
-            target: State.approveStata,
-            cond: (context) => context.isStataUSDC && context.requireStataUSDCApproval,
-          },
-          {
-            target: State.deposit,
-          },
-        ],
+        src: ServiceNames.approveUSDCForStata,
         onError: {
           target: State.failed,
           actions: assign({
-            error: (_context, event) => ({ error: event.data, step: FailedSteps.approve }),
+            error: (_context, event) => ({
+              error: event.data,
+              step: FailedSteps.approveUSDCForStata,
+            }),
           }),
+        },
+        onDone: {
+          target: State.wrapUSDC,
         },
       },
     },
@@ -223,8 +225,8 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
         },
         onDone: [
           {
-            target: State.approveStata,
-            cond: (context) => context.isStataUSDC && context.requireStataUSDCApproval,
+            target: State.approveCollateral,
+            cond: (context) => context.requireApproval,
           },
           {
             target: State.deposit,
@@ -232,20 +234,27 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
         ],
       },
     },
-    [State.approveStata]: {
+
+    [State.approveCollateral]: {
       invoke: {
-        src: ServiceNames.approveStataUSDC,
+        src: ServiceNames.approveCollateral,
+        onDone: [
+          {
+            target: State.deposit,
+          },
+        ],
         onError: {
           target: State.failed,
           actions: assign({
-            error: (_context, event) => ({ error: event.data, step: FailedSteps.approveStata }),
+            error: (_context, event) => ({
+              error: event.data,
+              step: FailedSteps.approveCollateral,
+            }),
           }),
-        },
-        onDone: {
-          target: State.deposit,
         },
       },
     },
+
     [State.deposit]: {
       invoke: {
         src: ServiceNames.executeDeposit,
@@ -264,8 +273,8 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
       on: {
         [Events.RETRY]: [
           {
-            target: State.approve,
-            cond: (c) => c.error?.step === FailedSteps.approve,
+            target: State.approveCollateral,
+            cond: (c) => c.error?.step === FailedSteps.approveCollateral,
             actions: assign({ error: (_) => null }),
           },
           {
@@ -279,8 +288,8 @@ export const DepositMachine = createMachine<Context, DepositEvents, MachineState
             actions: assign({ error: (_) => null }),
           },
           {
-            target: State.approveStata,
-            cond: (c) => c.error?.step === FailedSteps.approveStata,
+            target: State.approveUSDCForStata,
+            cond: (c) => c.error?.step === FailedSteps.approveUSDCForStata,
             actions: assign({ error: (_) => null }),
           },
           {
