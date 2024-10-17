@@ -12,6 +12,7 @@ export * from './importers/importSpotMarketProxy';
 export * from './importers/importPerpsMarketProxy';
 export * from './importers/importPerpsAccountProxy';
 export * from './importers/importPythERC7412Wrapper';
+export * from './importers/importPythVerfier';
 
 // Deployment extras
 export * from './importers/importExtras';
