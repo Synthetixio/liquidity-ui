@@ -12,6 +12,7 @@ import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useGetUSDTokens } from '@snx-v3/useGetUSDTokens';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
+// import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import Wei, { wei } from '@synthetixio/wei';
 import { useMutation } from '@tanstack/react-query';
@@ -90,13 +91,16 @@ export const useDepositBaseAndromeda = ({
           ? undefined
           : CoreProxy.populateTransaction['createAccount(uint128)'](BigNumber.from(id));
 
-        const amount = collateralChange.sub(availableCollateral);
+        const collateralUpdate = wei(collateralChange.toNumber().toFixed(6));
+        const amount = collateralUpdate.sub(availableCollateral);
         const collateralAmount = amount.gt(0)
           ? parseUnits(amount.toString(), 6)
           : BigNumber.from(0);
 
         const spotMarketId = getSpotMarketId(collateralSymbol);
-        const amountD18 = amount.gt(0) ? parseUnits(amount.toString(), 18) : BigNumber.from(0);
+        const amountD18 = amount.gt(0)
+          ? parseUnits(collateralAmount.toString(), 12)
+          : BigNumber.from(0);
 
         // const TokenContract = new ethers.Contract(synth?.token.address || '', tokenAbi, signer);
         // const balance = await TokenContract.balanceOf(await signer.getAddress());
@@ -130,7 +134,7 @@ export const useDepositBaseAndromeda = ({
           BigNumber.from(id),
           BigNumber.from(poolId),
           synthAddress,
-          currentCollateral.toBN().add(parseUnits(collateralChange.toString(), 18)).toString(),
+          currentCollateral.toBN().add(parseUnits(collateralUpdate.toString(), 18)).toString(),
           wei(1).toBN()
         );
 
