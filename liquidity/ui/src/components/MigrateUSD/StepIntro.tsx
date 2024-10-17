@@ -49,7 +49,7 @@ export const StepIntro = ({
   return (
     <VStack gap={2.5}>
       <Text width="100%" textAlign="left" fontSize="14px">
-        Convert your sUSD on Ethereum to V3 compatible sUSD. You will need V3 compatible sUSD to interact with
+        Convert your sUSD on Ethereum Mainnet to V3 compatible sUSD. You will need V3 compatible sUSD to interact with
         the new Synthetix products.
       </Text>
 
