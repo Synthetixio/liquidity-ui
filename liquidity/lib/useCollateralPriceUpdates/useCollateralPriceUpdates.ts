@@ -12,10 +12,14 @@ import { ethers } from 'ethers';
 const priceService = new EvmPriceServiceConnection(offchainMainnetEndpoint);
 
 function getAllPriceIdsEntries(extras: any) {
-  return Object.entries(extras).filter(
-    ([key, value]) =>
-      String(value).length === 66 &&
-      (key.startsWith('pyth_feed_id_') || (key.startsWith('pyth') && key.endsWith('FeedId')))
+  return Array.from(
+    new Set(
+      Object.entries(extras).filter(
+        ([key, value]) =>
+          String(value).length === 66 &&
+          (key.startsWith('pyth_feed_id_') || (key.startsWith('pyth') && key.endsWith('FeedId')))
+      )
+    )
   );
 }
 

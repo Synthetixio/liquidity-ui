@@ -6,6 +6,7 @@ import {
   importCoreProxy,
   importMulticall3,
   importPythERC7412Wrapper,
+  importPythVerfier,
 } from '@snx-v3/contracts';
 import { Network, deploymentHasERC7412, getMagicProvider } from '@snx-v3/useBlockchain';
 import { ethers } from 'ethers';
@@ -75,12 +76,7 @@ async function fetchOffchainData({
     isTestnet ? offchainTestnetEndpoint : offchainMainnetEndpoint
   );
   const signedOffchainData = await priceService.getPriceFeedsUpdateData(priceIds);
-  const updateType = 1;
-  const stalenessTolerance = 3300;
-  return ethers.utils.defaultAbiCoder.encode(
-    ['uint8', 'uint64', 'bytes32[]', 'bytes[]'],
-    [updateType, stalenessTolerance, priceIds, signedOffchainData]
-  );
+  return signedOffchainData;
 }
 
 function parseError(
@@ -245,7 +241,7 @@ export const withERC7412 = async (
   }
 
   const AllErrorsContract = await importAllErrors(network.id, network.preset);
-  const PythERC7412Wrapper = await importPythERC7412Wrapper(network.id, network.preset);
+  const PythVerfier = await importPythVerfier(network.id, network.preset);
 
   while (true) {
     try {
@@ -299,25 +295,25 @@ export const withERC7412 = async (
           }
         }
       }
-      console.log(`[${label}]`, { missingPriceUpdates });
-      if (missingPriceUpdates.length < 1) {
+      const missingPriceUpdatesUnique = Array.from(new Set(missingPriceUpdates));
+      console.log(`[${label}]`, { missingPriceUpdates: missingPriceUpdatesUnique });
+      if (missingPriceUpdatesUnique.length < 1) {
         // some other kind of error that's not related to price
         throw error;
       }
 
       const signedOffchainData = await fetchOffchainData({
-        priceIds: missingPriceUpdates,
+        priceIds: missingPriceUpdatesUnique,
         isTestnet: network.isTestnet,
       });
 
       const extraPriceUpdateTxn = {
         from,
-        to: PythERC7412Wrapper.address,
-        data: new ethers.utils.Interface(PythERC7412Wrapper.abi).encodeFunctionData(
-          'fulfillOracleQuery',
-          [signedOffchainData]
-        ),
-        value: ethers.BigNumber.from(missingPriceUpdates.length),
+        to: PythVerfier.address,
+        data: new ethers.utils.Interface(PythVerfier.abi).encodeFunctionData('updatePriceFeeds', [
+          signedOffchainData,
+        ]),
+        value: ethers.BigNumber.from(missingPriceUpdatesUnique.length),
         requireSuccess: false,
       };
       // return [extraPriceUpdateTxn, ...calls.map()];
