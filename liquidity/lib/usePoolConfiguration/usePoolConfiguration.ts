@@ -1,5 +1,5 @@
 import { useDefaultProvider, useNetwork } from '@snx-v3/useBlockchain';
-import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { getPriceUpdates, getPythFeedIds } from '@snx-v3/useCollateralPriceUpdates';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { erc7412Call } from '@snx-v3/withERC7412';
 import { SmallIntSchema, WeiSchema } from '@snx-v3/zod';
@@ -26,7 +26,6 @@ export const usePoolConfiguration = (poolId?: string) => {
   const { network } = useNetwork();
   const { data: CoreProxy } = useCoreProxy();
   const provider = useDefaultProvider();
-  const { data: priceUpdateTx } = useCollateralPriceUpdates();
 
   return useQuery({
     enabled: Boolean(CoreProxy && poolId && network && provider),
@@ -50,9 +49,9 @@ export const usePoolConfiguration = (poolId?: string) => {
         markets.map((m) => CoreProxy.populateTransaction.isMarketCapacityLocked(m.id))
       );
 
-      if (priceUpdateTx) {
-        calls.unshift(priceUpdateTx as any);
-      }
+      calls.unshift(
+        (await getPriceUpdates((await getPythFeedIds(network)) as string[], network)) as any
+      );
 
       const decoded = await erc7412Call(
         network,

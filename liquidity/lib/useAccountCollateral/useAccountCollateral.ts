@@ -1,6 +1,6 @@
 import { stringToHash } from '@snx-v3/tsHelpers';
 import { useDefaultProvider, useNetwork } from '@snx-v3/useBlockchain';
-import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { getPriceUpdates, getPythFeedIds } from '@snx-v3/useCollateralPriceUpdates';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useSystemToken } from '@snx-v3/useSystemToken';
@@ -73,7 +73,6 @@ export function useAccountCollateral({
   const { data: collateralTypes } = useCollateralTypes(includeDelegationOff);
 
   const provider = useDefaultProvider();
-  const { data: priceUpdateTx } = useCollateralPriceUpdates();
 
   const { data: systemToken } = useSystemToken();
 
@@ -85,7 +84,6 @@ export function useAccountCollateral({
       { systemToken: systemToken?.address },
       {
         contracts: stringToHash([CoreProxy?.address].join()),
-        priceUpdateTx: stringToHash(priceUpdateTx?.data),
       },
     ],
     enabled: Boolean(
@@ -123,9 +121,11 @@ export function useAccountCollateral({
         CoreProxy,
       });
       const allCalls = [...calls];
-      if (priceUpdateTx) {
-        allCalls.unshift(priceUpdateTx as any);
-      }
+
+      allCalls.unshift(
+        (await getPriceUpdates((await getPythFeedIds(network)) as string[], network)) as any
+      );
+
       const data = await erc7412Call(network, provider, allCalls, decoder, 'useAccountCollateral');
 
       return data.map((x) => {
@@ -153,14 +153,13 @@ export function useAccountSpecificCollateral(accountId?: string, collateralAddre
   const { data: CoreProxy } = useCoreProxy();
   const { network } = useNetwork();
   const provider = useDefaultProvider();
-  const { data: priceUpdateTx } = useCollateralPriceUpdates();
 
   return useQuery({
     queryKey: [
       `${network?.id}-${network?.preset}`,
       'AccountSpecificCollateral',
       { accountId },
-      { token: collateralAddress, priceUpdateTx: stringToHash(priceUpdateTx?.data) },
+      { token: collateralAddress },
     ],
     enabled: Boolean(CoreProxy && accountId && collateralAddress && network && provider),
     queryFn: async function () {
@@ -173,9 +172,10 @@ export function useAccountSpecificCollateral(accountId?: string, collateralAddre
         CoreProxy,
       });
       const allCalls = [...calls];
-      if (priceUpdateTx) {
-        allCalls.unshift(priceUpdateTx as any);
-      }
+
+      allCalls.unshift(
+        (await getPriceUpdates((await getPythFeedIds(network)) as string[], network)) as any
+      );
 
       const data = await erc7412Call(
         network,

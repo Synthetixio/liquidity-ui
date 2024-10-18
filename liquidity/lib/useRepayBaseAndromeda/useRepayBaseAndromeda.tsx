@@ -127,7 +127,7 @@ export const useRepayBaseAndromeda = ({
 
         const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
         if (priceUpdateTx) {
-          calls.push(priceUpdateTx as any);
+          calls.unshift(priceUpdateTx as any);
         }
 
         const walletAddress = await signer.getAddress();

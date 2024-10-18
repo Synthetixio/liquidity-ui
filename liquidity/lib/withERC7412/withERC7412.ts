@@ -142,9 +142,11 @@ async function logMulticall({
 }) {
   const CoryProxyContract = await importCoreProxy(network.id, network.preset);
   const PythERC7412Wrapper = await importPythERC7412Wrapper(network.id, network.preset);
+  const PythVerfier = await importPythVerfier(network.id, network.preset);
   const AllInterface = new ethers.utils.Interface([
     ...CoryProxyContract.abi,
     ...PythERC7412Wrapper.abi,
+    ...PythVerfier.abi,
   ]);
   console.log(
     `[${label}] calls`,

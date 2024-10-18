@@ -1,10 +1,14 @@
 import { EvmPriceServiceConnection } from '@pythnetwork/pyth-evm-js';
 import { offchainMainnetEndpoint } from '@snx-v3/constants';
-import { importExtras, importMulticall3, importPythERC7412Wrapper } from '@snx-v3/contracts';
+import {
+  importExtras,
+  importMulticall3,
+  importPythERC7412Wrapper,
+  importPythVerfier,
+} from '@snx-v3/contracts';
 import { parseUnits } from '@snx-v3/format';
 import { Network, useDefaultProvider, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { networksOffline } from '@snx-v3/usePoolsList';
-import { ERC7412_ABI } from '@snx-v3/withERC7412';
 import { wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
@@ -23,7 +27,7 @@ function getAllPriceIdsEntries(extras: any) {
   );
 }
 
-async function getPythFeedIds(network: Network) {
+export async function getPythFeedIds(network: Network) {
   const extras = await importExtras(network.id, network.preset);
   return getAllPriceIdsEntries(extras).map(([_key, value]) => value);
 }
@@ -73,25 +77,16 @@ async function getPythFeedIdsFromCollateralList(
   });
 }
 
-const getPriceUpdates = async (
-  priceIds: string[],
-  stalenessTolerance: number,
-  network: Network
-) => {
-  const signedOffchainData = await priceService.getPriceFeedsUpdateData(priceIds);
-  const updateType = 1;
-  const data = ethers.utils.defaultAbiCoder.encode(
-    ['uint8', 'uint64', 'bytes32[]', 'bytes[]'],
-    [updateType, stalenessTolerance, priceIds, signedOffchainData]
-  );
-  const erc7412Interface = new ethers.utils.Interface(ERC7412_ABI);
-
-  const PythERC7412Wrapper = await importPythERC7412Wrapper(network.id, network.preset);
-
+export const getPriceUpdates = async (priceIds: string[], network: Network) => {
+  const unique = Array.from(new Set(priceIds));
+  const signedOffchainData = await priceService.getPriceFeedsUpdateData(unique);
+  const PythVerfier = await importPythVerfier(network.id, network.preset);
   return {
-    to: PythERC7412Wrapper.address,
-    data: erc7412Interface.encodeFunctionData('fulfillOracleQuery', [data]),
-    value: priceIds.length,
+    to: PythVerfier.address,
+    data: new ethers.utils.Interface(PythVerfier.abi).encodeFunctionData('updatePriceFeeds', [
+      signedOffchainData,
+    ]),
+    value: unique.length,
   };
 };
 
@@ -148,7 +143,7 @@ export const useOfflinePrices = (collaterals?: Collaterals[]) => {
       });
       return returnData;
     },
-    refetchInterval: 60000,
+    refetchInterval: 60_000,
   });
 };
 
@@ -157,13 +152,14 @@ export const useCollateralPriceUpdates = (customNetwork?: Network) => {
   const network = customNetwork || currentNetwork;
   const provider = useDefaultProvider();
   const { activeWallet } = useWallet();
+  const walletAddress = activeWallet?.address;
 
   return useQuery({
-    queryKey: [`${network?.id}-${network?.preset}`, 'price-updates', activeWallet?.address],
-    enabled: Boolean(network?.id && network?.preset),
+    queryKey: [`${network?.id}-${network?.preset}`, 'PriceUpdates', { walletAddress }],
+    enabled: Boolean(network && provider && activeWallet),
     queryFn: async () => {
-      const stalenessTolerance = 3300; // normally we have tolerance of 3600, which leaves us with extra 5min
-      if (!(network?.id && network?.preset)) {
+      const stalenessTolerance = 1600;
+      if (!(network && provider && activeWallet)) {
         throw 'OMG';
       }
 
@@ -204,7 +200,7 @@ export const useCollateralPriceUpdates = (customNetwork?: Network) => {
 
         const getPricesTx = multicallInterface.encodeFunctionData('aggregate3Value', [txs]);
 
-        const result = await provider?.call({
+        const result = await provider.call({
           data: getPricesTx,
           to: multicallAddress,
         });
@@ -228,8 +224,8 @@ export const useCollateralPriceUpdates = (customNetwork?: Network) => {
 
         if (outdatedPriceIds.length) {
           return {
-            ...(await getPriceUpdates(outdatedPriceIds, stalenessTolerance, network)),
-            from: activeWallet?.address,
+            ...(await getPriceUpdates(outdatedPriceIds, network)),
+            from: walletAddress,
           };
         }
 
