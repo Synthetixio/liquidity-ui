@@ -313,8 +313,7 @@ export const InitialDeposit: FC<{
   const { data: collateralTypes } = useCollateralTypes();
 
   const collateral = collateralTypes?.filter(
-    (collateral) =>
-      collateral.tokenAddress.toLowerCase() === liquidityPosition?.tokenAddress.toLowerCase()
+    (collateral) => collateral.symbol.toLowerCase() === collateralSymbol?.toLowerCase()
   )[0];
 
   const isStataUSDC = collateralTypes
