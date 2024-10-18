@@ -3,7 +3,7 @@ import { wei } from '@synthetixio/wei';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ethers } from 'ethers';
 
-export const abi = [
+export const tokenAbi = [
   'function balanceOf(address) view returns (uint256)',
   'function decimals() view returns (uint8)',
 ];
@@ -26,7 +26,7 @@ export const useTokenBalance = (tokenAddress?: string, customNetwork?: Network) 
         throw 'OMFG';
       }
 
-      const TokenContract = new ethers.Contract(tokenAddress, abi, provider);
+      const TokenContract = new ethers.Contract(tokenAddress, tokenAbi, provider);
       const [balance, decimals] = await Promise.all([
         TokenContract.balanceOf(walletAddress),
         TokenContract.decimals(),
@@ -64,7 +64,7 @@ export const useTokenBalances = (tokenAddresses: string[], customNetwork?: Netwo
 
       return await Promise.all(
         tokenAddresses.map(async (tokenAddress) => {
-          const TokenContract = new ethers.Contract(tokenAddress, abi, provider);
+          const TokenContract = new ethers.Contract(tokenAddress, tokenAbi, provider);
           const [balance, decimals] = await Promise.all([
             TokenContract.balanceOf(walletAddress),
             TokenContract.decimals(),
