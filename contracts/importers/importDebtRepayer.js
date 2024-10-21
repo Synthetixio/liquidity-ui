@@ -5,15 +5,6 @@ const abi = [
 export async function importDebtRepayer(chainId, preset) {
   const deployment = `${Number(chainId).toFixed(0)}-${preset}`;
   switch (deployment) {
-    case '1-main': {
-      return { address: '0x', abi };
-    }
-    case '11155111-main': {
-      return { address: '0x', abi };
-    }
-    case '10-main': {
-      return { address: '0x', abi };
-    }
     case '8453-andromeda': {
       // https://basescan.org/address/0xBD8004ea5c73E33d405d35d594221Efc733F7E37#code
       return { address: '0xBD8004ea5c73E33d405d35d594221Efc733F7E37', abi };
