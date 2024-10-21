@@ -5013,6 +5013,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/close-position-arbitrum@workspace:contracts/close-position-arbitrum":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/close-position-arbitrum@workspace:contracts/close-position-arbitrum"
+  dependencies:
+    forge-std: "github:foundry-rs/forge-std"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/constants@workspace:*, @snx-v3/constants@workspace:liquidity/lib/constants":
   version: 0.0.0-use.local
   resolution: "@snx-v3/constants@workspace:liquidity/lib/constants"
