@@ -72,6 +72,7 @@
     "@snx-v3/useRewards": "workspace:^",
     "@snx-v3/useRewardsDistributors": "workspace:*",
     "@snx-v3/useStaticAaveUSDCRate": "workspace:*",
+    "@snx-v3/useSynthTokens": "workspace:*",
     "@snx-v3/useSystemToken": "workspace:*",
     "@snx-v3/useTokenBalance": "workspace:*",
     "@snx-v3/useTokenPrice": "workspace:*",
