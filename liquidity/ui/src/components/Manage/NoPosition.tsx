@@ -17,7 +17,6 @@ import { CollateralStats } from './CollateralStats';
 import { DebtStats } from './DebtStats';
 import { PnlStats } from './PnlStats';
 import { PositionTitle } from './PositionTitle';
-import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
 
 export const NoPosition: FC<{
   poolName?: string;
@@ -31,7 +30,6 @@ export const NoPosition: FC<{
     useContext(ManagePositionContext);
   const [txnModalOpen, setTxnModalOpen] = useState<'deposit' | null>(null);
   const { network } = useNetwork();
-  const { data: stataUSDCRate } = useStaticAaveUSDCRate();
 
   return (
     <Box mb={12} mt={8}>
@@ -47,7 +45,6 @@ export const NoPosition: FC<{
               newCollateralAmount={collateralChange}
               collateralValue={ZEROWEI}
               hasChanges={collateralChange.gt(0)}
-              stataUSDCRate={stataUSDCRate}
             />
             {isBaseAndromeda(network?.id, network?.preset) ? (
               <PnlStats

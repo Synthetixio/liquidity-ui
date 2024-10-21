@@ -1,6 +1,6 @@
 import { Flex, Text } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
-import { ONEWEI, ZEROWEI } from '@snx-v3/constants';
+import { ZEROWEI } from '@snx-v3/constants';
 import { currency } from '@snx-v3/format';
 import { CollateralType } from '@snx-v3/useCollateralTypes';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
@@ -12,13 +12,11 @@ export function CollateralStats({
   collateralType,
   newCollateralAmount,
   hasChanges,
-  stataUSDCRate,
 }: {
   liquidityPosition?: LiquidityPosition;
   collateralType?: CollateralType;
   newCollateralAmount: Wei;
   collateralValue: Wei;
-  stataUSDCRate?: Wei;
   hasChanges: boolean;
 }) {
   return (
@@ -40,11 +38,6 @@ export function CollateralStats({
                 value={liquidityPosition.collateralAmount}
                 newValue={newCollateralAmount}
                 formatFn={(val: Wei) => {
-                  if (collateralType.displaySymbol === 'stataUSDC') {
-                    return `${currency(
-                      new Wei(val, 27).div(stataUSDCRate || ONEWEI)
-                    )} Static aUSDC`;
-                  }
                   return `${currency(val)} ${collateralType.displaySymbol}`;
                 }}
                 hasChanges={hasChanges}
@@ -71,13 +64,7 @@ export function CollateralStats({
               <ChangeStat
                 value={ZEROWEI}
                 newValue={newCollateralAmount}
-                formatFn={(val: Wei) =>
-                  `${currency(val)} ${
-                    collateralType?.displaySymbol === 'stataUSDC'
-                      ? 'USDC'
-                      : collateralType?.displaySymbol || ''
-                  }`
-                }
+                formatFn={(val: Wei) => `${currency(val)} ${collateralType?.displaySymbol || ''}`}
                 hasChanges={hasChanges}
               />
               <Text fontWeight="400" color="white" fontSize="16px">

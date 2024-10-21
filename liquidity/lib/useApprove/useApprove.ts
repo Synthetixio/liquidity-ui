@@ -86,5 +86,6 @@ export const useApprove = (
     approve: mutation.mutateAsync,
     refetchAllowance,
     requireApproval: !sufficientAllowance,
+    allowance,
   };
 };

@@ -184,10 +184,10 @@ export const DepositModalUi: FC<{
               title="Approve Static aUSDC transfer"
               subtitle={<Text>You must approve your Static aUSDC transfer before depositing.</Text>}
               status={{
-                failed: error?.step === State.approveUSDCForStata,
+                failed: error?.step === State.approveCollateral,
                 disabled: state.matches(State.success) && requireApproval,
                 success: !requireApproval || state.matches(State.success),
-                loading: state.matches(State.approveUSDCForStata) && !error,
+                loading: state.matches(State.approveCollateral) && !error,
               }}
             />
             <Multistep
@@ -345,9 +345,13 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
 
   const { data: synthTokens } = useSynthTokens();
   const synth = synthTokens?.find(
-    (synth) => synth.address.toLowerCase() === collateral?.tokenAddress.toLowerCase()
+    (synth) =>
+      collateral &&
+      [synth.address.toLowerCase(), synth.token.address.toLowerCase()].includes(
+        collateral.tokenAddress.toLowerCase()
+      )
   );
-  const { data: synthBalance } = useTokenBalance(collateral?.tokenAddress);
+
   const { data: stataUSDCTokenBalance, refetch: refetchStataUSDCBalance } = useTokenBalance(
     stataUSDC?.address
   );
@@ -369,18 +373,13 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
     }
   }, [isBase, isStataUSDC, stataUSDCRate]);
 
-  const depositAmount = useMemo(
-    () => collateralChange.div(collateralRate),
-    [collateralChange, collateralRate]
-  );
-
   const synthNeeded = useMemo(() => {
-    let amount = depositAmount.sub(availableCollateral).sub(synthBalance || ZEROWEI);
+    let amount = collateralChange.sub(availableCollateral);
     if (isStataUSDC) {
       amount = wei(amount.toNumber().toFixed(6));
     }
     return amount.lt(0) ? ZEROWEI : amount;
-  }, [availableCollateral, depositAmount, isStataUSDC, synthBalance]);
+  }, [availableCollateral, collateralChange, isStataUSDC]);
 
   const collateralNeeded = useMemo(() => {
     if (isBase && isStataUSDC) {
@@ -407,7 +406,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
 
   const { approve: approveUSDC, requireApproval: requireUSDCApproval } = useApprove({
     contractAddress: USDC?.address,
-    amount: USDCAmountForStataUSDC,
+    amount: USDCAmountForStataUSDC.mul(110).div(100).toString(),
     spender: stataUSDC?.address,
   });
 
@@ -419,16 +418,17 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
 
   //Collateral Approval
   const amountToApprove = useMemo(() => {
-    if (collateralNeeded.lte(0)) {
+    if (collateralChange.sub(availableCollateral).lte(0)) {
       return 0;
     }
-    return parseUnits(collateralNeeded, synth?.token.decimals);
-  }, [collateralNeeded, synth?.token.decimals]);
+    return parseUnits(collateralChange.sub(availableCollateral), synth?.token.decimals);
+  }, [availableCollateral, collateralChange, synth?.token.decimals]);
   const { approve, requireApproval } = useApprove({
     contractAddress: synth?.token.address,
     amount: amountToApprove,
     spender: isBase ? SpotProxy?.address : CoreProxy?.address,
   });
+
   //Collateral Approval Done
 
   //Deposit
@@ -448,7 +448,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
     newAccountId,
     poolId,
     collateralTypeAddress: synth?.token.address,
-    collateralChange: depositAmount,
+    collateralChange,
     currentCollateral,
     availableCollateral: availableCollateral || ZEROWEI,
     collateralSymbol,
@@ -491,9 +491,10 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
 
       [ServiceNames.approveUSDCForStata]: async () => {
         try {
-          if (!requireUSDCApproval) {
+          if (!requireUSDCApproval || USDCAmountForStataUSDC.lte(1000) || !isStataUSDC) {
             return;
           }
+
           toast({
             title: 'Approve USDC for transfer',
             description: 'Approve USDC so it can be wrapped',
@@ -522,7 +523,8 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
         }
       },
       [ServiceNames.wrapUSDCToStataUSDC]: async () => {
-        if (USDCAmountForStataUSDC.lte(0) || !isStataUSDC) {
+        //If less than 0.0001 no need for wrapping
+        if (USDCAmountForStataUSDC.lte(1000) || !isStataUSDC) {
           return;
         }
         try {
@@ -771,7 +773,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
 
   return (
     <DepositModalUi
-      collateralChange={depositAmount}
+      collateralChange={collateralChange}
       isOpen={isOpen}
       onClose={onClose}
       collateralType={collateral}

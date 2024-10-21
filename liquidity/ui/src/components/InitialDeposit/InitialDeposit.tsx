@@ -27,19 +27,14 @@ import { FC, useContext, useMemo, useState } from 'react';
 import { TokenIcon } from '..';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { MAINNET, SEPOLIA, useNetwork } from '@snx-v3/useBlockchain';
-import {
-  getSpotMarketId,
-  getStataUSDCOnBase,
-  getUSDCOnBase,
-  isBaseAndromeda,
-} from '@snx-v3/isBaseAndromeda';
-import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
+import { getUSDCOnBase } from '@snx-v3/isBaseAndromeda';
 import { WithdrawIncrease } from '@snx-v3/WithdrawIncrease';
 import { formatNumber } from '@snx-v3/formatters';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { ONEWEI, ZEROWEI } from '@snx-v3/constants';
+import { ZEROWEI } from '@snx-v3/constants';
 import { MigrationBanner } from '../Migration/MigrationBanner';
 import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
+import { useSynthTokens } from '@snx-v3/useSynthTokens';
 
 export const InitialDepositUi: FC<{
   collateralChange: Wei;
@@ -74,17 +69,23 @@ export const InitialDepositUi: FC<{
   const { network } = useNetwork();
   const { data: stataUSDCRate } = useStaticAaveUSDCRate();
   const { data: usdcBalance } = useTokenBalance(getUSDCOnBase(network?.id));
+
   const isStataUSDC = displaySymbol === 'stataUSDC';
-  const collaterChangeTo27 = new Wei(collateralChange, 27);
-  const minDelegationTo27 = new Wei(minDelegation, 27);
-  const stataUSDCBalanceAfterWrapping = collaterChangeTo27.div(stataUSDCRate || ONEWEI);
+
+  const stataUSDCBalance = useMemo(() => {
+    if (!isStataUSDC) {
+      return ZEROWEI;
+    }
+
+    return usdcBalance?.div(stataUSDCRate) || ZEROWEI;
+  }, [isStataUSDC, stataUSDCRate, usdcBalance]);
 
   const combinedTokenBalance = useMemo(() => {
     if (symbol === 'SNX') {
       return snxBalance?.transferable || ZEROWEI;
     }
-    if (symbol === 'stataUSDC') {
-      return (tokenBalance || ZEROWEI).add(usdcBalance || ZEROWEI);
+    if (isStataUSDC) {
+      return (tokenBalance || ZEROWEI).add(stataUSDCBalance);
     }
     if (symbol !== 'WETH') {
       return tokenBalance || ZEROWEI;
@@ -93,7 +94,7 @@ export const InitialDepositUi: FC<{
       return ZEROWEI;
     }
     return tokenBalance.add(ethBalance);
-  }, [symbol, tokenBalance, ethBalance, snxBalance?.transferable, usdcBalance]);
+  }, [symbol, isStataUSDC, tokenBalance, ethBalance, snxBalance?.transferable, stataUSDCBalance]);
 
   const maxAmount = useMemo(() => {
     return combinedTokenBalance?.add(availableCollateral);
@@ -125,8 +126,8 @@ export const InitialDepositUi: FC<{
                   width="fit-content"
                 >
                   <Text display="flex" gap={2} alignItems="center" fontWeight="600">
-                    <TokenIcon symbol={isStataUSDC ? 'USDC' : symbol} width={16} height={16} />
-                    {isStataUSDC ? 'USDC' : displaySymbol}
+                    <TokenIcon symbol={symbol} width={16} height={16} />
+                    {displaySymbol}
                   </Text>
                 </BorderBox>
                 <Tooltip
@@ -141,16 +142,22 @@ export const InitialDepositUi: FC<{
                         <Text>Unlocked Balance:</Text>
                         <Amount value={availableCollateral} />
                       </Flex>
+
                       <Flex gap="1">
-                        <Text>USDC Wallet Balance:</Text>
-                        <Amount value={usdcBalance} />
-                      </Flex>
-                      <Flex gap="1">
-                        <Text>{isStataUSDC && 'StataUSDC '}Wallet Balance:</Text>
+                        <Text>Wallet Balance:</Text>
                         <Amount
                           value={symbol === 'SNX' ? snxBalance?.transferable : tokenBalance}
                         />
                       </Flex>
+
+                      {isStataUSDC && (
+                        <Flex gap="1">
+                          <Text>USDC Balance:</Text>
+                          <Amount value={usdcBalance} />
+                          <Amount prefix="(" value={stataUSDCBalance} suffix=" Static aUSDC)" />
+                        </Flex>
+                      )}
+
                       {symbol === 'WETH' ? (
                         <Flex gap="1">
                           <Text>ETH Balance:</Text>
@@ -195,16 +202,7 @@ export const InitialDepositUi: FC<{
                   min={ZEROWEI}
                 />
                 <Flex fontSize="xs" color="whiteAlpha.700" alignSelf="flex-end" gap="1">
-                  {price.gt(0) && (
-                    <Amount
-                      prefix="$"
-                      value={
-                        isStataUSDC
-                          ? stataUSDCBalanceAfterWrapping.abs()
-                          : collateralChange.abs().mul(price)
-                      }
-                    />
-                  )}
+                  {price.gt(0) && <Amount prefix="$" value={collateralChange.abs().mul(price)} />}
                 </Flex>
               </Flex>
             </Flex>
@@ -220,14 +218,15 @@ export const InitialDepositUi: FC<{
           >
             <WithdrawIncrease />
           </Collapse>
-          <Collapse
-            in={
-              collateralChange.gt(0) && isStataUSDC
-                ? stataUSDCBalanceAfterWrapping.lt(minDelegationTo27)
-                : collateralChange.lt(minDelegation) && !overAvailableBalance
-            }
-            animateOpacity
-          >
+          <Collapse in={isStataUSDC} animateOpacity>
+            <Alert mb={6} status="info" borderRadius="6px">
+              <AlertIcon />
+              <AlertDescription>
+                Deposit USDC and it will automatically wrap into Static aUSDC
+              </AlertDescription>
+            </Alert>
+          </Collapse>
+          <Collapse in={collateralChange.lt(minDelegation) && !overAvailableBalance} animateOpacity>
             <Alert mb={6} status="error" borderRadius="6px">
               <AlertIcon />
               <AlertDescription>
@@ -307,7 +306,6 @@ export const InitialDeposit: FC<{
   liquidityPosition?: LiquidityPosition;
 }> = ({ submit, hasAccount, liquidityPosition }) => {
   const { collateralChange, setCollateralChange } = useContext(ManagePositionContext);
-  const { network } = useNetwork();
   const { collateralSymbol } = useParams();
 
   const { data: collateralTypes } = useCollateralTypes();
@@ -316,29 +314,24 @@ export const InitialDeposit: FC<{
     (collateral) => collateral.symbol.toLowerCase() === collateralSymbol?.toLowerCase()
   )[0];
 
-  const isStataUSDC = collateralTypes
-    ? collateralTypes?.filter(
-        (collateral) =>
-          collateral.tokenAddress.toLowerCase() === getStataUSDCOnBase(network?.id).toLowerCase()
-      ).length >= 1
-    : false;
-
   const { data: transferrableSnx } = useTransferableSynthetix();
 
-  const { data: wrapperToken } = useGetWrapperToken(getSpotMarketId(collateralSymbol));
+  const { data: synthTokens } = useSynthTokens();
+  const synth = synthTokens?.find(
+    (synth) =>
+      collateral &&
+      [synth.address.toLowerCase(), synth.token.address.toLowerCase()].includes(
+        collateral.tokenAddress.toLowerCase()
+      )
+  );
 
-  const balanceAddress = () => {
-    if (isBaseAndromeda(network?.id, network?.preset)) {
-      return isStataUSDC ? getUSDCOnBase(network?.id) : wrapperToken;
-    }
-    return collateral?.tokenAddress;
-  };
-
-  const { data: tokenBalance } = useTokenBalance(balanceAddress());
+  const { data: tokenBalance } = useTokenBalance(synth?.token?.address);
 
   const { data: ethBalance } = useEthBalance();
 
-  if (!collateralTypes) return null;
+  if (!collateralTypes) {
+    return null;
+  }
 
   return (
     <InitialDepositUi
