@@ -26,3 +26,4 @@ export * from './importers/importWETH';
 export * from './importers/importSNX';
 export * from './importers/importUSDC';
 export * from './importers/importPythFeeds';
+export * from './importers/importDebtRepayer';
