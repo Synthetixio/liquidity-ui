@@ -138,10 +138,11 @@ export const ClosePositionTransactions: FC<{
         transactions.push({
           title: 'Repay',
           subtitle: (
-            <Text>
-              Repay{' '}
-              <Amount value={liquidityPosition?.debt.abs()} suffix={` ${systemToken?.symbol}`} />
-            </Text>
+            <Amount
+              prefix="Repay "
+              value={liquidityPosition?.debt.abs()}
+              suffix={` ${systemToken?.symbol}`}
+            />
           ),
           cb: () => execRepay(),
         });
@@ -149,10 +150,11 @@ export const ClosePositionTransactions: FC<{
         transactions.push({
           title: 'Claim',
           subtitle: (
-            <Text>
-              Claim{' '}
-              <Amount value={liquidityPosition?.debt.abs()} suffix={` ${systemToken?.symbol}`} />
-            </Text>
+            <Amount
+              prefix="Claim "
+              value={liquidityPosition?.debt.abs()}
+              suffix={` ${systemToken?.symbol}`}
+            />
           ),
           cb: () => execBorrow(),
         });
@@ -161,13 +163,10 @@ export const ClosePositionTransactions: FC<{
       transactions.push({
         title: 'Unlock collateral',
         subtitle: (
-          <Text as="div">
-            <Amount
-              value={liquidityPosition?.collateralAmount || ZEROWEI}
-              suffix={` ${collateralSymbol}`}
-            />{' '}
-            will be unlocked from the pool.
-          </Text>
+          <Amount
+            value={liquidityPosition?.collateralAmount || ZEROWEI}
+            suffix={` ${collateralSymbol} will be unlocked from the pool.`}
+          />
         ),
         cb: () => undelegate(),
       });
@@ -184,13 +183,10 @@ export const ClosePositionTransactions: FC<{
       transactions.push({
         title: 'Unlock collateral',
         subtitle: (
-          <Text as="div">
-            <Amount
-              value={liquidityPosition?.collateralAmount || ZEROWEI}
-              suffix={` ${collateralSymbol}`}
-            />{' '}
-            will be unlocked from the pool.
-          </Text>
+          <Amount
+            value={liquidityPosition?.collateralAmount || ZEROWEI}
+            suffix={` ${collateralSymbol} will be unlocked from the pool.`}
+          />
         ),
         cb: () => undelegateBaseAndromeda(),
       });
@@ -199,9 +195,11 @@ export const ClosePositionTransactions: FC<{
         transactions.push({
           title: 'Claim',
           subtitle: (
-            <Text>
-              Claim <Amount value={liquidityPosition?.debt.abs()} suffix={` ${debtSymbol}`} />
-            </Text>
+            <Amount
+              prefix="Claim "
+              value={liquidityPosition?.debt.abs()}
+              suffix={` ${debtSymbol}`}
+            />
           ),
           cb: () => execBorrow(),
         });
