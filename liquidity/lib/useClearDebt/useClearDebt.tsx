@@ -1,5 +1,4 @@
-import { getRepayerContract, USDC_BASE_MARKET } from '@snx-v3/isBaseAndromeda';
-import { notNil } from '@snx-v3/tsHelpers';
+import { USDC_BASE_MARKET } from '@snx-v3/isBaseAndromeda';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
@@ -9,27 +8,11 @@ import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { withERC7412 } from '@snx-v3/withERC7412';
+import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
 import Wei from '@synthetixio/wei';
 import { useMutation } from '@tanstack/react-query';
 import { ethers } from 'ethers';
-import { useReducer } from 'react';
-
-export const DEBT_REPAYER_ABI = [
-  {
-    inputs: [
-      { internalType: 'contract ISynthetixCore', name: 'synthetixCore', type: 'address' },
-      { internalType: 'contract ISpotMarket', name: 'spotMarket', type: 'address' },
-      { internalType: 'uint128', name: 'accountId', type: 'uint128' },
-      { internalType: 'uint128', name: 'poolId', type: 'uint128' },
-      { internalType: 'address', name: 'collateralType', type: 'address' },
-      { internalType: 'uint128', name: 'spotMarketId', type: 'uint128' },
-    ],
-    name: 'depositDebtToRepay',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-];
+import React from 'react';
 
 export const useClearDebt = ({
   accountId,
@@ -44,7 +27,7 @@ export const useClearDebt = ({
   availableUSDCollateral?: Wei;
   debt?: Wei;
 }) => {
-  const [txnState, dispatch] = useReducer(reducer, initialState);
+  const [txnState, dispatch] = React.useReducer(reducer, initialState);
   const { data: CoreProxy } = useCoreProxy();
   const { data: SpotMarketProxy } = useSpotMarketProxy();
   const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
@@ -54,6 +37,8 @@ export const useClearDebt = ({
   const { gasSpeed } = useGasSpeed();
   const provider = useProvider();
 
+  const { data: DebtRepayer } = useDebtRepayer();
+
   const mutation = useMutation({
     mutationFn: async () => {
       if (!signer || !network || !provider) throw new Error('No signer or network');
@@ -61,21 +46,29 @@ export const useClearDebt = ({
         return;
       }
 
-      const Repayer = new ethers.Contract(getRepayerContract(network.id), DEBT_REPAYER_ABI, signer);
-
       if (!availableUSDCollateral) return;
 
       try {
         dispatch({ type: 'prompting' });
 
-        const depositDebtToRepay = Repayer.populateTransaction.depositDebtToRepay(
-          CoreProxy.address,
-          SpotMarketProxy.address,
-          accountId,
-          poolId,
-          collateralTypeAddress,
-          USDC_BASE_MARKET
-        );
+        const transactions = [];
+
+        if (DebtRepayer) {
+          const DebtRepayerContract = new ethers.Contract(
+            DebtRepayer.address,
+            DebtRepayer.abi,
+            signer
+          );
+          const depositDebtToRepay = DebtRepayerContract.populateTransaction.depositDebtToRepay(
+            CoreProxy.address,
+            SpotMarketProxy.address,
+            accountId,
+            poolId,
+            collateralTypeAddress,
+            USDC_BASE_MARKET
+          );
+          transactions.push(depositDebtToRepay);
+        }
 
         const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
 
@@ -85,8 +78,9 @@ export const useClearDebt = ({
           collateralTypeAddress,
           debt?.mul(110).div(100).toBN().toString() || '0'
         );
+        transactions.push(burn);
 
-        const callsPromise = Promise.all([depositDebtToRepay, burn].filter(notNil));
+        const callsPromise = Promise.all(transactions);
 
         const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
 
