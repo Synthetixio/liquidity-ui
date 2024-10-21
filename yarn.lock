@@ -5022,12 +5022,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/contracts@workspace:*, @snx-v3/contracts@workspace:contracts":
+"@snx-v3/contracts@workspace:*, @snx-v3/contracts@workspace:liquidity/lib/importers":
   version: 0.0.0-use.local
-  resolution: "@snx-v3/contracts@workspace:contracts"
+  resolution: "@snx-v3/contracts@workspace:liquidity/lib/importers"
   dependencies:
     "@synthetixio/v3-contracts": "npm:^7.1.0"
     viem: "npm:^2.13.5"
+  languageName: unknown
+  linkType: soft
+
+"@snx-v3/debt-repayer-base-andromeda@workspace:contracts/debt-repayer-base-andromeda":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/debt-repayer-base-andromeda@workspace:contracts/debt-repayer-base-andromeda"
+  dependencies:
+    forge-std: "github:foundry-rs/forge-std"
   languageName: unknown
   linkType: soft
 
@@ -12838,6 +12846,13 @@ __metadata:
   version: 0.6.1
   resolution: "forever-agent@npm:0.6.1"
   checksum: 10/c1e1644d5e074ac063ecbc3fb8582013ef91fff0e3fa41e76db23d2f62bc6d9677aac86db950917deed4fe1fdd772df780cfaa352075f23deec9c015313afb97
+  languageName: node
+  linkType: hard
+
+"forge-std@github:foundry-rs/forge-std":
+  version: 1.9.3
+  resolution: "forge-std@https://github.com/foundry-rs/forge-std.git#commit=1de6eecf821de7fe2c908cc48d3ab3dced20717f"
+  checksum: 10/5eef1527049dfda74a1c3ea7db34add828c756fe38e7938efb160d0405f11cc82955c8269ccff76d974ac83b9ee1d8fa2207034e8b26ef3a0d16dc640581d815
   languageName: node
   linkType: hard
 
