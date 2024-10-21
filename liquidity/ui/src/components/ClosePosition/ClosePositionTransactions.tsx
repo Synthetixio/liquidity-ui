@@ -1,9 +1,10 @@
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import { Button, Divider, Flex, Link, Skeleton, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
+import { ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
 import { parseUnits } from '@snx-v3/format';
-import { getRepayerContract, getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
 import { useApprove } from '@snx-v3/useApprove';
@@ -12,6 +13,7 @@ import { useBorrow } from '@snx-v3/useBorrow';
 import { CollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
+import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { useRepay } from '@snx-v3/useRepay';
@@ -21,7 +23,6 @@ import { useUndelegate } from '@snx-v3/useUndelegate';
 import { useUndelegateBaseAndromeda } from '@snx-v3/useUndelegateBaseAndromeda';
 import { useQueryClient } from '@tanstack/react-query';
 import { FC, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
-import { ZEROWEI } from '@snx-v3/constants';
 import { LiquidityPositionUpdated } from '../Manage/LiquidityPositionUpdated';
 
 export const ClosePositionTransactions: FC<{
@@ -88,6 +89,8 @@ export const ClosePositionTransactions: FC<{
     currentCollateral: liquidityPosition?.collateralAmount || ZEROWEI,
   });
 
+  const { data: DebtRepayer } = useDebtRepayer();
+
   //repay approval for base
   const {
     approve: approveUSDC,
@@ -99,7 +102,7 @@ export const ClosePositionTransactions: FC<{
     amount: parseUnits(liquidityPosition?.debt.abs().toString(), 6)
       .mul(110)
       .div(100),
-    spender: getRepayerContract(network?.id),
+    spender: DebtRepayer?.address,
   });
   const { exec: undelegateBaseAndromeda } = useUndelegateBaseAndromeda({
     accountId: liquidityPosition?.accountId,
