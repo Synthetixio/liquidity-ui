@@ -367,7 +367,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
 
   const collateralRate = useMemo(() => {
     if (isBase && isStataUSDC) {
-      return stataUSDCRate;
+      return stataUSDCRate || ZEROWEI;
     } else {
       return ONEWEI;
     }

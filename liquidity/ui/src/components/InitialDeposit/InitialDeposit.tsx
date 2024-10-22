@@ -73,7 +73,7 @@ export const InitialDepositUi: FC<{
   const isStataUSDC = displaySymbol === 'stataUSDC';
 
   const stataUSDCBalance = useMemo(() => {
-    if (!isStataUSDC) {
+    if (!isStataUSDC || !stataUSDCRate) {
       return ZEROWEI;
     }
 
