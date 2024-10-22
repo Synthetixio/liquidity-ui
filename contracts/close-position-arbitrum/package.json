@@ -13,7 +13,7 @@
   "author": "Synthetix",
   "license": "MIT",
   "scripts": {
-    "cov": "forge coverage -vvvvv --report lcov && lcov --rc derive_function_end_line=0 --remove ./lcov.info -o ./lcov.info '../../node_modules/' 'test/' 'src/lib' && genhtml --rc derive_function_end_line=0 ./lcov.info --output-directory coverage",
+    "cov": "./cov.sh",
     "build": "forge build",
     "forge-test": "forge test -vvvvv",
     "forge-coverage": "forge coverage"

@@ -8,9 +8,8 @@ import {MintableToken} from "./MintableToken.sol";
 import {ClosePosition} from "../src/ClosePosition.sol";
 import {ISynthetixCore} from "../src/lib/ISynthetixCore.sol";
 
-
 contract CoreProxyMock {
-    int256 public positionDebt;
+    int256 public positionDebt = 999_999;
     function setPositionDebt(
         int256 positionDebt_
     ) public {
@@ -24,7 +23,7 @@ contract CoreProxyMock {
         return positionDebt;
     }
 
-    uint256 public accountAvailableCollateral;
+    uint256 public accountAvailableCollateral = 999_999;
     function setAccountAvailableCollateral(
         uint256 accountAvailableCollateral_
     ) public {
@@ -46,7 +45,7 @@ contract CoreProxyMock {
     }
 
 
-    uint256 public depositAmount;
+    uint256 public depositAmount = 999_999;
     function setDeposit(uint256 depositAmount_) public {
         depositAmount = depositAmount_;
     }
@@ -59,7 +58,7 @@ contract CoreProxyMock {
     }
 
 
-    uint256 public delegatedCollateral;
+    uint256 public delegatedCollateral = 999_999;
     function setDelegatedCollateral(uint256 delegatedCollateral_) public {
         delegatedCollateral = delegatedCollateral_;
     }
@@ -72,27 +71,80 @@ contract CoreProxyMock {
     ) public {
         delegatedCollateral = newCollateralAmountD18_;
     }
+
+    uint256 public burnUsdAmount = 999_999;
+    function burnUsd(
+        uint128, // accountId_,
+        uint128, // poolId_,
+        address, // collateralType_,
+        uint256 amount_
+    ) public {
+        burnUsdAmount = amount_;
+    }
+
+    uint256 public mintUsdAmount = 999_999;
+    function mintUsd(
+        uint128, // accountId_,
+        uint128, // poolId_,
+        address, // collateralType_,
+        uint256 amount_
+    ) public {
+        mintUsdAmount = amount_;
+    }
 }
 
 contract ClosePositionTest is Test {
+    address private ALICE;
     MintableToken internal USDx;
     MintableToken internal ARB;
     ClosePosition internal closePosition;
     CoreProxyMock internal coreProxy;
 
     function setUp() public {
+        ALICE = vm.addr(0xA11CE);
+        vm.startPrank(ALICE);
+        console.log('ALICE', address(ALICE));
+
         USDx = new MintableToken("USDx", 18);
         ARB = new MintableToken("ARB", 18);
+
         coreProxy = new CoreProxyMock();
         coreProxy.setUsdToken(address(USDx));
-        coreProxy.setDeposit(100);
-        coreProxy.setDelegatedCollateral(1000);
         closePosition = new ClosePosition();
     }
 
-    function test_ok() public {
+    function test_closePosition_NotEnoughBalance() public {
+        coreProxy.setPositionDebt(100);
+        coreProxy.setAccountAvailableCollateral(69);
+
+        vm.expectRevert(abi.encodeWithSelector(ClosePosition.NotEnoughBalance.selector, ALICE, address(USDx), 31, 0));
+
         closePosition.closePosition(address(coreProxy), 1, 1, address(ARB));
-        console.log('delegatedCollateral', coreProxy.delegatedCollateral());
-        assertEq(coreProxy.delegatedCollateral(), 0);
+    }
+
+    function test_closePosition_with_repay() public {
+        coreProxy.setPositionDebt(100);
+        coreProxy.setAccountAvailableCollateral(69);
+
+        USDx.mint(ALICE, 1_000);
+
+        closePosition.closePosition(address(coreProxy), 1, 1, address(ARB));
+
+        assertEq(coreProxy.depositAmount(), 31, 'should deposit extra 31 USDx');
+        assertEq(coreProxy.burnUsdAmount(), 100, 'should repay 100 USDx');
+        assertEq(coreProxy.mintUsdAmount(), 999_999, 'should not claim anything');
+        assertEq(coreProxy.delegatedCollateral(), 0, 'should reduce delegated amount to 0');
+    }
+
+    function test_closePosition_with_claim() public {
+        coreProxy.setPositionDebt(-200);
+        coreProxy.setAccountAvailableCollateral(69);
+
+        closePosition.closePosition(address(coreProxy), 1, 1, address(ARB));
+
+        assertEq(coreProxy.depositAmount(), 999_999, 'should not deposit anything');
+        assertEq(coreProxy.burnUsdAmount(), 999_999, 'should not repay anything');
+        assertEq(coreProxy.mintUsdAmount(), 200, 'should claim 200 USDx');
+        assertEq(coreProxy.delegatedCollateral(), 0, 'should reduce delegated amount to 0');
     }
 }
