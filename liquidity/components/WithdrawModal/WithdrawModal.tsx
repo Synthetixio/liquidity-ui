@@ -246,7 +246,7 @@ export function WithdrawModal({
       amount={withdrawAmount}
       isOpen={isOpen}
       onClose={onClose}
-      symbol={isDebtWithdrawal ? systemToken?.symbol : collateralType?.symbol}
+      symbol={isDebtWithdrawal ? systemToken?.symbol : collateralType?.displaySymbol}
       state={txState}
       onSubmit={onSubmit}
       isDebtWithdrawal={isDebtWithdrawal}

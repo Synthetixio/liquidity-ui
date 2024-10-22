@@ -21,13 +21,14 @@ const ClaimUi: FC<{
   maxDebt: Wei;
   debtChange: Wei;
   setDebtChange: (val: Wei) => void;
-  collateralSymbol: string;
+  collateralSymbol: string | undefined;
 }> = ({ collateralSymbol, maxDebt, debtChange, setDebtChange, maxClaimble }) => {
   const { network } = useNetwork();
   const isBase = isBaseAndromeda(network?.id, network?.preset);
   const { data: systemToken } = useSystemToken();
   const max = useMemo(() => maxClaimble.add(maxDebt), [maxClaimble, maxDebt]);
-  const symbol = isBase ? collateralSymbol : systemToken?.symbol;
+  const { data: collateralType } = useCollateralType(collateralSymbol);
+  const symbol = isBase ? collateralType?.symbol : systemToken?.symbol;
   const price = useTokenPrice(symbol);
 
   return (
@@ -40,7 +41,7 @@ const ClaimUi: FC<{
           <BorderBox display="flex" py={1.5} px={2.5}>
             <Text display="flex" gap={2} fontSize="16px" alignItems="center" fontWeight="600">
               <TokenIcon symbol={symbol} width={16} height={16} />
-              {symbol}
+              {isBase ? collateralType?.displaySymbol : systemToken?.symbol}
             </Text>
           </BorderBox>
           <Flex fontSize="12px" gap="1">
@@ -165,6 +166,7 @@ export const Claim = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosi
   const { network } = useNetwork();
   const { debtChange, collateralChange, setDebtChange } = useContext(ManagePositionContext);
   const { collateralSymbol } = useParams();
+  const { data: collateralType } = useCollateralType(collateralSymbol);
 
   const maxClaimble = useMemo(() => {
     if (!liquidityPosition || liquidityPosition?.debt.gte(0)) {
@@ -173,8 +175,6 @@ export const Claim = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosi
       return wei(liquidityPosition.debt.abs().toBN().mul(99).div(100));
     }
   }, [liquidityPosition]);
-
-  const { data: collateralType } = useCollateralType(collateralSymbol);
 
   const { maxDebt } = validatePosition({
     issuanceRatioD18: collateralType?.issuanceRatioD18,
@@ -191,7 +191,7 @@ export const Claim = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosi
       debtChange={debtChange}
       maxClaimble={maxClaimble}
       maxDebt={isBaseAndromeda(network?.id, network?.preset) ? ZEROWEI : maxDebt.mul(99).div(100)}
-      collateralSymbol={collateralSymbol!}
+      collateralSymbol={collateralSymbol}
     />
   );
 };

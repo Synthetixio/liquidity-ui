@@ -15,11 +15,13 @@ import { useParams } from 'react-router-dom';
 import { ZEROWEI } from '@snx-v3/constants';
 import { TokenIcon } from '../TokenIcon';
 import { RepayAllDebt } from './';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
 
 export const Repay = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosition }) => {
   const { debtChange, setDebtChange } = useContext(ManagePositionContext);
   const { network } = useNetwork();
   const { collateralSymbol } = useParams();
+  const { data: collateralType } = useCollateralType(collateralSymbol);
 
   const isBase = isBaseAndromeda(network?.id, network?.preset);
   const availableUSDCollateral = liquidityPosition?.usdCollateral.availableCollateral;
@@ -27,7 +29,6 @@ export const Repay = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosi
   const { data: balance } = useTokenBalance(systemToken?.address);
 
   const symbol = isBase ? collateralSymbol : systemToken?.symbol;
-
   const price = useTokenPrice(symbol);
 
   if (liquidityPosition?.debt.gt(0.01) && isBaseAndromeda(network?.id, network?.preset)) {
@@ -49,7 +50,7 @@ export const Repay = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosi
           <BorderBox display="flex" py={1.5} px={2.5}>
             <Text display="flex" gap={2} fontSize="16px" alignItems="center" fontWeight="600">
               <TokenIcon symbol={symbol} width={16} height={16} />
-              {symbol}
+              {isBase ? collateralType?.displaySymbol : systemToken?.symbol}
             </Text>
           </BorderBox>
           <Flex fontSize="12px" gap="1">

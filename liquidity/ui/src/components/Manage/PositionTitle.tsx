@@ -12,6 +12,7 @@ export const PositionTitle: FC<{
   poolId?: string;
 }> = ({ collateralSymbol, poolName, isOpen, poolId }) => {
   const { data: collateral } = useCollateralType(collateralSymbol);
+
   const { network } = useNetwork();
   const navigate = useNavigate();
 

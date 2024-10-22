@@ -15,7 +15,7 @@ import { useUSDProxy } from '@snx-v3/useUSDProxy';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import { Wei } from '@synthetixio/wei';
 import { useMutation } from '@tanstack/react-query';
-import { BigNumber, constants, utils } from 'ethers';
+import { BigNumber, constants } from 'ethers';
 import { useReducer } from 'react';
 
 export const useWithdrawBaseAndromeda = ({
@@ -109,10 +109,7 @@ export const useWithdrawBaseAndromeda = ({
         const unwrapTxnPromised = SpotProxy.populateTransaction.unwrap(
           spotMarketId,
           withdrawAmount.toBN(),
-          // 2% slippage
-          Number(
-            utils.formatUnits(withdrawAmount.toBN().mul(98).div(100).toString(), 12).toString()
-          ).toFixed()
+          0
         );
 
         const [

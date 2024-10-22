@@ -24,22 +24,6 @@ import { PositionTitle } from '../components/Manage/PositionTitle';
 import { WatchAccountBanner } from '../components/WatchAccountBanner/WatchAccountBanner';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 
-function useNormalisedCollateralSymbol(collateralSymbol?: string) {
-  const { network } = useNetwork();
-
-  return useMemo(() => {
-    if (collateralSymbol !== 'USDC') {
-      return collateralSymbol;
-    }
-    if (!network?.id && network?.preset) {
-      return undefined;
-    }
-    return isBaseAndromeda(network?.id, network?.preset) && collateralSymbol === 'USDC'
-      ? 'sUSDC'
-      : collateralSymbol;
-  }, [network?.id, network?.preset, collateralSymbol]);
-}
-
 export function useCollateralDisplayName(collateralSymbol?: string) {
   const { network } = useNetwork();
 
@@ -178,7 +162,6 @@ export const ManageUi: FC<{
 
 export const Manage = () => {
   const params = useParams();
-  const collateralSymbol = useNormalisedCollateralSymbol(params.collateralSymbol);
 
   const { network } = useNetwork();
   const { activeWallet } = useWallet();
@@ -192,7 +175,7 @@ export const Manage = () => {
     poolId: params.poolId,
   });
 
-  const collateralDisplayName = useCollateralDisplayName(collateralSymbol);
+  const collateralDisplayName = collateralType?.displaySymbol;
   const { data: collateralTypes, isPending: isPendingCollaterals } = useCollateralTypes();
 
   const notSupported =
@@ -222,7 +205,7 @@ export const Manage = () => {
           ) : null}
 
           {params.accountId && isPendingLiquidityPosition ? (
-            <ManageLoading poolName={poolData?.name} collateralSymbol={collateralSymbol} />
+            <ManageLoading poolName={poolData?.name} collateralSymbol={collateralType?.symbol} />
           ) : null}
 
           {params.accountId &&
@@ -240,7 +223,7 @@ export const Manage = () => {
               poolId={params.poolId}
               liquidityPosition={liquidityPosition}
               network={network}
-              collateralSymbol={collateralSymbol}
+              collateralSymbol={collateralType?.symbol}
               collateralType={collateralType}
             />
           ) : null}

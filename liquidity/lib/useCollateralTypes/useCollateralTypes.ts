@@ -5,6 +5,7 @@ import { useSystemToken } from '@snx-v3/useSystemToken';
 import { wei, Wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
+import { useMemo } from 'react';
 
 export type CollateralType = {
   address: string;
@@ -113,7 +114,7 @@ export function useCollateralTypes(includeDelegationOff = false, customNetwork?:
 export function useCollateralType(collateralSymbol?: string) {
   const { data: collateralTypes, isFetching: isCollateralTypesFetching } = useCollateralTypes();
 
-  function getCollateralType(collateralSymbol?: string) {
+  const data = useMemo(() => {
     if (!collateralTypes || !collateralTypes?.length) {
       return;
     }
@@ -125,10 +126,10 @@ export function useCollateralType(collateralSymbol?: string) {
     return collateralTypes?.find(
       (collateral) => `${collateral.symbol}`.toLowerCase() === `${collateralSymbol}`.toLowerCase()
     );
-  }
+  }, [collateralSymbol, collateralTypes]);
 
   return {
     isFetching: isCollateralTypesFetching,
-    data: getCollateralType(collateralSymbol),
+    data,
   };
 }
