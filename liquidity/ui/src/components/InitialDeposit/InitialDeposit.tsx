@@ -70,7 +70,7 @@ export const InitialDepositUi: FC<{
   const { data: stataUSDCRate } = useStaticAaveUSDCRate();
   const { data: usdcBalance } = useTokenBalance(getUSDCOnBase(network?.id));
 
-  const isStataUSDC = displaySymbol === 'stataUSDC';
+  const isStataUSDC = symbol === 'stataUSDC';
 
   const stataUSDCBalance = useMemo(() => {
     if (!isStataUSDC || !stataUSDCRate) {

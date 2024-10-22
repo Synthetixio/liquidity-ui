@@ -83,7 +83,7 @@ export function useCollateralTypes(includeDelegationOff = false, customNetwork?:
             return {
               ...collateralType,
               symbol: 'stataUSDC',
-              displaySymbol: 'stataUSDC',
+              displaySymbol: 'Static aUSD',
               name: 'Static aUSDC',
             };
           }
