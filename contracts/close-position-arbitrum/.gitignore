@@ -1,3 +1,4 @@
 cache/
 out/
 lcov.info
+clean.lcov.info
