@@ -1,4 +1,4 @@
-# Debt Repayer for Base Andromeda
+# Debt Repayer for Arbitrum
 
 ## Running tests
 

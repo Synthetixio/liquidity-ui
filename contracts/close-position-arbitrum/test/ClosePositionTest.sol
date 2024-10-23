@@ -5,6 +5,7 @@ pragma solidity ^0.8.21;
 import {Test} from "forge-std/src/Test.sol";
 import {console} from "forge-std/src/console.sol";
 import {MintableToken} from "./MintableToken.sol";
+import {MintableNFT} from "./MintableNFT.sol";
 import {ClosePosition} from "../src/ClosePosition.sol";
 import {ISynthetixCore} from "../src/lib/ISynthetixCore.sol";
 
@@ -94,11 +95,14 @@ contract CoreProxyMock {
 }
 
 contract ClosePositionTest is Test {
-    address private ALICE;
+    address internal ALICE;
+    uint128 internal accountId = 420;
+    uint128 internal poolId = 1;
     MintableToken internal USDx;
     MintableToken internal ARB;
     ClosePosition internal closePosition;
     CoreProxyMock internal coreProxy;
+    MintableNFT internal accountProxy;
 
     function setUp() public {
         ALICE = vm.addr(0xA11CE);
@@ -110,16 +114,39 @@ contract ClosePositionTest is Test {
 
         coreProxy = new CoreProxyMock();
         coreProxy.setUsdToken(address(USDx));
+
         closePosition = new ClosePosition();
+        accountProxy = new MintableNFT('ACC');
+    }
+
+    function test_closePosition_NotEnoughAllowance() public {
+        coreProxy.setPositionDebt(100);
+        coreProxy.setAccountAvailableCollateral(69);
+
+        accountProxy.mint(ALICE, accountId);
+        accountProxy.approve(address(closePosition), accountId);
+
+        vm.expectRevert(abi.encodeWithSelector(ClosePosition.NotEnoughAllowance.selector, ALICE, address(USDx), 31, 0));
+
+        closePosition.closePosition(address(coreProxy), address(accountProxy), accountId, poolId, address(ARB));
+
+        assertEq(accountProxy.ownerOf(accountId), ALICE, 'should own Account NFT #420');
     }
 
     function test_closePosition_NotEnoughBalance() public {
         coreProxy.setPositionDebt(100);
         coreProxy.setAccountAvailableCollateral(69);
 
+        USDx.approve(address(closePosition), 31); // allow ClosePosition to spend extra 31 USDx for deposit
+
+        accountProxy.mint(ALICE, accountId);
+        accountProxy.approve(address(closePosition), accountId);
+
         vm.expectRevert(abi.encodeWithSelector(ClosePosition.NotEnoughBalance.selector, ALICE, address(USDx), 31, 0));
 
-        closePosition.closePosition(address(coreProxy), 1, 1, address(ARB));
+        closePosition.closePosition(address(coreProxy), address(accountProxy), accountId, poolId, address(ARB));
+
+        assertEq(accountProxy.ownerOf(accountId), ALICE, 'should own Account NFT #420');
     }
 
     function test_closePosition_with_repay() public {
@@ -127,24 +154,35 @@ contract ClosePositionTest is Test {
         coreProxy.setAccountAvailableCollateral(69);
 
         USDx.mint(ALICE, 1_000);
+        USDx.approve(address(closePosition), 31); // allow ClosePosition to spend extra 31 USDx for deposit
 
-        closePosition.closePosition(address(coreProxy), 1, 1, address(ARB));
+        accountProxy.mint(ALICE, accountId);
+        accountProxy.approve(address(closePosition), accountId);
+
+        closePosition.closePosition(address(coreProxy), address(accountProxy), accountId, poolId, address(ARB));
 
         assertEq(coreProxy.depositAmount(), 31, 'should deposit extra 31 USDx');
         assertEq(coreProxy.burnUsdAmount(), 100, 'should repay 100 USDx');
         assertEq(coreProxy.mintUsdAmount(), 999_999, 'should not claim anything');
         assertEq(coreProxy.delegatedCollateral(), 0, 'should reduce delegated amount to 0');
+
+        assertEq(accountProxy.ownerOf(accountId), ALICE, 'should own Account NFT #420');
     }
 
     function test_closePosition_with_claim() public {
         coreProxy.setPositionDebt(-200);
         coreProxy.setAccountAvailableCollateral(69);
 
-        closePosition.closePosition(address(coreProxy), 1, 1, address(ARB));
+        accountProxy.mint(ALICE, accountId);
+        accountProxy.approve(address(closePosition), accountId);
+
+        closePosition.closePosition(address(coreProxy), address(accountProxy), accountId, poolId, address(ARB));
 
         assertEq(coreProxy.depositAmount(), 999_999, 'should not deposit anything');
         assertEq(coreProxy.burnUsdAmount(), 999_999, 'should not repay anything');
         assertEq(coreProxy.mintUsdAmount(), 200, 'should claim 200 USDx');
         assertEq(coreProxy.delegatedCollateral(), 0, 'should reduce delegated amount to 0');
+
+        assertEq(accountProxy.ownerOf(accountId), ALICE, 'should own Account NFT #420');
     }
 }
