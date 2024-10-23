@@ -74,7 +74,7 @@ export const Withdraw = ({
           <BorderBox display="flex" py={1.5} px={2.5}>
             <Text display="flex" gap={2} fontSize="16px" alignItems="center" fontWeight="600">
               <TokenIcon symbol={symbol} width={16} height={16} />
-              {symbol}
+              {isDebtWithdrawal ? systemToken?.symbol : collateralType?.displaySymbol}
             </Text>
           </BorderBox>
           <Flex fontSize="12px" gap="1">

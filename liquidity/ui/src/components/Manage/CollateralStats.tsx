@@ -37,11 +37,9 @@ export function CollateralStats({
               <ChangeStat
                 value={liquidityPosition.collateralAmount}
                 newValue={newCollateralAmount}
-                formatFn={(val: Wei) => (
-                  <>
-                    {currency(val)} {collateralType.displaySymbol}
-                  </>
-                )}
+                formatFn={(val: Wei) => {
+                  return `${currency(val)} ${collateralType.displaySymbol}`;
+                }}
                 hasChanges={hasChanges}
                 data-cy="manage stats collateral"
               />
@@ -56,7 +54,7 @@ export function CollateralStats({
                 }
                 size="md"
                 hasChanges={hasChanges}
-                data-cy="manage stats collateral"
+                data-cy="manage stats collateral value"
               />
             </Flex>
           ) : null}
@@ -66,11 +64,7 @@ export function CollateralStats({
               <ChangeStat
                 value={ZEROWEI}
                 newValue={newCollateralAmount}
-                formatFn={(val: Wei) => (
-                  <>
-                    {currency(val)} {collateralType?.displaySymbol}
-                  </>
-                )}
+                formatFn={(val: Wei) => `${currency(val)} ${collateralType?.displaySymbol || ''}`}
                 hasChanges={hasChanges}
               />
               <Text fontWeight="400" color="white" fontSize="16px">

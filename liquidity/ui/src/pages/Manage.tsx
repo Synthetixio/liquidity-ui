@@ -1,7 +1,7 @@
 import { InfoIcon } from '@chakra-ui/icons';
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { getWrappedStataUSDCOnBase, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionProvider } from '@snx-v3/ManagePositionContext';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { Network, useNetwork, useWallet } from '@snx-v3/useBlockchain';
@@ -22,22 +22,7 @@ import { ClosePosition } from '../components/ClosePosition/ClosePosition';
 import { ManageLoading } from '../components/Manage/ManageLoading';
 import { PositionTitle } from '../components/Manage/PositionTitle';
 import { WatchAccountBanner } from '../components/WatchAccountBanner/WatchAccountBanner';
-
-function useNormalisedCollateralSymbol(collateralSymbol?: string) {
-  const { network } = useNetwork();
-
-  return useMemo(() => {
-    if (collateralSymbol !== 'USDC') {
-      return collateralSymbol;
-    }
-    if (!network?.id && network?.preset) {
-      return undefined;
-    }
-    return isBaseAndromeda(network?.id, network?.preset) && collateralSymbol === 'USDC'
-      ? 'sUSDC'
-      : collateralSymbol;
-  }, [network?.id, network?.preset, collateralSymbol]);
-}
+import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 
 export function useCollateralDisplayName(collateralSymbol?: string) {
   const { network } = useNetwork();
@@ -53,9 +38,6 @@ export function useCollateralDisplayName(collateralSymbol?: string) {
 
     if (collateralSymbol?.toLowerCase() === 'susdc') {
       return 'USDC';
-    }
-    if (collateralSymbol?.toLowerCase() === 'sstatausdc') {
-      return 'sStataUSDC';
     }
 
     return collateralSymbol;
@@ -73,6 +55,9 @@ export const ManageUi: FC<{
   const [closePosition, setClosePosition] = useState(false);
 
   const { data: poolData } = usePool(Number(network?.id), String(poolId));
+  const { data: stataUSDCAPR } = useStataUSDCApr(network?.id, network?.preset);
+  const stataUSDCAPRParsed = stataUSDCAPR || 0;
+  const isStataUSDC = getWrappedStataUSDCOnBase(network?.id) === collateralType?.tokenAddress;
 
   const [txnModalOpen, setTxnModalOpen] = useState<ManageAction | undefined>(undefined);
   const positionApr = poolData?.apr?.collateralAprs?.find(
@@ -112,7 +97,9 @@ export const ManageUi: FC<{
             </Tooltip>
             <Text fontWeight="bold" fontSize="20px" color="white" lineHeight="36px">
               {poolData && positionApr?.apr7d > 0
-                ? `${(positionApr.apr7d * 100).toFixed(2)?.concat('%')}`
+                ? `${(positionApr.apr7d * 100 + (isStataUSDC ? stataUSDCAPRParsed : 0))
+                    .toFixed(2)
+                    ?.concat('%')}`
                 : '-'}
             </Text>
           </Flex>
@@ -175,7 +162,6 @@ export const ManageUi: FC<{
 
 export const Manage = () => {
   const params = useParams();
-  const collateralSymbol = useNormalisedCollateralSymbol(params.collateralSymbol);
 
   const { network } = useNetwork();
   const { activeWallet } = useWallet();
@@ -189,7 +175,7 @@ export const Manage = () => {
     poolId: params.poolId,
   });
 
-  const collateralDisplayName = useCollateralDisplayName(collateralSymbol);
+  const collateralDisplayName = collateralType?.displaySymbol;
   const { data: collateralTypes, isPending: isPendingCollaterals } = useCollateralTypes();
 
   const notSupported =
@@ -219,7 +205,7 @@ export const Manage = () => {
           ) : null}
 
           {params.accountId && isPendingLiquidityPosition ? (
-            <ManageLoading poolName={poolData?.name} collateralSymbol={collateralSymbol} />
+            <ManageLoading poolName={poolData?.name} collateralSymbol={collateralType?.symbol} />
           ) : null}
 
           {params.accountId &&
@@ -237,7 +223,7 @@ export const Manage = () => {
               poolId={params.poolId}
               liquidityPosition={liquidityPosition}
               network={network}
-              collateralSymbol={collateralSymbol}
+              collateralSymbol={collateralType?.symbol}
               collateralType={collateralType}
             />
           ) : null}

@@ -40,7 +40,7 @@ export const PoolsList = () => {
 
     return BaseCollateralTypes.concat(ArbitrumCollateralTypes)
       .concat(MainnetCollateralTypes)
-      .filter((item) => item.displaySymbol !== 'stataUSDC');
+      .filter((item) => item.symbol !== 'stataUSDC');
   }, [ArbitrumCollateralTypes, BaseCollateralTypes, MainnetCollateralTypes]);
 
   const { data: collateralPrices, isLoading: isLoadingCollateralPrices } = useOfflinePrices(

@@ -1,5 +1,4 @@
 import { parseUnits } from '@snx-v3/format';
-import { getSpotMarketId } from '@snx-v3/isBaseAndromeda';
 import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { approveAbi } from '@snx-v3/useApprove';
@@ -12,10 +11,14 @@ import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useGetUSDTokens } from '@snx-v3/useGetUSDTokens';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
+import { useSynthTokens } from '@snx-v3/useSynthTokens';
+import { tokenAbi } from '@snx-v3/useTokenBalance';
+// import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import Wei, { wei } from '@synthetixio/wei';
 import { useMutation } from '@tanstack/react-query';
 import { BigNumber, ethers } from 'ethers';
+import { formatUnits } from 'ethers/lib/utils';
 import { useReducer } from 'react';
 
 export const useDepositBaseAndromeda = ({
@@ -43,6 +46,10 @@ export const useDepositBaseAndromeda = ({
   const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
   const { data: usdTokens } = useGetUSDTokens();
   const { data: collateralType } = useCollateralType(collateralSymbol);
+  const { data: synthTokens } = useSynthTokens();
+  const synth = synthTokens?.find(
+    (synth) => synth.address.toLowerCase() === collateralType?.tokenAddress.toLowerCase()
+  );
 
   const { gasSpeed } = useGasSpeed();
 
@@ -67,6 +74,7 @@ export const useDepositBaseAndromeda = ({
       ) {
         return;
       }
+
       if (collateralChange.eq(0)) return;
 
       try {
@@ -85,18 +93,31 @@ export const useDepositBaseAndromeda = ({
           ? undefined
           : CoreProxy.populateTransaction['createAccount(uint128)'](BigNumber.from(id));
 
-        const amount = collateralChange.sub(availableCollateral);
+        const collateralUpdate = wei(collateralChange.toNumber().toFixed(6));
+        let amount = collateralUpdate.sub(availableCollateral);
+
+        const TokenContract = new ethers.Contract(synth?.token.address || '', tokenAbi, signer);
+        const balance = formatUnits(await TokenContract.balanceOf(await signer.getAddress()), 6);
+
+        if (amount.gt(0) && amount.gt(balance) && amount.sub(balance).div(amount).lt(0.01)) {
+          amount = wei(balance.toString());
+        }
 
         const collateralAmount = amount.gt(0)
           ? parseUnits(amount.toString(), 6)
           : BigNumber.from(0);
 
-        const spotMarketId = getSpotMarketId(collateralSymbol);
-        const amountD18 = amount.gt(0) ? parseUnits(amount.toString(), 18) : BigNumber.from(0);
+        const amountD18 = amount.gt(0)
+          ? parseUnits(collateralAmount.toString(), 12)
+          : BigNumber.from(0);
 
         // Wrap
         const wrap = collateralAmount.gt(0)
-          ? SpotMarketProxy.populateTransaction.wrap(spotMarketId, collateralAmount, amountD18)
+          ? SpotMarketProxy.populateTransaction.wrap(
+              synth?.synthMarketId,
+              collateralAmount,
+              amountD18
+            )
           : undefined;
 
         // Synth
@@ -123,7 +144,11 @@ export const useDepositBaseAndromeda = ({
           BigNumber.from(id),
           BigNumber.from(poolId),
           synthAddress,
-          currentCollateral.toBN().add(parseUnits(collateralChange.toString(), 18)).toString(),
+          currentCollateral
+            .toBN()
+            .add(amountD18)
+            .add(parseUnits(availableCollateral, 18))
+            .toString(),
           wei(1).toBN()
         );
 

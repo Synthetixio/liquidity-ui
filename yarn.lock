@@ -12,6 +12,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@aave/math-utils@npm:^1.30.2":
+  version: 1.30.2
+  resolution: "@aave/math-utils@npm:1.30.2"
+  peerDependencies:
+    bignumber.js: ^9.x
+    tslib: ^2.4.x
+  checksum: 10/275654b1471382a5ab1195fc974f974b0afd25065cee50f651a8aa7f81eea1ef59ffbc8c719c4f85931d1ccf9c9e4f9c55c95460054c6faff571f3fc2c5cb829
+  languageName: node
+  linkType: hard
+
 "@adraffy/ens-normalize@npm:1.10.0":
   version: 1.10.0
   resolution: "@adraffy/ens-normalize@npm:1.10.0"
@@ -4774,14 +4784,18 @@ __metadata:
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useContractErrorParser": "workspace:*"
+    "@snx-v3/useConvertStataUSDC": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useDeposit": "workspace:*"
     "@snx-v3/useDepositBaseAndromeda": "workspace:*"
-    "@snx-v3/useGetUSDTokens": "workspace:*"
     "@snx-v3/useLiquidityPosition": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
     "@snx-v3/usePools": "workspace:*"
     "@snx-v3/useSpotMarketProxy": "workspace:*"
+    "@snx-v3/useStaticAaveUSDC": "workspace:*"
+    "@snx-v3/useStaticAaveUSDCRate": "workspace:*"
+    "@snx-v3/useSynthTokens": "workspace:*"
+    "@snx-v3/useTokenBalance": "workspace:*"
     "@snx-v3/useWrapEth": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -5187,6 +5201,8 @@ __metadata:
     "@snx-v3/useRepay": "workspace:*"
     "@snx-v3/useRewards": "workspace:^"
     "@snx-v3/useRewardsDistributors": "workspace:*"
+    "@snx-v3/useStaticAaveUSDCRate": "workspace:*"
+    "@snx-v3/useSynthTokens": "workspace:*"
     "@snx-v3/useSystemToken": "workspace:*"
     "@snx-v3/useTokenBalance": "workspace:*"
     "@snx-v3/useTokenPrice": "workspace:*"
@@ -5369,8 +5385,6 @@ __metadata:
   resolution: "@snx-v3/useAllowance@workspace:liquidity/lib/useAllowance"
   dependencies:
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/zod": "workspace:*"
-    "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     ethers: "npm:^5.7.2"
   languageName: unknown
@@ -5396,7 +5410,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useApr@workspace:liquidity/lib/useApr"
   dependencies:
+    "@aave/math-utils": "npm:^1.30.2"
     "@snx-v3/constants": "workspace:*"
+    "@snx-v3/isBaseAndromeda": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
     react: "npm:^18.2.0"
@@ -5562,6 +5578,24 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/useConvertStataUSDC@workspace:*, @snx-v3/useConvertStataUSDC@workspace:liquidity/lib/useConvertStataUSDC":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useConvertStataUSDC@workspace:liquidity/lib/useConvertStataUSDC"
+  dependencies:
+    "@snx-v3/constants": "workspace:*"
+    "@snx-v3/parser": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useGasOptions": "workspace:*"
+    "@snx-v3/useGasPrice": "workspace:*"
+    "@snx-v3/useGasSpeed": "workspace:*"
+    "@snx-v3/useStaticAaveUSDC": "workspace:*"
+    "@synthetixio/wei": "npm:^2.74.4"
+    "@tanstack/react-query": "npm:^5.8.3"
+    ethers: "npm:^5.7.2"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/useCoreProxy@workspace:*, @snx-v3/useCoreProxy@workspace:liquidity/lib/useCoreProxy":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useCoreProxy@workspace:liquidity/lib/useCoreProxy"
@@ -5600,7 +5634,6 @@ __metadata:
   resolution: "@snx-v3/useDepositBaseAndromeda@workspace:liquidity/lib/useDepositBaseAndromeda"
   dependencies:
     "@snx-v3/format": "workspace:*"
-    "@snx-v3/isBaseAndromeda": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useApprove": "workspace:*"
@@ -5613,6 +5646,8 @@ __metadata:
     "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/useGetUSDTokens": "workspace:*"
     "@snx-v3/useSpotMarketProxy": "workspace:*"
+    "@snx-v3/useSynthTokens": "workspace:*"
+    "@snx-v3/useTokenBalance": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -6044,7 +6079,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/useStaticAaveUSDCRate@workspace:liquidity/lib/useStaticAaveUSDCRate":
+"@snx-v3/useStaticAaveUSDCRate@workspace:*, @snx-v3/useStaticAaveUSDCRate@workspace:liquidity/lib/useStaticAaveUSDCRate":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useStaticAaveUSDCRate@workspace:liquidity/lib/useStaticAaveUSDCRate"
   dependencies:
