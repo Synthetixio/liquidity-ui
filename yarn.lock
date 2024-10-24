@@ -5017,6 +5017,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/close-position-arbitrum@workspace:contracts/close-position-arbitrum":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/close-position-arbitrum@workspace:contracts/close-position-arbitrum"
+  dependencies:
+    forge-std: "github:foundry-rs/forge-std"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/constants@workspace:*, @snx-v3/constants@workspace:liquidity/lib/constants":
   version: 0.0.0-use.local
   resolution: "@snx-v3/constants@workspace:liquidity/lib/constants"
@@ -5026,12 +5034,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/contracts@workspace:*, @snx-v3/contracts@workspace:contracts":
+"@snx-v3/contracts@workspace:*, @snx-v3/contracts@workspace:liquidity/lib/importers":
   version: 0.0.0-use.local
-  resolution: "@snx-v3/contracts@workspace:contracts"
+  resolution: "@snx-v3/contracts@workspace:liquidity/lib/importers"
   dependencies:
     "@synthetixio/v3-contracts": "npm:^7.1.0"
     viem: "npm:^2.13.5"
+  languageName: unknown
+  linkType: soft
+
+"@snx-v3/debt-repayer-base-andromeda@workspace:contracts/debt-repayer-base-andromeda":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/debt-repayer-base-andromeda@workspace:contracts/debt-repayer-base-andromeda"
+  dependencies:
+    forge-std: "github:foundry-rs/forge-std"
   languageName: unknown
   linkType: soft
 
@@ -5168,6 +5184,7 @@ __metadata:
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useContractErrorParser": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
+    "@snx-v3/useDebtRepayer": "workspace:*"
     "@snx-v3/useEthBalance": "workspace:*"
     "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/useGetUSDTokens": "workspace:*"
@@ -5484,11 +5501,11 @@ __metadata:
   resolution: "@snx-v3/useClearDebt@workspace:liquidity/lib/useClearDebt"
   dependencies:
     "@snx-v3/isBaseAndromeda": "workspace:*"
-    "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
+    "@snx-v3/useDebtRepayer": "workspace:*"
     "@snx-v3/useGasOptions": "workspace:*"
     "@snx-v3/useGasPrice": "workspace:*"
     "@snx-v3/useGasSpeed": "workspace:*"
@@ -5567,6 +5584,17 @@ __metadata:
   resolution: "@snx-v3/useCoreProxy@workspace:liquidity/lib/useCoreProxy"
   dependencies:
     "@ethersproject/contracts": "npm:^5.7.0"
+    "@snx-v3/contracts": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
+"@snx-v3/useDebtRepayer@workspace:*, @snx-v3/useDebtRepayer@workspace:liquidity/lib/useDebtRepayer":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useDebtRepayer@workspace:liquidity/lib/useDebtRepayer"
+  dependencies:
     "@snx-v3/contracts": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -6175,9 +6203,9 @@ __metadata:
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useApprove": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useClearDebt": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
+    "@snx-v3/useDebtRepayer": "workspace:*"
     "@snx-v3/useGasOptions": "workspace:*"
     "@snx-v3/useGasPrice": "workspace:*"
     "@snx-v3/useGasSpeed": "workspace:*"
@@ -12826,6 +12854,13 @@ __metadata:
   version: 0.6.1
   resolution: "forever-agent@npm:0.6.1"
   checksum: 10/c1e1644d5e074ac063ecbc3fb8582013ef91fff0e3fa41e76db23d2f62bc6d9677aac86db950917deed4fe1fdd772df780cfaa352075f23deec9c015313afb97
+  languageName: node
+  linkType: hard
+
+"forge-std@github:foundry-rs/forge-std":
+  version: 1.9.3
+  resolution: "forge-std@https://github.com/foundry-rs/forge-std.git#commit=1de6eecf821de7fe2c908cc48d3ab3dced20717f"
+  checksum: 10/5eef1527049dfda74a1c3ea7db34add828c756fe38e7938efb160d0405f11cc82955c8269ccff76d974ac83b9ee1d8fa2207034e8b26ef3a0d16dc640581d815
   languageName: node
   linkType: hard
 

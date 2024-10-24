@@ -1,10 +1,11 @@
 import { Button, Flex, Text } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { parseUnits } from '@snx-v3/format';
-import { getRepayerContract, getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { useApprove } from '@snx-v3/useApprove';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useClearDebt } from '@snx-v3/useClearDebt';
+import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { useSystemToken } from '@snx-v3/useSystemToken';
@@ -48,6 +49,7 @@ export const RepayAllDebt = ({ liquidityPosition }: { liquidityPosition: Liquidi
     debt: currentDebt,
   });
 
+  const { data: DebtRepayer } = useDebtRepayer();
   const {
     approve,
     requireApproval,
@@ -56,7 +58,7 @@ export const RepayAllDebt = ({ liquidityPosition }: { liquidityPosition: Liquidi
     contractAddress: wrapperToken,
     //slippage for approval
     amount: parseUnits(currentDebt.toString(), 6).mul(110).div(100),
-    spender: getRepayerContract(network?.id),
+    spender: DebtRepayer?.address,
   });
 
   const submit = useCallback(async () => {
