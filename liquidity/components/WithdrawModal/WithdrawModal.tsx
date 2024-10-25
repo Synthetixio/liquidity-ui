@@ -8,11 +8,11 @@ import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { ContractError } from '@snx-v3/ContractError';
 import { useQueryClient } from '@tanstack/react-query';
-import { useNetwork } from '@snx-v3/useBlockchain';
+import { useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { getWrappedStataUSDCOnBase, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ZEROWEI } from '@snx-v3/constants';
 import { useWithdrawBaseAndromeda } from '@snx-v3/useWithdrawBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
@@ -20,6 +20,8 @@ import { useParams } from '@snx-v3/useParams';
 import { Amount } from '@snx-v3/Amount';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
+import { useUnwrapStataUSDC } from '@snx-v3/useUnwrapStataUSDC';
 
 export const WithdrawModalUi: FC<{
   amount: Wei;
@@ -32,9 +34,10 @@ export const WithdrawModalUi: FC<{
   };
   onSubmit: () => void;
   isDebtWithdrawal: boolean;
-}> = ({ isDebtWithdrawal, amount, isOpen, onClose, onSubmit, state, symbol }) => {
+  isStataUSDC: boolean;
+}> = ({ isStataUSDC, isDebtWithdrawal, amount, isOpen, onClose, onSubmit, state, symbol }) => {
   if (isOpen) {
-    if (state.step > 1) {
+    if (state.status === 'success') {
       return (
         <LiquidityPositionUpdated
           onClose={onSubmit}
@@ -80,6 +83,18 @@ export const WithdrawModalUi: FC<{
             loading: state.step === 1 && state.status === 'pending',
           }}
         />
+        {isStataUSDC && (
+          <Multistep
+            step={2}
+            title="Unwrap"
+            subtitle={<Text as="div">unwrap Static aUSDC into USDC</Text>}
+            status={{
+              failed: state.step === 2 && state.status === 'error',
+              success: state.status === 'success',
+              loading: state.step === 2 && state.status === 'pending',
+            }}
+          />
+        )}
 
         <Button
           isDisabled={state.status === 'pending'}
@@ -94,7 +109,7 @@ export const WithdrawModalUi: FC<{
                 return 'Retry';
               case state.status === 'pending':
                 return 'Processing...';
-              case state.step > 1:
+              case state.status === 'success':
                 return 'Done';
               default:
                 return 'Execute Transaction';
@@ -132,13 +147,22 @@ export function WithdrawModal({
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { data: CoreProxy } = useCoreProxy();
   const errorParserCoreProxy = useContractErrorParser(CoreProxy);
+  const { activeWallet } = useWallet();
   const accountId = liquidityPosition?.accountId;
+
+  const isBase = isBaseAndromeda(network?.id, network?.preset);
+  const isStataUSDC =
+    collateralType?.address.toLowerCase() === getWrappedStataUSDCOnBase(network?.id).toLowerCase();
 
   const { data: systemToken } = useSystemToken();
   const { data: systemTokenBalance } = useAccountSpecificCollateral(
     accountId,
     systemToken?.address
   );
+
+  const { data: stataUSDC } = useStaticAaveUSDC();
+
+  const { mutateAsync: unwrapStata } = useUnwrapStataUSDC();
 
   const { mutation: withdrawMain } = useWithdraw({
     amount: withdrawAmount,
@@ -159,51 +183,71 @@ export function WithdrawModal({
 
   const onSubmit = useCallback(async () => {
     try {
-      if (txState.step === 1) {
+      if (txState.status === 'success') {
+        onClose();
+      }
+      let step = txState.step;
+      if (step === 1) {
         setTxState({
           step: 1,
           status: 'pending',
         });
 
-        if (!isBaseAndromeda(network?.id, network?.preset)) {
+        if (!isBase) {
           await withdrawMain.mutateAsync();
         } else {
           await withdrawAndromeda.mutateAsync();
+
+          step = 2;
+          if (isStataUSDC) {
+            setTxState({
+              step: 2,
+              status: 'pending',
+            });
+          } else {
+            setTxState({
+              step: 2,
+              status: 'success',
+            });
+          }
         }
+      }
+      if (step === 2) {
+        setTxState({
+          step: 2,
+          status: 'pending',
+        });
+
+        const balance = await stataUSDC?.balanceOf(activeWallet?.address);
+        await unwrapStata(balance);
 
         setTxState({
           step: 2,
           status: 'success',
         });
-
-        queryClient.invalidateQueries({
-          queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPosition', { accountId }],
-        });
-        queryClient.invalidateQueries({
-          queryKey: [
-            `${network?.id}-${network?.preset}`,
-            'AccountSpecificCollateral',
-            { accountId },
-          ],
-        });
-        queryClient.invalidateQueries({
-          queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPositions', { accountId }],
-        });
-        queryClient.invalidateQueries({
-          queryKey: [
-            `${network?.id}-${network?.preset}`,
-            'AccountCollateralUnlockDate',
-            { accountId },
-          ],
-        });
-        queryClient.invalidateQueries({
-          queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
-        });
-
-        setWithdrawAmount(ZEROWEI);
-      } else {
-        onClose();
       }
+
+      queryClient.invalidateQueries({
+        queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPosition', { accountId }],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [`${network?.id}-${network?.preset}`, 'AccountSpecificCollateral', { accountId }],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPositions', { accountId }],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
+          `${network?.id}-${network?.preset}`,
+          'AccountCollateralUnlockDate',
+          { accountId },
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
+      });
+
+      setWithdrawAmount(ZEROWEI);
     } catch (error) {
       setTxState((state) => ({
         ...state,
@@ -229,14 +273,20 @@ export function WithdrawModal({
     }
   }, [
     accountId,
+    activeWallet?.address,
     errorParserCoreProxy,
+    isBase,
+    isStataUSDC,
     network?.id,
     network?.preset,
     onClose,
     queryClient,
     setWithdrawAmount,
+    stataUSDC,
     toast,
+    txState.status,
     txState.step,
+    unwrapStata,
     withdrawAndromeda,
     withdrawMain,
   ]);
@@ -250,6 +300,7 @@ export function WithdrawModal({
       state={txState}
       onSubmit={onSubmit}
       isDebtWithdrawal={isDebtWithdrawal}
+      isStataUSDC={isStataUSDC}
     />
   );
 }

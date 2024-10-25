@@ -1,0 +1,19 @@
+{
+  "name": "@snx-v3/useUnwrapStataUSDC",
+  "private": true,
+  "main": "index.ts",
+  "version": "0.0.1",
+  "dependencies": {
+    "@snx-v3/constants": "workspace:*",
+    "@snx-v3/parser": "workspace:*",
+    "@snx-v3/useBlockchain": "workspace:*",
+    "@snx-v3/useGasOptions": "workspace:*",
+    "@snx-v3/useGasPrice": "workspace:*",
+    "@snx-v3/useGasSpeed": "workspace:*",
+    "@snx-v3/useStaticAaveUSDC": "workspace:*",
+    "@synthetixio/wei": "^2.74.4",
+    "@tanstack/react-query": "^5.8.3",
+    "ethers": "^5.7.2",
+    "react": "^18.2.0"
+  }
+}

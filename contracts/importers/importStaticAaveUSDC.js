@@ -1,5 +1,6 @@
 const extraAbi = [
   'function deposit(uint256, address, uint16, bool) external',
+  'function withdraw(uint256, address, address) external',
   'function rate() view returns(uint256)',
 ];
 
