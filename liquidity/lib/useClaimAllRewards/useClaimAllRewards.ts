@@ -77,13 +77,12 @@ export function useClaimAllRewards(
                 SpotProxy?.populateTransaction.unwrap(
                   synthToken.synthMarketId,
                   amount?.toBN(),
-                  amount?.toBN().mul(98).div(100).toNumber().toFixed()
+                  amount?.toBN().sub(amount?.toBN().div(100))
                 )
               );
             }
           }
         );
-
         const callsPromise = Promise.all(transcations.filter(notNil));
         const walletAddress = await signer.getAddress();
 
