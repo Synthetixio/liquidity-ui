@@ -154,7 +154,7 @@ export const InitialDepositUi: FC<{
                         <Flex gap="1">
                           <Text>USDC Balance:</Text>
                           <Amount value={usdcBalance} />
-                          <Amount prefix="(" value={stataUSDCBalance} suffix=" Static aUSDC)" />
+                          <Amount prefix="(~" value={stataUSDCBalance} suffix=" Static aUSDC)" />
                         </Flex>
                       )}
 

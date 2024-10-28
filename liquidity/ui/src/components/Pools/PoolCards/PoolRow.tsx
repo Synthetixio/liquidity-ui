@@ -131,7 +131,7 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
                 lineHeight="1.25rem"
                 fontFamily="heading"
               >
-                {collateralType.symbol}
+                {collateralType.displaySymbol}
               </Text>
               <Text
                 textTransform="capitalize"
@@ -155,7 +155,7 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
               {balance ? formatNumberToUsd(balance.mul(price).toNumber()) : '-'}
             </Text>
             <Text color="gray.500" fontFamily="heading" fontSize="12px" lineHeight="16px">
-              {balance ? formatNumber(balance.toNumber()) : ''} {collateralType.symbol}
+              {balance ? formatNumber(balance.toNumber()) : ''} {collateralType.displaySymbol}
             </Text>
           </Flex>
           <Flex width="189px" flexDir="column" justifyContent="cetner" alignItems="flex-end">
