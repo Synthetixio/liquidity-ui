@@ -1,20 +1,21 @@
-import { useReducer } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { BigNumber, PopulatedTransaction } from 'ethers';
-import { useCoreProxy } from '@snx-v3/useCoreProxy';
+import { useToast } from '@chakra-ui/react';
+import { ContractError } from '@snx-v3/ContractError';
+import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
-
-import { useToast } from '@chakra-ui/react';
-import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
-import { getGasPrice } from '@snx-v3/useGasPrice';
-import { withERC7412 } from '@snx-v3/withERC7412';
-import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
-import { useGasSpeed } from '@snx-v3/useGasSpeed';
-import { notNil } from '@snx-v3/tsHelpers';
-import Wei from '@synthetixio/wei';
-import { useSynthTokens } from '../useSynthTokens';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
+import { useCoreProxy } from '@snx-v3/useCoreProxy';
+import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
+import { getGasPrice } from '@snx-v3/useGasPrice';
+import { useGasSpeed } from '@snx-v3/useGasSpeed';
+import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
+import { useSynthTokens } from '@snx-v3/useSynthTokens';
+import { withERC7412 } from '@snx-v3/withERC7412';
+import Wei from '@synthetixio/wei';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { BigNumber, PopulatedTransaction } from 'ethers';
+import { useReducer } from 'react';
 
 export function useClaimAllRewards(
   rewards: {
@@ -39,16 +40,20 @@ export function useClaimAllRewards(
   const { data: synthTokens } = useSynthTokens();
   const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
 
+  const errorParser = useContractErrorParser();
+
   const mutation = useMutation({
     mutationFn: async function () {
       try {
         if (!signer || !network || !provider) throw new Error('No signer or network');
-        if (!rewards.filter(({ amount }) => amount?.gt(0)).length || !signer || !network) return;
+        if (!rewards.filter(({ amount }) => amount?.gt(0)).length) return;
         if (!CoreProxy) throw new Error('CoreProxy undefined');
+        if (!SpotProxy) throw new Error('SpotProxy undefined');
+        if (!synthTokens) throw new Error('synthTokens undefined');
 
         dispatch({ type: 'prompting' });
 
-        const transcations: (Promise<PopulatedTransaction> | undefined)[] = [];
+        const transactions: (Promise<PopulatedTransaction> | undefined)[] = [];
 
         rewards.forEach(
           ({
@@ -59,7 +64,7 @@ export function useClaimAllRewards(
             amount,
             payoutTokenAddress,
           }) => {
-            transcations.push(
+            transactions.push(
               CoreProxy.populateTransaction.claimRewards(
                 BigNumber.from(accountId),
                 BigNumber.from(poolId),
@@ -68,22 +73,21 @@ export function useClaimAllRewards(
               )
             );
 
-            const synthToken = synthTokens?.find(
+            const synthToken = synthTokens.find(
               (synth) => synth.address.toUpperCase() === payoutTokenAddress?.toUpperCase()
             );
-
-            if (synthToken) {
-              transcations.push(
-                SpotProxy?.populateTransaction.unwrap(
+            if (synthToken && amount && amount.gt(0)) {
+              transactions.push(
+                SpotProxy.populateTransaction.unwrap(
                   synthToken.synthMarketId,
-                  amount?.toBN(),
-                  amount?.toBN().sub(amount?.toBN().div(100))
+                  amount.toBN(),
+                  amount.toBN().sub(amount?.toBN().div(100))
                 )
               );
             }
           }
         );
-        const callsPromise = Promise.all(transcations.filter(notNil));
+        const callsPromise = Promise.all(transactions.filter(notNil));
         const walletAddress = await signer.getAddress();
 
         const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
@@ -134,12 +138,21 @@ export function useClaimAllRewards(
 
         return claimedAmount;
       } catch (error: any) {
+        const contractError = errorParser(error);
+        if (contractError) {
+          console.error(new Error(contractError.name), contractError);
+        }
+
         dispatch({ type: 'error', payload: { error } });
 
         toast.closeAll();
         toast({
           title: 'Claiming failed',
-          description: 'Please try again.',
+          description: contractError ? (
+            <ContractError contractError={contractError} />
+          ) : (
+            'Please try again.'
+          ),
           status: 'error',
           variant: 'left-accent',
         });

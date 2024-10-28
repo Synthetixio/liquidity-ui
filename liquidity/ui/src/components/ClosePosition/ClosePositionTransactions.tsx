@@ -64,7 +64,7 @@ export const ClosePositionTransactions: FC<{
   const queryClient = useQueryClient();
   const availableUSDCollateral = liquidityPosition?.usdCollateral.availableCollateral || ZEROWEI;
   const amountToDeposit = (liquidityPosition?.debt || ZEROWEI).abs().sub(availableUSDCollateral);
-  const errorParserCoreProxy = useContractErrorParser(CoreProxy);
+  const errorParser = useContractErrorParser();
 
   //repay approval
   const { approve, requireApproval } = useApprove({
@@ -280,7 +280,7 @@ export const ClosePositionTransactions: FC<{
         status: 'error',
       }));
 
-      const contractError = errorParserCoreProxy(error);
+      const contractError = errorParser(error);
 
       if (contractError) {
         console.error(new Error(contractError.name), contractError);
@@ -306,7 +306,7 @@ export const ClosePositionTransactions: FC<{
     network?.preset,
     setCollateralChange,
     setDebtChange,
-    errorParserCoreProxy,
+    errorParser,
     toast,
   ]);
 

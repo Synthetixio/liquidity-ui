@@ -5,7 +5,6 @@ import { Wei } from '@synthetixio/wei';
 import { useWithdraw } from '@snx-v3/useWithdraw';
 import { useAccountSpecificCollateral } from '@snx-v3/useAccountCollateral';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
-import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { ContractError } from '@snx-v3/ContractError';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNetwork, useWallet } from '@snx-v3/useBlockchain';
@@ -18,10 +17,10 @@ import { useWithdrawBaseAndromeda } from '@snx-v3/useWithdrawBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { useParams } from '@snx-v3/useParams';
 import { Amount } from '@snx-v3/Amount';
-import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
 import { useUnwrapStataUSDC } from '@snx-v3/useUnwrapStataUSDC';
+import { useSystemToken } from '@snx-v3/useSystemToken';
 
 export const WithdrawModalUi: FC<{
   amount: Wei;
@@ -137,6 +136,7 @@ export function WithdrawModal({
     status: 'idle',
   });
 
+  const { activeWallet } = useWallet();
   const params = useParams();
   const toast = useToast({ isClosable: true, duration: 9000 });
   const { network } = useNetwork();
@@ -145,9 +145,7 @@ export function WithdrawModal({
   const { withdrawAmount, setWithdrawAmount } = useContext(ManagePositionContext);
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
-  const { data: CoreProxy } = useCoreProxy();
-  const errorParserCoreProxy = useContractErrorParser(CoreProxy);
-  const { activeWallet } = useWallet();
+  const errorParser = useContractErrorParser();
   const accountId = liquidityPosition?.accountId;
 
   const isBase = isBaseAndromeda(network?.id, network?.preset);
@@ -254,7 +252,7 @@ export function WithdrawModal({
         status: 'error',
       }));
 
-      const contractError = errorParserCoreProxy(error);
+      const contractError = errorParser(error);
       if (contractError) {
         console.error(new Error(contractError.name), contractError);
       }
@@ -274,9 +272,9 @@ export function WithdrawModal({
   }, [
     accountId,
     activeWallet?.address,
-    errorParserCoreProxy,
     isBase,
     isStataUSDC,
+    errorParser,
     network?.id,
     network?.preset,
     onClose,

@@ -1,7 +1,8 @@
-import { Button, Divider, Text, useToast, Link } from '@chakra-ui/react';
+import { ArrowBackIcon } from '@chakra-ui/icons';
+import { Button, Divider, Link, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { ContractError } from '@snx-v3/ContractError';
-import { getWrappedStataUSDCOnBase, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { isBaseAndromeda, getWrappedStataUSDCOnBase } from '@snx-v3/isBaseAndromeda';
 import { Multistep } from '@snx-v3/Multistep';
 import { useApprove } from '@snx-v3/useApprove';
 import { useNetwork } from '@snx-v3/useBlockchain';
@@ -22,7 +23,6 @@ import { FC, ReactNode, useCallback, useContext, useEffect, useMemo, useState } 
 import { generatePath, useLocation, useNavigate } from 'react-router-dom';
 import type { StateFrom } from 'xstate';
 import { DepositMachine, Events, ServiceNames, State } from './DepositMachine';
-import { ArrowBackIcon } from '@chakra-ui/icons';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
 import { ONEWEI, ZEROWEI } from '@snx-v3/constants';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
@@ -175,7 +175,11 @@ export const DepositModalUi: FC<{
               status={{
                 failed: error?.step === State.wrapUSDC,
                 disabled: state.matches(State.success) && requireApproval,
-                success: hasEnoughStataUSDC || state.matches(State.success),
+                success:
+                  hasEnoughStataUSDC ||
+                  state.matches(State.approveCollateral) ||
+                  state.matches(State.deposit) ||
+                  state.matches(State.success),
                 loading: state.matches(State.wrapUSDC) && !error,
               }}
             />
@@ -462,7 +466,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
 
   const { data: pool } = usePool(poolId);
 
-  const errorParserCoreProxy = useContractErrorParser(CoreProxy);
+  const errorParser = useContractErrorParser();
 
   const [state, send] = useMachine(DepositMachine, {
     services: {
@@ -470,7 +474,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
         try {
           await wrapEth(state.context.wrapAmount);
         } catch (error: any) {
-          const contractError = errorParserCoreProxy(error);
+          const contractError = errorParser(error);
           if (contractError) {
             console.error(new Error(contractError.name), contractError);
           }
@@ -505,7 +509,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
 
           await approveUSDC(false);
         } catch (error: any) {
-          const contractError = errorParserCoreProxy(error);
+          const contractError = errorParser(error);
           if (contractError) {
             console.error(new Error(contractError.name), contractError);
           }
@@ -562,7 +566,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
 
           await approve(Boolean(state.context.infiniteApproval));
         } catch (error: any) {
-          const contractError = errorParserCoreProxy(error);
+          const contractError = errorParser(error);
           if (contractError) {
             console.error(new Error(contractError.name), contractError);
           }
@@ -643,7 +647,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
             variant: 'left-accent',
           });
         } catch (error: any) {
-          const contractError = errorParserCoreProxy(error);
+          const contractError = errorParser(error);
           if (contractError) {
             console.error(new Error(contractError.name), contractError);
           }
