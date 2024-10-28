@@ -386,7 +386,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
     if (isBase && isStataUSDC) {
       amount = synthNeeded.sub(stataUSDCTokenBalance || ZEROWEI);
     }
-    return amount.gt(0) ? ZEROWEI : amount;
+    return amount.gt(0) ? amount : ZEROWEI;
   }, [isBase, isStataUSDC, stataUSDCTokenBalance, synthNeeded]);
 
   //Preparing wETH
