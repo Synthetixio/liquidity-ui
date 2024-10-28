@@ -48,6 +48,7 @@ module.exports = defineConfig({
         ...require('./cypress/tasks/doAllPriceUpdates'),
         ...require('./cypress/tasks/doPriceUpdateForPyth'),
         ...require('./cypress/tasks/snapshot'),
+        ...require('./cypress/tasks/wrapCollateral'),
       });
       return config;
     },

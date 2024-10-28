@@ -7,7 +7,7 @@ export async function depositCollateral({ address, accountId, symbol, amount }) 
   const config = await getCollateralConfig(symbol);
   const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
   const signer = provider.getSigner(address);
-  console.log('depositCollateral', { address, accountId, symbol, amount });
+  console.log('depositCollateral', { address, accountId, symbol, amount, config });
 
   const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
 

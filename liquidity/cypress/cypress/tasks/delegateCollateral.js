@@ -7,7 +7,14 @@ export async function delegateCollateral({ address, accountId, symbol, amount, p
   const config = await getCollateralConfig(symbol);
   const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
   const signer = provider.getSigner(address);
-  console.log('delegateCollateral', { address, accountId, symbol, amount, poolId });
+  console.log('delegateCollateral', {
+    address,
+    tokenAddress: config.tokenAddress,
+    accountId,
+    symbol,
+    amount,
+    poolId,
+  });
 
   const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
   try {
