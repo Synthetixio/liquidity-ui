@@ -5005,7 +5005,9 @@ __metadata:
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useLiquidityPosition": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
+    "@snx-v3/useStaticAaveUSDC": "workspace:*"
     "@snx-v3/useSystemToken": "workspace:*"
+    "@snx-v3/useUnwrapStataUSDC": "workspace:*"
     "@snx-v3/useWithdraw": "workspace:*"
     "@snx-v3/useWithdrawBaseAndromeda": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
@@ -6227,7 +6229,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/useUnwrapStataUSDC@workspace:liquidity/lib/useUnwrapStataUSDC":
+"@snx-v3/useUnwrapStataUSDC@workspace:*, @snx-v3/useUnwrapStataUSDC@workspace:liquidity/lib/useUnwrapStataUSDC":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useUnwrapStataUSDC@workspace:liquidity/lib/useUnwrapStataUSDC"
   dependencies:

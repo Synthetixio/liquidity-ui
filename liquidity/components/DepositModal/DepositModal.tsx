@@ -382,10 +382,11 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   }, [availableCollateral, collateralChange, isStataUSDC]);
 
   const collateralNeeded = useMemo(() => {
+    let amount = synthNeeded;
     if (isBase && isStataUSDC) {
-      return synthNeeded.sub(stataUSDCTokenBalance || ZEROWEI);
+      amount = synthNeeded.sub(stataUSDCTokenBalance || ZEROWEI);
     }
-    return synthNeeded;
+    return amount.gt(0) ? ZEROWEI : amount;
   }, [isBase, isStataUSDC, stataUSDCTokenBalance, synthNeeded]);
 
   //Preparing wETH
@@ -604,6 +605,9 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
           }
 
           await Promise.all([
+            queryClient.invalidateQueries({
+              queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
+            }),
             queryClient.invalidateQueries({
               queryKey: [`${network?.id}-${network?.preset}`, 'EthBalance'],
             }),
