@@ -793,7 +793,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
       hasEnoughStataUSDC={hasEnoughStataUSDCBalance}
       requireUSDCApprovalForStata={requireUSDCApproval}
       networkId={network?.id}
-      symbol={synth?.symbol}
+      symbol={collateral?.displaySymbol}
     />
   );
 };
