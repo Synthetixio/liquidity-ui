@@ -12,6 +12,8 @@ import { notNil } from '@snx-v3/tsHelpers';
 import { Network, deploymentHasERC7412, getMagicProvider } from '@snx-v3/useBlockchain';
 import { ethers } from 'ethers';
 
+const IS_DEBUG = window.localStorage.getItem('DEBUG') === 'true';
+
 export const ERC7412_ABI = [
   'error OracleDataRequired(address oracleContract, bytes oracleQuery)',
   'error OracleDataRequired(address oracleContract, bytes oracleQuery, uint256 feeRequired)',
@@ -223,7 +225,7 @@ async function getMulticallTransaction(
     ),
   };
   const gasLimit = await provider.estimateGas(multicallTxn);
-  return { ...multicallTxn, gasLimit };
+  return { ...multicallTxn, gasLimit, _calls: calls };
 }
 
 /**
@@ -234,7 +236,12 @@ export const withERC7412 = async (
   calls: (ethers.PopulatedTransaction & { requireSuccess?: boolean })[],
   label: string,
   from: string
-): Promise<ethers.PopulatedTransaction & { gasLimit: ethers.BigNumber }> => {
+): Promise<
+  ethers.PopulatedTransaction & {
+    gasLimit: ethers.BigNumber;
+    _calls?: (ethers.PopulatedTransaction & { requireSuccess?: boolean })[];
+  }
+> => {
   // Make sure we're always using JSONRpcProvider, the web3 provider coming from the signer might have bugs causing errors to miss revert data
   const jsonRpcProvider =
     getMagicProvider() ?? new ethers.providers.JsonRpcProvider(network.rpcUrl());
@@ -248,7 +255,7 @@ export const withERC7412 = async (
 
   while (true) {
     try {
-      if (window.localStorage.getItem('DEBUG') === 'true') {
+      if (IS_DEBUG) {
         await logMulticall({ network, calls, label });
       }
       return await getMulticallTransaction(network, calls, from, jsonRpcProvider);
@@ -349,6 +356,9 @@ export async function erc7412Call<T>(
     from
   );
 
+  const { _calls: newCalls } = newCall;
+  delete newCall._calls;
+
   const res = await provider.call(newCall);
 
   if (newCall.to?.toLowerCase() === Multicall3Contract.address.toLowerCase()) {
@@ -357,13 +367,29 @@ export async function erc7412Call<T>(
       Multicall3Contract.abi
     ).decodeFunctionResult('aggregate3Value', res)[0];
 
-    // Remove the price updates
-    const responseWithoutPriceUpdates = decodedMultiCall.filter(
-      ({ returnData }) => returnData !== '0x' // price updates have 0x as return data
-    );
+    if (IS_DEBUG) {
+      console.log(`[${label}] multicall`, decodedMultiCall);
+    }
 
-    return decode(responseWithoutPriceUpdates.map(({ returnData }) => returnData));
+    // Remove the price updates
+    const responseWithoutPriceUpdates: string[] = [];
+    const PythVerfier = await importPythVerfier(network.id, network.preset);
+    decodedMultiCall.forEach(({ returnData }, i) => {
+      if (newCalls?.[i]?.to !== PythVerfier.address) {
+        responseWithoutPriceUpdates.push(returnData);
+      }
+    });
+
+    const decoded = decode(responseWithoutPriceUpdates);
+    if (IS_DEBUG) {
+      console.log(`[${label}] result`, decoded);
+    }
+    return decoded;
   }
 
-  return decode(res);
+  const decoded = decode(res);
+  if (IS_DEBUG) {
+    console.log(`[${label}] result`, decoded);
+  }
+  return decoded;
 }
