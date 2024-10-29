@@ -360,6 +360,9 @@ export async function erc7412Call<T>(
   delete newCall._calls;
 
   const res = await provider.call(newCall);
+  if (res === '0x') {
+    throw new Error(`[${label}] Call returned 0x`);
+  }
 
   if (newCall.to?.toLowerCase() === Multicall3Contract.address.toLowerCase()) {
     // If this was a multicall, decode and remove price updates.
