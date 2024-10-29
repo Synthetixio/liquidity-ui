@@ -14,6 +14,7 @@ import { CollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
+import { useClosePosition } from '@snx-v3/useClosePosition';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { useRepay } from '@snx-v3/useRepay';
@@ -90,20 +91,22 @@ export const ClosePositionTransactions: FC<{
   });
 
   const { data: DebtRepayer } = useDebtRepayer();
+  const { data: ClosePositionContract } = useClosePosition();
 
-  //repay approval for base
+  // repay approval for base
   const {
     approve: approveUSDC,
     requireApproval: requireApprovalUSDC,
     isLoading,
   } = useApprove({
     contractAddress: wrapperToken,
-    //slippage for approval
+    // slippage for approval
     amount: parseUnits(liquidityPosition?.debt.abs().toString(), 6)
       .mul(110)
       .div(100),
     spender: DebtRepayer?.address,
   });
+
   const { exec: undelegateBaseAndromeda } = useUndelegateBaseAndromeda({
     accountId: liquidityPosition?.accountId,
     poolId: poolId,
@@ -127,6 +130,11 @@ export const ClosePositionTransactions: FC<{
       subtitle?: ReactNode;
       cb: () => Promise<any>;
     }[] = [];
+
+    if (ClosePositionContract) {
+      console.log(`ClosePositionContract`, ClosePositionContract);
+    }
+
     if (!isBase) {
       if (liquidityPosition?.debt.gt(0)) {
         if (requireApproval) {
