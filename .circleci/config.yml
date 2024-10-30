@@ -203,6 +203,8 @@ jobs:
               --config specPattern="./cypress/e2e/<< parameters.chainId >>-<< parameters.preset >>/*.e2e.js" \
               || echo $? > /tmp/cypress_exit_code
 
+      - run: pkill anvil
+
       - save_cache:
           key: *anvil-fork-cache
           paths:
