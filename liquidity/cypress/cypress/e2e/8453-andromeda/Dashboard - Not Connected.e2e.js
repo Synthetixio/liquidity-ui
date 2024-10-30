@@ -5,7 +5,7 @@ before(() => {
 });
 after(() => {
   cy.get('@snapshot').then(async (snapshot) => {
-    cy.task('evmRestore', snapshot);
+    cy.task('evmRevert', snapshot);
   });
 });
 
