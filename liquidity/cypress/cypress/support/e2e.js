@@ -6,7 +6,9 @@ beforeEach(() => {
   cy.on('log:added', onLogAdded);
 
   cy.intercept('https://analytics.synthetix.io/matomo.js', { statusCode: 204 }).as('matomo');
+  cy.intercept('https://analytics.synthetix.io/matomo.js', { log: false });
   cy.intercept('https://hermes-mainnet.rpc.extrnode.com/**', { statusCode: 400 }).as('pyth');
+  cy.intercept('https://hermes-mainnet.rpc.extrnode.com/**', { log: false });
   //  cy.intercept('https://hermes-mainnet.rpc.extrnode.com/**', (req) => {
   //    return req.reply([]);
   //  }).as('pyth');
@@ -24,15 +26,18 @@ beforeEach(() => {
       </svg>
     `);
   }).as('icon');
+  cy.intercept('synthetixio.github.io/**/*.svg', { log: false });
 
   // Because we are working with local fork, subgraph becomes irrelevant
   cy.intercept('https://api.thegraph.com/**', (req) => {
     return subgraph(req);
   }).as('subgraph');
+  cy.intercept('https://api.thegraph.com/**', { log: false });
 
   cy.intercept('https://subgraph.satsuma-prod.com/**', (req) => {
     return subgraph(req);
   }).as('subgraph');
+  cy.intercept('https://subgraph.satsuma-prod.com/**', { log: false });
 
   [
     'mainnet',
@@ -47,7 +52,12 @@ beforeEach(() => {
       req.url = 'http://127.0.0.1:8545';
       req.continue();
     }).as(networkName);
+    cy.intercept(`https://${networkName}.infura.io/v3/**`, { log: false });
   });
+
+  cy.intercept(`http://127.0.0.1:8545`, { log: false });
+  cy.intercept(`https://api.synthetix.io/**`, { statusCode: 400 }).as('api');
+  cy.intercept(`https://api.synthetix.io/**`, { log: false });
 
   cy.on('window:before:load', (win) => {
     win.sessionStorage.setItem('TERMS_CONDITIONS_ACCEPTED', 'true');
