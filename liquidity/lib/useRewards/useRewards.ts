@@ -192,11 +192,13 @@ export function useRewards({
               payoutTokenAddress: item.payoutToken.address,
               claimableAmount: wei(0),
               lifetimeClaimed: historicalClaims
-                .reduce(
-                  (acc: Wei, item: { amount: string }) => acc.add(wei(item.amount, 18, true)),
-                  wei(0)
-                )
-                .toNumber(),
+                ? historicalClaims
+                    .reduce(
+                      (acc: Wei, item: { amount: string }) => acc.add(wei(item.amount, 18, true)),
+                      wei(0)
+                    )
+                    .toNumber()
+                : 0,
             };
           }
 
