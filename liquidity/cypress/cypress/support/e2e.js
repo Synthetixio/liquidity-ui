@@ -7,10 +7,23 @@ beforeEach(() => {
 
   cy.intercept('https://analytics.synthetix.io/matomo.js', { statusCode: 204 }).as('matomo');
   cy.intercept('https://hermes-mainnet.rpc.extrnode.com/**', { statusCode: 400 }).as('pyth');
-  cy.intercept('https://synthetixio.github.io/**', { statusCode: 404 }).as('assets');
   //  cy.intercept('https://hermes-mainnet.rpc.extrnode.com/**', (req) => {
   //    return req.reply([]);
   //  }).as('pyth');
+  // cy.intercept('https://synthetixio.github.io/**/*.svg', { statusCode: 404 }).as('assets');
+  cy.intercept('synthetixio.github.io/**/*.svg', (req) => {
+    return req.reply(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" fill="none">
+        <circle cx="21" cy="21" r="21" fill="url(#a)"/>
+        <defs>
+          <linearGradient id="a" x1="1.145" x2="50.119" y1="42" y2="27.586" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#34EDB3"/>
+            <stop offset="1" stop-color="#00D1FF"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    `);
+  }).as('icon');
 
   // Because we are working with local fork, subgraph becomes irrelevant
   cy.intercept('https://api.thegraph.com/**', (req) => {
