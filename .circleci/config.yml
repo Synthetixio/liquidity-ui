@@ -168,7 +168,9 @@ jobs:
       - run: date +"%Y-%W" > /tmp/week.txt && cat /tmp/week.txt
       - restore_cache:
           keys:
-            - anvil-fork-cache-{{ .Environment.ANVIL_CACHE_VERSION }}-{{ checksum "/tmp/week.txt" }}
+            - &anvil-fork-cache anvil-fork-cache-{{ .Environment.ANVIL_CACHE_VERSION }}-{{ checksum "/tmp/week.txt" }}-{{ .BuildNum }}
+            - anvil-fork-cache-{{ .Environment.ANVIL_CACHE_VERSION }}-{{ checksum "/tmp/week.txt" }}-
+            - anvil-fork-cache-{{ .Environment.ANVIL_CACHE_VERSION }}-
 
       - run:
           name: Run server localhost:3000
@@ -196,13 +198,17 @@ jobs:
 
       - run:
           working_directory: /tmp/app/liquidity/cypress
-          command: cypress run --e2e --browser chrome --config specPattern="./cypress/e2e/<< parameters.chainId >>-<< parameters.preset >>/*.e2e.js"
+          command: |
+            cypress run --e2e --browser chrome \
+              --config specPattern="./cypress/e2e/<< parameters.chainId >>-<< parameters.preset >>/*.e2e.js" \
+              || echo $? > /tmp/cypress_exit_code
 
       - save_cache:
-          key: anvil-fork-cache-{{ .Environment.ANVIL_CACHE_VERSION }}-{{ checksum "/tmp/week.txt" }}
-
+          key: *anvil-fork-cache
           paths:
             - '~/.foundry/cache'
+
+      - run: exit $(cat /tmp/cypress_exit_code)
 
       - store_test_results:
           path: 'liquidity/cypress/cypress/reports'
