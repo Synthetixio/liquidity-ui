@@ -150,6 +150,8 @@ jobs:
         type: string
       provider-url:
         type: string
+      fork-block-number:
+        type: integer
     working_directory: /tmp/app
     docker:
       - image: cypress/included:<< pipeline.parameters.cypress-version >>
@@ -163,6 +165,11 @@ jobs:
       - install-foundry
       - yarn-install
 
+      - run: date +"%Y-%W" > /tmp/week.txt && cat /tmp/week.txt
+      - restore_cache:
+          keys:
+            - anvil-fork-cache-{{ .Environment.ANVIL_CACHE_VERSION }}-{{ checksum "/tmp/week.txt" }}
+
       - run:
           name: Run server localhost:3000
           working_directory: /tmp/app/liquidity/ui
@@ -171,7 +178,7 @@ jobs:
 
       - run:
           name: Run anvil localhost:8545
-          command: anvil --auto-impersonate --chain-id "<< parameters.chainId >>" --fork-url "<< parameters.provider-url >>"
+          command: anvil --auto-impersonate --chain-id "<< parameters.chainId >>" --fork-url "<< parameters.provider-url >>" --no-rate-limit --steps-tracing --fork-block-number "<< parameters.fork-block-number >>"
           background: true
 
       - run:
@@ -190,6 +197,12 @@ jobs:
       - run:
           working_directory: /tmp/app/liquidity/cypress
           command: cypress run --e2e --browser chrome --config specPattern="./cypress/e2e/<< parameters.chainId >>-<< parameters.preset >>/*.e2e.js"
+
+      - save_cache:
+          key: anvil-fork-cache-{{ .Environment.ANVIL_CACHE_VERSION }}-{{ checksum "/tmp/week.txt" }}
+
+          paths:
+            - '~/.foundry/cache'
 
       - store_test_results:
           path: 'liquidity/cypress/cypress/reports'
@@ -285,12 +298,14 @@ workflows:
           name: liquidity-e2e-base-mainnet
           chainId: 8453
           preset: andromeda
-          provider-url: https://base-mainnet.infura.io/v3/$INFURA_KEY
+          provider-url: wss://base-mainnet.infura.io/ws/v3/$INFURA_KEY
+          fork-block-number: 21739298
       - liquidity-e2e:
           name: liquidity-e2e-arbitrum-mainnet
           chainId: 42161
           preset: main
-          provider-url: https://arbitrum-mainnet.infura.io/v3/$INFURA_KEY
+          provider-url: wss://arbitrum-mainnet.infura.io/ws/v3/$INFURA_KEY
+          fork-block-number: 269104835
       - combine-coverage:
           requires:
             - tests
