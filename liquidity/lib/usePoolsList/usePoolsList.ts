@@ -90,7 +90,7 @@ async function fetchPoolsList() {
 
   return responses.map((response, i) => ({
     network: networksOffline[i],
-    poolInfo: response.data.vaults as PoolInfo[],
+    poolInfo: (response?.data?.vaults ?? []) as PoolInfo[],
   }));
 }
 
