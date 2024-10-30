@@ -1,10 +1,10 @@
 import { generatePath } from 'react-router-dom';
 
 it('should deposit additional USDC collateral', () => {
-  cy.connectWallet().then(({ address, privateKey }) => {
+  cy.connectWallet().then((address) => {
     cy.task('setEthBalance', { address, balance: 100 });
-    cy.task('getUSDC', { address: address, amount: 500 });
-    cy.task('createAccount', { privateKey }).then((accountId) => {
+    cy.task('getUSDC', { address, amount: 500 });
+    cy.task('createAccount', { address }).then((accountId) => {
       cy.wrap(accountId).as('accountId');
     });
   });

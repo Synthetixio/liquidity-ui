@@ -7,15 +7,13 @@ const erc20Abi = [
   'function deposit() payable',
 ];
 
-export async function wrapEth({ privateKey, amount }) {
+export async function wrapEth({ address, amount }) {
   const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
-  const wallet = new ethers.Wallet(privateKey, provider);
+  const signer = provider.getSigner(address);
 
   const WETH = await getCollateralConfig('WETH');
-  const WETHContract = new ethers.Contract(WETH.tokenAddress, erc20Abi, wallet);
-  const balance = parseFloat(
-    ethers.utils.formatUnits(await WETHContract.balanceOf(wallet.address))
-  );
+  const WETHContract = new ethers.Contract(WETH.tokenAddress, erc20Abi, signer);
+  const balance = parseFloat(ethers.utils.formatUnits(await WETHContract.balanceOf(address)));
 
   if (balance >= amount) {
     console.log('wrapEth', { balance });
@@ -27,9 +25,7 @@ export async function wrapEth({ privateKey, amount }) {
     value: ethers.utils.hexValue(ethers.utils.parseEther(`${amount}`).toHexString()),
   });
   await wrapTx.wait();
-  const newBalance = parseFloat(
-    ethers.utils.formatUnits(await WETHContract.balanceOf(wallet.address))
-  );
+  const newBalance = parseFloat(ethers.utils.formatUnits(await WETHContract.balanceOf(address)));
   console.log('wrapEth', { balance: newBalance });
   console.log('wrapEth', { result: 'OK' });
   return newBalance;

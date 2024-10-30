@@ -1,6 +1,6 @@
 it('Create Account', () => {
-  cy.connectWallet().then((wallet) => {
-    cy.task('setEthBalance', { address: wallet.address, balance: 2 });
+  cy.connectWallet().then((address) => {
+    cy.task('setEthBalance', { address, balance: 2 });
   });
 
   cy.viewport(1200, 900);

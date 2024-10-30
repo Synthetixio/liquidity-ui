@@ -46,12 +46,9 @@ beforeEach(() => {
 });
 
 Cypress.Commands.add('connectWallet', (namespace = 'wallet') => {
-  const wallet = ethers.Wallet.createRandom();
-  //  const privateKey = wallet.privateKey;
-  const address = wallet.address;
+  const address = '0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345';
   cy.on('window:before:load', (win) => {
     win.localStorage.setItem('MAGIC_WALLET', address);
   });
-
-  return cy.wrap(wallet).as(namespace);
+  return cy.wrap(address).as(namespace);
 });

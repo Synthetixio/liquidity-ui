@@ -1,11 +1,11 @@
 import { generatePath } from 'react-router-dom';
 
 it('should deposit additional WETH collateral', () => {
-  cy.connectWallet().then(({ address, privateKey }) => {
+  cy.connectWallet().then((address) => {
     cy.task('setEthBalance', { address, balance: 100 });
-    cy.task('wrapEth', { privateKey: privateKey, amount: 50 });
-    cy.task('approveCollateral', { privateKey: privateKey, symbol: 'WETH' });
-    cy.task('createAccount', { privateKey }).then((accountId) => {
+    cy.task('wrapEth', { address, amount: 50 });
+    cy.task('approveCollateral', { address, symbol: 'WETH' });
+    cy.task('createAccount', { address }).then((accountId) => {
       cy.wrap(accountId).as('accountId');
     });
   });

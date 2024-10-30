@@ -1,7 +1,7 @@
 it('Dashboard - Connected', () => {
-  cy.connectWallet().then(({ address, privateKey }) => {
+  cy.connectWallet().then((address) => {
     cy.task('setEthBalance', { address, balance: 100 });
-    cy.task('createAccount', { privateKey }).then((accountId) => {
+    cy.task('createAccount', { address }).then((accountId) => {
       cy.wrap(accountId).as('accountId');
     });
   });

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { importExtras } from '@snx-v3/contracts';
+import { importExtras, importPythFeeds } from '@snx-v3/contracts';
 import { doPriceUpdateForPyth } from './doPriceUpdateForPyth';
 
 const splitIntoChunks = (array, chunkSize) => {
@@ -11,26 +11,17 @@ const splitIntoChunks = (array, chunkSize) => {
   return chunks;
 };
 
-export async function doAllPriceUpdates({ privateKey }) {
+export async function doAllPriceUpdates({ address }) {
   const extras = await importExtras(process.env.CYPRESS_CHAIN_ID, process.env.CYPRESS_PRESET);
+  const feedIds = await importPythFeeds(process.env.CYPRESS_CHAIN_ID, process.env.CYPRESS_PRESET);
   const priceVerificationContract =
     extras.pyth_price_verification_address || extras.pythPriceVerificationAddress;
-  const feedIds = Array.from(
-    new Set(
-      Object.entries(extras)
-        .filter(
-          ([key]) =>
-            key.startsWith('pyth_feed_id_') || (key.startsWith('pyth') && key.endsWith('FeedId'))
-        )
-        .map(([_key, value]) => value)
-    )
-  );
   console.log({ feedIds });
   const batches = splitIntoChunks(feedIds, 200);
 
   for (const batch of batches) {
     console.log({ batch });
-    await doPriceUpdateForPyth({ privateKey, feedId: batch, priceVerificationContract });
+    await doPriceUpdateForPyth({ address, feedId: batch, priceVerificationContract });
   }
   return true;
 }
