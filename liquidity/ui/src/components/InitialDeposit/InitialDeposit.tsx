@@ -142,7 +142,7 @@ export const InitialDepositUi: FC<{
                     </Flex>
                   }
                 >
-                  <Text fontSize="12px">
+                  <Text fontSize="12px" data-cy="balance amount">
                     Balance: <Amount value={maxAmount} />
                     <Text
                       as="span"

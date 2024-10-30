@@ -164,7 +164,7 @@ export const DepositUi: FC<{
               </Flex>
             }
           >
-            <Text fontSize="12px">
+            <Text fontSize="12px" data-cy="balance amount">
               Balance: <Amount value={maxAmount} />
               {maxAmount?.gt(0) && (
                 <Text
