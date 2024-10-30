@@ -308,7 +308,7 @@ workflows:
           chainId: 42161
           preset: main
           provider-url: wss://arbitrum-mainnet.infura.io/ws/v3/$INFURA_KEY
-          fork-block-number: 269104835
+          fork-block-number: 269244293
       - combine-coverage:
           requires:
             - tests

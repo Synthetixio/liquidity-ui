@@ -4,7 +4,7 @@
   "main": "index.ts",
   "version": "0.0.9",
   "scripts": {
-    "anvil:arbitrum": "anvil --auto-impersonate --chain-id 42161 --fork-url wss://arbitrum-mainnet.infura.io/ws/v3/$INFURA_KEY --timeout 5000 --retries 0 --no-rate-limit --steps-tracing --fork-block-number 269104835",
+    "anvil:arbitrum": "anvil --auto-impersonate --chain-id 42161 --fork-url wss://arbitrum-mainnet.infura.io/ws/v3/$INFURA_KEY --timeout 5000 --retries 0 --no-rate-limit --steps-tracing --fork-block-number 269244293",
     "anvil:sepolia": "anvil --auto-impersonate --chain-id 11155111 --fork-url wss://sepolia.infura.io/ws/v3/$INFURA_KEY --timeout 5000 --retries 0 --no-rate-limit --steps-tracing",
     "anvil:base": "anvil --auto-impersonate --chain-id 8453 --fork-url wss://base-mainnet.infura.io/ws/v3/$INFURA_KEY --timeout 5000 --retries 0 --no-rate-limit --steps-tracing --fork-block-number 21739298",
     "cy": "NODE_ENV=test cypress open --component --browser chrome",
