@@ -7,7 +7,7 @@ before(() => {
 });
 after(() => {
   cy.get('@snapshot').then(async (snapshot) => {
-    cy.task('evmSnapshot', snapshot);
+    cy.task('evmRestore', snapshot);
   });
 });
 
@@ -52,9 +52,10 @@ it('should repay borrowed USDx', () => {
     cy.visit(`/#${path}?manageAction=repay&accountId=${accountId}`);
   });
 
-  cy.get('[data-cy="repay amount input"]').should('exist').type('5');
+  cy.get('[data-cy="repay amount input"]').type('5');
 
-  cy.get('[data-cy="repay submit"]').should('be.enabled').click();
+  cy.get('[data-cy="repay submit"]').should('be.enabled');
+  cy.get('[data-cy="repay submit"]').click();
 
   cy.get('[data-cy="repay multistep"]')
     .should('exist')
@@ -63,6 +64,7 @@ it('should repay borrowed USDx', () => {
     .and('include.text', 'Repay')
     .and('include.text', 'Repay 5 USDx');
 
-  cy.get('[data-cy="repay confirm button"]').should('include.text', 'Execute Transaction').click();
+  cy.get('[data-cy="repay confirm button"]').should('include.text', 'Execute Transaction');
+  cy.get('[data-cy="repay confirm button"]').click();
   cy.contains('[data-status="info"]', 'Debt successfully Updated').should('exist');
 });

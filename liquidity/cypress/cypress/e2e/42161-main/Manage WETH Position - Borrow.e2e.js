@@ -7,7 +7,7 @@ before(() => {
 });
 after(() => {
   cy.get('@snapshot').then(async (snapshot) => {
-    cy.task('evmSnapshot', snapshot);
+    cy.task('evmRestore', snapshot);
   });
 });
 
@@ -46,7 +46,7 @@ it('should borrow against WETH position', () => {
 
   cy.contains('[data-status="info"]', 'You can take an interest-free loan up to').should('exist');
 
-  cy.get('[data-cy="claim amount input"]').should('exist').type('10');
+  cy.get('[data-cy="claim amount input"]').type('10');
 
   cy.contains(
     '[data-status="warning"]',
@@ -57,7 +57,8 @@ it('should borrow against WETH position', () => {
     'exist'
   );
 
-  cy.get('[data-cy="claim submit"]').should('be.enabled').click();
+  cy.get('[data-cy="claim submit"]').should('be.enabled');
+  cy.get('[data-cy="claim submit"]').click();
 
   cy.get('[data-cy="claim multistep"]')
     .should('exist')
@@ -65,7 +66,8 @@ it('should borrow against WETH position', () => {
     .and('include.text', 'Borrow')
     .and('include.text', 'Borrow 10 USDx');
 
-  cy.get('[data-cy="claim confirm button"]').should('include.text', 'Execute Transaction').click();
+  cy.get('[data-cy="claim confirm button"]').should('include.text', 'Execute Transaction');
+  cy.get('[data-cy="claim confirm button"]').click();
 
   cy.contains('[data-status="info"]', 'Debt successfully Updated').should('exist');
 });

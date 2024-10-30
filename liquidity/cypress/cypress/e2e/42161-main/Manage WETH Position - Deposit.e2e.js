@@ -7,7 +7,7 @@ before(() => {
 });
 after(() => {
   cy.get('@snapshot').then(async (snapshot) => {
-    cy.task('evmSnapshot', snapshot);
+    cy.task('evmRestore', snapshot);
   });
 });
 
@@ -17,8 +17,6 @@ it('should deposit additional WETH collateral', () => {
     cy.wrap(accountId).as('accountId');
 
     cy.task('setEthBalance', { address, balance: 100 });
-    cy.task('wrapEth', { address, amount: 50 });
-    cy.task('approveCollateral', { address, symbol: 'WETH' });
   });
 
   cy.get('@accountId').then(async (accountId) => {
@@ -27,11 +25,12 @@ it('should deposit additional WETH collateral', () => {
       poolId: 1,
     });
     cy.visit(`/#${path}?manageAction=deposit&accountId=${accountId}`);
-    cy.wait(1000);
   });
 
-  cy.get('[data-cy="deposit amount input"]').should('exist').type('1');
-  cy.get('[data-cy="deposit submit"]').should('be.enabled').click();
+  cy.get('[data-cy="balance amount"]').should('exist').and('include.text', 'Balance: 100');
+  cy.get('[data-cy="deposit amount input"]').type('1');
+  cy.get('[data-cy="deposit submit"]').should('be.enabled');
+  cy.get('[data-cy="deposit submit"]').click();
 
   cy.get('[data-cy="deposit multistep"]')
     .should('exist')
@@ -46,8 +45,15 @@ it('should deposit additional WETH collateral', () => {
 
   cy.get('[data-cy="manage stats collateral"]').should('exist').and('include.text', '1 WETH');
 
-  cy.get('[data-cy="deposit amount input"]').should('exist').clear().type('0.69');
-  cy.get('[data-cy="deposit submit"]').should('be.enabled').click();
+  cy.get('@wallet').then(async (address) => {
+    cy.task('setEthBalance', { address, balance: 100 });
+  });
+
+  cy.get('[data-cy="balance amount"]').should('exist').and('include.text', 'Balance: 100');
+  cy.get('[data-cy="deposit amount input"]').clear();
+  cy.get('[data-cy="deposit amount input"]').type('0.69');
+  cy.get('[data-cy="deposit submit"]').should('be.enabled');
+  cy.get('[data-cy="deposit submit"]').click();
 
   cy.get('[data-cy="deposit multistep"]')
     .should('exist')
