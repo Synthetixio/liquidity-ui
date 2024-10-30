@@ -1,13 +1,14 @@
-before(() => {
-  cy.task('evmSnapshot').then((snapshot) => {
-    cy.wrap(snapshot).as('snapshot');
-  });
-});
-after(() => {
-  cy.get('@snapshot').then(async (snapshot) => {
-    cy.task('evmRevert', snapshot);
-  });
-});
+// NO MUTATIONS!
+//before(() => {
+//  cy.task('evmSnapshot').then((snapshot) => {
+//    cy.wrap(snapshot).as('snapshot');
+//  });
+//});
+//after(() => {
+//  cy.get('@snapshot').then(async (snapshot) => {
+//    cy.task('evmRevert', snapshot);
+//  });
+//});
 
 it('Dashboard - Connected', () => {
   cy.connectWallet().then(({ address, accountId }) => {
