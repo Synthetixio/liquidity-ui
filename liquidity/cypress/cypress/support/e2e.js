@@ -1,12 +1,16 @@
 import '@cypress/code-coverage/support';
 import { onLogAdded } from '@snx-cy/onLogAdded';
-import { ethers } from 'ethers';
 import { subgraph } from '../lib/subgraph';
 
 beforeEach(() => {
   cy.on('log:added', onLogAdded);
 
   cy.intercept('https://analytics.synthetix.io/matomo.js', { statusCode: 204 }).as('matomo');
+  cy.intercept('https://hermes-mainnet.rpc.extrnode.com/**', { statusCode: 400 }).as('pyth');
+  cy.intercept('https://synthetixio.github.io/**', { statusCode: 404 }).as('assets');
+  //  cy.intercept('https://hermes-mainnet.rpc.extrnode.com/**', (req) => {
+  //    return req.reply([]);
+  //  }).as('pyth');
 
   // Because we are working with local fork, subgraph becomes irrelevant
   cy.intercept('https://api.thegraph.com/**', (req) => {
@@ -45,10 +49,11 @@ beforeEach(() => {
   });
 });
 
-Cypress.Commands.add('connectWallet', (namespace = 'wallet') => {
+Cypress.Commands.add('connectWallet', () => {
   const address = '0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345';
+  const accountId = '58655818123';
   cy.on('window:before:load', (win) => {
     win.localStorage.setItem('MAGIC_WALLET', address);
   });
-  return cy.wrap(address).as(namespace);
+  return { address, accountId };
 });

@@ -1,5 +1,8 @@
 it('Create Account', () => {
-  cy.connectWallet().then((address) => {
+  cy.connectWallet().then(({ address, accountId }) => {
+    cy.wrap(address).as('wallet');
+    cy.wrap(accountId).as('accountId');
+
     cy.task('setEthBalance', { address, balance: 2 });
   });
 

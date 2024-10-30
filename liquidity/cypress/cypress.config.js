@@ -47,6 +47,7 @@ module.exports = defineConfig({
         ...require('./cypress/tasks/getUSDC'),
         ...require('./cypress/tasks/doAllPriceUpdates'),
         ...require('./cypress/tasks/doPriceUpdateForPyth'),
+        ...require('./cypress/tasks/snapshot'),
       });
       return config;
     },
@@ -55,8 +56,8 @@ module.exports = defineConfig({
       runMode: 1,
       openMode: 0,
     },
-    defaultCommandTimeout: 90_000,
-    execTimeout: 120_000,
-    taskTimeout: 300_000, // sometimes Anvil needs quite a bit of time to complete impersonating tx
+    defaultCommandTimeout: 10_000,
+    execTimeout: 10_000,
+    taskTimeout: 10_000,
   },
 });

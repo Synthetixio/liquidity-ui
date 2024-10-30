@@ -1,5 +1,19 @@
+before(() => {
+  cy.task('evmSnapshot').then((snapshot) => {
+    cy.wrap(snapshot).as('snapshot');
+  });
+});
+after(() => {
+  cy.get('@snapshot').then(async (snapshot) => {
+    cy.task('evmSnapshot', snapshot);
+  });
+});
+
 it('Create Account', () => {
-  cy.connectWallet().then((address) => {
+  cy.connectWallet().then(({ address, accountId }) => {
+    cy.wrap(address).as('wallet');
+    cy.wrap(accountId).as('accountId');
+
     cy.task('setEthBalance', { address, balance: 2 });
   });
 

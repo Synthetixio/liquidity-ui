@@ -1,15 +1,15 @@
 it('Dashboard - Connected', () => {
-  cy.connectWallet().then((address) => {
+  cy.connectWallet().then(({ address, accountId }) => {
+    cy.wrap(address).as('wallet');
+    cy.wrap(accountId).as('accountId');
+
     cy.task('setEthBalance', { address, balance: 100 });
-    cy.task('createAccount', { address }).then((accountId) => {
-      cy.wrap(accountId).as('accountId');
-    });
   });
 
   cy.viewport(1200, 900);
   cy.visit('/#/dashboard');
 
-  cy.get('@wallet').then(({ address }) => {
+  cy.get('@wallet').then((address) => {
     cy.get('[data-cy="short wallet address"]').contains(
       `${address.substring(0, 6)}...${address.substring(address.length - 4)}`
     );

@@ -1,13 +1,24 @@
 import { generatePath } from 'react-router-dom';
 
+before(() => {
+  cy.task('evmSnapshot').then((snapshot) => {
+    cy.wrap(snapshot).as('snapshot');
+  });
+});
+after(() => {
+  cy.get('@snapshot').then(async (snapshot) => {
+    cy.task('evmSnapshot', snapshot);
+  });
+});
+
 it('should deposit additional WETH collateral', () => {
-  cy.connectWallet().then((address) => {
+  cy.connectWallet().then(({ address, accountId }) => {
+    cy.wrap(address).as('wallet');
+    cy.wrap(accountId).as('accountId');
+
     cy.task('setEthBalance', { address, balance: 100 });
     cy.task('wrapEth', { address, amount: 50 });
     cy.task('approveCollateral', { address, symbol: 'WETH' });
-    cy.task('createAccount', { address }).then((accountId) => {
-      cy.wrap(accountId).as('accountId');
-    });
   });
 
   cy.get('@accountId').then(async (accountId) => {

@@ -1,35 +1,46 @@
 import { generatePath } from 'react-router-dom';
 
+before(() => {
+  cy.task('evmSnapshot').then((snapshot) => {
+    cy.wrap(snapshot).as('snapshot');
+  });
+});
+after(() => {
+  cy.get('@snapshot').then(async (snapshot) => {
+    cy.task('evmSnapshot', snapshot);
+  });
+});
+
 it('should repay borrowed USDx', () => {
-  cy.connectWallet().then((address) => {
+  cy.connectWallet().then(({ address, accountId }) => {
+    cy.wrap(address).as('wallet');
+    cy.wrap(accountId).as('accountId');
+
     cy.task('setEthBalance', { address, balance: 105 });
 
     cy.task('approveCollateral', { address, symbol: 'WETH' });
     cy.task('wrapEth', { address, amount: 20 });
 
-    cy.task('createAccount', { address }).then((accountId) => {
-      cy.wrap(accountId).as('accountId');
-      cy.task('depositCollateral', {
-        address,
-        symbol: 'WETH',
-        accountId,
-        amount: 10,
-      });
-      cy.task('delegateCollateral', {
-        address,
-        symbol: 'WETH',
-        accountId,
-        amount: 10,
-        poolId: 1,
-      });
-      cy.task('borrowUsd', {
-        address,
-        symbol: 'WETH',
-        accountId,
-        amount: 10,
-        poolId: 1,
-      }).then((debt) => cy.wrap(debt).as('debt'));
+    cy.task('depositCollateral', {
+      address,
+      symbol: 'WETH',
+      accountId,
+      amount: 10,
     });
+    cy.task('delegateCollateral', {
+      address,
+      symbol: 'WETH',
+      accountId,
+      amount: 10,
+      poolId: 1,
+    });
+    cy.task('borrowUsd', {
+      address,
+      symbol: 'WETH',
+      accountId,
+      amount: 10,
+      poolId: 1,
+    }).then((debt) => cy.wrap(debt).as('debt'));
   });
   cy.viewport(1000, 800);
 
