@@ -12,6 +12,5 @@ contract DebtRepayerTest is Test {
         debtRepayer = new DebtRepayer();
     }
 
-    function test_ok() public view {
-    }
+    function test_ok() public view {}
 }

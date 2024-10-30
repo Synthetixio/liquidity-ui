@@ -7,7 +7,9 @@ import {ERC2771Context} from "./lib/ERC2771Context.sol";
 import {IAccountProxy} from "./lib/IAccountProxy.sol";
 
 contract ClosePosition {
-    error NotEnoughAllowance(address walletAddress, address tokenAddress, uint256 requiredAllowance, uint256 availableAllowance);
+    error NotEnoughAllowance(
+        address walletAddress, address tokenAddress, uint256 requiredAllowance, uint256 availableAllowance
+    );
     error NotEnoughBalance(address walletAddress, address tokenAddress, uint256 requiredAmount, uint256 availableAmount);
 
     function closePosition(
@@ -57,13 +59,7 @@ contract ClosePosition {
         }
 
         // Set delegated collateral amount to 0, effectively closing position
-        coreProxy.delegateCollateral(
-            accountId,
-            poolId,
-            collateralType,
-            0,
-            1
-        );
+        coreProxy.delegateCollateral(accountId, poolId, collateralType, 0, 1e18);
 
         // Transfer account back from contract to the wallet
         accountProxy.transferFrom(address(this), msgSender, uint256(accountId));

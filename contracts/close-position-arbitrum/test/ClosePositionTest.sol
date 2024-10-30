@@ -11,11 +11,11 @@ import {ISynthetixCore} from "../src/lib/ISynthetixCore.sol";
 
 contract CoreProxyMock {
     int256 public positionDebt = 999_999;
-    function setPositionDebt(
-        int256 positionDebt_
-    ) public {
+
+    function setPositionDebt(int256 positionDebt_) public {
         positionDebt = positionDebt_;
     }
+
     function getPositionDebt(
         uint128, // accountId_
         uint128, // poolId_
@@ -25,11 +25,11 @@ contract CoreProxyMock {
     }
 
     uint256 public accountAvailableCollateral = 999_999;
-    function setAccountAvailableCollateral(
-        uint256 accountAvailableCollateral_
-    ) public {
+
+    function setAccountAvailableCollateral(uint256 accountAvailableCollateral_) public {
         accountAvailableCollateral = accountAvailableCollateral_;
     }
+
     function getAccountAvailableCollateral(
         uint128, // accountId_,
         address // collateralType_
@@ -38,18 +38,21 @@ contract CoreProxyMock {
     }
 
     address public usdToken;
+
     function setUsdToken(address usdToken_) public {
         usdToken = usdToken_;
     }
+
     function getUsdToken() public view returns (address) {
         return usdToken;
     }
 
-
     uint256 public depositAmount = 999_999;
+
     function setDeposit(uint256 depositAmount_) public {
         depositAmount = depositAmount_;
     }
+
     function deposit(
         uint128, // accountId_,
         address, // collateralType_,
@@ -58,11 +61,12 @@ contract CoreProxyMock {
         depositAmount = tokenAmount_;
     }
 
-
     uint256 public delegatedCollateral = 999_999;
+
     function setDelegatedCollateral(uint256 delegatedCollateral_) public {
         delegatedCollateral = delegatedCollateral_;
     }
+
     function delegateCollateral(
         uint128, // accountId_,
         uint128, // poolId_,
@@ -74,6 +78,7 @@ contract CoreProxyMock {
     }
 
     uint256 public burnUsdAmount = 999_999;
+
     function burnUsd(
         uint128, // accountId_,
         uint128, // poolId_,
@@ -84,6 +89,7 @@ contract CoreProxyMock {
     }
 
     uint256 public mintUsdAmount = 999_999;
+
     function mintUsd(
         uint128, // accountId_,
         uint128, // poolId_,
@@ -107,7 +113,7 @@ contract ClosePositionTest is Test {
     function setUp() public {
         ALICE = vm.addr(0xA11CE);
         vm.startPrank(ALICE);
-        console.log('ALICE', address(ALICE));
+        console.log("ALICE", address(ALICE));
 
         USDx = new MintableToken("USDx", 18);
         ARB = new MintableToken("ARB", 18);
@@ -116,7 +122,7 @@ contract ClosePositionTest is Test {
         coreProxy.setUsdToken(address(USDx));
 
         closePosition = new ClosePosition();
-        accountProxy = new MintableNFT('ACC');
+        accountProxy = new MintableNFT("ACC");
     }
 
     function test_closePosition_NotEnoughAllowance() public {
@@ -130,7 +136,7 @@ contract ClosePositionTest is Test {
 
         closePosition.closePosition(address(coreProxy), address(accountProxy), accountId, poolId, address(ARB));
 
-        assertEq(accountProxy.ownerOf(accountId), ALICE, 'should own Account NFT #420');
+        assertEq(accountProxy.ownerOf(accountId), ALICE, "should own Account NFT #420");
     }
 
     function test_closePosition_NotEnoughBalance() public {
@@ -146,7 +152,7 @@ contract ClosePositionTest is Test {
 
         closePosition.closePosition(address(coreProxy), address(accountProxy), accountId, poolId, address(ARB));
 
-        assertEq(accountProxy.ownerOf(accountId), ALICE, 'should own Account NFT #420');
+        assertEq(accountProxy.ownerOf(accountId), ALICE, "should own Account NFT #420");
     }
 
     function test_closePosition_with_repay() public {
@@ -161,12 +167,12 @@ contract ClosePositionTest is Test {
 
         closePosition.closePosition(address(coreProxy), address(accountProxy), accountId, poolId, address(ARB));
 
-        assertEq(coreProxy.depositAmount(), 31, 'should deposit extra 31 USDx');
-        assertEq(coreProxy.burnUsdAmount(), 100, 'should repay 100 USDx');
-        assertEq(coreProxy.mintUsdAmount(), 999_999, 'should not claim anything');
-        assertEq(coreProxy.delegatedCollateral(), 0, 'should reduce delegated amount to 0');
+        assertEq(coreProxy.depositAmount(), 31, "should deposit extra 31 USDx");
+        assertEq(coreProxy.burnUsdAmount(), 100, "should repay 100 USDx");
+        assertEq(coreProxy.mintUsdAmount(), 999_999, "should not claim anything");
+        assertEq(coreProxy.delegatedCollateral(), 0, "should reduce delegated amount to 0");
 
-        assertEq(accountProxy.ownerOf(accountId), ALICE, 'should own Account NFT #420');
+        assertEq(accountProxy.ownerOf(accountId), ALICE, "should own Account NFT #420");
     }
 
     function test_closePosition_with_claim() public {
@@ -178,11 +184,11 @@ contract ClosePositionTest is Test {
 
         closePosition.closePosition(address(coreProxy), address(accountProxy), accountId, poolId, address(ARB));
 
-        assertEq(coreProxy.depositAmount(), 999_999, 'should not deposit anything');
-        assertEq(coreProxy.burnUsdAmount(), 999_999, 'should not repay anything');
-        assertEq(coreProxy.mintUsdAmount(), 200, 'should claim 200 USDx');
-        assertEq(coreProxy.delegatedCollateral(), 0, 'should reduce delegated amount to 0');
+        assertEq(coreProxy.depositAmount(), 999_999, "should not deposit anything");
+        assertEq(coreProxy.burnUsdAmount(), 999_999, "should not repay anything");
+        assertEq(coreProxy.mintUsdAmount(), 200, "should claim 200 USDx");
+        assertEq(coreProxy.delegatedCollateral(), 0, "should reduce delegated amount to 0");
 
-        assertEq(accountProxy.ownerOf(accountId), ALICE, 'should own Account NFT #420');
+        assertEq(accountProxy.ownerOf(accountId), ALICE, "should own Account NFT #420");
     }
 }

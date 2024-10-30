@@ -9,9 +9,11 @@ interface IAccountProxy {
     error Unauthorized(address addr);
     error UpgradeSimulationFailed();
     error ZeroAddress();
+
     event OwnerChanged(address oldOwner, address newOwner);
     event OwnerNominated(address newOwner);
     event Upgraded(address indexed self, address implementation);
+
     function acceptOwnership() external;
     function getImplementation() external view returns (address);
     function nominateNewOwner(address newNominatedOwner) external;
@@ -20,6 +22,7 @@ interface IAccountProxy {
     function renounceNomination() external;
     function simulateUpgradeTo(address newImplementation) external;
     function upgradeTo(address newImplementation) external;
+
     error AlreadyInitialized();
     error CannotSelfApprove(address addr);
     error IndexOverrun(uint256 requestedIndex, uint256 length);
@@ -29,11 +32,13 @@ interface IAccountProxy {
     error OverflowUint256ToUint128();
     error TokenAlreadyMinted(uint256 id);
     error TokenDoesNotExist(uint256 id);
+
     event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
+
     function approve(address to, uint256 tokenId) external;
-    function balanceOf(address holder) external view returns (uint256 balance) ;
+    function balanceOf(address holder) external view returns (uint256 balance);
     function burn(uint256 tokenId) external;
     function getApproved(uint256 tokenId) external view returns (address operator);
     function initialize(string memory tokenName, string memory tokenSymbol, string memory uri) external;
