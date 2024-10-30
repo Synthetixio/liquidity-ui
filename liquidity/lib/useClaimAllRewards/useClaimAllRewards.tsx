@@ -96,10 +96,15 @@ export function useClaimAllRewards(
           calls.unshift(priceUpdateTx as any);
         }
 
-        const erc7412Tx = await withERC7412(network, calls, 'useClaimAllRewards', walletAddress);
+        const { multicallTxn: erc7412Tx, gasLimit } = await withERC7412(
+          network,
+          calls,
+          'useClaimAllRewards',
+          walletAddress
+        );
 
         const gasOptionsForTransaction = formatGasPriceForTransaction({
-          gasLimit: erc7412Tx.gasLimit,
+          gasLimit,
           gasPrices,
           gasSpeed,
         });

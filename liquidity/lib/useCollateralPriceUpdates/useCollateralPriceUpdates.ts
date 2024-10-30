@@ -227,10 +227,15 @@ export const useCollateralPriceUpdates = (customNetwork?: Network) => {
         }
 
         if (outdatedPriceIds.length) {
-          return {
-            ...(await getPriceUpdates(outdatedPriceIds, network)),
-            from: walletAddress,
-          };
+          const priceUpdateTx = (await getPriceUpdates(outdatedPriceIds, network).catch(
+            () => undefined
+          )) as any;
+          if (priceUpdateTx) {
+            return {
+              ...priceUpdateTx,
+              from: walletAddress,
+            };
+          }
         }
 
         return null;

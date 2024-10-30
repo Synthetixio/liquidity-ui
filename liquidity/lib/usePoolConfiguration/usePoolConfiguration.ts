@@ -45,18 +45,22 @@ export const usePoolConfiguration = (poolId?: string) => {
         maxDebtShareValue: weightD18,
       }));
 
-      const calls = await Promise.all(
+      const allCalls = await Promise.all(
         markets.map((m) => CoreProxy.populateTransaction.isMarketCapacityLocked(m.id))
       );
 
-      calls.unshift(
-        (await getPriceUpdates((await getPythFeedIds(network)) as string[], network)) as any
-      );
+      const priceUpdateTx = (await getPriceUpdates(
+        (await getPythFeedIds(network)) as string[],
+        network
+      ).catch(() => undefined)) as any;
+      if (priceUpdateTx) {
+        allCalls.unshift(priceUpdateTx);
+      }
 
       const decoded = await erc7412Call(
         network,
         provider,
-        calls,
+        allCalls,
         (encoded) => {
           const result = Array.isArray(encoded) ? encoded : [encoded];
           return result.map((x) =>

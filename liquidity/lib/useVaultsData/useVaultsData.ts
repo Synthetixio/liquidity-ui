@@ -49,19 +49,20 @@ export const useVaultsData = (poolId?: number, customNetwork?: Network) => {
         )
       );
 
-      const calls = await Promise.all([collateralCallsP, debtCallsP]);
+      const allCalls = await Promise.all([collateralCallsP, debtCallsP]);
 
-      calls.unshift(
-        (await getPriceUpdates(
-          (await getPythFeedIds(targetNetwork)) as string[],
-          targetNetwork
-        )) as any
-      );
+      const priceUpdateTx = (await getPriceUpdates(
+        (await getPythFeedIds(targetNetwork)) as string[],
+        targetNetwork
+      ).catch(() => undefined)) as any;
+      if (priceUpdateTx) {
+        allCalls.unshift(priceUpdateTx);
+      }
 
       return await erc7412Call(
         targetNetwork,
         provider,
-        calls.flat(),
+        allCalls.flat(),
         (multicallResult) => {
           if (!Array.isArray(multicallResult)) throw Error('Expected array');
 

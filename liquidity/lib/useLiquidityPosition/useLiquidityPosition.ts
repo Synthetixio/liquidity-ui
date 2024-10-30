@@ -126,9 +126,13 @@ export const useLiquidityPosition = ({
 
       const allCalls = priceCalls.concat(positionCalls).concat(accountCollateralCalls);
 
-      allCalls.unshift(
-        (await getPriceUpdates((await getPythFeedIds(network)) as string[], network)) as any
-      );
+      const priceUpdateTx = (await getPriceUpdates(
+        (await getPythFeedIds(network)) as string[],
+        network
+      ).catch(() => undefined)) as any;
+      if (priceUpdateTx) {
+        allCalls.unshift(priceUpdateTx);
+      }
 
       return await erc7412Call(
         network,

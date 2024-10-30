@@ -26,14 +26,14 @@ export function usePoolsList() {
 }
 
 export function usePool(networkId: number, poolId: string) {
-  const { data, isLoading } = usePoolsList();
+  const { data, isPending } = usePoolsList();
 
   // TODO: In the future if we have multiple pools per network filter by poolId also
   return {
     data: data?.synthetixPools.find(
-      (p) => p.network.id === networkId && p?.poolInfo?.[0]?.pool?.id === poolId
+      (p) => p?.network?.id === networkId && p?.poolInfo?.[0]?.pool?.id === poolId
     ),
-    isLoading,
+    isLoading: isPending,
   };
 }
 

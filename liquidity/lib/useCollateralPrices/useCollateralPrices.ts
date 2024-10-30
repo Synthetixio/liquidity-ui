@@ -96,12 +96,14 @@ export const useCollateralPrices = (customNetwork?: Network) => {
       const { calls, decoder } = await loadPrices({ CoreProxy, collateralAddresses });
 
       const allCalls = [...calls];
-      allCalls.unshift(
-        (await getPriceUpdates(
-          (await getPythFeedIds(targetNetwork)) as string[],
-          targetNetwork
-        )) as any
-      );
+
+      const priceUpdateTx = (await getPriceUpdates(
+        (await getPythFeedIds(targetNetwork)) as string[],
+        targetNetwork
+      ).catch(() => undefined)) as any;
+      if (priceUpdateTx) {
+        allCalls.unshift(priceUpdateTx);
+      }
 
       const prices = await erc7412Call(
         targetNetwork,

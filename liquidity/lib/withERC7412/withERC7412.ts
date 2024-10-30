@@ -225,7 +225,7 @@ async function getMulticallTransaction(
     ),
   };
   const gasLimit = await provider.estimateGas(multicallTxn);
-  return { ...multicallTxn, gasLimit, _calls: calls };
+  return { multicallTxn, gasLimit, _calls: calls };
 }
 
 /**
@@ -236,12 +236,7 @@ export const withERC7412 = async (
   calls: (ethers.PopulatedTransaction & { requireSuccess?: boolean })[],
   label: string,
   from: string
-): Promise<
-  ethers.PopulatedTransaction & {
-    gasLimit: ethers.BigNumber;
-    _calls?: (ethers.PopulatedTransaction & { requireSuccess?: boolean })[];
-  }
-> => {
+) => {
   // Make sure we're always using JSONRpcProvider, the web3 provider coming from the signer might have bugs causing errors to miss revert data
   const jsonRpcProvider =
     getMagicProvider() ?? new ethers.providers.JsonRpcProvider(network.rpcUrl());
@@ -349,22 +344,23 @@ export async function erc7412Call<T>(
   const Multicall3Contract = await importMulticall3(network.id, network.preset);
 
   const from = getDefaultFromAddress(network.name);
-  const newCall = await withERC7412(
+  const {
+    _calls: newCalls,
+    gasLimit,
+    multicallTxn,
+  } = await withERC7412(
     network,
     calls.filter(notNil).map((call) => (call.from ? call : { ...call, from })), // fill missing "from"
     label,
     from
   );
 
-  const { _calls: newCalls } = newCall;
-  delete newCall._calls;
-
-  const res = await provider.call(newCall);
+  const res = await provider.call({ ...multicallTxn, gasLimit });
   if (res === '0x') {
     throw new Error(`[${label}] Call returned 0x`);
   }
 
-  if (newCall.to?.toLowerCase() === Multicall3Contract.address.toLowerCase()) {
+  if (multicallTxn.to?.toLowerCase() === Multicall3Contract.address.toLowerCase()) {
     // If this was a multicall, decode and remove price updates.
     const decodedMultiCall: { returnData: string }[] = new ethers.utils.Interface(
       Multicall3Contract.abi

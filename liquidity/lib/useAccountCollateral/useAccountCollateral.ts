@@ -122,9 +122,13 @@ export function useAccountCollateral({
       });
       const allCalls = [...calls];
 
-      allCalls.unshift(
-        (await getPriceUpdates((await getPythFeedIds(network)) as string[], network)) as any
-      );
+      const priceUpdateTx = (await getPriceUpdates(
+        (await getPythFeedIds(network)) as string[],
+        network
+      ).catch(() => undefined)) as any;
+      if (priceUpdateTx) {
+        allCalls.unshift(priceUpdateTx);
+      }
 
       const data = await erc7412Call(network, provider, allCalls, decoder, 'useAccountCollateral');
 
@@ -173,9 +177,13 @@ export function useAccountSpecificCollateral(accountId?: string, collateralAddre
       });
       const allCalls = [...calls];
 
-      allCalls.unshift(
-        (await getPriceUpdates((await getPythFeedIds(network)) as string[], network)) as any
-      );
+      const priceUpdateTx = (await getPriceUpdates(
+        (await getPythFeedIds(network)) as string[],
+        network
+      ).catch(() => undefined)) as any;
+      if (priceUpdateTx) {
+        allCalls.unshift(priceUpdateTx);
+      }
 
       const data = await erc7412Call(
         network,
