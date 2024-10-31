@@ -84,7 +84,7 @@ export const DepositUi: FC<{
       return ZEROWEI;
     }
 
-    return usdcBalance?.div(stataUSDCRate) || ZEROWEI;
+    return (usdcBalance?.div(stataUSDCRate) || ZEROWEI).mul(998).div(1000);
   }, [isStataUSDC, stataUSDCRate, usdcBalance]);
 
   const combinedTokenBalance = useMemo(() => {
