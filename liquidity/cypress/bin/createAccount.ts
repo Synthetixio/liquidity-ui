@@ -1,8 +1,8 @@
 #!/usr/bin/env ts-node
 
 import { createAccount } from '../cypress/tasks/createAccount';
-const [address] = process.argv.slice(2);
-if (!address) {
-  throw new Error('Usage: ./approveCollateral.ts <address>');
+const [address, accountId] = process.argv.slice(2);
+if (!address || !accountId) {
+  throw new Error('Usage: ./approveCollateral.ts <address> <accountId>');
 }
-createAccount({ address });
+createAccount({ address, accountId });
