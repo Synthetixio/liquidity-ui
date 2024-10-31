@@ -74,7 +74,7 @@ beforeEach(() => {
 
 Cypress.Commands.add('connectWallet', () => {
   const address = '0x0008e81f68bc3b7ca0888E684a6259AF86f77000';
-  const accountId = '2';
+  const accountId = '777';
   cy.on('window:before:load', (win) => {
     win.localStorage.setItem('MAGIC_WALLET', address);
   });
