@@ -8,6 +8,7 @@ import {
   importPythERC7412Wrapper,
   importPythVerfier,
 } from '@snx-v3/contracts';
+import { notNil } from '@snx-v3/tsHelpers';
 import { Network, deploymentHasERC7412, getMagicProvider } from '@snx-v3/useBlockchain';
 import { ethers } from 'ethers';
 
@@ -343,7 +344,7 @@ export async function erc7412Call<T>(
   const from = getDefaultFromAddress(network.name);
   const newCall = await withERC7412(
     network,
-    calls.map((call) => (call.from ? call : { ...call, from })), // fill missing "from"
+    calls.filter(notNil).map((call) => (call.from ? call : { ...call, from })), // fill missing "from"
     label,
     from
   );

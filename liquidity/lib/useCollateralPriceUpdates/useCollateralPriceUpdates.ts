@@ -78,9 +78,13 @@ async function getPythFeedIdsFromCollateralList(
 }
 
 export const getPriceUpdates = async (priceIds: string[], network: Network) => {
+  if (!priceIds.length) {
+    return null;
+  }
   const unique = Array.from(new Set(priceIds));
   const signedOffchainData = await priceService.getPriceFeedsUpdateData(unique);
   const PythVerfier = await importPythVerfier(network.id, network.preset);
+
   return {
     to: PythVerfier.address,
     data: new ethers.utils.Interface(PythVerfier.abi).encodeFunctionData('updatePriceFeeds', [

@@ -6412,6 +6412,7 @@ __metadata:
     "@pythnetwork/pyth-evm-js": "npm:^1.42.0"
     "@snx-v3/constants": "workspace:*"
     "@snx-v3/contracts": "workspace:*"
+    "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     ethers: "npm:^5.7.2"
   languageName: unknown
@@ -6671,9 +6672,9 @@ __metadata:
   linkType: soft
 
 "@synthetixio/v3-contracts@npm:^7.1.0":
-  version: 7.4.0
-  resolution: "@synthetixio/v3-contracts@npm:7.4.0"
-  checksum: 10/3ad53f5ec826f85b2a01ad943f5a0dd51611c9e30ee793997bae7697b124dd3c5e70c4023a454ff2f125f5bb87e410ef553288b7dc92eab9d22a067c49943a9d
+  version: 7.5.0
+  resolution: "@synthetixio/v3-contracts@npm:7.5.0"
+  checksum: 10/5fafc9f204117362b0a32014734cbfbf9e300aaa6aaf0d8c1382af0e34709d7158cb92192944fbfbe75f82292da963fd7bd4ca146e40fba98000690e7a913655
   languageName: node
   linkType: hard
 
@@ -10153,9 +10154,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:1":
-  version: 1.0.30001671
-  resolution: "caniuse-lite@npm:1.0.30001671"
-  checksum: 10/3eaff44bc8435972c168b63a52df89d202bd1978e3e4dda69a68763016fd69ab7cf09f965def213aab382535ad767f6e5e86f2403db0c6f95ffca499a8d4e9a7
+  version: 1.0.30001673
+  resolution: "caniuse-lite@npm:1.0.30001673"
+  checksum: 10/e2e053faa5d424a57204a8631b015ef51415c12bcb85622643ea41aff4d5127114017d27df7391d46737e1bbcd9bd8ed004cf370920c9f264f63fca60303a81d
   languageName: node
   linkType: hard
 
