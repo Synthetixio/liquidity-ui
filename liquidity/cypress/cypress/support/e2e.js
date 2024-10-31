@@ -73,8 +73,10 @@ beforeEach(() => {
 });
 
 Cypress.Commands.add('connectWallet', () => {
-  const address = '0x0008e81f68bc3b7ca0888E684a6259AF86f77000';
-  const accountId = '777';
+  //  const address = '0x0008e81f68bc3b7ca0888E684a6259AF86f77000';
+  //  const accountId = '777';
+  const address = '0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345';
+  const accountId = '58655818123';
   cy.on('window:before:load', (win) => {
     win.localStorage.setItem('MAGIC_WALLET', address);
   });
