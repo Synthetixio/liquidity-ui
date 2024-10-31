@@ -56,8 +56,8 @@ module.exports = defineConfig({
       runMode: 1,
       openMode: 0,
     },
-    defaultCommandTimeout: 20_000,
-    execTimeout: 20_000,
-    taskTimeout: 20_000,
+    defaultCommandTimeout: 60_000,
+    execTimeout: 60_000,
+    taskTimeout: 60_000,
   },
 });

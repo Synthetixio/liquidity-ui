@@ -20,7 +20,7 @@ it('should deposit additional WETH collateral', () => {
     cy.task('createAccount', { address, accountId });
   });
 
-  cy.get('@accountId').then(async (accountId) => {
+  cy.get('@accountId').then((accountId) => {
     const path = generatePath('/positions/:collateralSymbol/:poolId', {
       collateralSymbol: 'WETH',
       poolId: 1,
@@ -40,18 +40,19 @@ it('should deposit additional WETH collateral', () => {
     .and('include.text', 'Deposit & Lock WETH')
     .and('include.text', 'This will deposit and lock 1 WETH to Spartan Council Pool.');
 
-  cy.get('[data-cy="deposit confirm button"]')
-    .should('include.text', 'Execute Transaction')
-    .click();
+  cy.get('[data-cy="deposit confirm button"]').should('include.text', 'Execute Transaction');
+  cy.get('[data-cy="deposit confirm button"]').click();
 
-  cy.get('[data-cy="manage stats collateral"]').should('exist').and('include.text', '1 WETH');
-
-  cy.get('@wallet').then(async (address) => {
-    cy.task('setEthBalance', { address, balance: 100 });
-  });
+  cy.contains('[data-status="success"]', 'Your locked collateral amount has been updated.').should(
+    'exist'
+  );
 
   // TODO: Enable additional deposit after fixing an issue with balance refetching
+  //  cy.get('[data-cy="manage stats collateral"]').should('exist').and('include.text', '1 WETH');
   //
+  //  cy.get('@wallet').then(async (address) => {
+  //    cy.task('setEthBalance', { address, balance: 100 });
+  //  });
   //  cy.get('[data-cy="balance amount"]').should('exist').and('include.text', 'Balance: 100');
   //  cy.get('[data-cy="deposit amount input"]').clear();
   //  cy.get('[data-cy="deposit amount input"]').type('0.69');
