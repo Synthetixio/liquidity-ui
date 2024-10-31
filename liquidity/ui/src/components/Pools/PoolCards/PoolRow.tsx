@@ -73,10 +73,10 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
 
   const balance = useMemo(() => {
     if (!isStataUSDC || !stataUSDCRate) {
-      return tokenBalance;
+      return tokenBalance || ZEROWEI;
     }
 
-    return (usdcBalance?.div(stataUSDCRate) || ZEROWEI).add(tokenBalance);
+    return ((usdcBalance || ZEROWEI).div(stataUSDCRate) || ZEROWEI).add(tokenBalance);
   }, [isStataUSDC, stataUSDCRate, tokenBalance, usdcBalance]);
 
   const price = wei(
