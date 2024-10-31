@@ -17,6 +17,7 @@ it('should deposit additional WETH collateral', () => {
     cy.wrap(accountId).as('accountId');
 
     cy.task('setEthBalance', { address, balance: 100 });
+    cy.task('createAccount', { address, accountId });
   });
 
   cy.get('@accountId').then(async (accountId) => {

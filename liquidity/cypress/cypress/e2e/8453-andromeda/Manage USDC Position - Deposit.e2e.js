@@ -18,6 +18,7 @@ it('should deposit additional USDC collateral', () => {
 
     cy.task('setEthBalance', { address, balance: 100 });
     cy.task('getUSDC', { address, amount: 500 });
+    cy.task('createAccount', { address, accountId });
   });
 
   cy.get('@accountId').then(async (accountId) => {

@@ -15,6 +15,7 @@ it('Dashboard - Connected', () => {
     cy.wrap(accountId).as('accountId');
 
     cy.task('setEthBalance', { address, balance: 100 });
+    cy.task('createAccount', { address, accountId });
   });
 
   cy.viewport(1200, 900);

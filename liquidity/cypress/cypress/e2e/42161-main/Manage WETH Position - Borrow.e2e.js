@@ -17,6 +17,7 @@ it('should borrow against WETH position', () => {
     cy.wrap(accountId).as('accountId');
 
     cy.task('setEthBalance', { address, balance: 105 });
+    cy.task('createAccount', { address, accountId });
     cy.task('approveCollateral', { address, symbol: 'WETH' });
     cy.task('wrapEth', { address, amount: 20 });
     cy.task('depositCollateral', {
