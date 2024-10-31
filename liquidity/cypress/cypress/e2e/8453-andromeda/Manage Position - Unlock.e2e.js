@@ -4,6 +4,7 @@ it('should be able to unlock USDC collateral after depositing', () => {
   cy.connectWallet().then(({ address, privateKey }) => {
     cy.task('setEthBalance', { address, balance: 100 });
     cy.task('getUSDC', { address: address, amount: 1000 });
+    cy.task('approveCollateral', { privateKey: privateKey, symbol: 'USDC', target: 'spotMarket' });
     cy.task('wrapCollateral', { privateKey, symbol: 'USDC', amount: 500 });
     cy.task('approveCollateral', { privateKey: privateKey, symbol: 'sUSDC' });
     cy.task('createAccount', { privateKey }).then((accountId) => {

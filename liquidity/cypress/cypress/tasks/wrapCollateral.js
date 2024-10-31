@@ -13,15 +13,6 @@ export async function wrapCollateral({ privateKey, symbol, amount }) {
     config: config.name,
   });
 
-  const contract = new ethers.Contract(
-    config.token.address,
-    ['function approve(address spender, uint256 amount) returns (bool)'],
-    wallet
-  );
-
-  const tx = await contract.approve(spotMarketProxy.address, ethers.constants.MaxUint256);
-  await tx.wait();
-
   console.log('wrap token', {
     amount,
     token: config.token.symbol,

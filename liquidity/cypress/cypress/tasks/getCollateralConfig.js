@@ -4,7 +4,7 @@ export async function getCollateralConfig(symbol) {
   const collateralConfigs = await importCollateralTokens();
   for (const config of collateralConfigs) {
     try {
-      if (config.symbol === symbol && config.depositingEnabled) {
+      if (config.symbol === symbol) {
         return config;
       }
     } catch (e) {
