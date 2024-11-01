@@ -76,7 +76,7 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
       return tokenBalance || ZEROWEI;
     }
 
-    return ((usdcBalance || ZEROWEI).div(stataUSDCRate) || ZEROWEI).add(tokenBalance);
+    return ((usdcBalance || ZEROWEI).div(stataUSDCRate) || ZEROWEI).add(tokenBalance || ZEROWEI);
   }, [isStataUSDC, stataUSDCRate, tokenBalance, usdcBalance]);
 
   const price = wei(
