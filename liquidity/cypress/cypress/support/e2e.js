@@ -7,7 +7,7 @@ beforeEach(() => {
 
   cy.intercept('https://analytics.synthetix.io/matomo.js', { statusCode: 204 }).as('matomo');
   cy.intercept('https://analytics.synthetix.io/matomo.js', { log: false });
-  cy.intercept('https://hermes-mainnet.rpc.extrnode.com/**', { statusCode: 400 }).as('pyth');
+  //  cy.intercept('https://hermes-mainnet.rpc.extrnode.com/**', { statusCode: 400 }).as('pyth');
   cy.intercept('https://hermes-mainnet.rpc.extrnode.com/**', { log: false });
   //  cy.intercept('https://hermes-mainnet.rpc.extrnode.com/**', (req) => {
   //    return req.reply([]);
@@ -56,7 +56,7 @@ beforeEach(() => {
   });
 
   cy.intercept(`http://127.0.0.1:8545`, { log: false });
-  cy.intercept(`https://api.synthetix.io/**`, { statusCode: 400 }).as('api');
+  //  cy.intercept(`https://api.synthetix.io/**`, { statusCode: 400 }).as('api');
   cy.intercept(`https://api.synthetix.io/**`, { log: false });
 
   cy.on('window:before:load', (win) => {

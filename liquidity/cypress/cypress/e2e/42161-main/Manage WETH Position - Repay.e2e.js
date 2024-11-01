@@ -39,7 +39,7 @@ it('should repay borrowed USDx', () => {
       address,
       symbol: 'WETH',
       accountId,
-      amount: 10,
+      amount: 100,
       poolId: 1,
     }).then((debt) => cy.wrap(debt).as('debt'));
   });
@@ -67,5 +67,6 @@ it('should repay borrowed USDx', () => {
 
   cy.get('[data-cy="repay confirm button"]').should('include.text', 'Execute Transaction');
   cy.get('[data-cy="repay confirm button"]').click();
+  cy.contains('[data-status="success"]', 'Your debt has been repaid.').should('exist');
   cy.contains('[data-status="info"]', 'Debt successfully Updated').should('exist');
 });
