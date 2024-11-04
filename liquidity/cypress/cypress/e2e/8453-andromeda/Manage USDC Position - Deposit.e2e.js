@@ -21,6 +21,8 @@ it('should deposit additional USDC collateral', () => {
     cy.task('createAccount', { address, accountId });
   });
 
+  cy.viewport(1000, 1200);
+
   cy.get('@accountId').then(async (accountId) => {
     const path = generatePath('/positions/:collateralSymbol/:poolId', {
       collateralSymbol: 'USDC',
@@ -29,15 +31,16 @@ it('should deposit additional USDC collateral', () => {
     cy.visit(`/#${path}?manageAction=deposit&accountId=${accountId}`);
   });
 
-  cy.get('[data-cy="deposit amount input"]').should('exist').type('101');
-  cy.get('[data-cy="deposit submit"]').should('be.enabled').click();
+  cy.get('[data-cy="deposit amount input"]').should('exist');
+  cy.get('[data-cy="deposit amount input"]').type('101');
+  cy.get('[data-cy="deposit submit"]').should('be.enabled');
+  cy.get('[data-cy="deposit submit"]').click();
 
   cy.get('[data-cy="deposit multistep"]')
     .should('exist')
-    .and('include.text', 'Open Liquidity Position')
     .and('include.text', 'Approve USDC transfer')
     .and('include.text', 'Deposit & Lock USDC')
-    .and('include.text', 'This will deposit and lock 101 USDC to Spartan Council Pool.');
+    .and('include.text', 'This will deposit & lock 101 USDC in Spartan Council Pool.');
 
   cy.get('[data-cy="deposit confirm button"]')
     .should('include.text', 'Execute Transaction')

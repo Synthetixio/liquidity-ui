@@ -18,7 +18,7 @@ it('Dashboard - Connected', () => {
     cy.task('createAccount', { address, accountId });
   });
 
-  cy.viewport(1200, 900);
+  cy.viewport(1000, 1200);
   cy.visit('/#/dashboard');
 
   cy.get('@wallet').then((address) => {

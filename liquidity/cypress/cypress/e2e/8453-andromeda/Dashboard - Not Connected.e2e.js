@@ -10,7 +10,7 @@ after(() => {
 });
 
 it('Dashboard - Not Connected', () => {
-  cy.viewport(1200, 900);
+  cy.viewport(1000, 1200);
   cy.visit('/#/dashboard');
 
   cy.contains('h2', 'Dashboard').should('exist');
