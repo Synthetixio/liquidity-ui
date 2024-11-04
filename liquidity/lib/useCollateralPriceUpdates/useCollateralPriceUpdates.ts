@@ -4,6 +4,7 @@ import {
   importExtras,
   importMulticall3,
   importPythERC7412Wrapper,
+  importPythFeeds,
   importPythVerfier,
 } from '@snx-v3/contracts';
 import { parseUnits } from '@snx-v3/format';
@@ -28,8 +29,7 @@ function getAllPriceIdsEntries(extras: any) {
 }
 
 export async function getPythFeedIds(network: Network) {
-  const extras = await importExtras(network.id, network.preset);
-  return getAllPriceIdsEntries(extras).map(([_key, value]) => value);
+  return await importPythFeeds(network.id, network.preset);
 }
 
 async function getPythFeedIdsFromCollateralList(
