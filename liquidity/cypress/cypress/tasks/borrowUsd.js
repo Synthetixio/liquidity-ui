@@ -10,9 +10,9 @@ export async function borrowUsd({ address, accountId, symbol, amount, poolId }) 
 
   console.log('borrowUsd', { address, accountId, symbol, amount, poolId });
 
-  const coreProxy = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
+  const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
 
-  const tx = await coreProxy.mintUsd(
+  const tx = await CoreProxyContract.mintUsd(
     ethers.BigNumber.from(accountId),
     ethers.BigNumber.from(poolId),
     config.tokenAddress,
@@ -20,5 +20,12 @@ export async function borrowUsd({ address, accountId, symbol, amount, poolId }) 
     { gasLimit: 10_000_000 }
   );
   await tx.wait();
-  return amount;
+
+  const positionDebt = await CoreProxyContract.callStatic.getPositionDebt(
+    accountId,
+    poolId,
+    config.tokenAddress
+  );
+
+  return parseFloat(ethers.utils.formatUnits(positionDebt));
 }

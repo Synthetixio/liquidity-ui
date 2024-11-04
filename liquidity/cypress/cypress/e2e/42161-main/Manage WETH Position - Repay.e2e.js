@@ -43,7 +43,8 @@ it('should repay borrowed USDx', () => {
       poolId: 1,
     }).then((debt) => cy.wrap(debt).as('debt'));
   });
-  cy.viewport(1000, 800);
+
+  cy.viewport(1000, 1200);
 
   cy.get('@accountId').then((accountId) => {
     const path = generatePath('/positions/:collateralSymbol/:poolId', {

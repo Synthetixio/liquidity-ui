@@ -20,6 +20,8 @@ it('should deposit additional WETH collateral', () => {
     cy.task('createAccount', { address, accountId });
   });
 
+  cy.viewport(1000, 1200);
+
   cy.get('@accountId').then((accountId) => {
     const path = generatePath('/positions/:collateralSymbol/:poolId', {
       collateralSymbol: 'WETH',
