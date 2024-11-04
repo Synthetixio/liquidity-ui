@@ -194,6 +194,7 @@ jobs:
       - run:
           working_directory: /tmp/app/liquidity/cypress
           command: |
+            echo "0" > /tmp/cypress_exit_code
             cypress run --e2e --browser chrome \
               --config specPattern="./cypress/e2e/<< parameters.chainId >>-<< parameters.preset >>/*.e2e.js" \
               || echo $? > /tmp/cypress_exit_code
