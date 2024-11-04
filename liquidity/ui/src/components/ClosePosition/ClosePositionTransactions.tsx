@@ -344,7 +344,7 @@ export const ClosePositionTransactions: FC<{
   }
 
   return (
-    <Flex flexDirection="column">
+    <Flex flexDirection="column" data-cy="close position multistep">
       <Text color="gray.50" fontSize="sm" fontWeight="700">
         <ArrowBackIcon cursor="pointer" onClick={onBack} mr={2} />
         Close Position
@@ -367,7 +367,12 @@ export const ClosePositionTransactions: FC<{
         />
       ))}
 
-      <Button isLoading={txState.status === 'pending'} onClick={handleSubmit} mt="6">
+      <Button
+        data-cy="close position confirm button"
+        isLoading={txState.status === 'pending'}
+        onClick={handleSubmit}
+        mt="6"
+      >
         {(() => {
           switch (true) {
             case txState.status === 'error':

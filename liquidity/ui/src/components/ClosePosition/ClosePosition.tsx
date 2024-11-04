@@ -96,7 +96,7 @@ const ClosePositionUi: FC<{
           </Flex>
         </Flex>
       </BorderBox>
-      <Button onClick={onSubmit} type="submit">
+      <Button data-cy="close position submit" onClick={onSubmit} type="submit">
         Close Position
       </Button>
     </Flex>
