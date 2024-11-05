@@ -344,14 +344,19 @@ export async function erc7412Call<T>(
   const Multicall3Contract = await importMulticall3(network.id, network.preset);
 
   const from = getDefaultFromAddress(network.name);
-  const { _calls: newCalls, multicallTxn } = await withERC7412(
+
+  const {
+    _calls: newCalls,
+    multicallTxn,
+    gasLimit,
+  } = await withERC7412(
     network,
     calls.filter(notNil).map((call) => (call.from ? call : { ...call, from })), // fill missing "from"
     label,
     from
   );
 
-  const res = await provider.call({ ...multicallTxn });
+  const res = await provider.call({ ...multicallTxn, gasLimit: gasLimit.mul(15).div(10) });
   if (res === '0x') {
     throw new Error(`[${label}] Call returned 0x`);
   }
