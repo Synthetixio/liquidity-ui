@@ -6,8 +6,8 @@ import {Test} from "forge-std/src/Test.sol";
 import {console} from "forge-std/src/console.sol";
 import {MintableToken} from "./MintableToken.sol";
 import {MintableNFT} from "./MintableNFT.sol";
-import {ClosePosition} from "../src/ClosePosition.sol";
-import {ISynthetixCore} from "../src/lib/ISynthetixCore.sol";
+import {ClosePosition} from "src/ClosePosition.sol";
+import {ISynthetixCore} from "src/lib/ISynthetixCore.sol";
 
 contract CoreProxyMock {
     int256 public positionDebt = 999_999;

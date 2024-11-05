@@ -1,0 +1,108 @@
+pragma solidity ^0.8.21;
+
+import {Test} from "forge-std/src/Test.sol";
+import {console} from "forge-std/src/console.sol";
+import {ClosePosition} from "src/ClosePosition.sol";
+import {MockERC721} from "forge-std/src/mocks/MockERC721.sol";
+import {ISynthetixCore} from "src/lib/ISynthetixCore.sol";
+import {IUSDToken} from "src/lib/IUSDToken.sol";
+
+contract e2eClosePositionTest is Test {
+    address private constant USDC = 0xaf88d065e77c8cC2239327C5EDb3A432268e5831;
+    address private constant ARB = 0x912CE59144191C1204E64559FE8253a0e49E6548;
+    address private constant USDX = 0xb2F30A7C980f052f02563fb518dcc39e6bf38175;
+    address private constant CORE_PROXY = 0xffffffaEff0B96Ea8e4f94b2253f31abdD875847;
+    address private constant ACCOUNT_PROXY = 0x0E429603D3Cb1DFae4E6F52Add5fE82d96d77Dac;
+    uint128 private constant poolId = 1;
+
+    address private constant USDXOwner = 0xffffffaEff0B96Ea8e4f94b2253f31abdD875847;
+    address private constant negativeDebtSnxUser = 0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345;
+    uint128 private constant negativeDebtSnxUserAccountId = 58655818123;
+    address private constant positiveDebtSnxUser = 0x193641EA463C3B9244cF9F00b77EE5220d4154e9;
+    uint128 private constant positiveDebtSnxUserAccountId = 127052930719;
+
+    uint256 private constant infinteCRatio =
+        115792089237316195423570985008687907853269984665640564039457584007913129639935;
+    uint256 private constant startingUSDXAmount = 1000 ** 18;
+
+    uint256 arbitrumMainnetFork;
+    ClosePosition private closePosition;
+    MockERC721 private accountProxy;
+    ISynthetixCore private coreProxy;
+    IUSDToken private usdX;
+
+    // TODO: Move this and commonly reused constants into a base test contract to inherit. Do this when we make more e2e tests.
+    modifier prankAs(address _impersonatedAddress) {
+        vm.startPrank(_impersonatedAddress);
+        _;
+        vm.stopPrank();
+    }
+
+    function setUp() public {
+        arbitrumMainnetFork =
+            vm.createSelectFork("https://arbitrum-mainnet.infura.io/v3/8678fe160b1f4d45ad3f3f71502fc57b", 269104835);
+        vm.selectFork(arbitrumMainnetFork);
+
+        closePosition = new ClosePosition();
+        accountProxy = MockERC721(ACCOUNT_PROXY);
+        coreProxy = ISynthetixCore(CORE_PROXY);
+        usdX = IUSDToken(USDX);
+
+        vm.startPrank(USDXOwner);
+        IUSDToken(USDX).mint(positiveDebtSnxUser, startingUSDXAmount);
+    }
+
+    function test_rollFork_thenCorrectBlockAndForkDetails() public {
+        assertEq(block.number, 21075973);
+        assertEq(vm.activeFork(), arbitrumMainnetFork);
+    }
+
+    function test_closePosition_whenNegativeDebt_success() public prankAs(negativeDebtSnxUser) {
+        uint256 userCollateralAmount;
+        uint256 userCollateralValue;
+        int256 userDebt;
+        uint256 collateralizationRatio;
+
+        (userCollateralAmount, userCollateralValue, userDebt, collateralizationRatio) =
+            coreProxy.getPosition(negativeDebtSnxUserAccountId, poolId, USDC);
+        assertGt(userCollateralAmount, 0, "Collateral amount should be greater than 0");
+        assertGt(userCollateralValue, 0, "Collateral value should be greater than 0");
+        assertLt(userDebt, 0, "Debt value should be negative");
+        assertEq(collateralizationRatio, infinteCRatio, "No Debt Collateral Ratio");
+
+        accountProxy.approve(address(closePosition), negativeDebtSnxUserAccountId);
+        closePosition.closePosition(CORE_PROXY, ACCOUNT_PROXY, negativeDebtSnxUserAccountId, poolId, USDC);
+
+        (userCollateralAmount, userCollateralValue, userDebt, collateralizationRatio) =
+            coreProxy.getPosition(negativeDebtSnxUserAccountId, poolId, USDC);
+        assertEq(userCollateralAmount, 0, "Collateral amount should be 0");
+        assertEq(userCollateralValue, 0, "Collateral value should be 0");
+        assertEq(userDebt, 0, "Debt should be 0");
+        assertEq(collateralizationRatio, infinteCRatio, "No Debt Collateral Ratio");
+    }
+
+    function test_closePosition_whenPositiveDebt_success() public prankAs(positiveDebtSnxUser) {
+        uint256 userCollateralAmount;
+        uint256 userCollateralValue;
+        int256 userDebt;
+        uint256 collateralizationRatio;
+
+        (userCollateralAmount, userCollateralValue, userDebt, collateralizationRatio) =
+            coreProxy.getPosition(positiveDebtSnxUserAccountId, poolId, ARB);
+        assertGt(userCollateralAmount, 0, "Collateral amount should be greater than 0");
+        assertGt(userCollateralValue, 0, "Collateral value should be greater than 0");
+        assertGt(userDebt, 0, "Debt value should be positive");
+        assertLt(collateralizationRatio, infinteCRatio, "Collateral Ratio is not infinite");
+
+        accountProxy.approve(address(closePosition), positiveDebtSnxUserAccountId);
+        usdX.approve(address(closePosition), startingUSDXAmount);
+        closePosition.closePosition(CORE_PROXY, ACCOUNT_PROXY, positiveDebtSnxUserAccountId, poolId, ARB);
+
+        (userCollateralAmount, userCollateralValue, userDebt, collateralizationRatio) =
+            coreProxy.getPosition(positiveDebtSnxUserAccountId, poolId, ARB);
+        assertEq(userCollateralAmount, 0, "Collateral amount should be 0");
+        assertEq(userCollateralValue, 0, "Collateral value should be 0");
+        assertEq(userDebt, 0, "Debt should be 0");
+        assertEq(collateralizationRatio, infinteCRatio, "No Debt Collateral Ratio");
+    }
+}
