@@ -7,4 +7,4 @@ libs = [
 allow_paths = [
     "../../node_modules"
 ]
-fs_permissions = [{ access = "read", path = "./" }]
+fs_permissions = [{ access = "read", path = "./" }, { access = "read", path = "../../node_modules" }]
