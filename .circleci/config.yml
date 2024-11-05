@@ -15,8 +15,8 @@ commands:
       - run: date +"%Y-%m" > /tmp/month.txt && cat /tmp/month.txt
       - restore_cache:
           keys:
-            - &yarn_cache yarn-{{ .Environment.YARN_CACHE_VERSION }}-{{ .Environment.HOME }}-{{ checksum "/tmp/month.txt" }}-{{ checksum "yarn.lock" }}
-            - yarn-{{ .Environment.YARN_CACHE_VERSION }}-{{ .Environment.HOME }}-{{ checksum "/tmp/month.txt" }}-
+            - &yarn_cache yarn-{{ .Environment.NODE_MODULES_VERSION }}-{{ .Environment.HOME }}-{{ checksum "/tmp/month.txt" }}-{{ checksum "yarn.lock" }}
+            - yarn-{{ .Environment.NODE_MODULES_VERSION }}-{{ .Environment.HOME }}-{{ checksum "/tmp/month.txt" }}-
       - run: yarn -v
       - run: yarn install --immutable
       - save_cache:
