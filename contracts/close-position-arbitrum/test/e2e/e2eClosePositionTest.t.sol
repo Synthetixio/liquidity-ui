@@ -21,8 +21,7 @@ contract e2eClosePositionTest is Test {
     address private constant positiveDebtSnxUser = 0x193641EA463C3B9244cF9F00b77EE5220d4154e9;
     uint128 private constant positiveDebtSnxUserAccountId = 127052930719;
 
-    uint256 private constant infinteCRatio =
-        115792089237316195423570985008687907853269984665640564039457584007913129639935;
+    uint256 private constant MAX_INT = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
     uint256 private constant startingUSDXAmount = 1000 ** 18;
 
     uint256 arbitrumMainnetFork;
@@ -68,7 +67,7 @@ contract e2eClosePositionTest is Test {
         assertGt(userCollateralAmount, 0, "Collateral amount should be greater than 0");
         assertGt(userCollateralValue, 0, "Collateral value should be greater than 0");
         assertLt(userDebt, 0, "Debt value should be negative");
-        assertEq(collateralizationRatio, infinteCRatio, "No Debt Collateral Ratio");
+        assertEq(collateralizationRatio, MAX_INT, "No Debt Collateral Ratio");
 
         accountProxy.approve(address(closePosition), negativeDebtSnxUserAccountId);
         closePosition.closePosition(CORE_PROXY, ACCOUNT_PROXY, negativeDebtSnxUserAccountId, poolId, USDC);
@@ -78,7 +77,7 @@ contract e2eClosePositionTest is Test {
         assertEq(userCollateralAmount, 0, "Collateral amount should be 0");
         assertEq(userCollateralValue, 0, "Collateral value should be 0");
         assertEq(userDebt, 0, "Debt should be 0");
-        assertEq(collateralizationRatio, infinteCRatio, "No Debt Collateral Ratio");
+        assertEq(collateralizationRatio, MAX_INT, "No Debt Collateral Ratio");
     }
 
     function test_closePosition_whenPositiveDebt_success() public prankAs(positiveDebtSnxUser) {
@@ -92,7 +91,7 @@ contract e2eClosePositionTest is Test {
         assertGt(userCollateralAmount, 0, "Collateral amount should be greater than 0");
         assertGt(userCollateralValue, 0, "Collateral value should be greater than 0");
         assertGt(userDebt, 0, "Debt value should be positive");
-        assertLt(collateralizationRatio, infinteCRatio, "Collateral Ratio is not infinite");
+        assertLt(collateralizationRatio, MAX_INT, "Collateral Ratio is not infinite");
 
         accountProxy.approve(address(closePosition), positiveDebtSnxUserAccountId);
         usdX.approve(address(closePosition), startingUSDXAmount);
@@ -103,6 +102,6 @@ contract e2eClosePositionTest is Test {
         assertEq(userCollateralAmount, 0, "Collateral amount should be 0");
         assertEq(userCollateralValue, 0, "Collateral value should be 0");
         assertEq(userDebt, 0, "Debt should be 0");
-        assertEq(collateralizationRatio, infinteCRatio, "No Debt Collateral Ratio");
+        assertEq(collateralizationRatio, MAX_INT, "No Debt Collateral Ratio");
     }
 }
