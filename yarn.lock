@@ -5527,6 +5527,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/useClosePosition@workspace:liquidity/lib/useClosePosition":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useClosePosition@workspace:liquidity/lib/useClosePosition"
+  dependencies:
+    "@ethersproject/contracts": "npm:^5.7.0"
+    "@snx-v3/contracts": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/useCollateralPriceUpdates@workspace:*, @snx-v3/useCollateralPriceUpdates@workspace:liquidity/lib/useCollateralPriceUpdates":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useCollateralPriceUpdates@workspace:liquidity/lib/useCollateralPriceUpdates"
@@ -5594,6 +5606,17 @@ __metadata:
   resolution: "@snx-v3/useCoreProxy@workspace:liquidity/lib/useCoreProxy"
   dependencies:
     "@ethersproject/contracts": "npm:^5.7.0"
+    "@snx-v3/contracts": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
+"@snx-v3/useDebtRepayer@workspace:liquidity/lib/useDebtRepayer":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useDebtRepayer@workspace:liquidity/lib/useDebtRepayer"
+  dependencies:
     "@snx-v3/contracts": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
