@@ -31,34 +31,31 @@ commands:
             - foundry-{{ .Environment.FOUNDRY_CACHE_VERSION }}
 
       - run:
-          name: 'Add .foundry/bin to PATH'
+          name: "Install Foundry"
+          working_directory: ~/
+          environment:
+            SHELL: /bin/bash
           command: |-
             export PATH="$PATH:$HOME/.foundry/bin"
             echo 'export PATH=$PATH:$HOME/.foundry/bin' >> $BASH_ENV
-
-      - run:
-          name: 'forge --version'
-          command: |-
             if command -v curl; then
               curl --version
             else
               apt update && apt install --yes curl
             fi
 
-            if command -v forge; then
-              forge --version
+            if command -v anvil; then
+              echo "Anvil already installed"
+              anvil --version
             else
-              echo "Forge needs to be installed"
-
               curl -L https://foundry.paradigm.xyz | bash
               foundryup
-              forge --version
             fi
 
       - save_cache:
           key: foundry-{{ .Environment.FOUNDRY_CACHE_VERSION }}
           paths:
-            - '~/.foundry/bin'
+            - "~/.foundry"
 
   ipfs-deploy:
     parameters:
