@@ -30,13 +30,6 @@ contract e2eClosePositionTest is Test {
     ISynthetixCore private coreProxy;
     IUSDToken private usdX;
 
-    // TODO: Move this and commonly reused constants into a base test contract to inherit. Do this when we make more e2e tests.
-    modifier prankAs(address _impersonatedAddress) {
-        vm.startPrank(_impersonatedAddress);
-        _;
-        vm.stopPrank();
-    }
-
     function setUp() public {
         arbitrumMainnetFork =
             vm.createSelectFork("https://arbitrum-mainnet.infura.io/v3/8678fe160b1f4d45ad3f3f71502fc57b", 269104835);
@@ -56,7 +49,9 @@ contract e2eClosePositionTest is Test {
         assertEq(vm.activeFork(), arbitrumMainnetFork);
     }
 
-    function test_closePosition_whenNegativeDebt_success() public prankAs(negativeDebtSnxUser) {
+    function test_closePosition_whenNegativeDebt_success() public {
+        vm.startPrank(negativeDebtSnxUser);
+
         uint256 userCollateralAmount;
         uint256 userCollateralValue;
         int256 userDebt;
@@ -80,7 +75,9 @@ contract e2eClosePositionTest is Test {
         assertEq(collateralizationRatio, MAX_INT, "No Debt Collateral Ratio");
     }
 
-    function test_closePosition_whenPositiveDebt_success() public prankAs(positiveDebtSnxUser) {
+    function test_closePosition_whenPositiveDebt_success() public {
+        vm.startPrank(positiveDebtSnxUser);
+
         uint256 userCollateralAmount;
         uint256 userCollateralValue;
         int256 userDebt;
