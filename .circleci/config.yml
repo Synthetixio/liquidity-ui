@@ -118,6 +118,7 @@ jobs:
       - image: cimg/node:<< pipeline.parameters.node-version >>
     steps:
       - checkout
+      - install-foundry
       - yarn-install
       - run: yarn npm audit --recursive --severity critical
       - run: yarn dedupe --check
