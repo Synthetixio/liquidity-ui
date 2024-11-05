@@ -31,7 +31,7 @@ commands:
             - &foundry_cache foundry-{{ .Environment.FOUNDRY_CACHE_VERSION }}-{{ .Environment.HOME }}
 
       - run:
-          name: "Install Foundry"
+          name: 'Install Foundry'
           working_directory: ~/
           environment:
             SHELL: /bin/bash
@@ -55,7 +55,7 @@ commands:
       - save_cache:
           key: *foundry_cache
           paths:
-            - "~/.foundry"
+            - '~/.foundry'
 
   ipfs-deploy:
     parameters:
