@@ -2,44 +2,36 @@ import { ethers } from 'ethers';
 import { importSpotMarketProxy } from './importSpotMarketProxy';
 import { getSynthConfig } from './getSynthConfig';
 
-export async function wrapCollateral({ privateKey, symbol, amount }) {
-  const spotMarketProxy = await importSpotMarketProxy();
-  const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
-  const wallet = new ethers.Wallet(privateKey, provider);
+export async function wrapCollateral({ address, symbol, amount }) {
+  const SpotMarketProxy = await importSpotMarketProxy();
   const config = await getSynthConfig(symbol);
-  console.log('approveCollateral', {
-    wallet: wallet.address,
-    symbol,
-    config: config.name,
-  });
+  const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
+  const signer = provider.getSigner(address);
 
-  console.log('wrap token', {
-    amount,
-    token: config.token.symbol,
-  });
+  console.log('wrapCollateral', { amount, token: config.token.symbol, signer });
 
-  const spotMarketProxyContract = new ethers.Contract(
-    spotMarketProxy.address,
-    spotMarketProxy.abi,
-    wallet
+  const SpotMarketProxyContract = new ethers.Contract(
+    SpotMarketProxy.address,
+    SpotMarketProxy.abi,
+    signer
   );
-  const wrapTx = await spotMarketProxyContract.wrap(
+  const wrapTx = await SpotMarketProxyContract.wrap(
     config.synthMarketId,
     ethers.utils.parseUnits(`${amount}`, config.token.decimals),
     0
   );
   await wrapTx.wait();
 
-  const collateral = new ethers.Contract(
+  const CollateralContract = new ethers.Contract(
     config.address,
     ['function balanceOf(address account) view returns (uint256)'],
-    wallet
+    signer
   );
 
-  console.log({
+  console.log('wrapCollateral', {
     collateral: config.symbol,
-    balance: ethers.utils.formatUnits(await collateral.balanceOf(wallet.address), 18),
-    wallet: wallet.address,
+    balance: ethers.utils.formatUnits(await CollateralContract.balanceOf(address), 18),
+    address,
   });
 
   return null;
