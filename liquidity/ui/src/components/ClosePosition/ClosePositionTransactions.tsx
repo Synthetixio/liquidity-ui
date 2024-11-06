@@ -132,7 +132,8 @@ export const ClosePositionTransactions: FC<{
     }[] = [];
 
     if (ClosePositionContract) {
-      console.log(`ClosePositionContract`, ClosePositionContract);
+      // TODO: one step close
+      // console.log(`ClosePositionContract`, ClosePositionContract);
     }
 
     if (!isBase) {
@@ -216,6 +217,7 @@ export const ClosePositionTransactions: FC<{
 
     return transactions;
   }, [
+    ClosePositionContract,
     approve,
     approveUSDC,
     collateralSymbol,
