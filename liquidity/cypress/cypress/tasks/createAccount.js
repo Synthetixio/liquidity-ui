@@ -7,19 +7,19 @@ export async function createAccount({ address, accountId }) {
   const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
   const signer = provider.getSigner(address);
 
-  const coreProxy = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
+  const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
 
-  const currentAccountOwner = await coreProxy.getAccountOwner(accountId);
+  const currentAccountOwner = await CoreProxyContract.getAccountOwner(accountId);
   console.log('createAccount', { accountId, currentAccountOwner });
 
   if (currentAccountOwner === address) {
     return accountId;
   }
 
-  const tx = await coreProxy['createAccount(uint128)'](accountId, { gasLimit: 10_000_000 });
+  const tx = await CoreProxyContract['createAccount(uint128)'](accountId, { gasLimit: 10_000_000 });
   await tx.wait();
 
-  const newAccountOwner = await coreProxy.getAccountOwner(accountId);
+  const newAccountOwner = await CoreProxyContract.getAccountOwner(accountId);
   console.log('createAccount', { accountId, newAccountOwner });
 
   return accountId;

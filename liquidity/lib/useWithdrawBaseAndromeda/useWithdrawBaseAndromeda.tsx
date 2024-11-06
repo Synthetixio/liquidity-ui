@@ -35,7 +35,7 @@ export const useWithdrawBaseAndromeda = ({
 }) => {
   const [txnState, dispatch] = useReducer(reducer, initialState);
   const { data: CoreProxy } = useCoreProxy();
-  const { data: SpotProxy } = useSpotMarketProxy();
+  const { data: SpotMarketProxy } = useSpotMarketProxy();
   const { data: USDProxy } = useUSDProxy();
   const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
   const { network } = useNetwork();
@@ -49,7 +49,14 @@ export const useWithdrawBaseAndromeda = ({
     mutationFn: async () => {
       if (!signer || !network || !provider) throw new Error('No signer or network');
       if (
-        !(CoreProxy && SpotProxy && USDProxy && accountId && usdTokens?.sUSD && usdTokens.snxUSD)
+        !(
+          CoreProxy &&
+          SpotMarketProxy &&
+          USDProxy &&
+          accountId &&
+          usdTokens?.sUSD &&
+          usdTokens.snxUSD
+        )
       ) {
         throw new Error('Not ready');
       }
@@ -77,7 +84,11 @@ export const useWithdrawBaseAndromeda = ({
 
         const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
         const USDProxyContract = new ethers.Contract(USDProxy.address, USDProxy.abi, signer);
-        const SpotProxyContract = new ethers.Contract(SpotProxy.address, SpotProxy.abi, signer);
+        const SpotProxyContract = new ethers.Contract(
+          SpotMarketProxy.address,
+          SpotMarketProxy.abi,
+          signer
+        );
 
         const withdraw_collateral = wrappedCollateralAmount.gt(0)
           ? CoreProxyContract.populateTransaction.withdraw(
@@ -96,7 +107,10 @@ export const useWithdrawBaseAndromeda = ({
           : undefined;
 
         const snxUSDApproval = snxUSDAmount.gt(0)
-          ? USDProxyContract.populateTransaction.approve(SpotProxy.address, snxUSDAmount.toBN())
+          ? USDProxyContract.populateTransaction.approve(
+              SpotMarketProxy.address,
+              snxUSDAmount.toBN()
+            )
           : undefined;
         const buy_wrappedCollateral = snxUSDAmount.gt(0)
           ? SpotProxyContract.populateTransaction.buy(

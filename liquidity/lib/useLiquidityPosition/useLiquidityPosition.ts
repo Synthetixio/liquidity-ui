@@ -21,28 +21,28 @@ const PositionCollateralSchema = z.object({
 const DebtSchema = ZodBigNumber.transform((x) => wei(x));
 
 export const loadPosition = async ({
-  CoreProxy,
+  CoreProxyContract,
   accountId,
   poolId,
   tokenAddress,
 }: {
-  CoreProxy: ethers.Contract;
+  CoreProxyContract: ethers.Contract;
   accountId: string;
   poolId: string;
   tokenAddress: string;
 }) => {
   const calls = await Promise.all([
-    CoreProxy.populateTransaction.getPositionCollateral(accountId, poolId, tokenAddress),
-    CoreProxy.populateTransaction.getPositionDebt(accountId, poolId, tokenAddress),
+    CoreProxyContract.populateTransaction.getPositionCollateral(accountId, poolId, tokenAddress),
+    CoreProxyContract.populateTransaction.getPositionDebt(accountId, poolId, tokenAddress),
   ]);
 
   const decoder = (multicallEncoded: string | string[]) => {
     if (Array.isArray(multicallEncoded) && multicallEncoded.length === 2) {
-      const decodedCollateral = CoreProxy.interface.decodeFunctionResult(
+      const decodedCollateral = CoreProxyContract.interface.decodeFunctionResult(
         'getPositionCollateral',
         multicallEncoded[0]
       );
-      const decodedDebt = CoreProxy.interface.decodeFunctionResult(
+      const decodedDebt = CoreProxyContract.interface.decodeFunctionResult(
         'getPositionDebt',
         multicallEncoded[1]
       )[0];
@@ -106,11 +106,11 @@ export const useLiquidityPosition = ({
       const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
       const { calls: priceCalls, decoder: priceDecoder } = await loadPrices({
         collateralAddresses: [tokenAddress],
-        CoreProxy: CoreProxyContract,
+        CoreProxyContract,
       });
 
       const { calls: positionCalls, decoder: positionDecoder } = await loadPosition({
-        CoreProxy: CoreProxyContract,
+        CoreProxyContract,
         accountId,
         poolId,
         tokenAddress,

@@ -261,7 +261,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   const { network } = useNetwork();
 
   const { data: CoreProxy } = useCoreProxy();
-  const { data: SpotProxy } = useSpotMarketProxy();
+  const { data: SpotMarketProxy } = useSpotMarketProxy();
   const { data: collateralType } = useCollateralType(collateralSymbol);
 
   const isBase = isBaseAndromeda(network?.id, network?.preset);
@@ -281,7 +281,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
           utils.parseUnits(collateralNeeded.toString(), 6)
         : utils.parseUnits(collateralNeeded.toString(), collateralType?.decimals)
       : 0,
-    spender: isBase ? SpotProxy?.address : CoreProxy?.address,
+    spender: isBase ? SpotMarketProxy?.address : CoreProxy?.address,
   });
 
   const toast = useToast({ isClosable: true, duration: 9000 });

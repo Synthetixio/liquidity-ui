@@ -1,30 +1,42 @@
 import { useQuery } from '@tanstack/react-query';
-import { Network, useNetwork } from '@snx-v3/useBlockchain';
+import { Network, useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { USDC_BASE_MARKET, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { useSystemToken } from '@snx-v3/useSystemToken';
+import { ethers } from 'ethers';
 
 export function useGetUSDTokens(customNetwork?: Network) {
   const { network } = useNetwork();
 
   const targetNetwork = customNetwork || network;
+  const provider = useProviderForChain(targetNetwork);
 
   const isBase = isBaseAndromeda(targetNetwork?.id, targetNetwork?.preset);
 
   const { data: collateralTypes } = useCollateralTypes(false, customNetwork);
-  const { data: SpotMarket } = useSpotMarketProxy(customNetwork);
+  const { data: SpotMarketProxy } = useSpotMarketProxy(customNetwork);
   const { data: systemToken } = useSystemToken(customNetwork);
 
   return useQuery({
     queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'GetUSDTokens'],
-    enabled: Boolean(targetNetwork?.id && collateralTypes?.length && systemToken && SpotMarket),
+    enabled: Boolean(
+      SpotMarketProxy && provider && targetNetwork && collateralTypes?.length && systemToken
+    ),
     queryFn: async () => {
-      if (!targetNetwork?.id || !systemToken || !SpotMarket) {
-        throw 'useGetUSDTokens queries are not ready';
+      if (
+        !(SpotMarketProxy && provider && targetNetwork && collateralTypes?.length && systemToken)
+      ) {
+        throw 'OMFG';
       }
+      const SpotMarketProxyContract = new ethers.Contract(
+        SpotMarketProxy.address,
+        SpotMarketProxy.abi,
+        provider
+      );
+
       const USDC: string = isBase
-        ? (await (SpotMarket as any)?.getWrapper(USDC_BASE_MARKET))?.wrapCollateralType
+        ? (await SpotMarketProxyContract.getWrapper(USDC_BASE_MARKET))?.wrapCollateralType
         : undefined;
 
       return {
@@ -40,23 +52,26 @@ export function useGetUSDTokens(customNetwork?: Network) {
 
 export const useGetWrapperToken = (marketId: string, customNetwork?: Network) => {
   const { network } = useNetwork();
-
   const targetNetwork = customNetwork || network;
-
+  const provider = useProviderForChain(targetNetwork);
   const isBase = isBaseAndromeda(targetNetwork?.id, targetNetwork?.preset);
-
-  const { data: SpotMarket } = useSpotMarketProxy(customNetwork);
+  const { data: SpotMarketProxy } = useSpotMarketProxy(customNetwork);
 
   return useQuery({
     queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'GetWrapperToken', marketId],
-    enabled: Boolean(targetNetwork?.id && SpotMarket && isBase),
+    enabled: Boolean(targetNetwork && provider && SpotMarketProxy && isBase),
     queryFn: async () => {
-      if (!targetNetwork?.id || !SpotMarket) {
-        throw 'useGetWrapperToken queries are not ready';
+      if (!(targetNetwork && provider && SpotMarketProxy && isBase)) {
+        throw 'OMFG';
       }
+      const SpotMarketProxyContract = new ethers.Contract(
+        SpotMarketProxy.address,
+        SpotMarketProxy.abi,
+        provider
+      );
 
       return isBase
-        ? (await (SpotMarket as any)?.getWrapper(marketId))?.wrapCollateralType
+        ? (await SpotMarketProxyContract.getWrapper(USDC_BASE_MARKET))?.wrapCollateralType
         : undefined;
     },
   });

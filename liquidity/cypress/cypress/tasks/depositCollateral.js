@@ -9,9 +9,9 @@ export async function depositCollateral({ address, accountId, symbol, amount }) 
   const signer = provider.getSigner(address);
   console.log('depositCollateral', { address, accountId, symbol, amount });
 
-  const coreProxy = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
+  const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
 
-  const tx = await coreProxy.deposit(
+  const tx = await CoreProxyContract.deposit(
     ethers.BigNumber.from(accountId),
     config.tokenAddress,
     ethers.utils.parseEther(`${amount}`),

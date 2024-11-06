@@ -9,9 +9,9 @@ export async function delegateCollateral({ address, accountId, symbol, amount, p
   const signer = provider.getSigner(address);
   console.log('delegateCollateral', { address, accountId, symbol, amount, poolId });
 
-  const coreProxy = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
+  const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
   try {
-    const tx = await coreProxy.delegateCollateral(
+    const tx = await CoreProxyContract.delegateCollateral(
       ethers.BigNumber.from(accountId),
       ethers.BigNumber.from(poolId),
       config.tokenAddress,

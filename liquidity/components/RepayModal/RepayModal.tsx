@@ -164,7 +164,7 @@ export const RepayModal: React.FC<{
   const toast = useToast({ isClosable: true, duration: 9000 });
 
   const { data: CoreProxy } = useCoreProxy();
-  const { data: SpotProxy } = useSpotMarketProxy();
+  const { data: SpotMarketProxy } = useSpotMarketProxy();
 
   const errorParser = useContractErrorParser();
   const amountToDeposit = debtChange.abs().sub(availableCollateral || 0);
@@ -180,7 +180,7 @@ export const RepayModal: React.FC<{
       ? //Base USDC is 6 decimals
         parseUnits(amountToDeposit.toString(), 6)
       : amountToDeposit.toBN(),
-    spender: isBase ? SpotProxy?.address : CoreProxy?.address,
+    spender: isBase ? SpotMarketProxy?.address : CoreProxy?.address,
   });
 
   const [state, send] = useMachine(RepayMachine, {

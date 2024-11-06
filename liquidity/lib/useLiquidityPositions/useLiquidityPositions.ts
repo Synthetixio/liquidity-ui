@@ -65,7 +65,7 @@ export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => 
           Promise.all(
             collateralTypes.map(async (collateralType) => {
               const { calls, decoder } = await loadPosition({
-                CoreProxy: CoreProxyContract,
+                CoreProxyContract,
                 accountId,
                 poolId,
                 tokenAddress: collateralType.tokenAddress,
@@ -80,7 +80,7 @@ export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => 
 
       const { calls: priceCalls, decoder: priceDecoder } = await loadPrices({
         collateralAddresses: collateralTypes.map((x) => x.tokenAddress),
-        CoreProxy: CoreProxyContract,
+        CoreProxyContract,
       });
 
       const positionCalls = positionCallsAndData.map((x) => x.calls).flat();
