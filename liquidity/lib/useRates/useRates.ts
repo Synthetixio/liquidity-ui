@@ -28,7 +28,7 @@ export function useRates() {
         eth: wei(result[1] || 0),
       };
     },
-    staleTime: Infinity,
-    refetchInterval: 60000,
+    staleTime: 60_000,
+    refetchInterval: 60_000,
   });
 }

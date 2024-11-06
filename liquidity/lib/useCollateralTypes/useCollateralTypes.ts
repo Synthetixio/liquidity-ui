@@ -105,7 +105,7 @@ export function useCollateralTypes(includeDelegationOff = false, customNetwork?:
       );
     },
     // one hour in ms
-    staleTime: Infinity,
+    staleTime: 3_600_000,
     placeholderData: [],
   });
 }
