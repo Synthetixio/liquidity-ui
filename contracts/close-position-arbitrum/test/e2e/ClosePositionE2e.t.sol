@@ -7,7 +7,7 @@ import {MockERC721} from "forge-std/src/mocks/MockERC721.sol";
 import {ISynthetixCore} from "src/lib/ISynthetixCore.sol";
 import {IUSDToken} from "src/lib/IUSDToken.sol";
 
-contract e2eClosePositionTest is Test {
+contract ClosePositionE2e is Test {
     address private constant USDC = 0xaf88d065e77c8cC2239327C5EDb3A432268e5831;
     address private constant ARB = 0x912CE59144191C1204E64559FE8253a0e49E6548;
     address private constant USDX = 0xb2F30A7C980f052f02563fb518dcc39e6bf38175;
