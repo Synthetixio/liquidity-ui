@@ -8,6 +8,7 @@ import { Multistep } from '@snx-v3/Multistep';
 import { useAccountProxy } from '@snx-v3/useAccountProxy';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useClosePosition } from '@snx-v3/useClosePosition';
+import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
@@ -28,7 +29,6 @@ import React from 'react';
 import { LiquidityPositionUpdated } from '../Manage/LiquidityPositionUpdated';
 import { useAccountCollateral } from './useAccountCollateral';
 import { usePositionDebt } from './usePositionDebt';
-import { usePriceUpdateTxn } from './usePriceUpdateTxn';
 
 const log = debug('snx:ClosePositionOneStep');
 
@@ -58,7 +58,7 @@ export function ClosePositionOneStep({
   const { data: pythFeeds } = usePythFeeds();
   const { data: systemToken } = useSystemToken();
 
-  const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = usePriceUpdateTxn();
+  const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
 
   const { gasSpeed } = useGasSpeed();
   const { network } = useNetwork();
