@@ -82,6 +82,6 @@ export function useContractErrorParser() {
         return undefined;
       }
     },
-    [AllErrors]
+    [AllErrors, ClosePosition]
   );
 }
