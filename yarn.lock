@@ -5139,6 +5139,7 @@ __metadata:
     "@emotion/react": "npm:^11.11.1"
     "@emotion/styled": "npm:^11.11.0"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.11"
+    "@pythnetwork/pyth-evm-js": "npm:^1.42.0"
     "@safe-global/safe-apps-provider": "npm:^0.18.3"
     "@safe-global/safe-apps-sdk": "npm:^9.1.0"
     "@snx-v3/Amount": "workspace:*"
@@ -5168,6 +5169,7 @@ __metadata:
     "@snx-v3/useAccountCollateral": "workspace:*"
     "@snx-v3/useAccountCollateralUnlockDate": "workspace:*"
     "@snx-v3/useAccountPermissions": "workspace:*"
+    "@snx-v3/useAccountProxy": "workspace:*"
     "@snx-v3/useAccounts": "workspace:*"
     "@snx-v3/useApprove": "workspace:*"
     "@snx-v3/useApr": "workspace:*"
@@ -5183,6 +5185,8 @@ __metadata:
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useDebtRepayer": "workspace:*"
     "@snx-v3/useEthBalance": "workspace:*"
+    "@snx-v3/useGasOptions": "workspace:*"
+    "@snx-v3/useGasPrice": "workspace:*"
     "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/useGetUSDTokens": "workspace:*"
     "@snx-v3/useLegacyMarket": "workspace:*"
@@ -5192,11 +5196,14 @@ __metadata:
     "@snx-v3/useManagePermissions": "workspace:*"
     "@snx-v3/useMigrate": "workspace:*"
     "@snx-v3/useMigrateUSD": "workspace:*"
+    "@snx-v3/useMulticall3": "workspace:*"
     "@snx-v3/useOraclePrice": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
     "@snx-v3/usePoolConfiguration": "workspace:*"
     "@snx-v3/usePoolData": "workspace:*"
     "@snx-v3/usePoolsList": "workspace:*"
+    "@snx-v3/usePythFeeds": "workspace:*"
+    "@snx-v3/usePythVerifier": "workspace:*"
     "@snx-v3/useRates": "workspace:*"
     "@snx-v3/useRepay": "workspace:*"
     "@snx-v3/useRewards": "workspace:^"
@@ -5214,10 +5221,12 @@ __metadata:
     "@snx-v3/useVaultsData": "workspace:*"
     "@snx-v3/useWithdrawTimer": "workspace:*"
     "@snx-v3/validatePosition": "workspace:*"
+    "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/safe-import": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     "@tanstack/react-query-devtools": "npm:^5.8.3"
+    "@types/debug": "npm:^4"
     "@types/humanize-plus": "npm:^1"
     "@types/react": "npm:^18.2.37"
     "@types/react-dom": "npm:^18.2.37"
@@ -5237,6 +5246,7 @@ __metadata:
     core-js: "npm:^3.33.2"
     crypto-browserify: "npm:^3.12.0"
     css-loader: "npm:^6.8.1"
+    debug: "npm:^4.3.7"
     dotenv: "npm:^16.4.3"
     ethers: "npm:^5.7.2"
     framer-motion: "npm:^10.16.5"
@@ -5581,6 +5591,7 @@ __metadata:
   resolution: "@snx-v3/useContractErrorParser@workspace:liquidity/lib/useContractErrorParser"
   dependencies:
     "@snx-v3/useAllErrors": "workspace:*"
+    "@snx-v3/useClosePosition": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
@@ -5947,13 +5958,24 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/usePythFeeds@workspace:liquidity/lib/contracts/usePythFeeds":
+"@snx-v3/usePythFeeds@workspace:*, @snx-v3/usePythFeeds@workspace:liquidity/lib/contracts/usePythFeeds":
   version: 0.0.0-use.local
   resolution: "@snx-v3/usePythFeeds@workspace:liquidity/lib/contracts/usePythFeeds"
   dependencies:
     "@snx-v3/contracts": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
+  languageName: unknown
+  linkType: soft
+
+"@snx-v3/usePythVerifier@workspace:*, @snx-v3/usePythVerifier@workspace:liquidity/lib/contracts/usePythVerifier":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/usePythVerifier@workspace:liquidity/lib/contracts/usePythVerifier"
+  dependencies:
+    "@snx-v3/contracts": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    react: "npm:^18.2.0"
   languageName: unknown
   linkType: soft
 
@@ -7073,6 +7095,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/debug@npm:^4":
+  version: 4.1.12
+  resolution: "@types/debug@npm:4.1.12"
+  dependencies:
+    "@types/ms": "npm:*"
+  checksum: 10/47876a852de8240bfdaf7481357af2b88cb660d30c72e73789abf00c499d6bc7cd5e52f41c915d1b9cd8ec9fef5b05688d7b7aef17f7f272c2d04679508d1053
+  languageName: node
+  linkType: hard
+
 "@types/eslint-scope@npm:^3.7.3":
   version: 3.7.4
   resolution: "@types/eslint-scope@npm:3.7.4"
@@ -7250,6 +7281,13 @@ __metadata:
   version: 3.0.5
   resolution: "@types/minimatch@npm:3.0.5"
   checksum: 10/c41d136f67231c3131cf1d4ca0b06687f4a322918a3a5adddc87ce90ed9dbd175a3610adee36b106ae68c0b92c637c35e02b58c8a56c424f71d30993ea220b92
+  languageName: node
+  linkType: hard
+
+"@types/ms@npm:*":
+  version: 0.7.34
+  resolution: "@types/ms@npm:0.7.34"
+  checksum: 10/f38d36e7b6edecd9badc9cf50474159e9da5fa6965a75186cceaf883278611b9df6669dc3a3cc122b7938d317b68a9e3d573d316fcb35d1be47ec9e468c6bd8a
   languageName: node
   linkType: hard
 
@@ -11160,6 +11198,18 @@ __metadata:
   dependencies:
     ms: "npm:^2.1.1"
   checksum: 10/d86fd7be2b85462297ea16f1934dc219335e802f629ca9a69b63ed8ed041dda492389bb2ee039217c02e5b54792b1c51aa96ae954cf28634d363a2360c7a1639
+  languageName: node
+  linkType: hard
+
+"debug@npm:^4.3.7":
+  version: 4.3.7
+  resolution: "debug@npm:4.3.7"
+  dependencies:
+    ms: "npm:^2.1.3"
+  peerDependenciesMeta:
+    supports-color:
+      optional: true
+  checksum: 10/71168908b9a78227ab29d5d25fe03c5867750e31ce24bf2c44a86efc5af041758bb56569b0a3d48a9b5344c00a24a777e6f4100ed6dfd9534a42c1dde285125a
   languageName: node
   linkType: hard
 
@@ -16185,7 +16235,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ms@npm:2.1.3, ms@npm:^2.0.0, ms@npm:^2.1.1":
+"ms@npm:2.1.3, ms@npm:^2.0.0, ms@npm:^2.1.1, ms@npm:^2.1.3":
   version: 2.1.3
   resolution: "ms@npm:2.1.3"
   checksum: 10/aa92de608021b242401676e35cfa5aa42dd70cbdc082b916da7fb925c542173e36bce97ea3e804923fe92c0ad991434e4a38327e15a1b5b5f945d66df615ae6d
