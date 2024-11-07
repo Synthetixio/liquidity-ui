@@ -14,7 +14,7 @@ export async function bootstrap() {
   if (!container) {
     throw new Error('Container #app does not exist');
   }
-  if (window.localStorage.DEBUG === 'true') {
+  if (window.localStorage.DEBUG === 'true' || window.localStorage.DEBUG?.slice(0, 3) === 'snx') {
     const { Wei } = await import('@synthetixio/wei');
     const { ethers } = await import('ethers');
 

@@ -12,7 +12,9 @@ import { notNil } from '@snx-v3/tsHelpers';
 import { Network, deploymentHasERC7412, getMagicProvider } from '@snx-v3/useBlockchain';
 import { ethers } from 'ethers';
 
-const IS_DEBUG = window.localStorage.getItem('DEBUG') === 'true';
+const IS_DEBUG =
+  window.localStorage.getItem('DEBUG') === 'true' ||
+  window.localStorage.DEBUG?.slice(0, 3) === 'snx';
 
 export const ERC7412_ABI = [
   'error OracleDataRequired(address oracleContract, bytes oracleQuery)',
