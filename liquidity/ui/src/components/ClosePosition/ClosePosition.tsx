@@ -1,23 +1,35 @@
 import { ArrowBackIcon } from '@chakra-ui/icons';
-import { Button, Divider, Flex, Text } from '@chakra-ui/react';
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Button,
+  Collapse,
+  Divider,
+  Flex,
+  Text,
+} from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { ZEROWEI } from '@snx-v3/constants';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
-import { useNetwork } from '@snx-v3/useBlockchain';
+import { useNetwork, useProvider } from '@snx-v3/useBlockchain';
 import { useClosePosition } from '@snx-v3/useClosePosition';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { useParams } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
+import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import Wei from '@synthetixio/wei';
 import React from 'react';
-import { useParams } from 'react-router-dom';
 import { TokenIcon } from '../TokenIcon';
 import { ClosePositionOneStep } from './ClosePositionOneStep';
 import { ClosePositionTransactions } from './ClosePositionTransactions';
+import { useAccountAvailableCollateral } from './useAccountAvailableCollateral';
+import { usePositionDebt } from './usePositionDebt';
 
 function ClosePositionUi({
   onSubmit,
@@ -34,8 +46,30 @@ function ClosePositionUi({
   debtSymbol?: string;
   collateralSymbol: string;
 }) {
+  const params = useParams();
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
+  const { data: systemToken } = useSystemToken();
+  const provider = useProvider();
+  const { data: positionDebt, isPending: isPendingPositionDebt } = usePositionDebt({
+    provider,
+    accountId: params.accountId,
+    poolId: params.poolId,
+    collateralTypeTokenAddress: collateralType?.tokenAddress,
+  });
+  const { data: systemTokenBalance, isPending: isPendingSystemTokenBalance } = useTokenBalance(
+    systemToken?.address
+  );
+  const { data: accountAvailableCollateral, isPending: isPendingAccountAvailableCollateral } =
+    useAccountAvailableCollateral({
+      provider,
+      accountId: params.accountId,
+      collateralTypeTokenAddress: systemToken?.address,
+    });
+
   const debtPrice = useTokenPrice(debtSymbol);
   const collateralPrice = useTokenPrice(collateralSymbol);
+
+  const { data: ClosePositionDeployment } = useClosePosition();
 
   return (
     <Flex flexDirection="column">
@@ -103,7 +137,55 @@ function ClosePositionUi({
           </Flex>
         </Flex>
       </BorderBox>
-      <Button data-cy="close position submit" onClick={onSubmit} type="submit">
+
+      <Collapse
+        in={
+          // Deployments that do not have ClosePosition contract available should skip this check
+          ClosePositionDeployment &&
+          systemTokenBalance &&
+          positionDebt &&
+          accountAvailableCollateral &&
+          !systemTokenBalance.add(accountAvailableCollateral).gte(positionDebt)
+        }
+        animateOpacity
+      >
+        <Alert mb={6} status="error" borderRadius="6px">
+          <AlertIcon />
+          <AlertDescription>
+            <Text>You do not have enough {systemToken?.symbol} to repay debt</Text>
+            <Text>
+              <Amount
+                prefix="Available: "
+                value={
+                  systemTokenBalance &&
+                  accountAvailableCollateral &&
+                  systemTokenBalance.add(accountAvailableCollateral)
+                }
+                suffix={` ${systemToken?.symbol}`}
+              />
+            </Text>
+          </AlertDescription>
+        </Alert>
+      </Collapse>
+
+      <Button
+        data-cy="close position submit"
+        onClick={onSubmit}
+        type="submit"
+        isDisabled={
+          // Deployments that do not have ClosePosition contract available should skip this check
+          ClosePositionDeployment &&
+          !(
+            !isPendingPositionDebt &&
+            !isPendingSystemTokenBalance &&
+            !isPendingAccountAvailableCollateral &&
+            systemTokenBalance &&
+            accountAvailableCollateral &&
+            positionDebt &&
+            systemTokenBalance.add(accountAvailableCollateral).gte(positionDebt)
+          )
+        }
+      >
         Close Position
       </Button>
     </Flex>
