@@ -1,4 +1,5 @@
 import { useAllErrors } from '@snx-v3/useAllErrors';
+import { useClosePosition } from '@snx-v3/useClosePosition';
 import { extractErrorData, PYTH_ERRORS } from '@snx-v3/withERC7412';
 import { ethers } from 'ethers';
 import { useCallback } from 'react';
@@ -20,6 +21,7 @@ export type ContractErrorType = {
 
 export function useContractErrorParser() {
   const { data: AllErrors } = useAllErrors();
+  const { data: ClosePosition } = useClosePosition();
 
   return useCallback(
     (error: any): ContractErrorType | undefined => {
@@ -36,6 +38,7 @@ export function useContractErrorParser() {
           ...AllErrors.abi,
           ...PYTH_ERRORS,
           ...ERC721_ERRORS,
+          ...(ClosePosition ? ClosePosition.abi : []),
         ]);
 
         const errorParsed = AllErrorsInterface.parseError(errorData);
