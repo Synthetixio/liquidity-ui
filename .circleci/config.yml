@@ -15,12 +15,12 @@ commands:
       - run: date +"%Y-%m" > /tmp/month.txt && cat /tmp/month.txt
       - restore_cache:
           keys:
-            - yarn-{{ .Environment.YARN_CACHE_VERSION }}-{{ checksum "/tmp/month.txt" }}-{{ checksum "yarn.lock" }}
-            - yarn-{{ .Environment.YARN_CACHE_VERSION }}-{{ checksum "/tmp/month.txt" }}-
+            - &yarn_cache yarn-{{ .Environment.NODE_MODULES_VERSION }}-{{ .Environment.HOME }}-{{ checksum "/tmp/month.txt" }}-{{ checksum "yarn.lock" }}
+            - yarn-{{ .Environment.NODE_MODULES_VERSION }}-{{ .Environment.HOME }}-{{ checksum "/tmp/month.txt" }}-
       - run: yarn -v
       - run: yarn install --immutable
       - save_cache:
-          key: yarn-{{ .Environment.YARN_CACHE_VERSION }}-{{ checksum "/tmp/month.txt" }}-{{ checksum "yarn.lock" }}
+          key: *yarn_cache
           paths:
             - '~/.yarn/berry'
 
@@ -28,37 +28,34 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - foundry-{{ .Environment.FOUNDRY_CACHE_VERSION }}
+            - &foundry_cache foundry-{{ .Environment.FOUNDRY_CACHE_VERSION }}-{{ .Environment.HOME }}
 
       - run:
-          name: 'Add .foundry/bin to PATH'
+          name: 'Install Foundry'
+          working_directory: ~/
+          environment:
+            SHELL: /bin/bash
           command: |-
             export PATH="$PATH:$HOME/.foundry/bin"
             echo 'export PATH=$PATH:$HOME/.foundry/bin' >> $BASH_ENV
-
-      - run:
-          name: 'forge --version'
-          command: |-
             if command -v curl; then
               curl --version
             else
               apt update && apt install --yes curl
             fi
 
-            if command -v forge; then
-              forge --version
+            if command -v anvil; then
+              echo "Anvil already installed"
+              anvil --version
             else
-              echo "Forge needs to be installed"
-
               curl -L https://foundry.paradigm.xyz | bash
               foundryup
-              forge --version
             fi
 
       - save_cache:
-          key: foundry-{{ .Environment.FOUNDRY_CACHE_VERSION }}
+          key: *foundry_cache
           paths:
-            - '~/.foundry/bin'
+            - '~/.foundry'
 
   ipfs-deploy:
     parameters:
@@ -118,6 +115,7 @@ jobs:
       - image: cimg/node:<< pipeline.parameters.node-version >>
     steps:
       - checkout
+      - install-foundry
       - yarn-install
       - run: yarn npm audit --recursive --severity critical
       - run: yarn dedupe --check
@@ -150,6 +148,8 @@ jobs:
         type: string
       provider-url:
         type: string
+      fork-block-number:
+        type: integer
     working_directory: /tmp/app
     docker:
       - image: cypress/included:<< pipeline.parameters.cypress-version >>
@@ -163,6 +163,13 @@ jobs:
       - install-foundry
       - yarn-install
 
+      - run: date +"%Y-%W" > /tmp/week.txt && cat /tmp/week.txt
+      - restore_cache:
+          keys:
+            - &anvil-fork-cache anvil-fork-cache-{{ .Environment.ANVIL_CACHE_VERSION }}-{{ checksum "/tmp/week.txt" }}-{{ .BuildNum }}
+            - anvil-fork-cache-{{ .Environment.ANVIL_CACHE_VERSION }}-{{ checksum "/tmp/week.txt" }}-
+            - anvil-fork-cache-{{ .Environment.ANVIL_CACHE_VERSION }}-
+
       - run:
           name: Run server localhost:3000
           working_directory: /tmp/app/liquidity/ui
@@ -171,7 +178,7 @@ jobs:
 
       - run:
           name: Run anvil localhost:8545
-          command: anvil --auto-impersonate --chain-id "<< parameters.chainId >>" --fork-url "<< parameters.provider-url >>"
+          command: anvil --auto-impersonate --chain-id "<< parameters.chainId >>" --fork-url "<< parameters.provider-url >>" --no-rate-limit --steps-tracing --fork-block-number "<< parameters.fork-block-number >>"
           background: true
 
       - run:
@@ -183,13 +190,21 @@ jobs:
           command: wget -q -O - --retry-connrefused --waitretry=20 --read-timeout=20 --timeout=15 -t 10 --post-data='{"method":"eth_chainId","params":[],"id":1,"jsonrpc":"2.0"}' --header='Content-Type:application/json' http://localhost:8545
 
       - run:
-          name: Update all prices
           working_directory: /tmp/app/liquidity/cypress
-          command: yarn ts-node bin/doAllPriceUpdates.ts 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+          command: |
+            echo "0" > /tmp/cypress_exit_code
+            cypress run --e2e --browser chrome \
+              --config specPattern="./cypress/e2e/<< parameters.chainId >>-<< parameters.preset >>/*.e2e.js" \
+              || echo $? > /tmp/cypress_exit_code
 
-      - run:
-          working_directory: /tmp/app/liquidity/cypress
-          command: cypress run --e2e --browser chrome --config specPattern="./cypress/e2e/<< parameters.chainId >>-<< parameters.preset >>/*.e2e.js"
+      - run: pkill anvil
+
+      - save_cache:
+          key: *anvil-fork-cache
+          paths:
+            - '~/.foundry/cache'
+
+      - run: exit $(cat /tmp/cypress_exit_code)
 
       - store_test_results:
           path: 'liquidity/cypress/cypress/reports'
@@ -285,12 +300,14 @@ workflows:
           name: liquidity-e2e-base-mainnet
           chainId: 8453
           preset: andromeda
-          provider-url: https://base-mainnet.infura.io/v3/$INFURA_KEY
+          provider-url: wss://base-mainnet.infura.io/ws/v3/$INFURA_KEY
+          fork-block-number: 21781780
       - liquidity-e2e:
           name: liquidity-e2e-arbitrum-mainnet
           chainId: 42161
           preset: main
-          provider-url: https://arbitrum-mainnet.infura.io/v3/$INFURA_KEY
+          provider-url: wss://arbitrum-mainnet.infura.io/ws/v3/$INFURA_KEY
+          fork-block-number: 269244293
       - combine-coverage:
           requires:
             - tests

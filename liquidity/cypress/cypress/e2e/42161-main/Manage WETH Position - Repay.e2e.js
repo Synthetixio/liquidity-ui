@@ -1,37 +1,50 @@
 import { generatePath } from 'react-router-dom';
 
-it('should repay borrowed USDx', () => {
-  cy.connectWallet().then(({ address, privateKey }) => {
-    cy.task('setEthBalance', { address, balance: 105 });
-
-    cy.task('approveCollateral', { privateKey: privateKey, symbol: 'WETH' });
-    cy.task('wrapEth', { privateKey: privateKey, amount: 20 });
-
-    cy.task('createAccount', { privateKey }).then((accountId) => {
-      cy.wrap(accountId).as('accountId');
-      cy.task('depositCollateral', {
-        privateKey,
-        symbol: 'WETH',
-        accountId,
-        amount: 10,
-      });
-      cy.task('delegateCollateral', {
-        privateKey,
-        symbol: 'WETH',
-        accountId,
-        amount: 10,
-        poolId: 1,
-      });
-      cy.task('borrowUsd', {
-        privateKey,
-        symbol: 'WETH',
-        accountId,
-        amount: 10,
-        poolId: 1,
-      }).then((debt) => cy.wrap(debt).as('debt'));
-    });
+before(() => {
+  cy.task('evmSnapshot').then((snapshot) => {
+    cy.wrap(snapshot).as('snapshot');
   });
-  cy.viewport(1000, 800);
+});
+after(() => {
+  cy.get('@snapshot').then(async (snapshot) => {
+    cy.task('evmRevert', snapshot);
+  });
+});
+
+it('should repay borrowed USDx', () => {
+  cy.connectWallet().then(({ address, accountId }) => {
+    cy.wrap(address).as('wallet');
+    cy.wrap(accountId).as('accountId');
+
+    cy.task('setEthBalance', { address, balance: 105 });
+    cy.task('createAccount', { address, accountId });
+
+    cy.task('approveCollateral', { address, symbol: 'WETH' });
+    cy.task('wrapEth', { address, amount: 20 });
+
+    cy.task('depositCollateral', {
+      address,
+      symbol: 'WETH',
+      accountId,
+      amount: 10,
+    });
+    cy.task('delegateCollateral', {
+      address,
+      symbol: 'WETH',
+      accountId,
+      amount: 10,
+      poolId: 1,
+    });
+    cy.task('borrowUsd', {
+      address,
+      symbol: 'WETH',
+      accountId,
+      amount: 100,
+      poolId: 1,
+    }).then((debt) => cy.wrap(debt).as('debt'));
+  });
+
+  cy.viewport(1000, 1200);
 
   cy.get('@accountId').then((accountId) => {
     const path = generatePath('/positions/:collateralSymbol/:poolId', {
@@ -41,9 +54,10 @@ it('should repay borrowed USDx', () => {
     cy.visit(`/#${path}?manageAction=repay&accountId=${accountId}`);
   });
 
-  cy.get('[data-cy="repay amount input"]').should('exist').type('5');
+  cy.get('[data-cy="repay amount input"]').type('5');
 
-  cy.get('[data-cy="repay submit"]').should('be.enabled').click();
+  cy.get('[data-cy="repay submit"]').should('be.enabled');
+  cy.get('[data-cy="repay submit"]').click();
 
   cy.get('[data-cy="repay multistep"]')
     .should('exist')
@@ -52,6 +66,8 @@ it('should repay borrowed USDx', () => {
     .and('include.text', 'Repay')
     .and('include.text', 'Repay 5 USDx');
 
-  cy.get('[data-cy="repay confirm button"]').should('include.text', 'Execute Transaction').click();
+  cy.get('[data-cy="repay confirm button"]').should('include.text', 'Execute Transaction');
+  cy.get('[data-cy="repay confirm button"]').click();
+  cy.contains('[data-status="success"]', 'Your debt has been repaid.').should('exist');
   cy.contains('[data-status="info"]', 'Debt successfully Updated').should('exist');
 });

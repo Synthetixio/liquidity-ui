@@ -332,7 +332,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   const { network } = useNetwork();
   const { collateralChange, setCollateralChange } = useContext(ManagePositionContext);
   const { data: CoreProxy } = useCoreProxy();
-  const { data: SpotProxy } = useSpotMarketProxy();
+  const { data: SpotMarketProxy } = useSpotMarketProxy();
   const { data: collateralTypes } = useCollateralTypes();
 
   const collateral = collateralTypes?.filter(
@@ -431,7 +431,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   const { approve, requireApproval } = useApprove({
     contractAddress: synth?.token.address,
     amount: amountToApprove,
-    spender: isBase ? SpotProxy?.address : CoreProxy?.address,
+    spender: isBase ? SpotMarketProxy?.address : CoreProxy?.address,
   });
 
   //Collateral Approval Done

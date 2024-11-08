@@ -1,24 +1,25 @@
 import { ethers } from 'ethers';
-import crypto from 'crypto';
 import { importCoreProxy } from './importCoreProxy';
 
-export async function createAccount({ privateKey }) {
+export async function createAccount({ address, accountId }) {
   const CoreProxy = await importCoreProxy();
 
   const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
-  const wallet = new ethers.Wallet(privateKey, provider);
+  const signer = provider.getSigner(address);
 
-  const coreProxy = new ethers.Contract(CoreProxy.address, CoreProxy.abi, wallet);
+  const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
 
-  const accountId = parseInt(`1337${crypto.randomInt(1000)}`);
-
-  const currentAccountOwner = await coreProxy.getAccountOwner(accountId);
+  const currentAccountOwner = await CoreProxyContract.getAccountOwner(accountId);
   console.log('createAccount', { accountId, currentAccountOwner });
 
-  const tx = await coreProxy['createAccount(uint128)'](accountId, { gasLimit: 10_000_000 });
+  if (currentAccountOwner === address) {
+    return accountId;
+  }
+
+  const tx = await CoreProxyContract['createAccount(uint128)'](accountId, { gasLimit: 10_000_000 });
   await tx.wait();
 
-  const newAccountOwner = await coreProxy.getAccountOwner(accountId);
+  const newAccountOwner = await CoreProxyContract.getAccountOwner(accountId);
   console.log('createAccount', { accountId, newAccountOwner });
 
   return accountId;

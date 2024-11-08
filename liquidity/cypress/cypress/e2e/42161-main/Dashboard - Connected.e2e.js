@@ -1,15 +1,27 @@
+before(() => {
+  cy.task('evmSnapshot').then((snapshot) => {
+    cy.wrap(snapshot).as('snapshot');
+  });
+});
+after(() => {
+  cy.get('@snapshot').then(async (snapshot) => {
+    cy.task('evmRevert', snapshot);
+  });
+});
+
 it('Dashboard - Connected', () => {
-  cy.connectWallet().then(({ address, privateKey }) => {
+  cy.connectWallet().then(({ address, accountId }) => {
+    cy.wrap(address).as('wallet');
+    cy.wrap(accountId).as('accountId');
+
     cy.task('setEthBalance', { address, balance: 100 });
-    cy.task('createAccount', { privateKey }).then((accountId) => {
-      cy.wrap(accountId).as('accountId');
-    });
+    cy.task('createAccount', { address, accountId });
   });
 
   cy.viewport(1200, 900);
   cy.visit('/#/dashboard');
 
-  cy.get('@wallet').then(({ address }) => {
+  cy.get('@wallet').then((address) => {
     cy.get('[data-cy="short wallet address"]').contains(
       `${address.substring(0, 6)}...${address.substring(address.length - 4)}`
     );

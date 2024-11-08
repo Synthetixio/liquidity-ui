@@ -76,9 +76,15 @@ export const useRepayBaseAndromeda = ({
 
         const spotMarketId = getSpotMarketId(collateralSymbol);
 
+        const SpotMarketProxyContract = new ethers.Contract(
+          SpotMarketProxy.address,
+          SpotMarketProxy.abi,
+          signer
+        );
+
         // USDC or stataUSDC to sUSDC or sStataUSDC
         const wrap = collateralAmount.gt(0)
-          ? SpotMarketProxy.populateTransaction.wrap(spotMarketId, collateralAmount, 0)
+          ? SpotMarketProxyContract.populateTransaction.wrap(spotMarketId, collateralAmount, 0)
           : undefined;
 
         const Synth_Contract = new ethers.Contract(collateralTypeAddress, approveAbi, signer);
@@ -91,7 +97,7 @@ export const useRepayBaseAndromeda = ({
 
         // sUSDC or sStataUSDC => snxUSD
         const sell_synth = amountToDeposit.gt(0)
-          ? SpotMarketProxy.populateTransaction.sell(
+          ? SpotMarketProxyContract.populateTransaction.sell(
               spotMarketId,
               amountToDeposit.toBN(),
               0,
@@ -100,21 +106,26 @@ export const useRepayBaseAndromeda = ({
           : undefined;
 
         // approve sUSD to Core
-        const sUSD_Contract = new ethers.Contract(systemToken.address, approveAbi, signer);
+        const SystemTokenContract = new ethers.Contract(systemToken.address, approveAbi, signer);
         const sUSD_Approval = amountToDeposit.gt(0)
-          ? sUSD_Contract.populateTransaction.approve(CoreProxy.address, amountToDeposit.toBN())
+          ? SystemTokenContract.populateTransaction.approve(
+              CoreProxy.address,
+              amountToDeposit.toBN()
+            )
           : undefined;
+
+        const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
 
         // Only deposit if user doesn't have enough sUSD collateral
         const deposit = amountToDeposit.lte(0)
           ? undefined
-          : CoreProxy.populateTransaction.deposit(
+          : CoreProxyContract.populateTransaction.deposit(
               BigNumber.from(accountId),
               systemToken.address,
               amountToDeposit.toBN() // only deposit what's needed
             );
 
-        const burn = CoreProxy.populateTransaction.burnUsd(
+        const burn = CoreProxyContract.populateTransaction.burnUsd(
           BigNumber.from(accountId),
           BigNumber.from(poolId),
           collateralTypeAddress,
@@ -131,10 +142,15 @@ export const useRepayBaseAndromeda = ({
         }
 
         const walletAddress = await signer.getAddress();
-        const erc7412Tx = await withERC7412(network, calls, 'useRepay', walletAddress);
+        const { multicallTxn: erc7412Tx, gasLimit } = await withERC7412(
+          network,
+          calls,
+          'useRepay',
+          walletAddress
+        );
 
         const gasOptionsForTransaction = formatGasPriceForTransaction({
-          gasLimit: erc7412Tx.gasLimit,
+          gasLimit,
           gasPrices,
           gasSpeed,
         });

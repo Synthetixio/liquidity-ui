@@ -70,9 +70,9 @@ export const useUndelegateBaseAndromeda = ({
 
         const transactions: Promise<PopulatedTransaction>[] = [];
 
-        const repayer = new Contract(getRepayerContract(network.id), DEBT_REPAYER_ABI, signer);
+        const Repayer = new Contract(getRepayerContract(network.id), DEBT_REPAYER_ABI, signer);
 
-        const depositDebtToRepay = repayer.populateTransaction.depositDebtToRepay(
+        const depositDebtToRepay = Repayer.populateTransaction.depositDebtToRepay(
           CoreProxy.address,
           SpotMarketProxy.address,
           accountId,
@@ -82,7 +82,9 @@ export const useUndelegateBaseAndromeda = ({
         );
         transactions.push(depositDebtToRepay);
 
-        const burn = CoreProxy.populateTransaction.burnUsd(
+        const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
+
+        const burn = CoreProxyContract.populateTransaction.burnUsd(
           BigNumber.from(accountId),
           BigNumber.from(poolId),
           collateralTypeAddress,
@@ -90,7 +92,7 @@ export const useUndelegateBaseAndromeda = ({
         );
         transactions.push(burn);
 
-        const populatedTxnPromised = CoreProxy.populateTransaction.delegateCollateral(
+        const populatedTxnPromised = CoreProxyContract.populateTransaction.delegateCollateral(
           BigNumber.from(accountId),
           BigNumber.from(poolId),
           collateralTypeAddress,
@@ -112,10 +114,15 @@ export const useUndelegateBaseAndromeda = ({
 
         const walletAddress = await signer.getAddress();
 
-        const erc7412Tx = await withERC7412(network, calls, 'useUndelegateBase', walletAddress);
+        const { multicallTxn: erc7412Tx, gasLimit } = await withERC7412(
+          network,
+          calls,
+          'useUndelegateBase',
+          walletAddress
+        );
 
         const gasOptionsForTransaction = formatGasPriceForTransaction({
-          gasLimit: erc7412Tx.gasLimit,
+          gasLimit,
           gasPrices,
           gasSpeed,
         });

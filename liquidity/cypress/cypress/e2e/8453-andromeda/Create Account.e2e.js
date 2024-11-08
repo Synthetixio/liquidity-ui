@@ -1,9 +1,24 @@
+// NO MUTATIONS!
+//before(() => {
+//  cy.task('evmSnapshot').then((snapshot) => {
+//    cy.wrap(snapshot).as('snapshot');
+//  });
+//});
+//after(() => {
+//  cy.get('@snapshot').then(async (snapshot) => {
+//    cy.task('evmRevert', snapshot);
+//  });
+//});
+
 it('Create Account', () => {
-  cy.connectWallet().then((wallet) => {
-    cy.task('setEthBalance', { address: wallet.address, balance: 2 });
+  cy.connectWallet().then(({ address, accountId }) => {
+    cy.wrap(address).as('wallet');
+    cy.wrap(accountId).as('accountId');
+
+    cy.task('setEthBalance', { address, balance: 2 });
   });
 
-  cy.viewport(1200, 900);
+  cy.viewport(1000, 1200);
   cy.visit('/#/dashboard');
 
   cy.get('[data-cy="wallet button"]').click();

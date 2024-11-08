@@ -8,8 +8,8 @@ export async function getSUSDC({ address, amount }) {
   const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
 
   const CoreProxy = await importCoreProxy();
-  const coreProxy = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
-  const owner = await coreProxy.owner();
+  const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
+  const owner = await CoreProxyContract.owner();
 
   await setEthBalance({ address: owner, balance: 1000 });
   await setEthBalance({ address: CoreProxy.address, balance: 1000 });

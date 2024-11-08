@@ -8,7 +8,7 @@ import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import Wei, { wei } from '@synthetixio/wei';
 import { useMutation } from '@tanstack/react-query';
-import { BigNumber } from 'ethers';
+import { ethers } from 'ethers';
 import { useReducer } from 'react';
 
 export const useUndelegate = ({
@@ -41,9 +41,10 @@ export const useUndelegate = ({
       try {
         dispatch({ type: 'prompting' });
 
-        const populatedTxnPromised = CoreProxy.populateTransaction.delegateCollateral(
-          BigNumber.from(accountId),
-          BigNumber.from(poolId),
+        const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
+        const populatedTxnPromised = CoreProxyContract.populateTransaction.delegateCollateral(
+          ethers.BigNumber.from(accountId),
+          ethers.BigNumber.from(poolId),
           collateralTypeAddress,
           currentCollateral.add(collateralChange).toBN(),
           wei(1).toBN()
@@ -57,10 +58,15 @@ export const useUndelegate = ({
           calls.unshift(priceUpdateTx as any);
         }
 
-        const erc7412Tx = await withERC7412(network, calls, 'useUndelegate', walletAddress);
+        const { multicallTxn: erc7412Tx, gasLimit } = await withERC7412(
+          network,
+          calls,
+          'useUndelegate',
+          walletAddress
+        );
 
         const gasOptionsForTransaction = formatGasPriceForTransaction({
-          gasLimit: erc7412Tx.gasLimit,
+          gasLimit,
           gasPrices,
           gasSpeed,
         });

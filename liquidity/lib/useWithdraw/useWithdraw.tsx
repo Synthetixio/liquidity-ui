@@ -58,7 +58,8 @@ export const useWithdraw = ({
           ? parseUnits(amount.toString(), decimals)
           : BigNumber.from(0);
 
-        const populatedTxnPromised = CoreProxy.populateTransaction.withdraw(
+        const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
+        const populatedTxnPromised = CoreProxyContract.populateTransaction.withdraw(
           BigNumber.from(accountId),
           collateralTypeAddress,
           collateralAmount
@@ -70,10 +71,15 @@ export const useWithdraw = ({
           calls.unshift(priceUpdateTx as any);
         }
 
-        const erc7412Tx = await withERC7412(network, calls, 'useWithdraw', walletAddress);
+        const { multicallTxn: erc7412Tx, gasLimit } = await withERC7412(
+          network,
+          calls,
+          'useWithdraw',
+          walletAddress
+        );
 
         const gasOptionsForTransaction = formatGasPriceForTransaction({
-          gasLimit: erc7412Tx.gasLimit,
+          gasLimit,
           gasPrices,
           gasSpeed,
         });

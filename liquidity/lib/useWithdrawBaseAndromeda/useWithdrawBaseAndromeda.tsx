@@ -15,7 +15,7 @@ import { useUSDProxy } from '@snx-v3/useUSDProxy';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import { Wei } from '@synthetixio/wei';
 import { useMutation } from '@tanstack/react-query';
-import { BigNumber, constants } from 'ethers';
+import { ethers } from 'ethers';
 import { useReducer } from 'react';
 
 export const useWithdrawBaseAndromeda = ({
@@ -35,8 +35,8 @@ export const useWithdrawBaseAndromeda = ({
 }) => {
   const [txnState, dispatch] = useReducer(reducer, initialState);
   const { data: CoreProxy } = useCoreProxy();
-  const { data: SpotProxy } = useSpotMarketProxy();
-  const { data: UsdProxy } = useUSDProxy();
+  const { data: SpotMarketProxy } = useSpotMarketProxy();
+  const { data: USDProxy } = useUSDProxy();
   const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
   const { network } = useNetwork();
   const { data: usdTokens } = useGetUSDTokens();
@@ -48,7 +48,16 @@ export const useWithdrawBaseAndromeda = ({
   const mutation = useMutation({
     mutationFn: async () => {
       if (!signer || !network || !provider) throw new Error('No signer or network');
-      if (!(CoreProxy && SpotProxy && accountId && usdTokens?.sUSD && usdTokens.snxUSD)) {
+      if (
+        !(
+          CoreProxy &&
+          SpotMarketProxy &&
+          USDProxy &&
+          accountId &&
+          usdTokens?.sUSD &&
+          usdTokens.snxUSD
+        )
+      ) {
         throw new Error('Not ready');
       }
 
@@ -79,10 +88,17 @@ export const useWithdrawBaseAndromeda = ({
 
         const gasPricesPromised = getGasPrice({ provider });
 
-        //stataUSDC OR sUSDC
+        const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
+        const USDProxyContract = new ethers.Contract(USDProxy.address, USDProxy.abi, signer);
+        const SpotProxyContract = new ethers.Contract(
+          SpotMarketProxy.address,
+          SpotMarketProxy.abi,
+          signer
+        );
+
         const withdraw_collateral = wrappedCollateralAmount.gt(0)
-          ? CoreProxy.populateTransaction.withdraw(
-              BigNumber.from(accountId),
+          ? CoreProxyContract.populateTransaction.withdraw(
+              ethers.BigNumber.from(accountId),
               accountCollateral?.tokenAddress,
               wrappedCollateralAmount.toBN()
             )
@@ -90,39 +106,48 @@ export const useWithdrawBaseAndromeda = ({
 
         //snxUSD
         const withdraw_snxUSD = snxUSDAmount.gt(0)
-          ? CoreProxy.populateTransaction.withdraw(
-              BigNumber.from(accountId),
+          ? CoreProxyContract.populateTransaction.withdraw(
+              ethers.BigNumber.from(accountId),
               usdTokens?.snxUSD,
               snxUSDAmount.toBN()
             )
           : undefined;
+
         const snxUSDApproval = snxUSDAmount.gt(0)
-          ? UsdProxy?.populateTransaction.approve(SpotProxy.address, snxUSDAmount.toBN())
+          ? USDProxyContract.populateTransaction.approve(
+              SpotMarketProxy.address,
+              snxUSDAmount.toBN()
+            )
           : undefined;
         //snxUSD => sUSDC
         const buy_sUSDC = snxUSDAmount.gt(0)
-          ? SpotProxy.populateTransaction.buy(
+          ? SpotProxyContract.populateTransaction.buy(
               USDC_BASE_MARKET,
               snxUSDAmount.toBN(),
               0,
-              constants.AddressZero
+              ethers.constants.AddressZero
             )
           : undefined;
 
         const synthAmount = snxUSDAmount.gt(0)
-          ? (await SpotProxy.callStatic.quoteBuyExactIn(USDC_BASE_MARKET, snxUSDAmount.toBN(), 0))
-              .synthAmount
+          ? (
+              await SpotProxyContract.callStatic.quoteBuyExactIn(
+                USDC_BASE_MARKET,
+                snxUSDAmount.toBN(),
+                0
+              )
+            ).synthAmount
           : ZEROWEI;
         const unwrapAmount = sUSDC_amount.add(synthAmount);
 
         //sUSDC => USDC
         const unwrapTxnPromised = unwrapAmount.gt(0)
-          ? SpotProxy.populateTransaction.unwrap(USDC_BASE_MARKET, unwrapAmount.toBN(), 0)
+          ? SpotProxyContract.populateTransaction.unwrap(USDC_BASE_MARKET, unwrapAmount.toBN(), 0)
           : undefined;
 
         const unwrapCollateralTxnPromised =
           spotMarketId === STATA_BASE_MARKET && wrappedCollateralAmount.gt(0)
-            ? SpotProxy.populateTransaction.unwrap(
+            ? SpotProxyContract.populateTransaction.unwrap(
                 STATA_BASE_MARKET,
                 wrappedCollateralAmount.toBN(),
                 0
@@ -161,10 +186,15 @@ export const useWithdrawBaseAndromeda = ({
         }
 
         const walletAddress = await signer.getAddress();
-        const erc7412Tx = await withERC7412(network, allCalls, 'useWithdrawBase', walletAddress);
+        const { multicallTxn: erc7412Tx, gasLimit } = await withERC7412(
+          network,
+          allCalls,
+          'useWithdrawBase',
+          walletAddress
+        );
 
         const gasOptionsForTransaction = formatGasPriceForTransaction({
-          gasLimit: erc7412Tx.gasLimit,
+          gasLimit,
           gasPrices,
           gasSpeed,
         });

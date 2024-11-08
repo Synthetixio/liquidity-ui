@@ -37,6 +37,15 @@ export class MagicProvider extends ethers.providers.JsonRpcProvider {
     if (method === 'eth_accounts') {
       return [this.magicWallet];
     }
-    return super.send(method, params);
+    try {
+      const result = await super.send(method, params);
+      // eslint-disable-next-line no-console
+      console.log('MAGIC.send', { method, params, result });
+      return result;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log('MAGIC.send ERROR', { method, params, error });
+      throw error;
+    }
   }
 }

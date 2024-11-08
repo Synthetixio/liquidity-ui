@@ -1,4 +1,4 @@
-import { stringToHash } from '@snx-v3/tsHelpers';
+import { contractsHash } from '@snx-v3/tsHelpers';
 import { AccountCollateralType, loadAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { loadPrices } from '@snx-v3/useCollateralPrices';
@@ -14,35 +14,35 @@ import { ethers } from 'ethers';
 import { z } from 'zod';
 
 const PositionCollateralSchema = z.object({
-  value: ZodBigNumber.transform((x) => wei(x)).optional(), // This is currently only removed on base-goreli
+  value: ZodBigNumber.transform((x) => wei(x)).optional(),
   amount: ZodBigNumber.transform((x) => wei(x)),
 });
 
 const DebtSchema = ZodBigNumber.transform((x) => wei(x));
 
 export const loadPosition = async ({
-  CoreProxy,
+  CoreProxyContract,
   accountId,
   poolId,
   tokenAddress,
 }: {
-  CoreProxy: ethers.Contract;
+  CoreProxyContract: ethers.Contract;
   accountId: string;
   poolId: string;
   tokenAddress: string;
 }) => {
   const calls = await Promise.all([
-    CoreProxy.populateTransaction.getPositionCollateral(accountId, poolId, tokenAddress),
-    CoreProxy.populateTransaction.getPositionDebt(accountId, poolId, tokenAddress),
+    CoreProxyContract.populateTransaction.getPositionCollateral(accountId, poolId, tokenAddress),
+    CoreProxyContract.populateTransaction.getPositionDebt(accountId, poolId, tokenAddress),
   ]);
 
   const decoder = (multicallEncoded: string | string[]) => {
     if (Array.isArray(multicallEncoded) && multicallEncoded.length === 2) {
-      const decodedCollateral = CoreProxy.interface.decodeFunctionResult(
+      const decodedCollateral = CoreProxyContract.interface.decodeFunctionResult(
         'getPositionCollateral',
         multicallEncoded[0]
       );
-      const decodedDebt = CoreProxy.interface.decodeFunctionResult(
+      const decodedDebt = CoreProxyContract.interface.decodeFunctionResult(
         'getPositionDebt',
         multicallEncoded[1]
       )[0];
@@ -80,7 +80,7 @@ export const useLiquidityPosition = ({
   const { data: CoreProxy } = useCoreProxy();
   const { data: systemToken } = useSystemToken();
   const { network } = useNetwork();
-  const provider = useProviderForChain(network!);
+  const provider = useProviderForChain(network);
   const { data: collateralTypes } = useCollateralTypes(true);
 
   return useQuery({
@@ -91,11 +91,9 @@ export const useLiquidityPosition = ({
       {
         pool: poolId,
         token: tokenAddress,
-        systemToken: systemToken?.address,
       },
-      { contracts: stringToHash([CoreProxy?.address].join()) },
+      { contractsHash: contractsHash([CoreProxy, systemToken]) },
     ],
-    staleTime: 60000 * 5,
     enabled: Boolean(
       CoreProxy && accountId && poolId && tokenAddress && systemToken && network && provider
     ),
@@ -105,13 +103,14 @@ export const useLiquidityPosition = ({
       ) {
         throw Error('useLiquidityPosition not ready');
       }
+      const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
       const { calls: priceCalls, decoder: priceDecoder } = await loadPrices({
         collateralAddresses: [tokenAddress],
-        CoreProxy,
+        CoreProxyContract,
       });
 
       const { calls: positionCalls, decoder: positionDecoder } = await loadPosition({
-        CoreProxy,
+        CoreProxyContract,
         accountId,
         poolId,
         tokenAddress,
@@ -121,14 +120,19 @@ export const useLiquidityPosition = ({
         await loadAccountCollateral({
           accountId,
           tokenAddresses: [tokenAddress, systemToken.address],
+          provider,
           CoreProxy,
         });
 
       const allCalls = priceCalls.concat(positionCalls).concat(accountCollateralCalls);
 
-      allCalls.unshift(
-        (await getPriceUpdates((await getPythFeedIds(network)) as string[], network)) as any
-      );
+      const priceUpdateTx = (await getPriceUpdates(
+        (await getPythFeedIds(network)) as string[],
+        network
+      ).catch(() => undefined)) as any;
+      if (priceUpdateTx) {
+        allCalls.unshift(priceUpdateTx);
+      }
 
       return await erc7412Call(
         network,

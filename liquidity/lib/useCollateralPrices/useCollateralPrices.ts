@@ -1,4 +1,5 @@
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { stringToHash, contractsHash } from '@snx-v3/tsHelpers';
 import {
   Network,
   useDefaultProvider,
@@ -18,15 +19,15 @@ import { ethers } from 'ethers';
 const PriceSchema = ZodBigNumber.transform((x) => wei(x));
 
 export async function loadPrices({
-  CoreProxy,
+  CoreProxyContract,
   collateralAddresses,
 }: {
-  CoreProxy: ethers.Contract;
+  CoreProxyContract: ethers.Contract;
   collateralAddresses: string[];
 }) {
   const calls = await Promise.all(
     collateralAddresses.map((address) => {
-      return CoreProxy.populateTransaction.getCollateralPrice(address);
+      return CoreProxyContract.populateTransaction.getCollateralPrice(address);
     })
   );
   if (calls.length === 0) return { calls: [], decoder: () => [] };
@@ -34,7 +35,7 @@ export async function loadPrices({
   const decoder = (multicallEncoded: string | string[]) => {
     if (Array.isArray(multicallEncoded)) {
       return multicallEncoded.map((encoded) => {
-        const pricesEncoded = CoreProxy.interface.decodeFunctionResult(
+        const pricesEncoded = CoreProxyContract.interface.decodeFunctionResult(
           'getCollateralPrice',
           encoded
         )[0];
@@ -42,7 +43,7 @@ export async function loadPrices({
         return PriceSchema.parse(pricesEncoded);
       });
     } else {
-      const pricesEncoded = CoreProxy.interface.decodeFunctionResult(
+      const pricesEncoded = CoreProxyContract.interface.decodeFunctionResult(
         'getCollateralPrice',
         multicallEncoded
       )[0];
@@ -77,9 +78,8 @@ export const useCollateralPrices = (customNetwork?: Network) => {
       `${targetNetwork?.id}-${targetNetwork?.preset}`,
       'CollateralPrices',
       {
-        collateralAddresses: collateralAddresses?.filter(
-          (item, pos) => collateralAddresses.indexOf(item) === pos
-        ),
+        collaterals: stringToHash(collateralAddresses?.sort().join()),
+        contractsHash: contractsHash([CoreProxy]),
       },
     ],
     queryFn: async () => {
@@ -93,15 +93,21 @@ export const useCollateralPrices = (customNetwork?: Network) => {
         throw 'useCollateralPrices missing required data';
       }
 
-      const { calls, decoder } = await loadPrices({ CoreProxy, collateralAddresses });
+      const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
+      const { calls, decoder } = await loadPrices({
+        CoreProxyContract,
+        collateralAddresses,
+      });
 
       const allCalls = [...calls];
-      allCalls.unshift(
-        (await getPriceUpdates(
-          (await getPythFeedIds(targetNetwork)) as string[],
-          targetNetwork
-        )) as any
-      );
+
+      const priceUpdateTx = (await getPriceUpdates(
+        (await getPythFeedIds(targetNetwork)) as string[],
+        targetNetwork
+      ).catch(() => undefined)) as any;
+      if (priceUpdateTx) {
+        allCalls.unshift(priceUpdateTx);
+      }
 
       const prices = await erc7412Call(
         targetNetwork,

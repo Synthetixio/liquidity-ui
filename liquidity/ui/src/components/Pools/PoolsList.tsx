@@ -269,8 +269,6 @@ export const PoolsList = () => {
         {filteredPools?.length > 0
           ? filteredPools.map(
               ({ network, poolInfo, apr, collateralTypes, rewardsDistributors }) => {
-                const { pool } = poolInfo[0];
-
                 const filteredCollateralTypes = collateralTypes?.filter((collateralType) => {
                   if (!collaterals.length) {
                     return true;
@@ -294,7 +292,7 @@ export const PoolsList = () => {
                     collateralPrices={allCollateralPrices}
                     apr={apr}
                     network={network}
-                    pool={pool}
+                    pool={poolInfo?.[0]?.pool}
                     rewardsPayoutTokens={rewardsPayoutTokens}
                   />
                 );

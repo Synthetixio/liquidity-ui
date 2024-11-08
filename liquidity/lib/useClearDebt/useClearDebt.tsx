@@ -11,7 +11,7 @@ import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import Wei from '@synthetixio/wei';
 import { useMutation } from '@tanstack/react-query';
-import { BigNumber, Contract } from 'ethers';
+import { ethers } from 'ethers';
 import { useReducer } from 'react';
 
 export const DEBT_REPAYER_ABI = [
@@ -61,14 +61,14 @@ export const useClearDebt = ({
         return;
       }
 
-      const repayer = new Contract(getRepayerContract(network.id), DEBT_REPAYER_ABI, signer);
+      const Repayer = new ethers.Contract(getRepayerContract(network.id), DEBT_REPAYER_ABI, signer);
 
       if (!availableUSDCollateral) return;
 
       try {
         dispatch({ type: 'prompting' });
 
-        const depositDebtToRepay = repayer.populateTransaction.depositDebtToRepay(
+        const depositDebtToRepay = Repayer.populateTransaction.depositDebtToRepay(
           CoreProxy.address,
           SpotMarketProxy.address,
           accountId,
@@ -77,9 +77,11 @@ export const useClearDebt = ({
           USDC_BASE_MARKET
         );
 
-        const burn = CoreProxy.populateTransaction.burnUsd(
-          BigNumber.from(accountId),
-          BigNumber.from(poolId),
+        const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
+
+        const burn = CoreProxyContract.populateTransaction.burnUsd(
+          ethers.BigNumber.from(accountId),
+          ethers.BigNumber.from(poolId),
           collateralTypeAddress,
           debt?.mul(110).div(100).toBN().toString() || '0'
         );
@@ -92,10 +94,15 @@ export const useClearDebt = ({
           calls.unshift(priceUpdateTx as any);
         }
         const walletAddress = await signer.getAddress();
-        const erc7412Tx = await withERC7412(network, calls, 'useRepay', walletAddress);
+        const { multicallTxn: erc7412Tx, gasLimit } = await withERC7412(
+          network,
+          calls,
+          'useRepay',
+          walletAddress
+        );
 
         const gasOptionsForTransaction = formatGasPriceForTransaction({
-          gasLimit: erc7412Tx.gasLimit,
+          gasLimit,
           gasPrices,
           gasSpeed,
         });

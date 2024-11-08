@@ -1,1 +1,1 @@
-export * from './useAccountCollateral';
+export * from './useAccountCollaterals';

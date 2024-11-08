@@ -1,26 +1,26 @@
-import { Button, Divider, Text, useToast, Link } from '@chakra-ui/react';
-import React, { FC, useCallback, useContext, useState } from 'react';
-import { Multistep } from '@snx-v3/Multistep';
-import { Wei } from '@synthetixio/wei';
-import { useWithdraw } from '@snx-v3/useWithdraw';
-import { useAccountSpecificCollateral } from '@snx-v3/useAccountCollateral';
-import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
-import { ContractError } from '@snx-v3/ContractError';
-import { useQueryClient } from '@tanstack/react-query';
-import { useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { ArrowBackIcon } from '@chakra-ui/icons';
-import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
-import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { getWrappedStataUSDCOnBase, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
-import { ZEROWEI } from '@snx-v3/constants';
-import { useWithdrawBaseAndromeda } from '@snx-v3/useWithdrawBaseAndromeda';
-import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
-import { useParams } from '@snx-v3/useParams';
+import { Button, Divider, Link, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
+import { ZEROWEI } from '@snx-v3/constants';
+import { ContractError } from '@snx-v3/ContractError';
+import { getWrappedStataUSDCOnBase, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
+import { Multistep } from '@snx-v3/Multistep';
+import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
+import { useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
+import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { useParams } from '@snx-v3/useParams';
 import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
-import { useUnwrapStataUSDC } from '@snx-v3/useUnwrapStataUSDC';
 import { useSystemToken } from '@snx-v3/useSystemToken';
+import { useUnwrapStataUSDC } from '@snx-v3/useUnwrapStataUSDC';
+import { useWithdraw } from '@snx-v3/useWithdraw';
+import { useWithdrawBaseAndromeda } from '@snx-v3/useWithdrawBaseAndromeda';
+import { Wei } from '@synthetixio/wei';
+import { useQueryClient } from '@tanstack/react-query';
+import React, { FC, useCallback, useContext, useState } from 'react';
+import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
 
 export const WithdrawModalUi: FC<{
   amount: Wei;
@@ -153,10 +153,7 @@ export function WithdrawModal({
     collateralType?.address.toLowerCase() === getWrappedStataUSDCOnBase(network?.id).toLowerCase();
 
   const { data: systemToken } = useSystemToken();
-  const { data: systemTokenBalance } = useAccountSpecificCollateral(
-    accountId,
-    systemToken?.address
-  );
+  const { data: systemTokenBalance } = useAccountCollateral(accountId, systemToken?.address);
 
   const { data: stataUSDC } = useStaticAaveUSDC();
 

@@ -11,7 +11,7 @@ import { useSystemToken } from '@snx-v3/useSystemToken';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import Wei from '@synthetixio/wei';
 import { useMutation } from '@tanstack/react-query';
-import { BigNumber } from 'ethers';
+import { ethers } from 'ethers';
 import { useReducer } from 'react';
 
 export const useRepay = ({
@@ -54,18 +54,20 @@ export const useRepay = ({
       try {
         dispatch({ type: 'prompting' });
 
+        const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
+
         // Only deposit if user doesn't have enough sUSD collateral
         const deposit = amountToDeposit.lte(0)
           ? undefined
-          : CoreProxy.populateTransaction.deposit(
-              BigNumber.from(accountId),
+          : CoreProxyContract.populateTransaction.deposit(
+              ethers.BigNumber.from(accountId),
               systemToken.address,
               amountToDeposit.toBN() // only deposit what's needed
             );
 
-        const burn = CoreProxy.populateTransaction.burnUsd(
-          BigNumber.from(accountId),
-          BigNumber.from(poolId),
+        const burn = CoreProxyContract.populateTransaction.burnUsd(
+          ethers.BigNumber.from(accountId),
+          ethers.BigNumber.from(poolId),
           collateralTypeAddress,
           debtChangeAbs.toBN()
         );
@@ -79,10 +81,15 @@ export const useRepay = ({
           calls.unshift(priceUpdateTx as any);
         }
 
-        const erc7412Tx = await withERC7412(network, calls, 'useRepay', walletAddress);
+        const { multicallTxn: erc7412Tx, gasLimit } = await withERC7412(
+          network,
+          calls,
+          'useRepay',
+          walletAddress
+        );
 
         const gasOptionsForTransaction = formatGasPriceForTransaction({
-          gasLimit: erc7412Tx.gasLimit,
+          gasLimit,
           gasPrices,
           gasSpeed,
         });
