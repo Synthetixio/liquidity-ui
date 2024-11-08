@@ -5236,7 +5236,7 @@ __metadata:
     "@web3-onboard/gnosis": "npm:^2.3.2"
     "@web3-onboard/injected-wallets": "npm:^2.11.2"
     "@web3-onboard/ledger": "npm:2.7.1"
-    "@web3-onboard/react": "npm:^2.9.3"
+    "@web3-onboard/react": "npm:^2.10.0"
     "@web3-onboard/trezor": "npm:^2.4.6"
     "@web3-onboard/walletconnect": "npm:^2.6.1"
     babel-loader: "npm:^9.1.3"
@@ -5451,7 +5451,7 @@ __metadata:
     "@snx-v3/contracts": "workspace:*"
     "@snx-v3/icons": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
-    "@web3-onboard/react": "npm:^2.9.3"
+    "@web3-onboard/react": "npm:^2.10.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -8461,9 +8461,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@web3-onboard/core@npm:2.22.3":
-  version: 2.22.3
-  resolution: "@web3-onboard/core@npm:2.22.3"
+"@web3-onboard/core@npm:2.23.0":
+  version: 2.23.0
+  resolution: "@web3-onboard/core@npm:2.23.0"
   dependencies:
     "@web3-onboard/common": "npm:^2.4.1"
     bnc-sdk: "npm:^4.6.7"
@@ -8477,7 +8477,7 @@ __metadata:
     svelte: "npm:^3.49.0"
     svelte-i18n: "npm:^3.3.13"
     viem: "npm:2.12.0"
-  checksum: 10/2525bb3b1cf4d893f45fb4f0becd5a889a59b1ba13f02b9f567d988eac57bae28ffd8a37e153bf87595ee15dee316d78938a9e008c241cc82a2b7b215760914c
+  checksum: 10/4b3c1fdb186c8523d6aa59895be204886ea38ae995f946132b17c6f0509e075e508437548b61b374f09746dba95e0d9fda85c4c9bb4f309263a2e5e29c5b6397
   languageName: node
   linkType: hard
 
@@ -8532,16 +8532,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@web3-onboard/react@npm:^2.9.3":
-  version: 2.9.3
-  resolution: "@web3-onboard/react@npm:2.9.3"
+"@web3-onboard/react@npm:^2.10.0":
+  version: 2.10.0
+  resolution: "@web3-onboard/react@npm:2.10.0"
   dependencies:
     "@web3-onboard/common": "npm:^2.4.1"
-    "@web3-onboard/core": "npm:2.22.3"
+    "@web3-onboard/core": "npm:2.23.0"
     use-sync-external-store: "npm:1.0.0"
   peerDependencies:
     react: ">=16.8"
-  checksum: 10/cd59788e532d7e1085ff0bc24a4bc592a90ef050126d784faf4065cc2ceaf21fd4399030ae22f3f047277bc11506e573a31ce385fd68876873e576e9edee7b19
+  checksum: 10/a0018e29222b61274f9bf4c69ac777d4a638bb1d8482c4b8538d45782de2b77737e0ebc01668f6844ff8fb52f5a0cd73ac1b0533a66388ae388376aad61c19eb
   languageName: node
   linkType: hard
 
