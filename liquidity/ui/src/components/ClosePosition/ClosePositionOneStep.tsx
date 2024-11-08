@@ -123,11 +123,11 @@ export function ClosePositionOneStep({
         signer
       );
 
-      const adjustedAllowance = positionDebt.lt(0)
+      const adjustedAllowance = positionDebt.lt(1)
         ? // For the case when debt fluctuates from negative/zero to slightly positive
           ethers.utils.parseEther('1.00')
         : // Add extra buffer for debt fluctuations
-          positionDebt.mul(110).div(100);
+          positionDebt.mul(150).div(100);
       log('adjustedAllowance: %O', adjustedAllowance);
 
       // "function approve(address to, uint256 tokenId)",
