@@ -179,6 +179,7 @@ export const ClaimModal: React.FC<{
         ),
         status: 'error',
         variant: 'left-accent',
+        duration: 3_600_000,
       });
       throw Error(isBorrow ? 'Borrow' : 'Claim' + ' failed', { cause: error });
     }

@@ -167,6 +167,7 @@ export function useClaimAllRewards(
           ),
           status: 'error',
           variant: 'left-accent',
+          duration: 3_600_000,
         });
       }
     },

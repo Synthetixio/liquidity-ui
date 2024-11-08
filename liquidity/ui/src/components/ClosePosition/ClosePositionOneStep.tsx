@@ -259,6 +259,7 @@ export function ClosePositionOneStep({
         ),
         status: 'error',
         duration: 3_600_000,
+        duration: 3_600_000,
       });
       throw Error('Transaction failed', { cause: error });
     },

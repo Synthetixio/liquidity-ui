@@ -205,6 +205,7 @@ export const UndelegateModal: UndelegateModalProps = ({ onClose, isOpen, liquidi
             ),
             status: 'error',
             variant: 'left-accent',
+            duration: 3_600_000,
           });
           throw Error('Unlock collateral failed', { cause: error });
         }

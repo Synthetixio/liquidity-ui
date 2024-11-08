@@ -345,6 +345,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
             ),
             status: 'error',
             variant: 'left-accent',
+            duration: 3_600_000,
           });
           throw Error('Wrapping failed', { cause: error });
         }
@@ -376,6 +377,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
             ),
             status: 'error',
             variant: 'left-accent',
+            duration: 3_600_000,
           });
           throw Error('Approve failed', { cause: error });
         }
@@ -454,6 +456,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
             ),
             status: 'error',
             variant: 'left-accent',
+            duration: 3_600_000,
           });
           throw Error('Lock collateral failed', { cause: error });
         }

@@ -157,6 +157,7 @@ export const BorrowModal: React.FC<{
         ),
         status: 'error',
         variant: 'left-accent',
+        duration: 3_600_000,
       });
       throw Error('Borrow failed', { cause: error });
     }

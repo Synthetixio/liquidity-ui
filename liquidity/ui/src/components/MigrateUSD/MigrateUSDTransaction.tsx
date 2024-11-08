@@ -118,6 +118,7 @@ export function MigrateUSDTransaction({
         ),
         status: 'error',
         variant: 'left-accent',
+        duration: 3_600_000,
       });
     }
   }, [

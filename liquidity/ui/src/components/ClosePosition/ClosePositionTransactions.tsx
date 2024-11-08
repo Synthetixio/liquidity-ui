@@ -306,6 +306,7 @@ export const ClosePositionTransactions: FC<{
           'Please try again.'
         ),
         status: 'error',
+        duration: 3_600_000,
       });
       throw Error('Transaction failed', { cause: error });
     }
