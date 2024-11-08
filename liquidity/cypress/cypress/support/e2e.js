@@ -3,7 +3,6 @@ import { onLogAdded } from '@snx-cy/onLogAdded';
 import { subgraph } from '../lib/subgraph';
 
 afterEach(() => {
-  cy.wait(5000); // Maybe it will fix CI tests, wait a bit
   cy.get('@snapshot').then(async (snapshot) => {
     cy.task('evmRevert', snapshot);
   });
@@ -13,7 +12,6 @@ beforeEach(() => {
   cy.task('evmSnapshot').then((snapshot) => {
     cy.wrap(snapshot).as('snapshot');
   });
-  cy.wait(5000); // Maybe it will fix CI tests, wait a bit
 
   cy.on('log:added', onLogAdded);
 
