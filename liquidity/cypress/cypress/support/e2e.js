@@ -3,6 +3,7 @@ import { onLogAdded } from '@snx-cy/onLogAdded';
 import { subgraph } from '../lib/subgraph';
 
 afterEach(() => {
+  cy.wait(5000); // Maybe it will fix CI tests, wait a bit
   cy.get('@snapshot').then(async (snapshot) => {
     cy.task('evmRevert', snapshot);
   });
@@ -12,11 +13,13 @@ beforeEach(() => {
   cy.task('evmSnapshot').then((snapshot) => {
     cy.wrap(snapshot).as('snapshot');
   });
+  cy.wait(5000); // Maybe it will fix CI tests, wait a bit
 
   cy.on('log:added', onLogAdded);
 
-  cy.intercept('https://analytics.synthetix.io/matomo.js', { statusCode: 204 }).as('matomo');
-  cy.intercept('https://analytics.synthetix.io/matomo.js', { log: false });
+  cy.intercept('https://analytics.synthetix.io/matomo.js', { statusCode: 204, log: false }).as(
+    'matomo'
+  );
   cy.intercept('https://cloudflare-eth.com/**', { statusCode: 400, log: false }).as(
     'cloudflare-eth'
   );
