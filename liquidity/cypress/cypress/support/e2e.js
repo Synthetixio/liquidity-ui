@@ -2,11 +2,24 @@ import '@cypress/code-coverage/support';
 import { onLogAdded } from '@snx-cy/onLogAdded';
 import { subgraph } from '../lib/subgraph';
 
+afterEach(() => {
+  cy.get('@snapshot').then(async (snapshot) => {
+    cy.task('evmRevert', snapshot);
+  });
+});
+
 beforeEach(() => {
+  cy.task('evmSnapshot').then((snapshot) => {
+    cy.wrap(snapshot).as('snapshot');
+  });
+
   cy.on('log:added', onLogAdded);
 
   cy.intercept('https://analytics.synthetix.io/matomo.js', { statusCode: 204 }).as('matomo');
   cy.intercept('https://analytics.synthetix.io/matomo.js', { log: false });
+  cy.intercept('https://cloudflare-eth.com/**', { statusCode: 400, log: false }).as(
+    'cloudflare-eth'
+  );
   //  cy.intercept('https://hermes-mainnet.rpc.extrnode.com/**', { statusCode: 400 }).as('pyth');
   cy.intercept('https://hermes-mainnet.rpc.extrnode.com/**', { log: false });
   //  cy.intercept('https://hermes-mainnet.rpc.extrnode.com/**', (req) => {

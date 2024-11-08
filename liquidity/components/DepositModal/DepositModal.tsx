@@ -169,36 +169,38 @@ export const DepositModalUi: FC<{
                     <>
                       {availableCollateral.gte(collateralChange) ? (
                         <Text>
-                          This will deposit & lock{' '}
-                          <Amount value={collateralChange} suffix={` ${collateralType?.symbol}`} />{' '}
-                          in {poolName}.
+                          <Amount
+                            prefix="This will deposit and lock "
+                            value={collateralChange}
+                            suffix={` ${collateralType?.symbol} to ${poolName}.`}
+                          />
                         </Text>
                       ) : (
                         <>
                           <Text>
-                            This will deposit & lock{' '}
                             <Amount
+                              prefix="This will deposit and lock "
                               value={availableCollateral}
-                              suffix={` ${collateralType?.symbol}`}
-                            />{' '}
-                            to {poolName}.
+                              suffix={` ${collateralType?.symbol} to ${poolName}.`}
+                            />
                           </Text>
                           <Text>
-                            An additional{' '}
                             <Amount
+                              prefix="An additional "
                               value={collateralChange.sub(availableCollateral)}
-                              suffix={` ${collateralType?.symbol}`}
-                            />{' '}
-                            will be deposited and locked from your wallet.
+                              suffix={` ${collateralType?.symbol} will be deposited and locked from your wallet.`}
+                            />
                           </Text>
                         </>
                       )}
                     </>
                   ) : (
                     <Text>
-                      This will deposit and lock{' '}
-                      <Amount value={collateralChange} suffix={` ${collateralType?.symbol}`} /> to{' '}
-                      {poolName}.
+                      <Amount
+                        prefix="This will deposit and lock "
+                        value={collateralChange}
+                        suffix={` ${collateralType?.symbol} to ${poolName}.`}
+                      />
                     </Text>
                   )}
                 </>

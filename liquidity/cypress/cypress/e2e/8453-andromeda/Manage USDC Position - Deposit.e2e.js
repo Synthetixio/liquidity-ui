@@ -1,17 +1,6 @@
 import { generatePath } from 'react-router-dom';
 
-before(() => {
-  cy.task('evmSnapshot').then((snapshot) => {
-    cy.wrap(snapshot).as('snapshot');
-  });
-});
-after(() => {
-  cy.get('@snapshot').then(async (snapshot) => {
-    cy.task('evmRevert', snapshot);
-  });
-});
-
-it('should deposit additional USDC collateral', () => {
+it('Manage USDC Position - Deposit', () => {
   cy.connectWallet().then(({ address, accountId }) => {
     cy.wrap(address).as('wallet');
     cy.wrap(accountId).as('accountId');
@@ -40,7 +29,7 @@ it('should deposit additional USDC collateral', () => {
     .should('exist')
     .and('include.text', 'Approve USDC transfer')
     .and('include.text', 'Deposit & Lock USDC')
-    .and('include.text', 'This will deposit & lock 101 USDC in Spartan Council Pool.');
+    .and('include.text', 'This will deposit and lock 101 USDC to Spartan Council Pool.');
 
   cy.get('[data-cy="deposit confirm button"]')
     .should('include.text', 'Execute Transaction')
