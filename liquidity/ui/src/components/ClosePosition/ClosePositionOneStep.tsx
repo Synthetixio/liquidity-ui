@@ -27,6 +27,9 @@ import debug from 'debug';
 import { ethers } from 'ethers';
 import React from 'react';
 import { LiquidityPositionUpdated } from '../Manage/LiquidityPositionUpdated';
+import { fetchPositionDebt } from './fetchPositionDebt';
+import { fetchPositionDebtWithPriceUpdate } from './fetchPositionDebtWithPriceUpdate';
+import { fetchPriceUpdateTxn } from './fetchPriceUpdateTxn';
 import { useAccountCollateral } from './useAccountCollateral';
 import { usePositionDebt } from './usePositionDebt';
 
@@ -123,11 +126,33 @@ export function ClosePositionOneStep({
         signer
       );
 
-      const adjustedAllowance = positionDebt.lt(1)
+      const freshPriceUpdateTxn = await fetchPriceUpdateTxn({ PythVerfier, pythFeeds });
+      log('freshPriceUpdateTxn: %O', freshPriceUpdateTxn);
+
+      const freshPositionDebt = freshPriceUpdateTxn.value
+        ? await fetchPositionDebtWithPriceUpdate({
+            provider,
+            CoreProxy,
+            Multicall3,
+            accountId: params.accountId,
+            poolId: params.poolId,
+            collateralTypeTokenAddress: collateralType.tokenAddress,
+            priceUpdateTxn: freshPriceUpdateTxn,
+          })
+        : await fetchPositionDebt({
+            provider,
+            CoreProxy,
+            accountId: params.accountId,
+            poolId: params.poolId,
+            collateralTypeTokenAddress: collateralType.tokenAddress,
+          });
+      log('freshPositionDebt: %O', freshPositionDebt);
+
+      const adjustedAllowance = freshPositionDebt.lt(1)
         ? // For the case when debt fluctuates from negative/zero to slightly positive
           ethers.utils.parseEther('1.00')
         : // Add extra buffer for debt fluctuations
-          positionDebt.mul(150).div(100);
+          freshPositionDebt.mul(120).div(100);
       log('adjustedAllowance: %O', adjustedAllowance);
 
       // "function approve(address to, uint256 tokenId)",
@@ -196,6 +221,19 @@ export function ClosePositionOneStep({
       });
       queryClient.invalidateQueries({
         queryKey: [`${network?.id}-${network?.preset}`, 'AccountCollateralUnlockDate'],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: [network?.id, network?.preset, 'PriceUpdateTxn'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [network?.id, network?.preset, 'PositionDebt'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [network?.id, network?.preset, 'AccountCollateral'],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [network?.id, network?.preset, 'AccountAvailableCollateral'],
       });
 
       // After mutation withERC7412, we guaranteed to have updated all the prices, dont care about await

@@ -1,11 +1,10 @@
-import { EvmPriceServiceConnection } from '@pythnetwork/pyth-evm-js';
-import { offchainMainnetEndpoint } from '@snx-v3/constants';
 import { useProvider } from '@snx-v3/useBlockchain';
 import { usePythFeeds } from '@snx-v3/usePythFeeds';
 import { usePythVerifier } from '@snx-v3/usePythVerifier';
 import { useQuery } from '@tanstack/react-query';
 import debug from 'debug';
 import { ethers } from 'ethers';
+import { fetchPriceUpdateTxn } from './fetchPriceUpdateTxn';
 import { useErrorParser } from './useErrorParser';
 import { useSynthetix } from './useSynthetix';
 
@@ -31,17 +30,7 @@ export function usePriceUpdateTxn() {
         throw 'OMFG';
       }
       log({ chainId, preset, priceIds: pythFeeds, PythVerfier });
-      const PythVerifierInterface = new ethers.utils.Interface(PythVerfier.abi);
-      const priceService = new EvmPriceServiceConnection(offchainMainnetEndpoint);
-      const signedOffchainData = await priceService.getPriceFeedsUpdateData(pythFeeds);
-      const priceUpdateTxn = {
-        target: PythVerfier.address,
-        callData: PythVerifierInterface.encodeFunctionData('updatePriceFeeds', [
-          signedOffchainData,
-        ]),
-        value: ethers.BigNumber.from(pythFeeds.length),
-        requireSuccess: false,
-      };
+      const priceUpdateTxn = await fetchPriceUpdateTxn({ pythFeeds, PythVerfier });
       log('priceUpdateTxn: %O', priceUpdateTxn);
       return priceUpdateTxn;
     },
