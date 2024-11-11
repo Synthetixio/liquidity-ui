@@ -55,6 +55,7 @@ export function DebtStats({
             newValue={newDebt}
             formatFn={(val: Wei) => <DebtAmount debt={val} as="span" />}
             hasChanges={hasChanges}
+            data-cy="debt stats collateral"
           />
         </Flex>
       </Flex>

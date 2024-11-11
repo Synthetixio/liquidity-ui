@@ -8,7 +8,7 @@ async function getOwner() {
 
   switch (network.chainId) {
     case 1:
-      return '0xAc86855865CbF31c8f9FBB68C749AD5Bd72802e3'; // RewardEscrowV2
+      return '0xffffffaEff0B96Ea8e4f94b2253f31abdD875847'; // Synthetix: Deployer
     case 5:
       return '0x48914229dedd5a9922f44441ffccfc2cb7856ee9';
     case 10:
@@ -51,7 +51,7 @@ export async function getSnx({ address, amount }) {
 
   if (oldBalance > amount) {
     console.log('getSnx', { result: 'SKIP' });
-    return;
+    return null;
   }
 
   const ownerBalance = parseFloat(ethers.utils.formatUnits(await erc20.balanceOf(owner)));
