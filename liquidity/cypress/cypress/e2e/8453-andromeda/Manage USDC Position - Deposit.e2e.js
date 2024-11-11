@@ -39,6 +39,7 @@ it('Manage USDC Position - Deposit', () => {
     'exist'
   );
 
+  
   // TODO: Enable additional deposit after fixing an issue with balance refetching
   //
   //  cy.get('[data-cy="deposit amount input"]').should('exist').clear().type('69');
