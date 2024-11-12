@@ -51,3 +51,38 @@ forge create \
   --verify \
   src/ClosePosition.sol:ClosePosition
 ```
+
+Ethereum Sepolia
+
+```sh
+forge create \
+  --rpc-url https://sepolia.infura.io/v3/$INFURA_API_KEY \
+  --chain 11155111 \
+  --private-key $TESTNET_DEPLOYER_PRIVATE_KEY \
+  --etherscan-api-key $ETHERSCAN_API_KEY \
+  --verify \
+  src/ClosePosition.sol:ClosePosition
+```
+
+Ethereum Mainnet
+
+```sh
+forge create \
+  --rpc-url https://mainnet.infura.io/v3/$INFURA_API_KEY \
+  --chain 1 \
+  --private-key $MAINNET_DEPLOYER_PRIVATE_KEY \
+  --etherscan-api-key $ETHERSCAN_API_KEY \
+  --verify \
+  src/ClosePosition.sol:ClosePosition
+```
+
+## Verify contract
+
+If something went wrong verifying first time
+
+```sh
+forge verify-contract \
+  --etherscan-api-key $ETHERSCAN_API_KEY \
+  0x800B12D24ebb639BCe7280861b05149F0D60F99e \
+  src/ClosePosition.sol:ClosePosition
+```
