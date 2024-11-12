@@ -9,6 +9,9 @@ export async function fetchPriceUpdateTxn({
   PythVerfier: { address: string; abi: string[] };
   pythFeeds: string[];
 }) {
+  if (!pythFeeds.length) {
+    return null;
+  }
   const PythVerifierInterface = new ethers.utils.Interface(PythVerfier.abi);
   const priceService = new EvmPriceServiceConnection(offchainMainnetEndpoint);
   const signedOffchainData = await priceService.getPriceFeedsUpdateData(pythFeeds);

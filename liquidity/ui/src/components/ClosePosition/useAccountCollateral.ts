@@ -36,8 +36,7 @@ export function useAccountCollateral({
         CoreProxy?.address &&
         Multicall3?.address &&
         accountId &&
-        collateralTypeTokenAddress &&
-        priceUpdateTxn
+        collateralTypeTokenAddress
     ),
     queryKey: [
       chainId,
@@ -47,6 +46,7 @@ export function useAccountCollateral({
       {
         accountId: accountId ? ethers.BigNumber.from(accountId).toHexString() : undefined,
         collateralTypeTokenAddress,
+        priceUpdateTxn: priceUpdateTxn?.callData,
       },
     ],
     queryFn: async () => {
@@ -58,8 +58,7 @@ export function useAccountCollateral({
           CoreProxy?.address &&
           Multicall3?.address &&
           accountId &&
-          collateralTypeTokenAddress &&
-          priceUpdateTxn
+          collateralTypeTokenAddress
         )
       ) {
         throw 'OMFG';
@@ -75,7 +74,7 @@ export function useAccountCollateral({
         priceUpdateTxn,
       });
 
-      if (priceUpdateTxn.value) {
+      if (priceUpdateTxn?.value) {
         log('-> fetchAccountCollateralWithPriceUpdate');
         return fetchAccountCollateralWithPriceUpdate({
           provider,

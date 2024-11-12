@@ -129,7 +129,7 @@ export function ClosePositionOneStep({
       const freshPriceUpdateTxn = await fetchPriceUpdateTxn({ PythVerfier, pythFeeds });
       log('freshPriceUpdateTxn: %O', freshPriceUpdateTxn);
 
-      const freshPositionDebt = freshPriceUpdateTxn.value
+      const freshPositionDebt = freshPriceUpdateTxn?.value
         ? await fetchPositionDebtWithPriceUpdate({
             provider,
             CoreProxy,
@@ -288,7 +288,7 @@ export function ClosePositionOneStep({
 
   return (
     <Flex flexDirection="column" data-cy="close position multistep">
-      <Text color="gray.50" fontSize="sm" fontWeight="700">
+      <Text color="gray.50" fontSize="20px" fontWeight={700}>
         <ArrowBackIcon cursor="pointer" onClick={onBack} mr={2} />
         Close Position
       </Text>

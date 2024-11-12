@@ -13,6 +13,14 @@ const abi = [
 export async function importClosePosition(chainId, preset) {
   const deployment = `${Number(chainId).toFixed(0)}-${preset}`;
   switch (deployment) {
+    case '1-main': {
+      // https://etherscan.io/address/0x800b12d24ebb639bce7280861b05149f0d60f99e#code
+      return { address: '0x800b12d24ebb639bce7280861b05149f0d60f99e', abi };
+    }
+    case '11155111-main': {
+      // https://sepolia.etherscan.io/address/0xcc998ef6d1923f206be1fed700eb1afebd69fbce#code
+      return { address: '0xcc998ef6d1923f206be1fed700eb1afebd69fbce', abi };
+    }
     case '42161-main': {
       // https://arbiscan.io/address/0x28551921507790D91260d8eD08E3D688d525A752#code
       return { address: '0x28551921507790D91260d8eD08E3D688d525A752', abi };
