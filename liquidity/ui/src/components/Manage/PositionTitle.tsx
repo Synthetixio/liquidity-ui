@@ -52,7 +52,9 @@ export const PositionTitle: FC<{
           display="flex"
           alignItems="center"
           _hover={{ cursor: 'pointer' }}
-          onClick={() => navigate(`/pools/${network?.id}/${poolId}`)}
+          onClick={() =>
+            poolId && network ? navigate(`/pools/${network?.id}/${poolId}`) : undefined
+          }
         >
           {poolName && <Text mr={2}>{poolName}</Text>}
           <Flex
