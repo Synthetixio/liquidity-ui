@@ -10,7 +10,12 @@ export async function fetchPriceUpdateTxn({
   pythFeeds: string[];
 }) {
   if (!pythFeeds.length) {
-    return null;
+    return {
+      target: PythVerfier.address,
+      callData: ethers.constants.HashZero,
+      value: ethers.BigNumber.from(0),
+      requireSuccess: false,
+    };
   }
   const PythVerifierInterface = new ethers.utils.Interface(PythVerfier.abi);
   const priceService = new EvmPriceServiceConnection(offchainMainnetEndpoint);

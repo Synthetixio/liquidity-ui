@@ -39,7 +39,8 @@ export function usePositionDebt({
         Multicall3?.address &&
         accountId &&
         poolId &&
-        collateralTypeTokenAddress
+        collateralTypeTokenAddress &&
+        priceUpdateTxn
     ),
     queryKey: [
       chainId,
@@ -49,7 +50,6 @@ export function usePositionDebt({
       {
         accountId: accountId ? ethers.BigNumber.from(accountId).toHexString() : undefined,
         collateralTypeTokenAddress,
-        priceUpdateTxn: priceUpdateTxn?.callData,
       },
     ],
     queryFn: async () => {
@@ -62,7 +62,8 @@ export function usePositionDebt({
           Multicall3?.address &&
           accountId &&
           poolId &&
-          collateralTypeTokenAddress
+          collateralTypeTokenAddress &&
+          priceUpdateTxn
         )
       ) {
         throw 'OMFG';
@@ -79,7 +80,7 @@ export function usePositionDebt({
         priceUpdateTxn,
       });
 
-      if (priceUpdateTxn?.value) {
+      if (priceUpdateTxn.value) {
         log('-> fetchPositionDebtWithPriceUpdate');
         return fetchPositionDebtWithPriceUpdate({
           provider,

@@ -129,7 +129,7 @@ export function ClosePositionOneStep({
       const freshPriceUpdateTxn = await fetchPriceUpdateTxn({ PythVerfier, pythFeeds });
       log('freshPriceUpdateTxn: %O', freshPriceUpdateTxn);
 
-      const freshPositionDebt = freshPriceUpdateTxn?.value
+      const freshPositionDebt = freshPriceUpdateTxn.value
         ? await fetchPositionDebtWithPriceUpdate({
             provider,
             CoreProxy,
