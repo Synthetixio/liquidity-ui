@@ -12,8 +12,7 @@ after(() => {
 });
 
 it('Manage SNX Position - Deposit', () => {
-  cy.connectWallet('777777').then(({ address, accountId }) => {
-    console.log('123123213!', accountId);
+  cy.connectWallet().then(({ address, accountId }) => {
     cy.wrap(address).as('wallet');
     cy.wrap(accountId).as('accountId');
 

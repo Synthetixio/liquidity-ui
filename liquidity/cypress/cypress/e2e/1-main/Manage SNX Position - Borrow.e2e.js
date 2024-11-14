@@ -12,7 +12,7 @@ after(() => {
 });
 
 it('should be able to borrow sUSD after depositing SNX', () => {
-  cy.connectWallet('10000').then(({ address, accountId }) => {
+  cy.connectWallet().then(({ address, accountId }) => {
     cy.wrap(address).as('wallet');
     cy.wrap(accountId).as('accountId');
 

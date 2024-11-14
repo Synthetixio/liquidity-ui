@@ -12,7 +12,7 @@ after(() => {
 });
 
 it('should be able to unlock SNX collateral after depositing', () => {
-  cy.connectWallet('10000').then(({ address, accountId }) => {
+  cy.connectWallet().then(({ address, accountId }) => {
     cy.wrap(address).as('wallet');
     cy.wrap(accountId).as('accountId');
 
@@ -41,9 +41,6 @@ it('should be able to unlock SNX collateral after depositing', () => {
   cy.wait(2000);
 
   cy.get('@accountId').then(async (accountId) => {
-    console.log({
-      accountId,
-    });
     const path = generatePath('/positions/:collateralSymbol/:poolId', {
       collateralSymbol: 'SNX',
       poolId: 1,
