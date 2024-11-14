@@ -5,7 +5,7 @@ import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useMutation } from '@tanstack/react-query';
-import { BigNumberish, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { useReducer } from 'react';
 
 export const approveAbi = ['function approve(address spender, uint256 amount) returns (bool)'];
@@ -17,7 +17,7 @@ export const useApprove = (
     spender,
   }: {
     contractAddress?: string;
-    amount: BigNumberish;
+    amount: ethers.BigNumberish;
     spender?: string;
   },
   eventHandlers?: {

@@ -133,6 +133,7 @@ export const ManageUi: FC<{
                 color="cyan.500"
                 fontWeight={700}
                 mt="5"
+                data-cy="close position"
               >
                 Close Position
               </Text>

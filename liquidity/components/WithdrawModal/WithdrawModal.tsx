@@ -263,6 +263,7 @@ export function WithdrawModal({
         ),
         status: 'error',
         variant: 'left-accent',
+        duration: 3_600_000,
       });
       throw Error('Withdraw failed', { cause: error });
     }

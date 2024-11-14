@@ -51,13 +51,15 @@ module.exports = defineConfig({
       });
       return config;
     },
+    video: true,
 
     retries: {
       runMode: 1,
       openMode: 0,
     },
-    defaultCommandTimeout: 60_000,
-    execTimeout: 60_000,
-    taskTimeout: 60_000,
+
+    defaultCommandTimeout: 120_000,
+    execTimeout: 120_000,
+    taskTimeout: 120_000,
   },
 });

@@ -7,21 +7,17 @@ import {
   importMulticall3,
   importPythERC7412Wrapper,
   importPythVerfier,
+  importClosePosition,
+  importAccountProxy,
+  importUSDProxy,
 } from '@snx-v3/contracts';
 import { notNil } from '@snx-v3/tsHelpers';
 import { Network, deploymentHasERC7412, getMagicProvider } from '@snx-v3/useBlockchain';
 import { ethers } from 'ethers';
 
-const IS_DEBUG = window.localStorage.getItem('DEBUG') === 'true';
-
-export const ERC7412_ABI = [
-  'error OracleDataRequired(address oracleContract, bytes oracleQuery)',
-  'error OracleDataRequired(address oracleContract, bytes oracleQuery, uint256 feeRequired)',
-  'error Errors(bytes[] errors)',
-  'error FeeRequired(uint feeAmount)',
-  'function oracleId() view external returns (bytes32)',
-  'function fulfillOracleQuery(bytes calldata signedOffchainData) payable external',
-];
+const IS_DEBUG =
+  window.localStorage.getItem('DEBUG') === 'true' ||
+  window.localStorage.DEBUG?.slice(0, 3) === 'snx';
 
 export const PYTH_ERRORS = [
   // Function arguments are invalid (e.g., the arguments lengths mismatch)
@@ -98,7 +94,9 @@ function parseError(
   }
 
   try {
-    const AllErrorsInterface = new ethers.utils.Interface([...AllErrors.abi, ...PYTH_ERRORS]);
+    const AllErrorsInterface = new ethers.utils.Interface(
+      Array.from(new Set([...AllErrors.abi, ...PYTH_ERRORS]))
+    );
     return AllErrorsInterface.parseError(errorData);
   } catch (error) {
     console.error(`Error parsing failure: ${error}`);
@@ -144,13 +142,25 @@ async function logMulticall({
   label: string;
 }) {
   const CoryProxyContract = await importCoreProxy(network.id, network.preset);
+  const AccountProxyContract = await importAccountProxy(network.id, network.preset);
+  const USDProxyContract = await importUSDProxy(network.id, network.preset);
+  const ClosePositionContract = await importClosePosition(network.id, network.preset).catch(
+    () => undefined
+  );
   const PythERC7412Wrapper = await importPythERC7412Wrapper(network.id, network.preset);
   const PythVerfier = await importPythVerfier(network.id, network.preset);
-  const AllInterface = new ethers.utils.Interface([
-    ...CoryProxyContract.abi,
-    ...PythERC7412Wrapper.abi,
-    ...PythVerfier.abi,
-  ]);
+  const AllInterface = new ethers.utils.Interface(
+    Array.from(
+      new Set([
+        ...CoryProxyContract.abi,
+        ...AccountProxyContract.abi,
+        ...USDProxyContract.abi,
+        ...(ClosePositionContract ? ClosePositionContract.abi : []),
+        ...PythERC7412Wrapper.abi,
+        ...PythVerfier.abi,
+      ])
+    )
+  );
   console.log(
     `[${label}] calls`,
     calls.map(({ data, value, ...rest }) => {
@@ -246,6 +256,12 @@ export const withERC7412 = async (
   }
 
   const AllErrorsContract = await importAllErrors(network.id, network.preset);
+  const ClosePositionContract = await importClosePosition(network.id, network.preset).catch(
+    () => undefined
+  );
+  if (ClosePositionContract) {
+    ClosePositionContract.abi.forEach((line) => AllErrorsContract.abi.push(line));
+  }
   const PythVerfier = await importPythVerfier(network.id, network.preset);
 
   while (true) {

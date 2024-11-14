@@ -1,6 +1,7 @@
-import { Button, Flex, Text } from '@chakra-ui/react';
+import { Button, Flex, Link, Text } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
+import { ZEROWEI } from '@snx-v3/constants';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
@@ -12,7 +13,6 @@ import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { wei } from '@synthetixio/wei';
 import { useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import { ZEROWEI } from '@snx-v3/constants';
 import { TokenIcon } from '../TokenIcon';
 import { RepayAllDebt } from './';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
@@ -55,23 +55,25 @@ export const Repay = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosi
           </BorderBox>
           <Flex fontSize="12px" gap="1">
             <Flex gap="1" mr="3" cursor="pointer">
-              <Text>Debt:</Text>
               <Text display="flex" alignItems="center">
-                $<Amount value={currentDebt} data-cy="current debt" />
+                <Amount prefix="Debt: $" value={currentDebt} data-cy="current debt" />
                 {currentDebt?.gt(0) && (
-                  <Text
-                    cursor="pointer"
-                    onClick={() => {
-                      if (!currentDebt) {
-                        return;
-                      }
-                      setDebtChange(currentDebt.neg());
-                    }}
-                    color="cyan.500"
-                    fontWeight={700}
-                  >
-                    &nbsp;Max
-                  </Text>
+                  <>
+                    &nbsp;
+                    <Link
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (!currentDebt) {
+                          return;
+                        }
+                        setDebtChange(currentDebt.neg());
+                      }}
+                      color="cyan.500"
+                      fontWeight={700}
+                    >
+                      Max
+                    </Link>
+                  </>
                 )}
               </Text>
             </Flex>

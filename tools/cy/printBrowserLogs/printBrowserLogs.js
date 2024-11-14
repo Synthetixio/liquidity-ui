@@ -1,33 +1,31 @@
 const CDP = require('chrome-remote-interface');
 const util = require('util');
+util.inspect.defaultOptions.breakLength = Infinity;
+util.inspect.defaultOptions.depth = Infinity;
+util.inspect.defaultOptions.maxArrayLength = Infinity;
+util.inspect.defaultOptions.maxStringLength = Infinity;
+util.inspect.defaultOptions.numericSeparator = true;
+util.inspect.defaultOptions.colors = true;
+util.inspect.defaultOptions.compact = true;
 
 function log(params) {
   if (params.type === 'debug') {
     return;
   }
+  console.log('\n');
 
   if (params.entry) {
     delete params.entry.stackTrace;
-    console.log(
-      util.inspect(params.entry, {
-        compact: true,
-        breakLength: Infinity,
-      })
-    );
+    console.log(params.entry);
     return;
   }
   const props = params?.args?.[0]?.preview?.properties;
   if (props) {
-    console.log(
-      util.inspect(Object.fromEntries(props.map(({ name, value }) => [name, value])), {
-        compact: true,
-        breakLength: Infinity,
-      })
-    );
+    console.log(Object.fromEntries(props.map(({ name, value }) => [name, value])));
     return;
   }
   delete params.stackTrace;
-  console.log(util.inspect(params, { compact: true, breakLength: Infinity }));
+  console.log(params);
 }
 
 function isChrome(browser) {

@@ -1,32 +1,75 @@
 import { ArrowBackIcon } from '@chakra-ui/icons';
-import { Button, Divider, Flex, Text } from '@chakra-ui/react';
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Button,
+  Collapse,
+  Divider,
+  Flex,
+  Text,
+} from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
+import { ZEROWEI } from '@snx-v3/constants';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
-import { useNetwork } from '@snx-v3/useBlockchain';
+import { useNetwork, useProvider } from '@snx-v3/useBlockchain';
+import { useClosePosition } from '@snx-v3/useClosePosition';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { useParams } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
+import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import Wei from '@synthetixio/wei';
-import { FC, useContext, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { ZEROWEI } from '@snx-v3/constants';
+import React from 'react';
 import { TokenIcon } from '../TokenIcon';
+import { ClosePositionOneStep } from './ClosePositionOneStep';
 import { ClosePositionTransactions } from './ClosePositionTransactions';
+import { useAccountAvailableCollateral } from './useAccountAvailableCollateral';
+import { usePositionDebt } from './usePositionDebt';
 
-const ClosePositionUi: FC<{
+function ClosePositionUi({
+  onSubmit,
+  debt,
+  collateralAmount,
+  collateralSymbol,
+  onClose,
+  debtSymbol,
+}: {
   debt: Wei;
   collateralAmount: Wei;
   onClose: () => void;
   onSubmit: () => void;
   debtSymbol?: string;
   collateralSymbol: string;
-}> = ({ onSubmit, debt, collateralAmount, collateralSymbol, onClose, debtSymbol }) => {
+}) {
+  const params = useParams();
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
+  const { data: systemToken } = useSystemToken();
+  const provider = useProvider();
+  const { data: positionDebt, isPending: isPendingPositionDebt } = usePositionDebt({
+    provider,
+    accountId: params.accountId,
+    poolId: params.poolId,
+    collateralTypeTokenAddress: collateralType?.tokenAddress,
+  });
+  const { data: systemTokenBalance, isPending: isPendingSystemTokenBalance } = useTokenBalance(
+    systemToken?.address
+  );
+  const { data: accountAvailableCollateral, isPending: isPendingAccountAvailableCollateral } =
+    useAccountAvailableCollateral({
+      provider,
+      accountId: params.accountId,
+      collateralTypeTokenAddress: systemToken?.address,
+    });
+
   const debtPrice = useTokenPrice(debtSymbol);
   const collateralPrice = useTokenPrice(collateralSymbol);
+
+  const { data: ClosePositionDeployment } = useClosePosition();
 
   return (
     <Flex flexDirection="column">
@@ -50,8 +93,7 @@ const ClosePositionUi: FC<{
               </Text>
             </BorderBox>
             <Flex fontSize="12px" gap="1" mr="3">
-              <Text>{debt.gt(0) ? 'Debt:' : 'Max Claim'}</Text>
-              <Amount value={debt.abs()} />
+              <Amount prefix={debt.gt(0) ? 'Debt: ' : 'Max Claim: '} value={debt.abs()} />
               <Text ml={0.5} color="gray.600" fontWeight={700}>
                 Max
               </Text>
@@ -79,8 +121,7 @@ const ClosePositionUi: FC<{
               </Text>
             </BorderBox>
             <Flex fontSize="12px" gap="1" mr="3">
-              <Text>Locked:</Text>
-              <Amount value={collateralAmount} />
+              <Amount prefix="Locked: " value={collateralAmount} />
               <Text ml={0.5} color="gray.600" fontWeight={700}>
                 Max
               </Text>
@@ -96,12 +137,60 @@ const ClosePositionUi: FC<{
           </Flex>
         </Flex>
       </BorderBox>
-      <Button onClick={onSubmit} type="submit">
+
+      <Collapse
+        in={
+          // Deployments that do not have ClosePosition contract available should skip this check
+          ClosePositionDeployment &&
+          systemTokenBalance &&
+          positionDebt &&
+          accountAvailableCollateral &&
+          !systemTokenBalance.add(accountAvailableCollateral).gte(positionDebt)
+        }
+        animateOpacity
+      >
+        <Alert mb={6} status="error" borderRadius="6px">
+          <AlertIcon />
+          <AlertDescription>
+            <Text>You do not have enough {systemToken?.symbol} to repay debt</Text>
+            <Text>
+              <Amount
+                prefix="Available: "
+                value={
+                  systemTokenBalance &&
+                  accountAvailableCollateral &&
+                  systemTokenBalance.add(accountAvailableCollateral)
+                }
+                suffix={` ${systemToken?.symbol}`}
+              />
+            </Text>
+          </AlertDescription>
+        </Alert>
+      </Collapse>
+
+      <Button
+        data-cy="close position submit"
+        onClick={onSubmit}
+        type="submit"
+        isDisabled={
+          // Deployments that do not have ClosePosition contract available should skip this check
+          ClosePositionDeployment &&
+          !(
+            !isPendingPositionDebt &&
+            !isPendingSystemTokenBalance &&
+            !isPendingAccountAvailableCollateral &&
+            systemTokenBalance &&
+            accountAvailableCollateral &&
+            positionDebt &&
+            systemTokenBalance.add(accountAvailableCollateral).gte(positionDebt)
+          )
+        }
+      >
         Close Position
       </Button>
     </Flex>
   );
-};
+}
 
 export const ClosePosition = ({
   liquidityPosition,
@@ -110,15 +199,15 @@ export const ClosePosition = ({
   liquidityPosition?: LiquidityPosition;
   onClose: () => void;
 }) => {
-  const [transactionStep, setTransactions] = useState(false);
-  const { setCollateralChange, setDebtChange } = useContext(ManagePositionContext);
+  const [transactionStep, setTransactions] = React.useState(false);
+  const { setCollateralChange, setDebtChange } = React.useContext(ManagePositionContext);
   const params = useParams();
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { network } = useNetwork();
   const isBase = isBaseAndromeda(network?.id, network?.preset);
   const { data: systemToken } = useSystemToken();
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (liquidityPosition) {
       setDebtChange(liquidityPosition.debt.mul(-1));
       setCollateralChange(liquidityPosition.collateralAmount.mul(-1));
@@ -130,13 +219,15 @@ export const ClosePosition = ({
     };
   }, [liquidityPosition, setCollateralChange, setDebtChange]);
 
+  const { data: ClosePositionDeployment } = useClosePosition();
+
   if (!collateralType) {
     return null;
   }
 
   return (
     <>
-      {!transactionStep && (
+      {!transactionStep ? (
         <ClosePositionUi
           debt={liquidityPosition?.debt || ZEROWEI}
           collateralAmount={liquidityPosition?.collateralAmount || ZEROWEI}
@@ -145,8 +236,8 @@ export const ClosePosition = ({
           collateralSymbol={collateralType.displaySymbol}
           onSubmit={() => setTransactions(true)}
         />
-      )}
-      {transactionStep && (
+      ) : null}
+      {transactionStep && !ClosePositionDeployment ? (
         <ClosePositionTransactions
           onBack={() => setTransactions(false)}
           onClose={onClose}
@@ -154,7 +245,10 @@ export const ClosePosition = ({
           liquidityPosition={liquidityPosition}
           poolId={params.poolId}
         />
-      )}
+      ) : null}
+      {transactionStep && ClosePositionDeployment ? (
+        <ClosePositionOneStep onBack={() => setTransactions(false)} onClose={onClose} />
+      ) : null}
     </>
   );
 };

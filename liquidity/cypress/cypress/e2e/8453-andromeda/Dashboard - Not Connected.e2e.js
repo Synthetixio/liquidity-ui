@@ -1,14 +1,3 @@
-before(() => {
-  cy.task('evmSnapshot').then((snapshot) => {
-    cy.wrap(snapshot).as('snapshot');
-  });
-});
-after(() => {
-  cy.get('@snapshot').then(async (snapshot) => {
-    cy.task('evmRevert', snapshot);
-  });
-});
-
 it('Dashboard - Not Connected', () => {
   cy.viewport(1000, 1200);
   cy.visit('/#/dashboard');

@@ -1,12 +1,12 @@
 import { parseUnits } from '@snx-v3/format';
-import { getRepayerContract, USDC_BASE_MARKET } from '@snx-v3/isBaseAndromeda';
+import { USDC_BASE_MARKET } from '@snx-v3/isBaseAndromeda';
 import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useApprove } from '@snx-v3/useApprove';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
-import { DEBT_REPAYER_ABI } from '@snx-v3/useClearDebt';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
+import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
@@ -16,8 +16,8 @@ import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import Wei, { wei } from '@synthetixio/wei';
 import { useMutation } from '@tanstack/react-query';
-import { BigNumber, Contract, ethers, PopulatedTransaction } from 'ethers';
-import { useReducer } from 'react';
+import { ethers } from 'ethers';
+import React from 'react';
 
 export const useUndelegateBaseAndromeda = ({
   accountId,
@@ -34,7 +34,7 @@ export const useUndelegateBaseAndromeda = ({
   collateralChange: Wei;
   liquidityPosition?: LiquidityPosition;
 }) => {
-  const [txnState, dispatch] = useReducer(reducer, initialState);
+  const [txnState, dispatch] = React.useReducer(reducer, initialState);
   const { data: CoreProxy } = useCoreProxy();
   const { data: SpotMarketProxy } = useSpotMarketProxy();
   const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
@@ -48,11 +48,12 @@ export const useUndelegateBaseAndromeda = ({
   const debtExists = liquidityPosition?.debt.gt(0);
   const currentDebt = debtExists && liquidityPosition ? liquidityPosition.debt : wei(0);
 
+  const { data: DebtRepayer } = useDebtRepayer();
   const { approve, requireApproval } = useApprove({
     contractAddress: usdTokens?.USDC,
     //slippage for approval
     amount: parseUnits(currentDebt.toString(), 6).mul(110).div(100),
-    spender: getRepayerContract(network?.id),
+    spender: DebtRepayer?.address,
   });
 
   const mutation = useMutation({
@@ -68,33 +69,38 @@ export const useUndelegateBaseAndromeda = ({
           await approve(false);
         }
 
-        const transactions: Promise<PopulatedTransaction>[] = [];
+        const transactions: Promise<ethers.PopulatedTransaction>[] = [];
 
-        const Repayer = new Contract(getRepayerContract(network.id), DEBT_REPAYER_ABI, signer);
-
-        const depositDebtToRepay = Repayer.populateTransaction.depositDebtToRepay(
-          CoreProxy.address,
-          SpotMarketProxy.address,
-          accountId,
-          poolId,
-          collateralTypeAddress,
-          USDC_BASE_MARKET
-        );
-        transactions.push(depositDebtToRepay);
+        if (DebtRepayer) {
+          const DebtRepayerContract = new ethers.Contract(
+            DebtRepayer.address,
+            DebtRepayer.abi,
+            signer
+          );
+          const depositDebtToRepay = DebtRepayerContract.populateTransaction.depositDebtToRepay(
+            CoreProxy.address,
+            SpotMarketProxy.address,
+            accountId,
+            poolId,
+            collateralTypeAddress,
+            USDC_BASE_MARKET
+          );
+          transactions.push(depositDebtToRepay);
+        }
 
         const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
 
         const burn = CoreProxyContract.populateTransaction.burnUsd(
-          BigNumber.from(accountId),
-          BigNumber.from(poolId),
+          ethers.BigNumber.from(accountId),
+          ethers.BigNumber.from(poolId),
           collateralTypeAddress,
           currentDebt.abs().mul(10).toBN()
         );
         transactions.push(burn);
 
         const populatedTxnPromised = CoreProxyContract.populateTransaction.delegateCollateral(
-          BigNumber.from(accountId),
-          BigNumber.from(poolId),
+          ethers.BigNumber.from(accountId),
+          ethers.BigNumber.from(poolId),
           collateralTypeAddress,
           currentCollateral.add(collateralChange).toBN(),
           wei(1).toBN()

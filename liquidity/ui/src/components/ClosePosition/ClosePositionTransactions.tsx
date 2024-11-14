@@ -1,9 +1,10 @@
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import { Button, Divider, Flex, Link, Skeleton, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
+import { ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
 import { parseUnits } from '@snx-v3/format';
-import { getRepayerContract, getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
 import { useApprove } from '@snx-v3/useApprove';
@@ -12,6 +13,8 @@ import { useBorrow } from '@snx-v3/useBorrow';
 import { CollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
+import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
+import { useClosePosition } from '@snx-v3/useClosePosition';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { useRepay } from '@snx-v3/useRepay';
@@ -21,7 +24,6 @@ import { useUndelegate } from '@snx-v3/useUndelegate';
 import { useUndelegateBaseAndromeda } from '@snx-v3/useUndelegateBaseAndromeda';
 import { useQueryClient } from '@tanstack/react-query';
 import { FC, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
-import { ZEROWEI } from '@snx-v3/constants';
 import { LiquidityPositionUpdated } from '../Manage/LiquidityPositionUpdated';
 
 export const ClosePositionTransactions: FC<{
@@ -88,19 +90,23 @@ export const ClosePositionTransactions: FC<{
     currentCollateral: liquidityPosition?.collateralAmount || ZEROWEI,
   });
 
-  //repay approval for base
+  const { data: DebtRepayer } = useDebtRepayer();
+  const { data: ClosePositionContract } = useClosePosition();
+
+  // repay approval for base
   const {
     approve: approveUSDC,
     requireApproval: requireApprovalUSDC,
     isLoading,
   } = useApprove({
     contractAddress: wrapperToken,
-    //slippage for approval
+    // slippage for approval
     amount: parseUnits(liquidityPosition?.debt.abs().toString(), 6)
       .mul(110)
       .div(100),
-    spender: getRepayerContract(network?.id),
+    spender: DebtRepayer?.address,
   });
+
   const { exec: undelegateBaseAndromeda } = useUndelegateBaseAndromeda({
     accountId: liquidityPosition?.accountId,
     poolId: poolId,
@@ -124,6 +130,12 @@ export const ClosePositionTransactions: FC<{
       subtitle?: ReactNode;
       cb: () => Promise<any>;
     }[] = [];
+
+    if (ClosePositionContract) {
+      // TODO: one step close
+      // console.log(`ClosePositionContract`, ClosePositionContract);
+    }
+
     if (!isBase) {
       if (liquidityPosition?.debt.gt(0)) {
         if (requireApproval) {
@@ -135,10 +147,11 @@ export const ClosePositionTransactions: FC<{
         transactions.push({
           title: 'Repay',
           subtitle: (
-            <Text>
-              Repay{' '}
-              <Amount value={liquidityPosition?.debt.abs()} suffix={` ${systemToken?.symbol}`} />
-            </Text>
+            <Amount
+              prefix="Repay "
+              value={liquidityPosition?.debt.abs()}
+              suffix={` ${systemToken?.symbol}`}
+            />
           ),
           cb: () => execRepay(),
         });
@@ -146,10 +159,11 @@ export const ClosePositionTransactions: FC<{
         transactions.push({
           title: 'Claim',
           subtitle: (
-            <Text>
-              Claim{' '}
-              <Amount value={liquidityPosition?.debt.abs()} suffix={` ${systemToken?.symbol}`} />
-            </Text>
+            <Amount
+              prefix="Claim "
+              value={liquidityPosition?.debt.abs()}
+              suffix={` ${systemToken?.symbol}`}
+            />
           ),
           cb: () => execBorrow(),
         });
@@ -158,13 +172,10 @@ export const ClosePositionTransactions: FC<{
       transactions.push({
         title: 'Unlock collateral',
         subtitle: (
-          <Text as="div">
-            <Amount
-              value={liquidityPosition?.collateralAmount || ZEROWEI}
-              suffix={` ${collateralSymbol}`}
-            />{' '}
-            will be unlocked from the pool.
-          </Text>
+          <Amount
+            value={liquidityPosition?.collateralAmount || ZEROWEI}
+            suffix={` ${collateralSymbol} will be unlocked from the pool.`}
+          />
         ),
         cb: () => undelegate(),
       });
@@ -181,13 +192,10 @@ export const ClosePositionTransactions: FC<{
       transactions.push({
         title: 'Unlock collateral',
         subtitle: (
-          <Text as="div">
-            <Amount
-              value={liquidityPosition?.collateralAmount || ZEROWEI}
-              suffix={` ${collateralSymbol}`}
-            />{' '}
-            will be unlocked from the pool.
-          </Text>
+          <Amount
+            value={liquidityPosition?.collateralAmount || ZEROWEI}
+            suffix={` ${collateralSymbol} will be unlocked from the pool.`}
+          />
         ),
         cb: () => undelegateBaseAndromeda(),
       });
@@ -196,9 +204,11 @@ export const ClosePositionTransactions: FC<{
         transactions.push({
           title: 'Claim',
           subtitle: (
-            <Text>
-              Claim <Amount value={liquidityPosition?.debt.abs()} suffix={` ${debtSymbol}`} />
-            </Text>
+            <Amount
+              prefix="Claim "
+              value={liquidityPosition?.debt.abs()}
+              suffix={` ${debtSymbol}`}
+            />
           ),
           cb: () => execBorrow(),
         });
@@ -207,6 +217,7 @@ export const ClosePositionTransactions: FC<{
 
     return transactions;
   }, [
+    ClosePositionContract,
     approve,
     approveUSDC,
     collateralSymbol,
@@ -295,6 +306,7 @@ export const ClosePositionTransactions: FC<{
           'Please try again.'
         ),
         status: 'error',
+        duration: 3_600_000,
       });
       throw Error('Transaction failed', { cause: error });
     }
@@ -333,8 +345,8 @@ export const ClosePositionTransactions: FC<{
   }
 
   return (
-    <Flex flexDirection="column">
-      <Text color="gray.50" fontSize="sm" fontWeight="700">
+    <Flex flexDirection="column" data-cy="close position multistep">
+      <Text color="gray.50" fontSize="20px" fontWeight={700}>
         <ArrowBackIcon cursor="pointer" onClick={onBack} mr={2} />
         Close Position
       </Text>
@@ -356,7 +368,12 @@ export const ClosePositionTransactions: FC<{
         />
       ))}
 
-      <Button isLoading={txState.status === 'pending'} onClick={handleSubmit} mt="6">
+      <Button
+        data-cy="close position confirm button"
+        isLoading={txState.status === 'pending'}
+        onClick={handleSubmit}
+        mt="6"
+      >
         {(() => {
           switch (true) {
             case txState.status === 'error':
