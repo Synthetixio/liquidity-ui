@@ -22,7 +22,7 @@ contract ClosePositionE2e is Test {
     uint128 private constant positiveDebtSnxUserAccountId = 127052930719;
 
     uint256 private constant MAX_INT = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
-    uint256 private constant startingUSDXAmount = 1000 ** 18;
+    uint256 private constant startingUSDXAmount = 1000 * 10 ** 18;
 
     uint256 arbitrumMainnetFork;
     ClosePosition private closePosition;
@@ -56,6 +56,8 @@ contract ClosePositionE2e is Test {
         uint256 userCollateralValue;
         int256 userDebt;
         uint256 collateralizationRatio;
+        uint256 walletBalanceBefore = usdX.balanceOf(negativeDebtSnxUser);
+        uint256 depositedAmountBefore = coreProxy.getAccountAvailableCollateral(accountId, address(usdToken));
 
         (userCollateralAmount, userCollateralValue, userDebt, collateralizationRatio) =
             coreProxy.getPosition(negativeDebtSnxUserAccountId, poolId, USDC);
@@ -73,32 +75,34 @@ contract ClosePositionE2e is Test {
         assertEq(userCollateralValue, 0, "Collateral value should be 0");
         assertEq(userDebt, 0, "Debt should be 0");
         assertEq(collateralizationRatio, MAX_INT, "No Debt Collateral Ratio");
+        assertEq(usdX.balanceOf(negativeDebtSnxUser) - walletBalanceBefore, 0, "System USD Token should still be in account");
     }
 
     function test_closePosition_whenPositiveDebt_success() public {
         vm.startPrank(positiveDebtSnxUser);
-
         uint256 userCollateralAmount;
         uint256 userCollateralValue;
-        int256 userDebt;
+        int256 userDebtBefore;
+        int256 userDebtAfter;
         uint256 collateralizationRatio;
 
-        (userCollateralAmount, userCollateralValue, userDebt, collateralizationRatio) =
+        (userCollateralAmount, userCollateralValue, userDebtBefore, collateralizationRatio) =
             coreProxy.getPosition(positiveDebtSnxUserAccountId, poolId, ARB);
         assertGt(userCollateralAmount, 0, "Collateral amount should be greater than 0");
         assertGt(userCollateralValue, 0, "Collateral value should be greater than 0");
-        assertGt(userDebt, 0, "Debt value should be positive");
+        assertGt(userDebtBefore, 0, "Debt value should be positive");
         assertLt(collateralizationRatio, MAX_INT, "Collateral Ratio is not infinite");
 
         accountProxy.approve(address(closePosition), positiveDebtSnxUserAccountId);
         usdX.approve(address(closePosition), startingUSDXAmount);
         closePosition.closePosition(CORE_PROXY, ACCOUNT_PROXY, positiveDebtSnxUserAccountId, poolId, ARB);
 
-        (userCollateralAmount, userCollateralValue, userDebt, collateralizationRatio) =
+        (userCollateralAmount, userCollateralValue, userDebtAfter, collateralizationRatio) =
             coreProxy.getPosition(positiveDebtSnxUserAccountId, poolId, ARB);
         assertEq(userCollateralAmount, 0, "Collateral amount should be 0");
         assertEq(userCollateralValue, 0, "Collateral value should be 0");
-        assertEq(userDebt, 0, "Debt should be 0");
+        assertEq(userDebtAfter, 0, "Debt should be 0");
         assertEq(collateralizationRatio, MAX_INT, "No Debt Collateral Ratio");
+        assertEq(startingUSDXAmount - uint256(userDebtBefore), usdX.balanceOf(positiveDebtSnxUser), "DEBUGGING");
     }
 }
