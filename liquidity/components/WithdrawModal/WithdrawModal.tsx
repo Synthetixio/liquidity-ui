@@ -7,7 +7,7 @@ import { getWrappedStataUSDCOnBase, isBaseAndromeda } from '@snx-v3/isBaseAndrom
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
 import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
-import { useNetwork, useWallet } from '@snx-v3/useBlockchain';
+import { useDefaultProvider, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
@@ -19,7 +19,8 @@ import { useWithdraw } from '@snx-v3/useWithdraw';
 import { useWithdrawBaseAndromeda } from '@snx-v3/useWithdrawBaseAndromeda';
 import { Wei } from '@synthetixio/wei';
 import { useQueryClient } from '@tanstack/react-query';
-import React, { FC, useCallback, useContext, useState } from 'react';
+import { ethers } from 'ethers';
+import React, { FC, useContext, useState } from 'react';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
 
 export const WithdrawModalUi: FC<{
@@ -136,6 +137,7 @@ export function WithdrawModal({
     status: 'idle',
   });
 
+  const provider = useDefaultProvider();
   const { activeWallet } = useWallet();
   const params = useParams();
   const toast = useToast({ isClosable: true, duration: 9000 });
@@ -155,7 +157,7 @@ export function WithdrawModal({
   const { data: systemToken } = useSystemToken();
   const { data: systemTokenBalance } = useAccountCollateral(accountId, systemToken?.address);
 
-  const { data: stataUSDC } = useStaticAaveUSDC();
+  const { data: StaticAaveUSDC } = useStaticAaveUSDC();
 
   const { mutateAsync: unwrapStata } = useUnwrapStataUSDC();
 
@@ -176,8 +178,12 @@ export function WithdrawModal({
     collateralSymbol: params.collateralSymbol,
   });
 
-  const onSubmit = useCallback(async () => {
+  const onSubmit = async () => {
     try {
+      if (!(provider && StaticAaveUSDC)) {
+        throw new Error('Not ready');
+      }
+
       if (txState.status === 'success') {
         onClose();
       }
@@ -213,7 +219,13 @@ export function WithdrawModal({
           status: 'pending',
         });
 
-        const balance = await stataUSDC?.balanceOf(activeWallet?.address);
+        const StaticAaveUSDCContract = new ethers.Contract(
+          StaticAaveUSDC.address,
+          StaticAaveUSDC.abi,
+          provider
+        );
+
+        const balance = await StaticAaveUSDCContract.balanceOf(activeWallet?.address);
         await unwrapStata(balance);
 
         setTxState({
@@ -267,25 +279,7 @@ export function WithdrawModal({
       });
       throw Error('Withdraw failed', { cause: error });
     }
-  }, [
-    accountId,
-    activeWallet?.address,
-    isBase,
-    isStataUSDC,
-    errorParser,
-    network?.id,
-    network?.preset,
-    onClose,
-    queryClient,
-    setWithdrawAmount,
-    stataUSDC,
-    toast,
-    txState.status,
-    txState.step,
-    unwrapStata,
-    withdrawAndromeda,
-    withdrawMain,
-  ]);
+  };
 
   return (
     <WithdrawModalUi

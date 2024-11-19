@@ -542,10 +542,18 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
           await wrapUSDCToStataUSDC();
           await refetchStataUSDCBalance();
         } catch (error) {
+          const contractError = errorParser(error);
+          if (contractError) {
+            console.error(new Error(contractError.name), contractError);
+          }
           toast.closeAll();
           toast({
             title: 'Wrap USDC to StataUSDC failed',
-            description: 'Please try again.',
+            description: contractError ? (
+              <ContractError contractError={contractError} />
+            ) : (
+              'Please try again.'
+            ),
             status: 'error',
             variant: 'left-accent',
           });
