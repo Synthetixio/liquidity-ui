@@ -87,10 +87,36 @@ beforeEach(() => {
 });
 
 Cypress.Commands.add('connectWallet', () => {
-  //  const address = '0x0008e81f68bc3b7ca0888E684a6259AF86f77000';
-  //  const accountId = '777';
   const address = '0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345';
-  const accountId = '58655818123';
+
+  let accountId;
+  switch (`${Cypress.env('CHAIN_ID')}-${Cypress.env('PRESET')}`) {
+    case '1-main':
+      accountId = '777777';
+      break;
+    case '11155111-main':
+      accountId = '777777';
+      break;
+    case '10-main':
+      accountId = '58655818123';
+      break;
+    case '8453-andromeda':
+      accountId = '522433293696';
+      break;
+    case '84532-andromeda':
+      // does not exist but will create one
+      accountId = '522433293696';
+    case '42161-main':
+      accountId = '58655818123';
+      break;
+    case '421614-main':
+      accountId = '200489353353';
+      break;
+
+    default:
+      accountId = '777777';
+  }
+
   cy.on('window:before:load', (win) => {
     win.localStorage.setItem('MAGIC_WALLET', address);
   });
