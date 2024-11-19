@@ -28,8 +28,8 @@ it('Manage WETH Position - Deposit', () => {
     .should('exist')
     .and('include.text', 'Manage Collateral')
     .and('include.text', 'Approve WETH transfer')
-    .and('include.text', 'Deposit & Lock WETH')
-    .and('include.text', 'This will deposit and lock 1 WETH to Spartan Council Pool.');
+    .and('include.text', 'Deposit and Lock WETH')
+    .and('include.text', 'This will deposit and lock 1 WETH in Spartan Council Pool.');
 
   cy.get('[data-cy="deposit confirm button"]').should('include.text', 'Execute Transaction');
   cy.get('[data-cy="deposit confirm button"]').click();
@@ -54,7 +54,7 @@ it('Manage WETH Position - Deposit', () => {
   //    .should('exist')
   //    .and('include.text', 'Manage Collateral')
   //    .and('include.text', 'Approve WETH transfer')
-  //    .and('include.text', 'Deposit & Lock WETH')
+  //    .and('include.text', 'Deposit and Lock WETH')
   //    .and('include.text', 'This will deposit and lock 0.69 WETH to Spartan Council Pool.');
   //
   //  cy.get('[data-cy="deposit confirm button"]')

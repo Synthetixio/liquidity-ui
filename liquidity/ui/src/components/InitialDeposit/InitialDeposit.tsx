@@ -112,7 +112,7 @@ export const InitialDepositUi: FC<{
       {step === 0 && (
         <>
           <Text color="gray.50" fontSize="sm" fontWeight="700" mb={2}>
-            Deposit & Lock Collateral
+            Deposit and Lock Collateral
           </Text>
           <BorderBox display="flex" flexDirection="column" p={3} mb="6">
             <Flex alignItems="center">
@@ -239,7 +239,7 @@ export const InitialDepositUi: FC<{
             <Alert mb={6} status="error" borderRadius="6px">
               <AlertIcon />
               <AlertDescription>
-                You cannot Deposit & Lock more Collateral than your Balance amount
+                You cannot Deposit and Lock more Collateral than your Balance amount
               </AlertDescription>
             </Alert>
           </Collapse>
@@ -259,7 +259,7 @@ export const InitialDepositUi: FC<{
               overAvailableBalance
             }
           >
-            {collateralChange.lte(0) ? 'Enter Amount' : 'Deposit & Lock'}
+            {collateralChange.lte(0) ? 'Enter Amount' : 'Deposit and Lock'}
           </Button>
         </>
       )}

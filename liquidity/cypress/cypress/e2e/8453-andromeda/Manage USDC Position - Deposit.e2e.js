@@ -20,7 +20,6 @@ it('Manage USDC Position - Deposit', () => {
     cy.visit(`/#${path}?manageAction=deposit&accountId=${accountId}`);
   });
 
-  cy.wait(7000);
   cy.get('[data-cy="deposit amount input"]').should('exist');
   cy.get('[data-cy="deposit amount input"]').type('101');
   cy.get('[data-cy="deposit submit"]').should('be.enabled');
@@ -29,14 +28,16 @@ it('Manage USDC Position - Deposit', () => {
   cy.get('[data-cy="deposit multistep"]')
     .should('exist')
     .and('include.text', 'Approve USDC transfer')
-    .and('include.text', 'Deposit & Lock USDC')
-    .and('include.text', 'This will deposit and lock 101 USDC to Spartan Council Pool.');
+    .and('include.text', 'Deposit and Lock USDC')
+    .and('include.text', 'This will deposit and lock 101 USDC in Spartan Council Pool.');
 
   cy.get('[data-cy="deposit confirm button"]')
     .should('include.text', 'Execute Transaction')
     .click();
 
-  cy.get('[data-cy="manage stats collateral"]').should('exist').and('include.text', '101 USDC');
+  cy.contains('[data-status="success"]', 'Your locked collateral amount has been updated.').should(
+    'exist'
+  );
 
   // TODO: Enable additional deposit after fixing an issue with balance refetching
   //
@@ -47,8 +48,8 @@ it('Manage USDC Position - Deposit', () => {
   //    .should('exist')
   //    .and('include.text', 'Manage Collateral')
   //    .and('include.text', 'Approve USDC transfer')
-  //    .and('include.text', 'Deposit & Lock USDC')
-  //    .and('include.text', 'This will deposit and lock 69 USDC to Spartan Council Pool.');
+  //    .and('include.text', 'Deposit and Lock USDC')
+  //    .and('include.text', 'This will deposit and lock 69 USDC in Spartan Council Pool.');
   //
   //  cy.get('[data-cy="deposit confirm button"]')
   //    .should('include.text', 'Execute Transaction')

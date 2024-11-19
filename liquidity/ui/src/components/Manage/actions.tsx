@@ -1,6 +1,6 @@
 export const COLLATERALACTIONS = [
   {
-    title: 'Deposit & Lock',
+    title: 'Deposit and Lock',
     link: 'deposit',
     icon: (fill: 'white' | 'cyan') => (
       <svg

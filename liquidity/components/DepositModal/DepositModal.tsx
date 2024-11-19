@@ -198,10 +198,11 @@ export const DepositModalUi: FC<{
               step={4}
               title="Deposit and Lock Static aUSDC"
               subtitle={
-                <Text>
-                  This will deposit and lock{' '}
-                  <Amount value={collateralChange} suffix=" Static aUSDC" /> to {poolName}.
-                </Text>
+                <Amount
+                  prefix="This will deposit and lock "
+                  value={collateralChange}
+                  suffix={` Static aUSDC in ${poolName}.`}
+                />
               }
               status={{
                 failed: error?.step === State.deposit,
@@ -231,54 +232,49 @@ export const DepositModalUi: FC<{
             />
             <Multistep
               step={stepNumbers.deposit}
-              title={`Deposit & Lock ${symbol}`}
+              title={`Deposit and Lock ${symbol}`}
               subtitle={
                 <>
                   {state.matches(State.success) ? (
-                    <Text>
-                      <Amount value={collateralChange} suffix={` ${collateralType?.symbol}`} />{' '}
-                      deposited & locked in {poolName}.
-                    </Text>
+                    <Amount
+                      value={collateralChange}
+                      suffix={` ${collateralType?.symbol} deposited and locked in ${poolName}.`}
+                    />
                   ) : (
                     <>
                       {availableCollateral && availableCollateral.gt(ZEROWEI) ? (
                         <>
                           {availableCollateral.gte(collateralChange) ? (
-                            <Text>
-                              This will deposit & lock{' '}
-                              <Amount
-                                value={collateralChange}
-                                suffix={` ${collateralType?.symbol}`}
-                              />{' '}
-                              in {poolName}.
-                            </Text>
+                            <Amount
+                              prefix={`This will deposit and lock `}
+                              value={collateralChange}
+                              suffix={` ${collateralType?.symbol} in ${poolName}.`}
+                            />
                           ) : (
                             <>
                               <Text>
-                                This will deposit & lock{' '}
                                 <Amount
+                                  prefix={`This will deposit and lock `}
                                   value={availableCollateral}
-                                  suffix={` ${collateralType?.symbol}`}
-                                />{' '}
-                                to {poolName}.
+                                  suffix={` ${collateralType?.symbol} in ${poolName}.`}
+                                />
                               </Text>
                               <Text>
-                                An additional{' '}
                                 <Amount
+                                  prefix={`An additional `}
                                   value={collateralChange.sub(availableCollateral)}
-                                  suffix={` ${collateralType?.symbol}`}
-                                />{' '}
-                                will be deposited and locked from your wallet.
+                                  suffix={` ${collateralType?.symbol} will be deposited and locked from your wallet.`}
+                                />
                               </Text>
                             </>
                           )}
                         </>
                       ) : (
-                        <Text>
-                          This will deposit and lock{' '}
-                          <Amount value={collateralChange} suffix={` ${collateralType?.symbol}`} />{' '}
-                          to {poolName}.
-                        </Text>
+                        <Amount
+                          prefix={`This will deposit and lock `}
+                          value={collateralChange}
+                          suffix={` ${collateralType?.symbol} in ${poolName}.`}
+                        />
                       )}
                     </>
                   )}
