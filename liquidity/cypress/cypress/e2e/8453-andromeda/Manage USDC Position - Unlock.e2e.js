@@ -1,16 +1,5 @@
 import { generatePath } from 'react-router-dom';
 
-before(() => {
-  cy.task('evmSnapshot').then((snapshot) => {
-    cy.wrap(snapshot).as('snapshot');
-  });
-});
-after(() => {
-  cy.get('@snapshot').then(async (snapshot) => {
-    cy.task('evmRevert', snapshot);
-  });
-});
-
 it('should be able to unlock USDC collateral after depositing', () => {
   cy.connectWallet().then(({ address, accountId }) => {
     cy.wrap(address).as('wallet');
