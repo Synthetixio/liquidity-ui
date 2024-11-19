@@ -5058,6 +5058,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/debt-manager-base-andromeda@workspace:contracts/debt-manager-base-andromeda":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/debt-manager-base-andromeda@workspace:contracts/debt-manager-base-andromeda"
+  dependencies:
+    forge-std: "github:foundry-rs/forge-std"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/debt-repayer-base-andromeda@workspace:contracts/debt-repayer-base-andromeda":
   version: 0.0.0-use.local
   resolution: "@snx-v3/debt-repayer-base-andromeda@workspace:contracts/debt-repayer-base-andromeda"
