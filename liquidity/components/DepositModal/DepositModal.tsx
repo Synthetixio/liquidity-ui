@@ -35,7 +35,7 @@ import { useConvertStataUSDC } from '@snx-v3/useConvertStataUSDC';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
 import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
-import { useUSDC } from '../../lib/useUSDC';
+import { useUSDC } from '@snx-v3/useUSDC';
 import { useSynthTokens } from '@snx-v3/useSynthTokens';
 
 export const DepositModalUi: FC<{
@@ -71,252 +71,252 @@ export const DepositModalUi: FC<{
   networkId,
   symbol,
 }) => {
-    const wrapAmount = state.context.wrapAmount;
-    const infiniteApproval = state.context.infiniteApproval;
-    const requireApproval = state.context.requireApproval;
-    const error = state.context.error;
-    const isProcessing =
-      state.matches(State.approveCollateral) ||
-      state.matches(State.deposit) ||
-      state.matches(State.wrap);
+  const wrapAmount = state.context.wrapAmount;
+  const infiniteApproval = state.context.infiniteApproval;
+  const requireApproval = state.context.requireApproval;
+  const error = state.context.error;
+  const isProcessing =
+    state.matches(State.approveCollateral) ||
+    state.matches(State.deposit) ||
+    state.matches(State.wrap);
 
-    const isWETH = collateralType?.symbol === 'WETH';
-    const isStataUSDC =
-      collateralType?.tokenAddress.toLowerCase() ===
-      getWrappedStataUSDCOnBase(networkId).toLowerCase();
+  const isWETH = collateralType?.symbol === 'WETH';
+  const isStataUSDC =
+    collateralType?.tokenAddress.toLowerCase() ===
+    getWrappedStataUSDCOnBase(networkId).toLowerCase();
 
-    const stepNumbers = {
-      wrap: isWETH ? 1 : 0,
-      approve: isWETH ? 2 : 1,
-      deposit: isWETH ? 3 : 2,
-    };
+  const stepNumbers = {
+    wrap: isWETH ? 1 : 0,
+    approve: isWETH ? 2 : 1,
+    deposit: isWETH ? 3 : 2,
+  };
 
-    if (isOpen) {
-      if (state.matches(State.success)) {
-        return (
-          <LiquidityPositionUpdated
-            onClose={onSubmit}
-            title="Collateral successfully Updated"
-            subline={
-              <>
-                Your <b>Collateral</b> has been updated, read more about it in the{' '}
-                <Link
-                  href="https://docs.synthetix.io/v/synthetix-v3-user-documentation"
-                  target="_blank"
-                  color="cyan.500"
-                >
-                  Synthetix V3 Documentation
-                </Link>
-              </>
-            }
-            alertText={
-              <>
-                <b>Collateral</b> successfully Updated
-              </>
-            }
-            summary={txSummary}
-          />
-        );
-      }
-
+  if (isOpen) {
+    if (state.matches(State.success)) {
       return (
-        <div data-cy="deposit multistep">
-          <Text color="gray.50" fontSize="20px" fontWeight={700}>
-            <ArrowBackIcon cursor="pointer" onClick={onClose} mr={2} />
-            {title}
-          </Text>
-          <Divider my={4} />
-          {isWETH ? (
+        <LiquidityPositionUpdated
+          onClose={onSubmit}
+          title="Collateral successfully Updated"
+          subline={
+            <>
+              Your <b>Collateral</b> has been updated, read more about it in the{' '}
+              <Link
+                href="https://docs.synthetix.io/v/synthetix-v3-user-documentation"
+                target="_blank"
+                color="cyan.500"
+              >
+                Synthetix V3 Documentation
+              </Link>
+            </>
+          }
+          alertText={
+            <>
+              <b>Collateral</b> successfully Updated
+            </>
+          }
+          summary={txSummary}
+        />
+      );
+    }
+
+    return (
+      <div data-cy="deposit multistep">
+        <Text color="gray.50" fontSize="20px" fontWeight={700}>
+          <ArrowBackIcon cursor="pointer" onClick={onClose} mr={2} />
+          {title}
+        </Text>
+        <Divider my={4} />
+        {isWETH ? (
+          <Multistep
+            step={stepNumbers.wrap}
+            title="Wrap"
+            subtitle={
+              wrapAmount.eq(0) ? (
+                <Text as="div">
+                  <Amount value={collateralChange} suffix={` ${collateralType?.symbol}`} /> from
+                  balance will be used.
+                </Text>
+              ) : (
+                <Text as="div">
+                  You must wrap additional <Amount value={wrapAmount} suffix=" ETH" /> before
+                  depositing.
+                </Text>
+              )
+            }
+            status={{
+              failed: error?.step === State.wrap,
+              disabled: collateralType?.symbol !== 'WETH',
+              success: wrapAmount.eq(0) || state.matches(State.success),
+              loading: state.matches(State.wrap) && !error,
+            }}
+          />
+        ) : null}
+
+        {isStataUSDC ? (
+          <>
             <Multistep
-              step={stepNumbers.wrap}
-              title="Wrap"
-              subtitle={
-                wrapAmount.eq(0) ? (
-                  <Text as="div">
-                    <Amount value={collateralChange} suffix={` ${collateralType?.symbol}`} /> from
-                    balance will be used.
-                  </Text>
-                ) : (
-                  <Text as="div">
-                    You must wrap additional <Amount value={wrapAmount} suffix=" ETH" /> before
-                    depositing.
-                  </Text>
-                )
-              }
+              step={1}
+              title="Approve USDC transfer"
               status={{
-                failed: error?.step === State.wrap,
-                disabled: collateralType?.symbol !== 'WETH',
-                success: wrapAmount.eq(0) || state.matches(State.success),
-                loading: state.matches(State.wrap) && !error,
+                failed: error?.step === State.approveUSDCForStata,
+                success: !requireUSDCApprovalForStata || state.matches(State.success),
+                loading: state.matches(State.approveUSDCForStata) && !error,
+              }}
+              checkboxLabel={requireUSDCApprovalForStata ? `Approve unlimited USDC` : undefined}
+              checkboxProps={{
+                isChecked: infiniteApproval,
+                onChange: (e) => setInfiniteApproval(e.target.checked),
               }}
             />
-          ) : null}
-
-          {isStataUSDC ? (
-            <>
-              <Multistep
-                step={1}
-                title="Approve USDC transfer"
-                status={{
-                  failed: error?.step === State.approveUSDCForStata,
-                  success: !requireUSDCApprovalForStata || state.matches(State.success),
-                  loading: state.matches(State.approveUSDCForStata) && !error,
-                }}
-                checkboxLabel={requireUSDCApprovalForStata ? `Approve unlimited USDC` : undefined}
-                checkboxProps={{
-                  isChecked: infiniteApproval,
-                  onChange: (e) => setInfiniteApproval(e.target.checked),
-                }}
-              />
-              <Multistep
-                step={2}
-                title="Wrap USDC into Static aUSDC"
-                subtitle={<Text>This will wrap your USDC into Static aUSDC to be deposited</Text>}
-                status={{
-                  failed: error?.step === State.wrapUSDC,
-                  disabled: state.matches(State.success) && requireApproval,
-                  success:
-                    hasEnoughStataUSDC ||
-                    state.matches(State.approveCollateral) ||
-                    state.matches(State.deposit) ||
-                    state.matches(State.success),
-                  loading: state.matches(State.wrapUSDC) && !error,
-                }}
-              />
-              <Multistep
-                step={3}
-                title="Approve Static aUSDC transfer"
-                subtitle={<Text>You must approve your Static aUSDC transfer before depositing.</Text>}
-                status={{
-                  failed: error?.step === State.approveCollateral,
-                  disabled: state.matches(State.success) && requireApproval,
-                  success: !requireApproval || state.matches(State.success),
-                  loading: state.matches(State.approveCollateral) && !error,
-                }}
-              />
-              <Multistep
-                step={4}
-                title="Deposit and Lock Static aUSDC"
-                subtitle={
-                  <Text>
-                    This will deposit and lock{' '}
-                    <Amount value={collateralChange} suffix=" Static aUSDC" /> to {poolName}.
-                  </Text>
-                }
-                status={{
-                  failed: error?.step === State.deposit,
-                  disabled: state.matches(State.success) && requireApproval,
-                  success: state.matches(State.success),
-                  loading: state.matches(State.deposit) && !error,
-                }}
-              />
-            </>
-          ) : (
-            <>
-              <Multistep
-                step={stepNumbers.approve}
-                title={`Approve ${symbol} to transfer`}
-                status={{
-                  failed: error?.step === State.approveCollateral,
-                  success: !requireApproval || state.matches(State.success),
-                  loading: state.matches(State.approveCollateral) && !error,
-                }}
-                checkboxLabel={
-                  requireApproval ? `Approve unlimited ${symbol} transfers to Synthetix` : undefined
-                }
-                checkboxProps={{
-                  isChecked: infiniteApproval,
-                  onChange: (e) => setInfiniteApproval(e.target.checked),
-                }}
-              />
-              <Multistep
-                step={stepNumbers.deposit}
-                title={`Deposit & Lock ${symbol}`}
-                subtitle={
-                  <>
-                    {state.matches(State.success) ? (
-                      <Text>
-                        <Amount value={collateralChange} suffix={` ${collateralType?.symbol}`} />{' '}
-                        deposited & locked in {poolName}.
-                      </Text>
-                    ) : (
-                      <>
-                        {availableCollateral && availableCollateral.gt(ZEROWEI) ? (
-                          <>
-                            {availableCollateral.gte(collateralChange) ? (
+            <Multistep
+              step={2}
+              title="Wrap USDC into Static aUSDC"
+              subtitle={<Text>This will wrap your USDC into Static aUSDC to be deposited</Text>}
+              status={{
+                failed: error?.step === State.wrapUSDC,
+                disabled: state.matches(State.success) && requireApproval,
+                success:
+                  hasEnoughStataUSDC ||
+                  state.matches(State.approveCollateral) ||
+                  state.matches(State.deposit) ||
+                  state.matches(State.success),
+                loading: state.matches(State.wrapUSDC) && !error,
+              }}
+            />
+            <Multistep
+              step={3}
+              title="Approve Static aUSDC transfer"
+              subtitle={<Text>You must approve your Static aUSDC transfer before depositing.</Text>}
+              status={{
+                failed: error?.step === State.approveCollateral,
+                disabled: state.matches(State.success) && requireApproval,
+                success: !requireApproval || state.matches(State.success),
+                loading: state.matches(State.approveCollateral) && !error,
+              }}
+            />
+            <Multistep
+              step={4}
+              title="Deposit and Lock Static aUSDC"
+              subtitle={
+                <Text>
+                  This will deposit and lock{' '}
+                  <Amount value={collateralChange} suffix=" Static aUSDC" /> to {poolName}.
+                </Text>
+              }
+              status={{
+                failed: error?.step === State.deposit,
+                disabled: state.matches(State.success) && requireApproval,
+                success: state.matches(State.success),
+                loading: state.matches(State.deposit) && !error,
+              }}
+            />
+          </>
+        ) : (
+          <>
+            <Multistep
+              step={stepNumbers.approve}
+              title={`Approve ${symbol} to transfer`}
+              status={{
+                failed: error?.step === State.approveCollateral,
+                success: !requireApproval || state.matches(State.success),
+                loading: state.matches(State.approveCollateral) && !error,
+              }}
+              checkboxLabel={
+                requireApproval ? `Approve unlimited ${symbol} transfers to Synthetix` : undefined
+              }
+              checkboxProps={{
+                isChecked: infiniteApproval,
+                onChange: (e) => setInfiniteApproval(e.target.checked),
+              }}
+            />
+            <Multistep
+              step={stepNumbers.deposit}
+              title={`Deposit & Lock ${symbol}`}
+              subtitle={
+                <>
+                  {state.matches(State.success) ? (
+                    <Text>
+                      <Amount value={collateralChange} suffix={` ${collateralType?.symbol}`} />{' '}
+                      deposited & locked in {poolName}.
+                    </Text>
+                  ) : (
+                    <>
+                      {availableCollateral && availableCollateral.gt(ZEROWEI) ? (
+                        <>
+                          {availableCollateral.gte(collateralChange) ? (
+                            <Text>
+                              This will deposit & lock{' '}
+                              <Amount
+                                value={collateralChange}
+                                suffix={` ${collateralType?.symbol}`}
+                              />{' '}
+                              in {poolName}.
+                            </Text>
+                          ) : (
+                            <>
                               <Text>
                                 This will deposit & lock{' '}
                                 <Amount
-                                  value={collateralChange}
+                                  value={availableCollateral}
                                   suffix={` ${collateralType?.symbol}`}
                                 />{' '}
-                                in {poolName}.
+                                to {poolName}.
                               </Text>
-                            ) : (
-                              <>
-                                <Text>
-                                  This will deposit & lock{' '}
-                                  <Amount
-                                    value={availableCollateral}
-                                    suffix={` ${collateralType?.symbol}`}
-                                  />{' '}
-                                  to {poolName}.
-                                </Text>
-                                <Text>
-                                  An additional{' '}
-                                  <Amount
-                                    value={collateralChange.sub(availableCollateral)}
-                                    suffix={` ${collateralType?.symbol}`}
-                                  />{' '}
-                                  will be deposited and locked from your wallet.
-                                </Text>
-                              </>
-                            )}
-                          </>
-                        ) : (
-                          <Text>
-                            This will deposit and lock{' '}
-                            <Amount value={collateralChange} suffix={` ${collateralType?.symbol}`} />{' '}
-                            to {poolName}.
-                          </Text>
-                        )}
-                      </>
-                    )}
-                  </>
-                }
-                status={{
-                  failed: error?.step === State.deposit,
-                  disabled: state.matches(State.success) && requireApproval,
-                  success: state.matches(State.success),
-                  loading: state.matches(State.deposit) && !error,
-                }}
-              />
-            </>
-          )}
-          <Button
-            isDisabled={isProcessing}
-            onClick={onSubmit}
-            width="100%"
-            mt="6"
-            data-cy="deposit confirm button"
-          >
-            {(() => {
-              switch (true) {
-                case Boolean(error):
-                  return 'Retry';
-                case isProcessing:
-                  return 'Processing...';
-                case state.matches(State.success):
-                  return 'Continue';
-                default:
-                  return 'Execute Transaction';
+                              <Text>
+                                An additional{' '}
+                                <Amount
+                                  value={collateralChange.sub(availableCollateral)}
+                                  suffix={` ${collateralType?.symbol}`}
+                                />{' '}
+                                will be deposited and locked from your wallet.
+                              </Text>
+                            </>
+                          )}
+                        </>
+                      ) : (
+                        <Text>
+                          This will deposit and lock{' '}
+                          <Amount value={collateralChange} suffix={` ${collateralType?.symbol}`} />{' '}
+                          to {poolName}.
+                        </Text>
+                      )}
+                    </>
+                  )}
+                </>
               }
-            })()}
-          </Button>
-        </div>
-      );
-    }
-  };
+              status={{
+                failed: error?.step === State.deposit,
+                disabled: state.matches(State.success) && requireApproval,
+                success: state.matches(State.success),
+                loading: state.matches(State.deposit) && !error,
+              }}
+            />
+          </>
+        )}
+        <Button
+          isDisabled={isProcessing}
+          onClick={onSubmit}
+          width="100%"
+          mt="6"
+          data-cy="deposit confirm button"
+        >
+          {(() => {
+            switch (true) {
+              case Boolean(error):
+                return 'Retry';
+              case isProcessing:
+                return 'Processing...';
+              case state.matches(State.success):
+                return 'Continue';
+              default:
+                return 'Execute Transaction';
+            }
+          })()}
+        </Button>
+      </div>
+    );
+  }
+};
 
 export type DepositModalProps = FC<{
   isOpen: boolean;
@@ -622,8 +622,8 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
             }),
             collateral?.symbol === 'SNX'
               ? queryClient.invalidateQueries({
-                queryKey: [`${network?.id}-${network?.preset}`, 'TransferableSynthetix'],
-              })
+                  queryKey: [`${network?.id}-${network?.preset}`, 'TransferableSynthetix'],
+                })
               : Promise.resolve(),
             queryClient.invalidateQueries({
               queryKey: [`${network?.id}-${network?.preset}`, 'Allowance'],
@@ -633,8 +633,8 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
             }),
             !accountId
               ? queryClient.invalidateQueries({
-                queryKey: [`${network?.id}-${network?.preset}`, 'Accounts'],
-              })
+                  queryKey: [`${network?.id}-${network?.preset}`, 'Accounts'],
+                })
               : Promise.resolve(),
           ]);
 
