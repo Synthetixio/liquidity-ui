@@ -201,7 +201,7 @@ export const DepositModalUi: FC<{
                 <Amount
                   prefix="This will deposit and lock "
                   value={collateralChange}
-                  suffix={` Static aUSDC in ${poolName}.`}
+                  suffix={` Static aUSDC into ${poolName}.`}
                 />
               }
               status={{
@@ -238,7 +238,7 @@ export const DepositModalUi: FC<{
                   {state.matches(State.success) ? (
                     <Amount
                       value={collateralChange}
-                      suffix={` ${collateralType?.symbol} deposited and locked in ${poolName}.`}
+                      suffix={` ${collateralType?.symbol} deposited and locked into ${poolName}.`}
                     />
                   ) : (
                     <>
@@ -248,7 +248,7 @@ export const DepositModalUi: FC<{
                             <Amount
                               prefix={`This will deposit and lock `}
                               value={collateralChange}
-                              suffix={` ${collateralType?.symbol} in ${poolName}.`}
+                              suffix={` ${collateralType?.symbol} into ${poolName}.`}
                             />
                           ) : (
                             <>
@@ -256,7 +256,7 @@ export const DepositModalUi: FC<{
                                 <Amount
                                   prefix={`This will deposit and lock `}
                                   value={availableCollateral}
-                                  suffix={` ${collateralType?.symbol} in ${poolName}.`}
+                                  suffix={` ${collateralType?.symbol} into ${poolName}.`}
                                 />
                               </Text>
                               <Text>
@@ -273,7 +273,7 @@ export const DepositModalUi: FC<{
                         <Amount
                           prefix={`This will deposit and lock `}
                           value={collateralChange}
-                          suffix={` ${collateralType?.symbol} in ${poolName}.`}
+                          suffix={` ${collateralType?.symbol} into ${poolName}.`}
                         />
                       )}
                     </>
