@@ -215,7 +215,7 @@ export const DepositModalUi: FC<{
           <>
             <Multistep
               step={stepNumbers.approve}
-              title={`Approve ${symbol} to transfer`}
+              title={`Approve ${symbol} transfer`}
               status={{
                 failed: error?.step === State.approveCollateral,
                 success: !requireApproval || state.matches(State.success),

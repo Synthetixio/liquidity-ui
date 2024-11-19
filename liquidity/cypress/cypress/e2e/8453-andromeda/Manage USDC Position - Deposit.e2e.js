@@ -28,7 +28,7 @@ it('Manage USDC Position - Deposit', () => {
 
   cy.get('[data-cy="deposit multistep"]')
     .should('exist')
-    .and('include.text', 'Approve USDC to transfer')
+    .and('include.text', 'Approve USDC transfer')
     .and('include.text', 'Deposit & Lock USDC')
     .and('include.text', 'This will deposit and lock 101 USDC to Spartan Council Pool.');
 
@@ -46,7 +46,7 @@ it('Manage USDC Position - Deposit', () => {
   //  cy.get('[data-cy="deposit multistep"]')
   //    .should('exist')
   //    .and('include.text', 'Manage Collateral')
-  //    .and('include.text', 'Approve USDC to transfer')
+  //    .and('include.text', 'Approve USDC transfer')
   //    .and('include.text', 'Deposit & Lock USDC')
   //    .and('include.text', 'This will deposit and lock 69 USDC to Spartan Council Pool.');
   //

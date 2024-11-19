@@ -2,16 +2,16 @@ import '@cypress/code-coverage/support';
 import { onLogAdded } from '@snx-cy/onLogAdded';
 import { subgraph } from '../lib/subgraph';
 
-afterEach(() => {
-  cy.get('@snapshot').then(async (snapshot) => {
-    cy.task('evmRevert', snapshot);
-  });
-});
+//afterEach(() => {
+//  cy.get('@snapshot').then(async (snapshot) => {
+//    cy.task('evmRevert', snapshot);
+//  });
+//});
 
 beforeEach(() => {
-  cy.task('evmSnapshot').then((snapshot) => {
-    cy.wrap(snapshot).as('snapshot');
-  });
+  //  cy.task('evmSnapshot').then((snapshot) => {
+  //    cy.wrap(snapshot).as('snapshot');
+  //  });
 
   cy.on('log:added', onLogAdded);
 
