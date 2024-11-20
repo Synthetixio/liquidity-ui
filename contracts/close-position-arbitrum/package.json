@@ -15,8 +15,10 @@
   "scripts": {
     "cov": "./cov.sh",
     "build": "forge build",
-    "forge-test": "forge test -vvvvv",
-    "forge-coverage": "forge coverage"
+    "test": "forge test -vvvvv ./test/*.t.sol",
+    "e2e": "forge test -vvvvv ./test/*.e2e.sol",
+    "test-cov": "forge coverage -vvvvv ./test/*.t.sol",
+    "e2e-cov": "forge coverage -vvvvv ./test/*.e2e.sol"
   },
   "devDependencies": {
     "forge-std": "github:foundry-rs/forge-std"

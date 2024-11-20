@@ -286,6 +286,72 @@ jobs:
           ipfs-cluster-api: 'https://ipfs.synthetix.io/api/v0'
           ipns-key: 'v3.synthetix.eth'
 
+  contract-test:
+    parameters:
+      workspace:
+        type: string
+    working_directory: /tmp/app
+    docker:
+      - image: cimg/node:<< pipeline.parameters.node-version >>
+    resource_class: large
+    steps:
+      - checkout
+      - install-foundry
+      - yarn-install
+
+      - run: date +"%Y-%W" > /tmp/week.txt && cat /tmp/week.txt
+      - restore_cache:
+          keys:
+            - &anvil-fork-cache anvil-fork-cache-{{ .Environment.ANVIL_CACHE_VERSION }}-{{ checksum "/tmp/week.txt" }}-{{ .BuildNum }}
+            - anvil-fork-cache-{{ .Environment.ANVIL_CACHE_VERSION }}-{{ checksum "/tmp/week.txt" }}-
+            - anvil-fork-cache-{{ .Environment.ANVIL_CACHE_VERSION }}-
+
+      - run:
+          command: |
+            echo "0" > /tmp/test_exit_code
+            yarn workspace << parameters.workspace >> run test-cov \
+              || echo $? > /tmp/test_exit_code
+
+      - save_cache:
+          key: *anvil-fork-cache
+          paths:
+            - '~/.foundry/cache'
+
+      - run: exit $(cat /tmp/test_exit_code)
+
+  contract-e2e:
+    parameters:
+      workspace:
+        type: string
+    working_directory: /tmp/app
+    docker:
+      - image: cimg/node:<< pipeline.parameters.node-version >>
+    resource_class: large
+    steps:
+      - checkout
+      - install-foundry
+      - yarn-install
+
+      - run: date +"%Y-%W" > /tmp/week.txt && cat /tmp/week.txt
+      - restore_cache:
+          keys:
+            - &anvil-fork-cache anvil-fork-cache-{{ .Environment.ANVIL_CACHE_VERSION }}-{{ checksum "/tmp/week.txt" }}-{{ .BuildNum }}
+            - anvil-fork-cache-{{ .Environment.ANVIL_CACHE_VERSION }}-{{ checksum "/tmp/week.txt" }}-
+            - anvil-fork-cache-{{ .Environment.ANVIL_CACHE_VERSION }}-
+
+      - run:
+          command: |
+            echo "0" > /tmp/test_exit_code
+            yarn workspace << parameters.workspace >> run e2e-cov \
+              || echo $? > /tmp/test_exit_code
+
+      - save_cache:
+          key: *anvil-fork-cache
+          paths:
+            - '~/.foundry/cache'
+
+      - run: exit $(cat /tmp/test_exit_code)
+
 workflows:
   ui:
     unless:
@@ -295,6 +361,10 @@ workflows:
     jobs:
       - checks
       - tests
+      - contract-test:
+          workspace: '@snx-v3/close-position-arbitrum'
+      - contract-e2e:
+          workspace: '@snx-v3/close-position-arbitrum'
       - liquidity-cy
       - liquidity-e2e:
           name: liquidity-e2e-base-mainnet

@@ -7,7 +7,7 @@ import {IUSDToken} from "src/lib/IUSDToken.sol";
 import {Test} from "forge-std/src/Test.sol";
 import {console} from "forge-std/src/console.sol";
 
-contract ClosePositionE2e is Test {
+contract ClosePositionTest is Test {
     address private USDProxy;
     address private CoreProxy;
     address private AccountProxy;
