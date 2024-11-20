@@ -10,19 +10,19 @@ import {IUSDToken} from "src/lib/IUSDToken.sol";
 contract ClosePositionE2e is Test {
     address private constant USDC = 0xaf88d065e77c8cC2239327C5EDb3A432268e5831;
     address private constant ARB = 0x912CE59144191C1204E64559FE8253a0e49E6548;
-    address private constant USDX = 0xb2F30A7C980f052f02563fb518dcc39e6bf38175;
+    address private constant USDx = 0xb2F30A7C980f052f02563fb518dcc39e6bf38175;
     address private constant CORE_PROXY = 0xffffffaEff0B96Ea8e4f94b2253f31abdD875847;
     address private constant ACCOUNT_PROXY = 0x0E429603D3Cb1DFae4E6F52Add5fE82d96d77Dac;
     uint128 private constant poolId = 1;
 
-    address private constant USDXOwner = 0xffffffaEff0B96Ea8e4f94b2253f31abdD875847;
+    address private constant USDxOwner = 0xffffffaEff0B96Ea8e4f94b2253f31abdD875847;
     address private constant negativeDebtSnxUser = 0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345;
     uint128 private constant negativeDebtSnxUserAccountId = 58655818123;
     address private constant positiveDebtSnxUser = 0x193641EA463C3B9244cF9F00b77EE5220d4154e9;
     uint128 private constant positiveDebtSnxUserAccountId = 127052930719;
 
     uint256 private constant MAX_INT = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
-    uint256 private constant startingUSDXAmount = 1000 * 10 ** 18;
+    uint256 private constant startingUSDxAmount = 1000 * 10 ** 18;
 
     uint256 arbitrumMainnetFork;
     ClosePosition private closePosition;
@@ -38,10 +38,10 @@ contract ClosePositionE2e is Test {
         closePosition = new ClosePosition();
         accountProxy = MockERC721(ACCOUNT_PROXY);
         coreProxy = ISynthetixCore(CORE_PROXY);
-        usdX = IUSDToken(USDX);
+        usdX = IUSDToken(USDx);
 
-        vm.startPrank(USDXOwner);
-        IUSDToken(USDX).mint(positiveDebtSnxUser, startingUSDXAmount);
+        vm.startPrank(USDxOwner);
+        IUSDToken(USDx).mint(positiveDebtSnxUser, startingUSDxAmount);
     }
 
     function test_rollFork_thenCorrectBlockAndForkDetails() public {
@@ -94,7 +94,7 @@ contract ClosePositionE2e is Test {
         assertLt(collateralizationRatio, MAX_INT, "Collateral Ratio is not infinite");
 
         accountProxy.approve(address(closePosition), positiveDebtSnxUserAccountId);
-        usdX.approve(address(closePosition), startingUSDXAmount);
+        usdX.approve(address(closePosition), startingUSDxAmount);
         closePosition.closePosition(CORE_PROXY, ACCOUNT_PROXY, positiveDebtSnxUserAccountId, poolId, ARB);
 
         (userCollateralAmount, userCollateralValue, userDebtAfter, collateralizationRatio) =
@@ -103,6 +103,6 @@ contract ClosePositionE2e is Test {
         assertEq(userCollateralValue, 0, "Collateral value should be 0");
         assertEq(userDebtAfter, 0, "Debt should be 0");
         assertEq(collateralizationRatio, MAX_INT, "No Debt Collateral Ratio");
-        assertEq(startingUSDXAmount - uint256(userDebtBefore), usdX.balanceOf(positiveDebtSnxUser), "DEBUGGING");
+        assertEq(startingUSDxAmount - uint256(userDebtBefore), usdX.balanceOf(positiveDebtSnxUser), "USDx wallet balance reduced by paid debt amount");
     }
 }
