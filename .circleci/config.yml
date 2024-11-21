@@ -371,7 +371,7 @@ workflows:
           chainId: 8453
           preset: andromeda
           provider-url: wss://base-mainnet.infura.io/ws/v3/$INFURA_KEY
-          fork-block-number: 21781780
+          fork-block-number: 22683522
       - liquidity-e2e:
           name: liquidity-e2e-arbitrum-mainnet
           chainId: 42161
