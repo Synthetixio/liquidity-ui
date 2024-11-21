@@ -15,14 +15,16 @@ commands:
       - run: date +"%Y-%m" > /tmp/month.txt && cat /tmp/month.txt
       - restore_cache:
           keys:
-            - &yarn_cache yarn-{{ .Environment.NODE_MODULES_VERSION }}-{{ .Environment.HOME }}-{{ checksum "/tmp/month.txt" }}-{{ checksum "yarn.lock" }}
-            - yarn-{{ .Environment.NODE_MODULES_VERSION }}-{{ .Environment.HOME }}-{{ checksum "/tmp/month.txt" }}-
+            - &yarn_cache yarn-{{ .Environment.NODE_MODULES_VERSION }}-{{ checksum "/tmp/month.txt" }}-{{ checksum "yarn.lock" }}
+            - yarn-{{ .Environment.NODE_MODULES_VERSION }}-{{ checksum "/tmp/month.txt" }}-
       - run: yarn -v
       - run: yarn install --immutable
       - save_cache:
           key: *yarn_cache
           paths:
-            - '~/.yarn/berry'
+            - '/root/.yarn/berry'
+            - '/home/circleci/.yarn/berry'
+            - '/tmp/app/node_modules'
 
   install-foundry:
     steps:
@@ -169,7 +171,7 @@ jobs:
       - run:
           name: Run server localhost:3000
           working_directory: /tmp/app/liquidity/ui
-          command: yarn start
+          command: NODE_ENV=test yarn start
           background: true
 
       #      - run:
