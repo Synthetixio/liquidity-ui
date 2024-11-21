@@ -48,7 +48,7 @@ export const useDepositBaseAndromeda = ({
   const { data: collateralType } = useCollateralType(collateralSymbol);
   const { data: synthTokens } = useSynthTokens();
   const synth = synthTokens?.find(
-    (synth) => synth.address.toLowerCase() === collateralType?.tokenAddress.toLowerCase()
+    (synth) => synth?.address?.toLowerCase() === collateralType?.tokenAddress?.toLowerCase()
   );
 
   const { gasSpeed } = useGasSpeed();

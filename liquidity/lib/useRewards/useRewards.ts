@@ -192,7 +192,7 @@ export function useRewards({
           const distributions = metaData[i]?.data?.rewardsDistributions;
           const symbol = item.payoutToken.symbol;
           const synthToken = synthTokens?.find(
-            (synth) => synth.address.toUpperCase() === item.payoutToken.address?.toUpperCase()
+            (synth) => synth?.address?.toUpperCase() === item?.payoutToken?.address?.toUpperCase()
           );
           const displaySymbol = synthToken ? synthToken?.symbol.slice(1) : symbol;
 

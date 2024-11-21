@@ -346,10 +346,8 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   const { data: synthTokens } = useSynthTokens();
   const synth = synthTokens?.find(
     (synth) =>
-      collateral &&
-      [synth.address.toLowerCase(), synth.token.address.toLowerCase()].includes(
-        collateral.tokenAddress.toLowerCase()
-      )
+      collateral?.tokenAddress?.toLowerCase() === synth?.address?.toLowerCase() ||
+      collateral?.tokenAddress?.toLowerCase() === synth?.token?.address.toLowerCase()
   );
 
   const { data: stataUSDCTokenBalance, refetch: refetchStataUSDCBalance } = useTokenBalance(
@@ -425,11 +423,10 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
     return parseUnits(collateralChange.sub(availableCollateral), synth?.token.decimals);
   }, [availableCollateral, collateralChange, synth?.token.decimals]);
   const { approve, requireApproval } = useApprove({
-    contractAddress: synth?.token.address,
+    contractAddress: isBase ? synth?.token?.address : collateral?.tokenAddress,
     amount: amountToApprove,
     spender: isBase ? SpotMarketProxy?.address : CoreProxy?.address,
   });
-
   //Collateral Approval Done
 
   //Deposit
@@ -437,9 +434,9 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   const { exec: execDeposit } = useDeposit({
     accountId: accountId,
     newAccountId,
-    poolId: poolId,
-    collateralTypeAddress: synth?.token.address,
-    collateralChange: collateralChange,
+    poolId,
+    collateralTypeAddress: collateral?.tokenAddress,
+    collateralChange,
     currentCollateral,
     availableCollateral: availableCollateral || ZEROWEI,
     decimals: Number(collateral?.decimals) || 18,

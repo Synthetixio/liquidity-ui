@@ -75,10 +75,10 @@ export const UndelegateModalUi: FC<{
           step={1}
           title="Unlock collateral"
           subtitle={
-            <Text as="div">
-              <Amount value={amount} suffix={` ${collateralType?.displaySymbol}`} /> will be
-              unlocked from the pool.
-            </Text>
+            <Amount
+              value={amount}
+              suffix={` ${collateralType?.displaySymbol} will be unlocked from the pool.`}
+            />
           }
           status={{
             failed: Boolean(error?.step === State.undelegate),
@@ -190,6 +190,15 @@ export const UndelegateModal: UndelegateModalProps = ({ onClose, isOpen, liquidi
           });
 
           setCollateralChange(ZEROWEI);
+
+          toast.closeAll();
+          toast({
+            title: 'Success',
+            description: 'Your locked collateral amount has been updated.',
+            status: 'success',
+            duration: 5000,
+            variant: 'left-accent',
+          });
         } catch (error: any) {
           const contractError = errorParser(error);
           if (contractError) {
