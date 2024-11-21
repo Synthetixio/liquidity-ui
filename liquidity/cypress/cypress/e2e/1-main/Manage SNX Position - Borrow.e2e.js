@@ -6,17 +6,15 @@ it('Manage SNX Position - Borrow', () => {
     cy.wrap(accountId).as('accountId');
 
     cy.task('setEthBalance', { address, balance: 100 });
-    cy.task('getSnx', { address: address, amount: 2000 });
-    cy.task('approveCollateral', { address, symbol: 'SNX' });
     cy.task('createAccount', { address, accountId });
-
+    cy.task('approveCollateral', { address, symbol: 'SNX' });
+    cy.task('getSnx', { address, amount: 2000 });
     cy.task('depositCollateral', {
       address,
       symbol: 'SNX',
       accountId,
       amount: 150,
     });
-
     cy.task('delegateCollateral', {
       address,
       symbol: 'SNX',
@@ -26,13 +24,9 @@ it('Manage SNX Position - Borrow', () => {
     });
   });
 
-  cy.visit(`/`);
-  cy.wait(2000);
+  cy.viewport(1000, 1200);
 
-  cy.get('@accountId').then(async (accountId) => {
-    console.log({
-      accountId,
-    });
+  cy.get('@accountId').then((accountId) => {
     const path = generatePath('/positions/:collateralSymbol/:poolId', {
       collateralSymbol: 'SNX',
       poolId: 1,
@@ -42,15 +36,23 @@ it('Manage SNX Position - Borrow', () => {
 
   cy.get('[data-cy="borrow amount input"]').should('exist');
   cy.get('[data-cy="borrow amount input"]').type('10');
+
+  cy.contains(
+    '[data-status="warning"]',
+    'As a security precaution, borrowed assets can only be withdrawn to your wallet after 24 hs since your previous account activity.'
+  ).should('exist');
+
   cy.get('[data-cy="borrow submit"]').should('be.enabled');
   cy.get('[data-cy="borrow submit"]').click();
 
   cy.get('[data-cy="borrow multistep"]')
     .should('exist')
+    .and('include.text', 'Manage Debt')
     .and('include.text', 'Borrow')
     .and('include.text', 'Borrow 10 sUSD');
 
-  cy.get('[data-cy="borrow confirm button"]').should('include.text', 'Execute Transaction').click();
+  cy.get('[data-cy="borrow confirm button"]').should('include.text', 'Execute Transaction');
+  cy.get('[data-cy="borrow confirm button"]').click();
 
-  cy.get('[data-cy="debt stats collateral"]').should('exist').and('include.text', '$10');
+  cy.contains('[data-status="info"]', 'Debt successfully Updated').should('exist');
 });

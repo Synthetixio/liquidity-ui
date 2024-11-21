@@ -37,22 +37,4 @@ it('Manage USDC Position - Deposit', () => {
   cy.contains('[data-status="success"]', 'Your locked collateral amount has been updated.').should(
     'exist'
   );
-
-  // TODO: Enable additional deposit after fixing an issue with balance refetching
-  //
-  //  cy.get('[data-cy="deposit amount input"]').should('exist').clear().type('69');
-  //  cy.get('[data-cy="deposit submit"]').should('be.enabled').click();
-  //
-  //  cy.get('[data-cy="deposit multistep"]')
-  //    .should('exist')
-  //    .and('include.text', 'Manage Collateral')
-  //    .and('include.text', 'Approve USDC transfer')
-  //    .and('include.text', 'Deposit and Lock USDC')
-  //    .and('include.text', 'This will deposit and lock 69 USDC into Spartan Council Pool.');
-  //
-  //  cy.get('[data-cy="deposit confirm button"]')
-  //    .should('include.text', 'Execute Transaction')
-  //    .click();
-  //
-  //  cy.get('[data-cy="manage stats collateral"]').should('exist').and('include.text', '170 USDC');
 });

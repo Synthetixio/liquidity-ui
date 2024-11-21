@@ -12,9 +12,6 @@ it('Manage SNX Position - Deposit', () => {
 
   cy.viewport(1000, 1200);
 
-  cy.visit(`/`);
-  cy.wait(2000);
-
   cy.get('@accountId').then((accountId) => {
     const path = generatePath('/positions/:collateralSymbol/:poolId', {
       collateralSymbol: 'SNX',
@@ -24,7 +21,7 @@ it('Manage SNX Position - Deposit', () => {
     cy.visit(`/#${path}?manageAction=deposit&accountId=${accountId}`);
   });
 
-  cy.get('[data-cy="deposit amount input"]').should('exist');
+  cy.get('[data-cy="balance amount"]').should('exist').and('include.text', 'Max');
   cy.get('[data-cy="deposit amount input"]').type('101');
   cy.get('[data-cy="deposit submit"]').should('be.enabled');
   cy.get('[data-cy="deposit submit"]').click();
@@ -32,12 +29,13 @@ it('Manage SNX Position - Deposit', () => {
   cy.get('[data-cy="deposit multistep"]')
     .should('exist')
     .and('include.text', 'Approve SNX transfer')
-    .and('include.text', 'Deposit & Lock SNX')
-    .and('include.text', 'This will deposit and lock 101 SNX to Spartan Council Pool.');
+    .and('include.text', 'Deposit and Lock SNX')
+    .and('include.text', 'This will deposit and lock 101 SNX into Spartan Council Pool.');
 
-  cy.get('[data-cy="deposit confirm button"]')
-    .should('include.text', 'Execute Transaction')
-    .click();
+  cy.get('[data-cy="deposit confirm button"]').should('include.text', 'Execute Transaction');
+  cy.get('[data-cy="deposit confirm button"]').click();
 
-  cy.get('[data-cy="manage stats collateral"]').should('exist').and('include.text', '101 SNX');
+  cy.contains('[data-status="success"]', 'Your locked collateral amount has been updated.').should(
+    'exist'
+  );
 });

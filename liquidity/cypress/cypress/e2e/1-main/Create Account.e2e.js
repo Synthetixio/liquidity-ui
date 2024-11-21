@@ -10,9 +10,10 @@ it('Create Account', () => {
   cy.visit('/#/dashboard');
 
   cy.get('[data-cy="wallet button"]').click();
+  cy.get('[data-cy="accounts list"]').children().should('have.length', 1);
   cy.contains('[data-cy="create new account button"]', 'Create Account').should('exist');
   cy.get('[data-cy="create new account button"]').click();
-  cy.get('[data-cy="accounts list"]').children().should('have.length', 1);
+  cy.get('[data-cy="accounts list"]').children().should('have.length', 2);
 
   cy.url().then((url) => {
     const u1 = new URL(url);

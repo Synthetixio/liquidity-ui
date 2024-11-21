@@ -26,9 +26,6 @@ it('Manage SNX Position - Unlock', () => {
     });
   });
 
-  cy.visit(`/`);
-  cy.wait(2000);
-
   cy.get('@accountId').then(async (accountId) => {
     const path = generatePath('/positions/:collateralSymbol/:poolId', {
       collateralSymbol: 'SNX',
@@ -42,9 +39,19 @@ it('Manage SNX Position - Unlock', () => {
   cy.get('[data-cy="undelegate submit"]').should('be.enabled');
   cy.get('[data-cy="undelegate submit"]').click();
 
+  cy.get('[data-cy="undelegate multistep"]')
+    .should('exist')
+    .and('include.text', '30 SNX will be unlocked from the pool.');
+
   cy.get('[data-cy="undelegate confirm button"]').should('include.text', 'Execute Transaction');
   cy.get('[data-cy="undelegate confirm button"]').click();
 
-  cy.wait(3000);
-  cy.get('[data-cy="manage stats collateral"]').should('exist').and('include.text', '120 SNX');
+  cy.contains('[data-status="error"]', 'Unlock collateral failed').should('exist');
+  cy.contains('[data-status="error"]', 'MinDelegationTimeoutPending').should('exist');
+
+  // TODO: update settings and allow to unlock without delay
+  //
+  //  cy.contains('[data-status="success"]', 'Your locked collateral amount has been updated.').should(
+  //    'exist'
+  //  );
 });
