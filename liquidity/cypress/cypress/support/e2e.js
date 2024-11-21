@@ -32,7 +32,7 @@ beforeEach(() => {
   //    cy.wrap(snapshot).as('snapshot');
   //  });
 
-  cy.on('log:added', onLogAdded);
+  // cy.on('log:added', onLogAdded);
 
   cy.intercept('https://analytics.synthetix.io/matomo.js', { statusCode: 204, log: false }).as(
     'matomo'

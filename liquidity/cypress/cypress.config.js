@@ -26,10 +26,10 @@ module.exports = defineConfig({
     specPattern: ['../**/*.e2e.{js,jsx,ts,tsx}'],
     baseUrl: 'http://localhost:3000',
     setupNodeEvents(on, config) {
-      if (process.env.CI) {
-        on('before:browser:launch', require('@snx-cy/printBrowserLogs').printBrowserLogs);
-        require('@cypress/code-coverage/task')(on, config);
-      }
+      //      if (process.env.CI) {
+      //      on('before:browser:launch', require('@snx-cy/printBrowserLogs').printBrowserLogs);
+      require('@cypress/code-coverage/task')(on, config);
+      //      }
       on('task', {
         ...require('./cypress/tasks/anvil'),
         ...require('./cypress/tasks/automineBlocks'),
