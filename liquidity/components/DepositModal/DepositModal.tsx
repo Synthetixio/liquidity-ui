@@ -346,10 +346,8 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   const { data: synthTokens } = useSynthTokens();
   const synth = synthTokens?.find(
     (synth) =>
-      collateral &&
-      [synth.address.toLowerCase(), synth.token.address.toLowerCase()].includes(
-        collateral.tokenAddress.toLowerCase()
-      )
+      collateral?.tokenAddress?.toLowerCase() === synth?.address?.toLowerCase() ||
+      collateral?.tokenAddress?.toLowerCase() === synth?.token?.address.toLowerCase()
   );
 
   const { data: stataUSDCTokenBalance, refetch: refetchStataUSDCBalance } = useTokenBalance(
