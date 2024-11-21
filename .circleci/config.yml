@@ -195,7 +195,7 @@ jobs:
             CYPRESS_PRESET=<< parameters.preset >> \
             CYPRESS_PROVIDER_URL=<< parameters.provider-url >> \
             CYPRESS_FORK_BLOCK_NUMBER=<< parameters.fork-block-number >> \
-              cypress run --e2e --browser chrome \
+              cypress run --e2e \
                 --config specPattern="./cypress/e2e/<< parameters.chainId >>-<< parameters.preset >>/*.e2e.js" \
                 || echo $? > /tmp/cypress_exit_code
 
