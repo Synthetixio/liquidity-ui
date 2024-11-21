@@ -361,11 +361,14 @@ workflows:
     jobs:
       - checks
       - tests
+
       - contract-test:
           workspace: '@snx-v3/close-position-arbitrum'
       - contract-e2e:
           workspace: '@snx-v3/close-position-arbitrum'
+
       - cy
+
       - e2e:
           name: e2e-base-mainnet
           chainId: 8453
@@ -378,12 +381,20 @@ workflows:
           preset: main
           provider-url: wss://arbitrum-mainnet.infura.io/ws/v3/$INFURA_KEY
           fork-block-number: 271813668
+      - e2e:
+          name: e2e-mainnet
+          chainId: 1
+          preset: main
+          provider-url: wss://mainnet.infura.io/ws/v3/$INFURA_KEY
+          fork-block-number: 21233424
+
       - combine-coverage:
           requires:
             - tests
             - cy
             - e2e-base-mainnet
             - e2e-arbitrum-mainnet
+
       - ipfs:
           requires:
             - checks
