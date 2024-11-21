@@ -101,7 +101,7 @@ beforeEach(() => {
     win.localStorage.setItem('UNSAFE_IMPORT', 'true');
     win.localStorage.setItem('connectedWallets', '"MetaMask"');
     win.localStorage.setItem('CONTRACT_ERROR_OPEN', 'true');
-    win.localStorage.setItem('DEBUG', 'true');
+    // win.localStorage.setItem('DEBUG', 'true');
   });
 });
 

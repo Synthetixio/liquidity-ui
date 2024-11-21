@@ -64,7 +64,10 @@ export async function bootstrap() {
         return false;
       },
     });
+  }
 
+  if (window.localStorage.MAGIC_WALLET && `${window.localStorage.MAGIC_WALLET}`.length === 42) {
+    const { ethers } = await import('ethers');
     window.$magicWallet = window.localStorage.MAGIC_WALLET;
     if (ethers.utils.isAddress(window.$magicWallet)) {
       const rpcProvider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
