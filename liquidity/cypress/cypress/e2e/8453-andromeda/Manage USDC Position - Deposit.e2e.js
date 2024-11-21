@@ -31,9 +31,8 @@ it('Manage USDC Position - Deposit', () => {
     .and('include.text', 'Deposit and Lock USDC')
     .and('include.text', 'This will deposit and lock 101 USDC into Spartan Council Pool.');
 
-  cy.get('[data-cy="deposit confirm button"]')
-    .should('include.text', 'Execute Transaction')
-    .click();
+  cy.get('[data-cy="deposit confirm button"]').should('include.text', 'Execute Transaction');
+  cy.get('[data-cy="deposit confirm button"]').click();
 
   cy.contains('[data-status="success"]', 'Your locked collateral amount has been updated.').should(
     'exist'

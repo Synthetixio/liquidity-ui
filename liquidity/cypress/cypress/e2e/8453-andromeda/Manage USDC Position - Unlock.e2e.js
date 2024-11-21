@@ -41,9 +41,14 @@ it('should be able to unlock USDC collateral after depositing', () => {
   cy.get('[data-cy="undelegate submit"]').should('be.enabled');
   cy.get('[data-cy="undelegate submit"]').click();
 
+  cy.get('[data-cy="undelegate multistep"]')
+    .should('exist')
+    .and('include.text', '30 USDC will be unlocked from the pool.');
+
   cy.get('[data-cy="undelegate confirm button"]').should('include.text', 'Execute Transaction');
   cy.get('[data-cy="undelegate confirm button"]').click();
 
-  cy.wait(3000);
-  cy.get('[data-cy="manage stats collateral"]').should('exist').and('include.text', '120 USDC');
+  cy.contains('[data-status="success"]', 'Your locked collateral amount has been updated.').should(
+    'exist'
+  );
 });
