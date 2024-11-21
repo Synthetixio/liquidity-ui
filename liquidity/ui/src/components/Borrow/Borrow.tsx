@@ -83,7 +83,7 @@ export const Borrow = ({ liquidityPosition }: { liquidityPosition?: LiquidityPos
       </BorderBox>
 
       <Collapse in={debtChange.gt(0)} animateOpacity>
-        <Alert borderRadius="6px" colorScheme="orange" mb="6">
+        <Alert status="warning" borderRadius="6px" mb="6">
           <AlertIcon />
           <Text>
             As a security precaution, borrowed assets can only be withdrawn to your wallet after 24
