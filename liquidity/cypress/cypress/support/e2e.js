@@ -93,6 +93,10 @@ beforeEach(() => {
   cy.intercept(`https://api.synthetix.io/**`, { log: false });
 
   cy.on('window:before:load', (win) => {
+    win.console.log = () => {};
+    win.console.error = () => {};
+    win.console.warn = () => {};
+
     win.sessionStorage.setItem('TERMS_CONDITIONS_ACCEPTED', 'true');
     win.localStorage.setItem(
       'DEFAULT_NETWORK',
