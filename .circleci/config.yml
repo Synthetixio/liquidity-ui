@@ -143,21 +143,17 @@ jobs:
   e2e:
     parameters:
       chainId:
-        type: integer
+        type: string
       preset:
         type: string
       provider-url:
         type: string
       fork-block-number:
-        type: integer
+        type: string
     working_directory: /tmp/app
     docker:
       - image: cypress/included:<< pipeline.parameters.cypress-version >>
     resource_class: xlarge
-    environment:
-      NODE_ENV: test
-      CYPRESS_CHAIN_ID: << parameters.chainId >>
-      CYPRESS_PRESET: << parameters.preset >>
     steps:
       - checkout
       - install-foundry
@@ -176,28 +172,34 @@ jobs:
           command: yarn start
           background: true
 
-      - run:
-          name: Run anvil localhost:8545
-          command: anvil --auto-impersonate --chain-id "<< parameters.chainId >>" --fork-url "<< parameters.provider-url >>" --no-rate-limit --steps-tracing --fork-block-number "<< parameters.fork-block-number >>"
-          background: true
+      #      - run:
+      #          name: Run anvil localhost:8545
+      #          command: anvil --auto-impersonate --chain-id "<< parameters.chainId >>" --fork-url "<< parameters.provider-url >>" --no-rate-limit --steps-tracing --fork-block-number "<< parameters.fork-block-number >>"
+      #          background: true
 
       - run:
           name: Wait for server localhost:3000
           command: wget --retry-connrefused --waitretry=20 --read-timeout=20 --timeout=15 -t 10 http://localhost:3000
 
-      - run:
-          name: Wait for anvil localhost:8545
-          command: wget -q -O - --retry-connrefused --waitretry=20 --read-timeout=20 --timeout=15 -t 10 --post-data='{"method":"eth_chainId","params":[],"id":1,"jsonrpc":"2.0"}' --header='Content-Type:application/json' http://localhost:8545
+      #      - run:
+      #          name: Wait for anvil localhost:8545
+      #          command: wget -q -O - --retry-connrefused --waitretry=20 --read-timeout=20 --timeout=15 -t 10 --post-data='{"method":"eth_chainId","params":[],"id":1,"jsonrpc":"2.0"}' --header='Content-Type:application/json' http://localhost:8545
 
       - run:
           working_directory: /tmp/app/liquidity/cypress
           command: |
             echo "0" > /tmp/cypress_exit_code
-            cypress run --e2e --browser chrome \
-              --config specPattern="./cypress/e2e/<< parameters.chainId >>-<< parameters.preset >>/*.e2e.js" \
-              || echo $? > /tmp/cypress_exit_code
 
-      - run: pkill anvil
+            NODE_ENV=test \
+            CYPRESS_CHAIN_ID=<< parameters.chainId >> \
+            CYPRESS_PRESET=<< parameters.preset >> \
+            CYPRESS_PROVIDER_URL=<< parameters.provider-url >> \
+            CYPRESS_FORK_BLOCK_NUMBER=<< parameters.fork-block-number >> \
+              cypress run --e2e --browser chrome \
+                --config specPattern="./cypress/e2e/<< parameters.chainId >>-<< parameters.preset >>/*.e2e.js" \
+                || echo $? > /tmp/cypress_exit_code
+
+      # - run: pkill anvil
 
       - save_cache:
           key: *anvil-fork-cache
@@ -371,22 +373,25 @@ workflows:
 
       - e2e:
           name: e2e-base-mainnet
-          chainId: 8453
-          preset: andromeda
-          provider-url: wss://base-mainnet.infura.io/ws/v3/$INFURA_KEY
-          fork-block-number: 22683522
+          chainId: '8453'
+          preset: 'andromeda'
+          #rpc-env: 'RPC_ARBITRUM_MAINNET'
+          provider-url: 'wss://base-mainnet.infura.io/ws/v3/$INFURA_KEY'
+          fork-block-number: '22683522'
       - e2e:
           name: e2e-arbitrum-mainnet
-          chainId: 42161
-          preset: main
-          provider-url: wss://arbitrum-mainnet.infura.io/ws/v3/$INFURA_KEY
-          fork-block-number: 271813668
+          chainId: '42161'
+          preset: 'main'
+          #rpc-env: 'RPC_BASE_MAINNET'
+          provider-url: 'wss://arbitrum-mainnet.infura.io/ws/v3/$INFURA_KEY'
+          fork-block-number: '271813668'
       - e2e:
           name: e2e-mainnet
-          chainId: 1
-          preset: main
-          provider-url: wss://mainnet.infura.io/ws/v3/$INFURA_KEY
-          fork-block-number: 21233424
+          chainId: '1'
+          preset: 'main'
+          #rpc-env: 'RPC_MAINNET'
+          provider-url: 'wss://mainnet.infura.io/ws/v3/$INFURA_KEY'
+          fork-block-number: '21233424'
 
       - combine-coverage:
           requires:

@@ -7,6 +7,23 @@ it('Manage WETH Position - Deposit', () => {
 
     cy.task('setEthBalance', { address, balance: 100 });
     cy.task('createAccount', { address, accountId });
+
+    // Make initial delegation
+    cy.task('approveCollateral', { address, symbol: 'WETH' });
+    cy.task('wrapEth', { address, amount: 20 });
+    cy.task('depositCollateral', {
+      address,
+      symbol: 'WETH',
+      accountId,
+      amount: 10,
+    });
+    cy.task('delegateCollateral', {
+      address,
+      symbol: 'WETH',
+      accountId,
+      amount: 10,
+      poolId: 1,
+    });
   });
 
   cy.viewport(1000, 1200);

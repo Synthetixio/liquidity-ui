@@ -31,6 +31,7 @@ module.exports = defineConfig({
         require('@cypress/code-coverage/task')(on, config);
       }
       on('task', {
+        ...require('./cypress/tasks/anvil'),
         ...require('./cypress/tasks/automineBlocks'),
         ...require('./cypress/tasks/mineBlock'),
         ...require('./cypress/tasks/setEthBalance'),
@@ -59,8 +60,8 @@ module.exports = defineConfig({
       openMode: 0,
     },
 
-    defaultCommandTimeout: 300_000,
-    execTimeout: 300_000,
-    taskTimeout: 300_000,
+    defaultCommandTimeout: 60_000,
+    execTimeout: 60_000,
+    taskTimeout: 60_000,
   },
 });

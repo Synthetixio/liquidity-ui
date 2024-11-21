@@ -2,13 +2,32 @@ import '@cypress/code-coverage/support';
 import { onLogAdded } from '@snx-cy/onLogAdded';
 import { subgraph } from '../lib/subgraph';
 
-//afterEach(() => {
-//  cy.get('@snapshot').then(async (snapshot) => {
-//    cy.task('evmRevert', snapshot);
-//  });
-//});
+afterEach(() => {
+  cy.task('stopAnvil').then(() => {
+    cy.log('Anvil stopped');
+  });
+  //  cy.get('@snapshot').then(async (snapshot) => {
+  //    cy.task('evmRevert', snapshot);
+  //  });
+});
 
 beforeEach(() => {
+  const chainId = Cypress.env('CHAIN_ID');
+  if (!chainId) {
+    throw new Error('CYPRESS_CHAIN_ID is required');
+  }
+  const forkUrl = Cypress.env('PROVIDER_URL');
+  if (!forkUrl) {
+    throw new Error('CYPRESS_PROVIDER_URL is required');
+  }
+  const block = Cypress.env('FORK_BLOCK_NUMBER');
+  if (!block) {
+    throw new Error('CYPRESS_FORK_BLOCK_NUMBER is required');
+  }
+  cy.task('startAnvil', { chainId, forkUrl, block }).then(() => {
+    cy.log('Anvil started');
+  });
+
   //  cy.task('evmSnapshot').then((snapshot) => {
   //    cy.wrap(snapshot).as('snapshot');
   //  });
