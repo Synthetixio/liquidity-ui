@@ -423,11 +423,10 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
     return parseUnits(collateralChange.sub(availableCollateral), synth?.token.decimals);
   }, [availableCollateral, collateralChange, synth?.token.decimals]);
   const { approve, requireApproval } = useApprove({
-    contractAddress: synth?.token.address,
+    contractAddress: isBase ? synth?.token?.address : collateral?.tokenAddress,
     amount: amountToApprove,
     spender: isBase ? SpotMarketProxy?.address : CoreProxy?.address,
   });
-
   //Collateral Approval Done
 
   //Deposit
@@ -435,9 +434,9 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   const { exec: execDeposit } = useDeposit({
     accountId: accountId,
     newAccountId,
-    poolId: poolId,
-    collateralTypeAddress: synth?.token.address,
-    collateralChange: collateralChange,
+    poolId,
+    collateralTypeAddress: collateral?.tokenAddress,
+    collateralChange,
     currentCollateral,
     availableCollateral: availableCollateral || ZEROWEI,
     decimals: Number(collateral?.decimals) || 18,
