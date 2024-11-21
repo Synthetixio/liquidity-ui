@@ -92,7 +92,7 @@ Cypress.Commands.add('connectWallet', () => {
   let accountId;
   switch (`${Cypress.env('CHAIN_ID')}-${Cypress.env('PRESET')}`) {
     case '1-main':
-      accountId = '777777';
+      accountId = '651583203448';
       break;
     case '11155111-main':
       accountId = '777777';
