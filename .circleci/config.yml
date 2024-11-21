@@ -7,7 +7,7 @@ parameters:
 
   cypress-version:
     type: string
-    default: '13.11.0'
+    default: '13.16.0'
 
 commands:
   yarn-install:
@@ -140,7 +140,7 @@ jobs:
       - store_artifacts:
           path: 'coverage'
 
-  liquidity-e2e:
+  e2e:
     parameters:
       chainId:
         type: integer
@@ -153,7 +153,7 @@ jobs:
     working_directory: /tmp/app
     docker:
       - image: cypress/included:<< pipeline.parameters.cypress-version >>
-    resource_class: large
+    resource_class: xlarge
     environment:
       NODE_ENV: test
       CYPRESS_CHAIN_ID: << parameters.chainId >>
@@ -221,7 +221,7 @@ jobs:
           path: 'liquidity/cypress/cypress/videos'
           destination: 'videos'
 
-  liquidity-cy:
+  cy:
     working_directory: /tmp/app
     docker:
       - image: cypress/included:<< pipeline.parameters.cypress-version >>
@@ -259,9 +259,9 @@ jobs:
       - yarn-install
       - run: rm -rf /tmp/cov
       - run: yarn download-cci-coverage tests /tmp/cov || true
-      - run: yarn download-cci-coverage liquidity-cy /tmp/cov || true
-      - run: yarn download-cci-coverage liquidity-e2e-base-mainnet /tmp/cov || true
-      - run: yarn download-cci-coverage liquidity-e2e-arbitrum-mainnet /tmp/cov || true
+      - run: yarn download-cci-coverage cy /tmp/cov || true
+      - run: yarn download-cci-coverage e2e-base-mainnet /tmp/cov || true
+      - run: yarn download-cci-coverage e2e-arbitrum-mainnet /tmp/cov || true
       - run: mkdir -p /tmp/cov
       - run: ls -alR /tmp/cov
       - run: mkdir -p /tmp/cov/combined
@@ -271,7 +271,7 @@ jobs:
           chmod +x codecov
           ./codecov -t ${CODECOV_TOKEN} --file /tmp/cov/combined/coverage.json
 
-  liquidity-ipfs:
+  ipfs:
     working_directory: /tmp/app
     docker:
       - image: cimg/node:<< pipeline.parameters.node-version >>
@@ -365,15 +365,15 @@ workflows:
           workspace: '@snx-v3/close-position-arbitrum'
       - contract-e2e:
           workspace: '@snx-v3/close-position-arbitrum'
-      - liquidity-cy
-      - liquidity-e2e:
-          name: liquidity-e2e-base-mainnet
+      - cy
+      - e2e:
+          name: e2e-base-mainnet
           chainId: 8453
           preset: andromeda
           provider-url: wss://base-mainnet.infura.io/ws/v3/$INFURA_KEY
           fork-block-number: 22683522
-      - liquidity-e2e:
-          name: liquidity-e2e-arbitrum-mainnet
+      - e2e:
+          name: e2e-arbitrum-mainnet
           chainId: 42161
           preset: main
           provider-url: wss://arbitrum-mainnet.infura.io/ws/v3/$INFURA_KEY
@@ -381,19 +381,18 @@ workflows:
       - combine-coverage:
           requires:
             - tests
-            - liquidity-cy
-            - liquidity-e2e-base-mainnet
-            - liquidity-e2e-arbitrum-mainnet
-      - liquidity-ipfs:
+            - cy
+            - e2e-base-mainnet
+            - e2e-arbitrum-mainnet
+      - ipfs:
           requires:
             - checks
             - tests
-            - liquidity-cy
-            - liquidity-e2e-base-mainnet
-            - liquidity-e2e-arbitrum-mainnet
+            - cy
+            - e2e-base-mainnet
+            - e2e-arbitrum-mainnet
           filters:
             branches:
               only:
-                - release
                 - master
                 - ipfs-deploy
