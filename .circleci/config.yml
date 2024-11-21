@@ -3,7 +3,7 @@ version: 2.1
 parameters:
   node-version:
     type: string
-    default: '20.17.0'
+    default: '22.11.0'
 
   cypress-version:
     type: string
@@ -19,11 +19,13 @@ commands:
             - yarn-{{ .Environment.NODE_MODULES_VERSION }}-{{ checksum "/tmp/month.txt" }}-
       - run: yarn -v
       - run: yarn install --immutable
+      - run: sudo apt update
+      - run: sudo apt install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libnss3 libxss1 libasound2 libxtst6 xauth xvfb
       - save_cache:
           key: *yarn_cache
           paths:
-            - '/root/.yarn/berry'
-            - '/home/circleci/.yarn/berry'
+            - '~/.cache'
+            - '~/.yarn/berry'
             - '/tmp/app/node_modules'
 
   install-foundry:
@@ -154,7 +156,8 @@ jobs:
         type: string
     working_directory: /tmp/app
     docker:
-      - image: cypress/included:<< pipeline.parameters.cypress-version >>
+      - image: cimg/node:<< pipeline.parameters.node-version >>
+    #      - image: cypress/included:<< pipeline.parameters.cypress-version >>
     resource_class: xlarge
     steps:
       - checkout
@@ -197,7 +200,7 @@ jobs:
             CYPRESS_PRESET=<< parameters.preset >> \
             CYPRESS_PROVIDER_URL=<< parameters.provider-url >> \
             CYPRESS_FORK_BLOCK_NUMBER=<< parameters.fork-block-number >> \
-              cypress run --e2e \
+              yarn cypress run --e2e \
                 --config specPattern="./cypress/e2e/<< parameters.chainId >>-<< parameters.preset >>/*.e2e.js" \
                 || echo $? > /tmp/cypress_exit_code
 
@@ -228,7 +231,8 @@ jobs:
   cy:
     working_directory: /tmp/app
     docker:
-      - image: cypress/included:<< pipeline.parameters.cypress-version >>
+      - image: cimg/node:<< pipeline.parameters.node-version >>
+    #      - image: cypress/included:<< pipeline.parameters.cypress-version >>
     environment:
       NODE_ENV: test
     steps:
@@ -237,7 +241,7 @@ jobs:
 
       - run:
           working_directory: /tmp/app/liquidity/cypress
-          command: cypress run --component
+          command: yarn cypress run --component
 
       - store_test_results:
           path: 'liquidity/cypress/cypress/reports'
