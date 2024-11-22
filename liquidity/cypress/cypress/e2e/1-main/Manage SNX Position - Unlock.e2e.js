@@ -34,6 +34,9 @@ it('Manage SNX Position - Unlock', () => {
     cy.visit(`/#${path}?manageAction=undelegate&accountId=${accountId}`);
   });
 
+  // Temporary fix for URL to fully resolve accountId, until refactored
+  cy.wait(5000);
+
   cy.get('[data-cy="undelegate amount input"]').should('exist');
   cy.get('[data-cy="undelegate amount input"]').type('30');
   cy.get('[data-cy="undelegate submit"]').should('be.enabled');

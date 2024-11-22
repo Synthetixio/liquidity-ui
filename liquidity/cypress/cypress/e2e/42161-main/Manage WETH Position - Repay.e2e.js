@@ -43,6 +43,9 @@ it('Manage WETH Position - Repay', () => {
     cy.visit(`/#${path}?manageAction=repay&accountId=${accountId}`);
   });
 
+  // Temporary fix for URL to fully resolve accountId, until refactored
+  cy.wait(5000);
+
   cy.get('[data-cy="repay amount input"]').type('5');
 
   cy.get('[data-cy="repay submit"]').should('be.enabled');

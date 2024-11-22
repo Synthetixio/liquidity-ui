@@ -21,6 +21,9 @@ it('Manage SNX Position - Deposit', () => {
     cy.visit(`/#${path}?manageAction=deposit&accountId=${accountId}`);
   });
 
+  // Temporary fix for URL to fully resolve accountId, until refactored
+  cy.wait(5000);
+
   cy.get('[data-cy="balance amount"]').should('exist').and('include.text', 'Max');
   cy.get('[data-cy="deposit amount input"]').type('101');
   cy.get('[data-cy="deposit submit"]').should('be.enabled');

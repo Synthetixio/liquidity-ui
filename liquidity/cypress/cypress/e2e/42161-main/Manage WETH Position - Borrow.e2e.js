@@ -34,6 +34,9 @@ it('Manage WETH Position - Borrow', () => {
     cy.visit(`/#${path}?manageAction=claim&accountId=${accountId}`);
   });
 
+  // Temporary fix for URL to fully resolve accountId, until refactored
+  cy.wait(5000);
+
   cy.contains('[data-status="info"]', 'You can take an interest-free loan up to').should('exist');
 
   cy.get('[data-cy="claim amount input"]').type('100');
