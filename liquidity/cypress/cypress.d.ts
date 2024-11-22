@@ -1,5 +1,4 @@
 import { mount } from 'cypress/react';
-import { ethers } from 'ethers';
 
 // Augment the Cypress namespace to include type definitions for
 // your custom command.
@@ -9,7 +8,74 @@ declare global {
   namespace Cypress {
     interface Chainable {
       mount: typeof mount;
-      connectWallet: (namespace?: string) => Promise<ethers.Wallet>;
+
+      approveCollateral: ({
+        address,
+        symbol,
+        spender,
+      }: {
+        address?: string;
+        symbol: string;
+        spender: string;
+      }) => Promise<void>;
+
+      borrowUsd: ({
+        address,
+        accountId,
+        symbol,
+        amount,
+        poolId,
+      }: {
+        address?: string;
+        accountId?: string;
+        symbol: string;
+        amount: number;
+        poolId: number;
+      }) => Promise<void>;
+
+      delegateCollateral: ({
+        address,
+        accountId,
+        symbol,
+        amount,
+        poolId,
+      }: {
+        address?: string;
+        accountId?: string;
+        symbol: string;
+        amount: number;
+        poolId: number;
+      }) => Promise<void>;
+
+      depositCollateral: ({
+        address,
+        accountId,
+        symbol,
+        amount,
+      }: {
+        address?: string;
+        accountId?: string;
+        symbol: string;
+        amount: number;
+      }) => Promise<void>;
+
+      getSNX: ({ address, amount }: { address?: string; amount: number }) => Promise<void>;
+
+      getUSDC: ({ address, amount }: { address?: string; amount: number }) => Promise<void>;
+
+      setEthBalance: ({ address, balance }: { address?: string; balance: number }) => Promise<void>;
+
+      wrapCollateral: ({
+        address,
+        symbol,
+        amount,
+      }: {
+        address?: string;
+        symbol: string;
+        amount: number;
+      }) => Promise<void>;
+
+      wrapEth: ({ address, amount }: { address?: string; amount: number }) => Promise<void>;
     }
   }
 }

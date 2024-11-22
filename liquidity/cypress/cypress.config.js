@@ -34,27 +34,13 @@ module.exports = defineConfig({
       //      }
       on('task', {
         ...require('./cypress/tasks/anvil'),
-        ...require('./cypress/tasks/automineBlocks'),
-        ...require('./cypress/tasks/mineBlock'),
-        ...require('./cypress/tasks/setEthBalance'),
-        ...require('./cypress/tasks/wrapEth'),
-        ...require('./cypress/tasks/getCollateralConfig'),
-        ...require('./cypress/tasks/getSnx'),
-        ...require('./cypress/tasks/createAccount'),
-        ...require('./cypress/tasks/approveCollateral'),
-        ...require('./cypress/tasks/depositCollateral'),
-        ...require('./cypress/tasks/delegateCollateral'),
-        ...require('./cypress/tasks/borrowUsd'),
-        ...require('./cypress/tasks/setConfig'),
-        ...require('./cypress/tasks/getSUSDC'),
-        ...require('./cypress/tasks/getUSDC'),
-        ...require('./cypress/tasks/doAllPriceUpdates'),
-        ...require('./cypress/tasks/doPriceUpdateForPyth'),
-        ...require('./cypress/tasks/snapshot'),
-        ...require('./cypress/tasks/wrapCollateral'),
       });
       return config;
     },
+
+    viewportWidth: 1000,
+    viewportHeight: 1200,
+
     video: true,
 
     retries: {

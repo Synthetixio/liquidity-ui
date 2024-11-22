@@ -1,17 +1,14 @@
 import { ethers } from 'ethers';
 
-export async function setEthBalance({ address, balance }) {
-  const provider = new ethers.providers.JsonRpcProvider(
-    process.env.RPC_URL || 'http://127.0.0.1:8545'
-  );
+export async function setEthBalance({ address = Cypress.env('walletAddress'), balance }) {
+  const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
   const oldBalance = parseFloat(ethers.utils.formatUnits(await provider.getBalance(address)));
-  console.log('setEthBalance', { address, oldBalance });
+  console.log('setEthBalance', { oldBalance });
 
   await provider.send('anvil_setBalance', [
-    address,
+    Cypress.env('walletAddress'),
     ethers.utils.parseEther(`${balance}`).toHexString(),
   ]);
   const newBalance = parseFloat(ethers.utils.formatUnits(await provider.getBalance(address)));
-  console.log('setEthBalance', { address, newBalance });
-  return newBalance;
+  console.log('setEthBalance', { newBalance });
 }
