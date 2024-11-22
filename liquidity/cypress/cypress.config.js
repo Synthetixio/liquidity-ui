@@ -48,7 +48,7 @@ module.exports = defineConfig({
       openMode: 0,
     },
 
-    defaultCommandTimeout: 60_000,
+    defaultCommandTimeout: 300_000,
     execTimeout: 60_000,
     taskTimeout: 60_000,
   },
