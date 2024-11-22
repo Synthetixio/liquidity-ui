@@ -1,65 +1,54 @@
-import { generatePath } from 'react-router-dom';
+describe('Manage WETH Position - Repay', () => {
+  Cypress.env('chainId', '42161');
+  Cypress.env('preset', 'main');
+  Cypress.env('walletAddress', '0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345');
+  Cypress.env('accountId', '58655818123');
 
-it('Manage WETH Position - Repay', () => {
-  cy.connectWallet().then(({ address, accountId }) => {
-    cy.wrap(address).as('wallet');
-    cy.wrap(accountId).as('accountId');
+  beforeEach(() => {
+    cy.task('startAnvil', {
+      chainId: Cypress.env('chainId'),
+      forkUrl: `wss://arbitrum-mainnet.infura.io/ws/v3/${Cypress.env('INFURA_KEY')}`,
+      block: '271813668',
+    }).then(() => cy.log('Anvil started'));
 
-    cy.task('setEthBalance', { address, balance: 105 });
-    cy.task('createAccount', { address, accountId });
-
-    cy.task('approveCollateral', { address, symbol: 'WETH' });
-    cy.task('wrapEth', { address, amount: 20 });
-
-    cy.task('depositCollateral', {
-      address,
-      symbol: 'WETH',
-      accountId,
-      amount: 10,
+    cy.on('window:before:load', (win) => {
+      win.localStorage.setItem('MAGIC_WALLET', Cypress.env('walletAddress'));
+      win.localStorage.setItem(
+        'DEFAULT_NETWORK',
+        `${Cypress.env('chainId')}-${Cypress.env('preset')}`
+      );
     });
-    cy.task('delegateCollateral', {
-      address,
-      symbol: 'WETH',
-      accountId,
-      amount: 10,
-      poolId: 1,
-    });
-    cy.task('borrowUsd', {
-      address,
-      symbol: 'WETH',
-      accountId,
-      amount: 100,
-      poolId: 1,
-    }).then((debt) => cy.wrap(debt).as('debt'));
   });
+  afterEach(() => cy.task('stopAnvil').then(() => cy.log('Anvil stopped')));
 
-  cy.viewport(1000, 1200);
+  it('works', () => {
+    cy.setEthBalance({ balance: 100 });
+    cy.approveCollateral({ symbol: 'WETH', spender: 'CoreProxy' });
+    cy.wrapEth({ amount: 20 });
+    cy.depositCollateral({ symbol: 'WETH', amount: 10 });
+    cy.delegateCollateral({ symbol: 'WETH', amount: 10, poolId: 1 });
+    cy.borrowUsd({ symbol: 'WETH', amount: 100, poolId: 1 });
 
-  cy.get('@accountId').then((accountId) => {
-    const path = generatePath('/positions/:collateralSymbol/:poolId', {
-      collateralSymbol: 'WETH',
-      poolId: 1,
-    });
-    cy.visit(`/#${path}?manageAction=repay&accountId=${accountId}`);
+    cy.visit(`/#/positions/WETH/1?manageAction=repay&accountId=${Cypress.env('accountId')}`);
+
+    cy.get('[data-cy="repay debt form"]').should('exist');
+    cy.get('[data-cy="current debt amount"]').should('exist').and('include.text', 'Max');
+
+    cy.get('[data-cy="repay amount input"]').type('5');
+
+    cy.get('[data-cy="repay submit"]').should('be.enabled');
+    cy.get('[data-cy="repay submit"]').click();
+
+    cy.get('[data-cy="repay multistep"]')
+      .should('exist')
+      .and('include.text', 'Manage Debt')
+      .and('include.text', 'Approve USDx transfer')
+      .and('include.text', 'Repay')
+      .and('include.text', 'Repay 5 USDx');
+
+    cy.get('[data-cy="repay confirm button"]').should('include.text', 'Execute Transaction');
+    cy.get('[data-cy="repay confirm button"]').click();
+    cy.contains('[data-status="success"]', 'Your debt has been repaid.').should('exist');
+    cy.contains('[data-status="info"]', 'Debt successfully Updated').should('exist');
   });
-
-  // Temporary fix for URL to fully resolve accountId, until refactored
-  cy.wait(5000);
-
-  cy.get('[data-cy="repay amount input"]').type('5');
-
-  cy.get('[data-cy="repay submit"]').should('be.enabled');
-  cy.get('[data-cy="repay submit"]').click();
-
-  cy.get('[data-cy="repay multistep"]')
-    .should('exist')
-    .and('include.text', 'Manage Debt')
-    .and('include.text', 'Approve USDx transfer')
-    .and('include.text', 'Repay')
-    .and('include.text', 'Repay 5 USDx');
-
-  cy.get('[data-cy="repay confirm button"]').should('include.text', 'Execute Transaction');
-  cy.get('[data-cy="repay confirm button"]').click();
-  cy.contains('[data-status="success"]', 'Your debt has been repaid.').should('exist');
-  cy.contains('[data-status="info"]', 'Debt successfully Updated').should('exist');
 });
