@@ -26,8 +26,10 @@ module.exports = defineConfig({
     specPattern: ['../**/*.e2e.{js,jsx,ts,tsx}'],
     baseUrl: 'http://localhost:3000',
     setupNodeEvents(on, config) {
-      //      if (process.env.CI) {
-      //      on('before:browser:launch', require('@snx-cy/printBrowserLogs').printBrowserLogs);
+      require('cypress-terminal-report/src/installLogsPrinter')(on, {
+        printLogsToConsole: 'always',
+        includeSuccessfulHookLogs: true,
+      });
       require('@cypress/code-coverage/task')(on, config);
       //      }
       on('task', {

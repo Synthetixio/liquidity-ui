@@ -1,6 +1,11 @@
 import '@cypress/code-coverage/support';
-import { onLogAdded } from '@snx-cy/onLogAdded';
 import { subgraph } from '../lib/subgraph';
+import { default as installLogsCollector } from 'cypress-terminal-report/src/installLogsCollector';
+
+installLogsCollector({
+  enableExtendedCollector: true,
+  enableContinuousLogging: true,
+});
 
 afterEach(() => {
   cy.task('stopAnvil').then(() => {
