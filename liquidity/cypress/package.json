@@ -5,6 +5,7 @@
   "version": "0.0.9",
   "scripts": {
     "cy": "NODE_ENV=test CYPRESS_INFURA_KEY=$INFURA_KEY cypress open --component",
+    "cy:run": "NODE_ENV=test CYPRESS_INFURA_KEY=$INFURA_KEY cypress run --component",
     "e2e": "NODE_ENV=test CYPRESS_INFURA_KEY=$INFURA_KEY cypress open --e2e",
     "e2e:run": "NODE_ENV=test CYPRESS_INFURA_KEY=$INFURA_KEY cypress run --e2e"
   },

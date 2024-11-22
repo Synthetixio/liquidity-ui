@@ -22,7 +22,7 @@ commands:
           paths:
             - '~/.cache'
             - '~/.yarn/berry'
-            - '/tmp/app/node_modules'
+            - 'node_modules'
 
   install-foundry:
     steps:
@@ -110,7 +110,6 @@ commands:
 
 jobs:
   checks:
-    working_directory: /tmp/app
     docker:
       - image: cimg/node:<< pipeline.parameters.node-version >>
     steps:
@@ -128,7 +127,6 @@ jobs:
       - run: yarn svg:check
 
   tests:
-    working_directory: /tmp/app
     docker:
       - image: cimg/node:<< pipeline.parameters.node-version >>
     steps:
@@ -141,7 +139,6 @@ jobs:
           path: 'coverage'
 
   e2e:
-    working_directory: /tmp/app
     docker:
       - image: cimg/node:<< pipeline.parameters.node-version >>
     resource_class: xlarge
@@ -159,7 +156,7 @@ jobs:
 
       - run:
           name: Run server localhost:3000
-          working_directory: /tmp/app/liquidity/ui
+          working_directory: liquidity/ui
           command: NODE_ENV=test yarn start
           background: true
 
@@ -168,14 +165,14 @@ jobs:
           command: wget --retry-connrefused --waitretry=20 --read-timeout=20 --timeout=15 -t 10 http://localhost:3000
 
       - run:
-          working_directory: /tmp/app/liquidity/cypress
+          working_directory: liquidity/cypress
           command: |
             echo "0" > /tmp/cypress_exit_code
 
-            NODE_ENV=test \
-            CYPRESS_INFURA_KEY=$INFURA_KEY \
-              yarn cypress run --e2e \
-                || echo $? > /tmp/cypress_exit_code
+            export NODE_ENV=test
+            export CYPRESS_INFURA_KEY=$INFURA_KEY
+
+            circleci tests glob 'cypress/e2e/**/*.e2e.js' | circleci tests run --verbose --split-by=timings --command="xargs yarn cypress run --e2e --spec" || echo $? > /tmp/cypress_exit_code
 
       - save_cache:
           key: *anvil-fork-cache
@@ -200,7 +197,6 @@ jobs:
           destination: 'videos'
 
   cy:
-    working_directory: /tmp/app
     docker:
       - image: cimg/node:<< pipeline.parameters.node-version >>
     environment:
@@ -210,7 +206,7 @@ jobs:
       - yarn-install
 
       - run:
-          working_directory: /tmp/app/liquidity/cypress
+          working_directory: liquidity/cypress
           command: yarn cypress run --component
 
       - store_test_results:
@@ -229,7 +225,6 @@ jobs:
           destination: 'videos'
 
   combine-coverage:
-    working_directory: /tmp/app
     docker:
       - image: cimg/node:<< pipeline.parameters.node-version >>
     steps:
@@ -249,7 +244,6 @@ jobs:
           ./codecov -t ${CODECOV_TOKEN} --file /tmp/cov/combined/coverage.json
 
   ipfs:
-    working_directory: /tmp/app
     docker:
       - image: cimg/node:<< pipeline.parameters.node-version >>
     resource_class: large
@@ -267,7 +261,6 @@ jobs:
     parameters:
       workspace:
         type: string
-    working_directory: /tmp/app
     docker:
       - image: cimg/node:<< pipeline.parameters.node-version >>
     resource_class: large
@@ -300,7 +293,6 @@ jobs:
     parameters:
       workspace:
         type: string
-    working_directory: /tmp/app
     docker:
       - image: cimg/node:<< pipeline.parameters.node-version >>
     resource_class: large
