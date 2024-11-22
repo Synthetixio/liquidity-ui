@@ -40,7 +40,7 @@ export const Borrow = ({ liquidityPosition }: { liquidityPosition?: LiquidityPos
   const symbol = isBase ? params.collateralSymbol : systemToken?.symbol;
 
   return (
-    <Flex flexDirection="column">
+    <Flex flexDirection="column" data-cy="borrow form">
       <Text fontSize="md" fontWeight="700" mb="2">
         {isBase ? 'Claim' : 'Borrow'}
       </Text>
@@ -64,7 +64,13 @@ export const Borrow = ({ liquidityPosition }: { liquidityPosition?: LiquidityPos
             max={maxDebt}
             min={ZEROWEI}
           />
-          <Flex flexDirection="column" alignItems="flex-end" fontSize="xs" color="whiteAlpha.700">
+          <Flex
+            flexDirection="column"
+            alignItems="flex-end"
+            fontSize="xs"
+            color="whiteAlpha.700"
+            data-cy="borrow amount"
+          >
             <Flex
               gap="1"
               cursor="pointer"
@@ -75,8 +81,11 @@ export const Borrow = ({ liquidityPosition }: { liquidityPosition?: LiquidityPos
                 setDebtChange(maxDebt);
               }}
             >
-              <Text>Max:</Text>
-              <Amount value={maxDebt} /> {isBase ? 'USDC' : systemToken?.symbol}
+              <Amount
+                prefix="Max: "
+                value={maxDebt}
+                suffix={isBase ? 'USDC' : systemToken?.symbol}
+              />
             </Flex>
           </Flex>
         </Flex>

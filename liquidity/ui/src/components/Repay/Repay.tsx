@@ -41,7 +41,7 @@ export const Repay = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosi
   const max = debtExists ? liquidityPosition?.debt : ZEROWEI;
 
   return (
-    <Flex flexDirection="column">
+    <Flex flexDirection="column" data-cy="repay debt form">
       <Text color="gray./50" fontSize="sm" fontWeight="700" mb="3">
         Repay Debt
       </Text>
@@ -55,8 +55,8 @@ export const Repay = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosi
           </BorderBox>
           <Flex fontSize="12px" gap="1">
             <Flex gap="1" mr="3" cursor="pointer">
-              <Text display="flex" alignItems="center">
-                <Amount prefix="Debt: $" value={currentDebt} data-cy="current debt" />
+              <Text display="flex" alignItems="center" data-cy="current debt amount">
+                <Amount prefix="Debt: $" value={currentDebt} />
                 {currentDebt?.gt(0) && (
                   <>
                     &nbsp;

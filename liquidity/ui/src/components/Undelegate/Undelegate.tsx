@@ -138,7 +138,7 @@ export const UndelegateUi: FC<{
   ]);
 
   return (
-    <Flex flexDirection="column">
+    <Flex flexDirection="column" data-cy="unlock collateral form">
       <Text color="gray./50" fontSize="sm" fontWeight="700" mb="3">
         Unlock Collateral
       </Text>
@@ -150,11 +150,8 @@ export const UndelegateUi: FC<{
               {displaySymbol}
             </Text>
           </BorderBox>
-          <Flex gap="1" fontSize="12px">
-            <Text display="flex" alignItems="center" gap={1}>
-              Locked:
-            </Text>
-            <Amount value={max} data-cy="available to unlock" />
+          <Flex gap="1" fontSize="12px" data-cy="locked amount">
+            <Amount prefix="Locked: " value={max} />
             {max?.gt(0) && (
               <Text
                 as="span"

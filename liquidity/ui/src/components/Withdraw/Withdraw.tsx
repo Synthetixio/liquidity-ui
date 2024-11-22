@@ -62,9 +62,9 @@ export const Withdraw = ({
   const unlockDate = !isLoadingDate ? accountCollateralUnlockDate : null;
 
   return (
-    <Flex flexDirection="column">
+    <Flex flexDirection="column" data-cy="withdraw form">
       <Text color="gray./50" fontSize="sm" fontWeight="700" mb="3">
-        Withdraw {!isDebtWithdrawal ? 'Collateral' : ''}
+        {isDebtWithdrawal ? 'Withdraw' : 'Withdraw Collateral'}
       </Text>
       <BorderBox display="flex" p={3} mb="6">
         <Flex alignItems="flex-start" flexDir="column" gap="1">
@@ -74,9 +74,11 @@ export const Withdraw = ({
               {isDebtWithdrawal ? systemToken?.symbol : collateralType?.displaySymbol}
             </Text>
           </BorderBox>
-          <Flex fontSize="12px" gap="1">
-            <Text>{isDebtWithdrawal ? 'Max Withdraw:' : 'Unlocked:'}</Text>
-            <Amount value={maxWithdrawable} />
+          <Flex fontSize="12px" gap="1" data-cy="withdraw amount">
+            <Amount
+              prefix={isDebtWithdrawal ? 'Max Withdraw: ' : 'Unlocked: '}
+              value={maxWithdrawable}
+            />
             {maxWithdrawable.gt(0) && (
               <Text
                 cursor="pointer"
@@ -89,7 +91,7 @@ export const Withdraw = ({
                 color="cyan.500"
                 fontWeight={700}
               >
-                Max
+                &nbsp;Max
               </Text>
             )}
           </Flex>

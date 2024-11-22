@@ -103,7 +103,7 @@ export const InitialDepositUi: FC<{
   const overAvailableBalance = collateralChange.gt(maxAmount);
 
   return (
-    <Flex flexDirection="column">
+    <Flex flexDirection="column" data-cy="open liquidity position form">
       <Text color="gray.50" fontSize="20px" fontWeight={700}>
         {step > 0 && <ArrowBackIcon cursor="pointer" onClick={() => setStep(0)} mr={2} />}
         Open Liquidity Position
@@ -168,7 +168,7 @@ export const InitialDepositUi: FC<{
                   }
                 >
                   <Text fontSize="12px" data-cy="balance amount">
-                    Balance: <Amount value={maxAmount} />
+                    <Amount prefix="Balance: " value={maxAmount} />
                     <Text
                       as="span"
                       cursor="pointer"

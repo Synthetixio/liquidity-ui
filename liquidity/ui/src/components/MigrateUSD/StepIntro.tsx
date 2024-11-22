@@ -71,7 +71,7 @@ export const StepIntro = ({
                 </Text>
               </BorderBox>
               <Flex fontSize="xs" color="whiteAlpha.700" gap="1">
-                Balance: <Amount value={v2_balance} />
+                <Amount prefix="Balance: " value={v2_balance} />
                 <Text
                   as="span"
                   cursor="pointer"

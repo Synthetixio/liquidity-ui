@@ -95,7 +95,7 @@ function ClosePositionUi({
             <Flex fontSize="12px" gap="1" mr="3">
               <Amount prefix={debt.gt(0) ? 'Debt: ' : 'Max Claim: '} value={debt.abs()} />
               <Text ml={0.5} color="gray.600" fontWeight={700}>
-                Max
+                &nbsp;Max
               </Text>
             </Flex>
           </Flex>

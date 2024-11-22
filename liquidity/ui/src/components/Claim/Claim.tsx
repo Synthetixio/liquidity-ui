@@ -32,9 +32,9 @@ const ClaimUi: FC<{
   const price = useTokenPrice(symbol);
 
   return (
-    <Flex flexDirection="column">
+    <Flex flexDirection="column" data-cy="claim form">
       <Text color="gray./50" fontSize="sm" fontWeight="700" mb="3">
-        Claim{isBase ? ' Profit' : '/Borrow'}
+        {isBase ? 'Claim Profit' : 'Claim/Borrow'}
       </Text>
       <BorderBox display="flex" p={3} mb="6">
         <Flex alignItems="flex-start" flexDir="column" gap="1">
@@ -44,9 +44,8 @@ const ClaimUi: FC<{
               {isBase ? collateralType?.displaySymbol : systemToken?.symbol}
             </Text>
           </BorderBox>
-          <Flex fontSize="12px" gap="1">
-            <Text>Credit:</Text>
-            <Amount value={maxClaimble} />
+          <Flex fontSize="12px" gap="1" data-cy="credit amount">
+            <Amount prefix="Credit: " value={maxClaimble} />
             {maxClaimble?.gt(0) && (
               <Text
                 cursor="pointer"

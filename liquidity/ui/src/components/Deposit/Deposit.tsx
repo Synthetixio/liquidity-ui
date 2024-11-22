@@ -148,7 +148,7 @@ export const DepositUi: FC<{
   const overAvailableBalance = collateralChange.abs().gt(maxAmount);
 
   return (
-    <Flex flexDirection="column">
+    <Flex flexDirection="column" data-cy="deposit and lock collateral form">
       <Text color="gray./50" fontSize="sm" fontWeight="700" mb="3">
         Deposit and Lock Collateral
       </Text>
@@ -193,7 +193,7 @@ export const DepositUi: FC<{
             }
           >
             <Text fontSize="12px" data-cy="balance amount">
-              Balance: <Amount value={maxAmount} />
+              <Amount prefix="Balance: " value={maxAmount} />
               {maxAmount?.gt(0) && (
                 <Text
                   as="span"
