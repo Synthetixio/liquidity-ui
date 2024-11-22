@@ -5,7 +5,7 @@
   "version": "0.0.1",
   "dependencies": {
     "@snx-v3/constants": "workspace:*",
-    "@snx-v3/parser": "workspace:*",
+    "@snx-v3/parseContractError": "workspace:*",
     "@snx-v3/tsHelpers": "workspace:*",
     "@snx-v3/useBlockchain": "workspace:*",
     "@snx-v3/useGasOptions": "workspace:*",

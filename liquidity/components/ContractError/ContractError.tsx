@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Collapse, Text } from '@chakra-ui/react';
 import format from 'date-fns/format';
-import { ContractErrorType } from '@snx-v3/useContractErrorParser';
+import { ContractErrorType } from '@snx-v3/parseContractError';
 
 const defaultOpen = window?.localStorage?.CONTRACT_ERROR_OPEN === 'true';
 

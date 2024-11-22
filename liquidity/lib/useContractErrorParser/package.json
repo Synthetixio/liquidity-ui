@@ -4,10 +4,9 @@
   "main": "index.ts",
   "version": "0.0.1",
   "dependencies": {
+    "@snx-v3/parseContractError": "workspace:*",
     "@snx-v3/useAllErrors": "workspace:*",
     "@snx-v3/useClosePosition": "workspace:*",
-    "@snx-v3/withERC7412": "workspace:*",
-    "ethers": "^5.7.2",
     "react": "^18.2.0"
   }
 }

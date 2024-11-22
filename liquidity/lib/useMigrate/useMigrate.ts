@@ -1,5 +1,5 @@
 import { ZEROWEI } from '@snx-v3/constants';
-import { parseTxError } from '@snx-v3/parser';
+import { extractErrorData } from '@snx-v3/parseContractError';
 import { contractsHash } from '@snx-v3/tsHelpers';
 import { useDefaultProvider, useNetwork, useSigner } from '@snx-v3/useBlockchain';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
@@ -66,7 +66,7 @@ export function useMigrate() {
         if (LegacyMarket) {
           try {
             const LegacyMarketInterface = new ethers.utils.Interface(LegacyMarket.abi);
-            const parsedError = parseTxError(error);
+            const parsedError = extractErrorData(error);
             const errorResult = LegacyMarketInterface.parseError(parsedError as string);
             console.error('error:', errorResult);
           } catch {

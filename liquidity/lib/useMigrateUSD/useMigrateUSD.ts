@@ -6,7 +6,7 @@ import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { ZEROWEI } from '@snx-v3/constants';
 import Wei, { wei } from '@synthetixio/wei';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
-import { parseTxError } from '@snx-v3/parser';
+import { extractErrorData } from '@snx-v3/parseContractError';
 import { useQueryClient } from '@tanstack/react-query';
 import { ethers } from 'ethers';
 
@@ -58,7 +58,7 @@ export function useMigrateUSD({ amount }: { amount: Wei }) {
       if (LegacyMarket) {
         try {
           const LegacyMarketInterface = new ethers.utils.Interface(LegacyMarket.abi);
-          const parsedError = parseTxError(error);
+          const parsedError = extractErrorData(error);
           const errorResult = LegacyMarketInterface.parseError(parsedError as string);
           console.error('error:', errorResult);
         } catch {

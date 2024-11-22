@@ -7,6 +7,7 @@
     "@pythnetwork/pyth-evm-js": "^1.42.0",
     "@snx-v3/constants": "workspace:*",
     "@snx-v3/contracts": "workspace:*",
+    "@snx-v3/parseContractError": "workspace:*",
     "@snx-v3/tsHelpers": "workspace:*",
     "@snx-v3/useBlockchain": "workspace:*",
     "ethers": "^5.7.2"

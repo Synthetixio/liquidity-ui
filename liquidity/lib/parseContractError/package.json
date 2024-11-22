@@ -1,9 +1,10 @@
 {
-  "name": "@snx-v3/parser",
+  "name": "@snx-v3/parseContractError",
   "private": true,
   "main": "index.ts",
   "version": "0.0.1",
   "dependencies": {
-    "viem": "^2.13.5"
+    "ethers": "^5.7.2",
+    "react": "^18.2.0"
   }
 }
