@@ -27,7 +27,7 @@ export async function wrapEth({ address = Cypress.env('walletAddress'), amount }
     value: ethers.utils.hexValue(ethers.utils.parseEther(`${amount}`).toHexString()),
   });
   const result = await tx.wait();
-  console.log('wrapEth', { events: result.events });
+  console.log('wrapEth', { txEvents: result.events.filter((e) => Boolean(e.event)) });
 
   const newBalance = parseFloat(ethers.utils.formatUnits(await WETHContract.balanceOf(address)));
   console.log('wrapEth', { address, newBalance });

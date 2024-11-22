@@ -1,5 +1,6 @@
+import { importAllErrors, importSpotMarketProxy } from '@snx-v3/contracts';
+import { parseContractError } from '@snx-v3/parseContractError';
 import { ethers } from 'ethers';
-import { importSpotMarketProxy } from '@snx-v3/contracts';
 import { getSynthConfig } from './getSynthConfig';
 
 export async function wrapCollateral({ address = Cypress.env('walletAddress'), symbol, amount }) {
@@ -18,14 +19,21 @@ export async function wrapCollateral({ address = Cypress.env('walletAddress'), s
     SpotMarketProxy.abi,
     signer
   );
-  const tx = await SpotMarketProxyContract.wrap(
+  const args = [
+    //
     synthConfig.synthMarketId,
     ethers.utils.parseUnits(`${amount}`, synthConfig.token.decimals),
     0,
-    { gasLimit: 10_000_000 }
-  );
+  ];
+
+  const gasLimit = await SpotMarketProxyContract.estimateGas.wrap(...args).catch(async (error) => {
+    const AllErrors = await importAllErrors(Cypress.env('chainId'), Cypress.env('preset'));
+    console.log('wrapCollateral ERROR', parseContractError({ error, AllErrors }));
+    return ethers.BigNumber.from(10_000_000);
+  });
+  const tx = await SpotMarketProxyContract.wrap(...args, { gasLimit: gasLimit.mul(2) });
   const result = await tx.wait();
-  console.log('wrapCollateral', { txEvents: result.events });
+  console.log('wrapCollateral', { txEvents: result.events.filter((e) => Boolean(e.event)) });
 
   const CollateralContract = new ethers.Contract(
     synthConfig.address,

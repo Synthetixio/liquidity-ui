@@ -1,4 +1,5 @@
-import { importCoreProxy } from '@snx-v3/contracts';
+import { importAllErrors, importCoreProxy } from '@snx-v3/contracts';
+import { parseContractError } from '@snx-v3/parseContractError';
 import { ethers } from 'ethers';
 import { getCollateralConfig } from './getCollateralConfig';
 
@@ -17,12 +18,18 @@ export async function depositCollateral({
 
   const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
 
-  const tx = await CoreProxyContract.deposit(
+  const args = [
+    //
     ethers.BigNumber.from(accountId),
     config.tokenAddress,
     ethers.utils.parseEther(`${amount}`),
-    { gasLimit: 10_000_000 }
-  );
+  ];
+  const gasLimit = await CoreProxyContract.estimateGas.deposit(...args).catch(async (error) => {
+    const AllErrors = await importAllErrors(Cypress.env('chainId'), Cypress.env('preset'));
+    console.log('delegateCollateral ERROR', parseContractError({ error, AllErrors }));
+    return ethers.BigNumber.from(10_000_000);
+  });
+  const tx = await CoreProxyContract.deposit(...args, { gasLimit: gasLimit.mul(2) });
   const result = await tx.wait();
-  console.log('depositCollateral', { events: result.events });
+  console.log('depositCollateral', { txEvents: result.events.filter((e) => Boolean(e.event)) });
 }

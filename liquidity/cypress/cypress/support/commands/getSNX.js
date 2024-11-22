@@ -49,7 +49,7 @@ export async function getSNX({ address = Cypress.env('walletAddress'), amount })
     ethers.utils.parseEther(`${amount}`)
   );
   const result = await tx.wait();
-  console.log('getSNX', { txEvents: result.events });
+  console.log('getSNX', { txEvents: result.events.filter((e) => Boolean(e.event)) });
 
   const newBalance = parseFloat(ethers.utils.formatUnits(await SNXContract.balanceOf(address)));
   console.log('getSNX', { address, newBalance });

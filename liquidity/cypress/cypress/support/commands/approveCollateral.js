@@ -22,5 +22,5 @@ export async function approveCollateral({
 
   const tx = await contract.approve(meta.contracts[spender], ethers.constants.MaxUint256);
   const result = await tx.wait();
-  console.log('approveCollateral', { txEvents: result.events });
+  console.log('approveCollateral', { txEvents: result.events.filter((e) => Boolean(e.event)) });
 }

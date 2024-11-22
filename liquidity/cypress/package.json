@@ -11,16 +11,15 @@
   "devDependencies": {
     "@chakra-ui/react": "^2.8.2",
     "@cypress/code-coverage": "^3.12.39",
-    "@pythnetwork/pyth-evm-js": "^1.42.0",
     "@snx-v3/contracts": "workspace:*",
     "@snx-v3/liquidity": "workspace:*",
     "cypress": "13.16.0",
     "cypress-terminal-report": "^7.0.4",
     "ethers": "^5.7.2",
-    "react-router-dom": "^6.18.0",
-    "ts-node": "^10.9.1"
+    "react-router-dom": "^6.18.0"
   },
   "dependencies": {
+    "@snx-v3/parseContractError": "workspace:*",
     "@snx-v3/theme": "workspace:*"
   }
 }

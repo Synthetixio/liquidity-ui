@@ -1,4 +1,5 @@
-import { importCoreProxy } from '@snx-v3/contracts';
+import { importCoreProxy, importAllErrors } from '@snx-v3/contracts';
+import { parseContractError } from '@snx-v3/parseContractError';
 import { ethers } from 'ethers';
 import { getCollateralConfig } from './getCollateralConfig';
 
@@ -17,14 +18,24 @@ export async function delegateCollateral({
   const signer = provider.getSigner(address);
 
   const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
-  const tx = await CoreProxyContract.delegateCollateral(
+
+  const args = [
+    //
     ethers.BigNumber.from(accountId),
     ethers.BigNumber.from(poolId),
     config.tokenAddress,
     ethers.utils.parseEther(`${amount}`),
     ethers.utils.parseEther(`1`),
-    { gasLimit: 10_000_000 }
-  );
+  ];
+
+  const gasLimit = await CoreProxyContract.estimateGas
+    .delegateCollateral(...args)
+    .catch(async (error) => {
+      const AllErrors = await importAllErrors(Cypress.env('chainId'), Cypress.env('preset'));
+      console.log('delegateCollateral ERROR', parseContractError({ error, AllErrors }));
+      return ethers.BigNumber.from(10_000_000);
+    });
+  const tx = await CoreProxyContract.delegateCollateral(...args, { gasLimit: gasLimit.mul(2) });
   const result = await tx.wait();
-  console.log('delegateCollateral', { events: result.events });
+  console.log('delegateCollateral', { txEvents: result.events.filter((e) => Boolean(e.event)) });
 }
