@@ -179,6 +179,11 @@ jobs:
           paths:
             - '~/.foundry/cache'
 
+      - run: |-
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov -t ${CODECOV_TOKEN} --file liquidity/cypress/.nyc_output/out.json
+
       - run: exit $(cat /tmp/cypress_exit_code)
 
       - store_test_results:
@@ -208,6 +213,11 @@ jobs:
       - run:
           working_directory: liquidity/cypress
           command: yarn cypress run --component
+
+      - run: |-
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov -t ${CODECOV_TOKEN} --file liquidity/cypress/.nyc_output/out.json
 
       - store_test_results:
           path: 'liquidity/cypress/cypress/reports'
@@ -339,11 +349,11 @@ workflows:
       - cy
       - e2e
 
-      - combine-coverage:
-          requires:
-            - tests
-            - cy
-            - e2e
+      #      - combine-coverage:
+      #          requires:
+      #            - tests
+      #            - cy
+      #            - e2e
 
       - ipfs:
           requires:
