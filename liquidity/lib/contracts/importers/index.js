@@ -28,3 +28,4 @@ export * from './importUSDC';
 export * from './importPythFeeds';
 export * from './importDebtRepayer';
 export * from './importClosePosition';
+export * from './importMeta';
