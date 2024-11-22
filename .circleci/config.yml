@@ -5,10 +5,6 @@ parameters:
     type: string
     default: '22.11.0'
 
-  cypress-version:
-    type: string
-    default: '13.16.0'
-
 commands:
   yarn-install:
     steps:
@@ -145,19 +141,9 @@ jobs:
           path: 'coverage'
 
   e2e:
-    parameters:
-      chainId:
-        type: string
-      preset:
-        type: string
-      provider-url:
-        type: string
-      fork-block-number:
-        type: string
     working_directory: /tmp/app
     docker:
       - image: cimg/node:<< pipeline.parameters.node-version >>
-    #      - image: cypress/included:<< pipeline.parameters.cypress-version >>
     resource_class: xlarge
     steps:
       - checkout
@@ -177,18 +163,9 @@ jobs:
           command: NODE_ENV=test yarn start
           background: true
 
-      #      - run:
-      #          name: Run anvil localhost:8545
-      #          command: anvil --auto-impersonate --chain-id "<< parameters.chainId >>" --fork-url "<< parameters.provider-url >>" --no-rate-limit --steps-tracing --fork-block-number "<< parameters.fork-block-number >>"
-      #          background: true
-
       - run:
           name: Wait for server localhost:3000
           command: wget --retry-connrefused --waitretry=20 --read-timeout=20 --timeout=15 -t 10 http://localhost:3000
-
-      #      - run:
-      #          name: Wait for anvil localhost:8545
-      #          command: wget -q -O - --retry-connrefused --waitretry=20 --read-timeout=20 --timeout=15 -t 10 --post-data='{"method":"eth_chainId","params":[],"id":1,"jsonrpc":"2.0"}' --header='Content-Type:application/json' http://localhost:8545
 
       - run:
           working_directory: /tmp/app/liquidity/cypress
@@ -196,15 +173,9 @@ jobs:
             echo "0" > /tmp/cypress_exit_code
 
             NODE_ENV=test \
-            CYPRESS_CHAIN_ID=<< parameters.chainId >> \
-            CYPRESS_PRESET=<< parameters.preset >> \
-            CYPRESS_PROVIDER_URL=<< parameters.provider-url >> \
-            CYPRESS_FORK_BLOCK_NUMBER=<< parameters.fork-block-number >> \
+            CYPRESS_INFURA_KEY=$INFURA_KEY \
               yarn cypress run --e2e \
-                --config specPattern="./cypress/e2e/<< parameters.chainId >>-<< parameters.preset >>/*.e2e.js" \
                 || echo $? > /tmp/cypress_exit_code
-
-      # - run: pkill anvil
 
       - save_cache:
           key: *anvil-fork-cache
@@ -232,7 +203,6 @@ jobs:
     working_directory: /tmp/app
     docker:
       - image: cimg/node:<< pipeline.parameters.node-version >>
-    #      - image: cypress/included:<< pipeline.parameters.cypress-version >>
     environment:
       NODE_ENV: test
     steps:
@@ -268,8 +238,7 @@ jobs:
       - run: rm -rf /tmp/cov
       - run: yarn download-cci-coverage tests /tmp/cov || true
       - run: yarn download-cci-coverage cy /tmp/cov || true
-      - run: yarn download-cci-coverage e2e-base-mainnet /tmp/cov || true
-      - run: yarn download-cci-coverage e2e-arbitrum-mainnet /tmp/cov || true
+      - run: yarn download-cci-coverage e2e /tmp/cov || true
       - run: mkdir -p /tmp/cov
       - run: ls -alR /tmp/cov
       - run: mkdir -p /tmp/cov/combined
@@ -376,43 +345,20 @@ workflows:
           workspace: '@snx-v3/close-position-arbitrum'
 
       - cy
-
-      - e2e:
-          name: e2e-base-mainnet
-          chainId: '8453'
-          preset: 'andromeda'
-          #rpc-env: 'RPC_ARBITRUM_MAINNET'
-          provider-url: 'wss://base-mainnet.infura.io/ws/v3/$INFURA_KEY'
-          fork-block-number: '22683522'
-      - e2e:
-          name: e2e-arbitrum-mainnet
-          chainId: '42161'
-          preset: 'main'
-          #rpc-env: 'RPC_BASE_MAINNET'
-          provider-url: 'wss://arbitrum-mainnet.infura.io/ws/v3/$INFURA_KEY'
-          fork-block-number: '271813668'
-      - e2e:
-          name: e2e-mainnet
-          chainId: '1'
-          preset: 'main'
-          #rpc-env: 'RPC_MAINNET'
-          provider-url: 'wss://mainnet.infura.io/ws/v3/$INFURA_KEY'
-          fork-block-number: '21233424'
+      - e2e
 
       - combine-coverage:
           requires:
             - tests
             - cy
-            - e2e-base-mainnet
-            - e2e-arbitrum-mainnet
+            - e2e
 
       - ipfs:
           requires:
             - checks
             - tests
             - cy
-            - e2e-base-mainnet
-            - e2e-arbitrum-mainnet
+            - e2e
           filters:
             branches:
               only:

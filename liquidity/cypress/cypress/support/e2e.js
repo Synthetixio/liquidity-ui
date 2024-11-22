@@ -15,7 +15,7 @@ Cypress.Commands.add('approveCollateral', approveCollateral);
 Cypress.Commands.add('borrowUsd', borrowUsd);
 Cypress.Commands.add('delegateCollateral', delegateCollateral);
 Cypress.Commands.add('depositCollateral', depositCollateral);
-Cypress.Commands.add('getSnx', getSNX);
+Cypress.Commands.add('getSNX', getSNX);
 Cypress.Commands.add('getUSDC', getUSDC);
 Cypress.Commands.add('setEthBalance', setEthBalance);
 Cypress.Commands.add('wrapCollateral', wrapCollateral);
@@ -115,40 +115,3 @@ beforeEach(() => {
     win.localStorage.setItem('DEBUG', 'snx:*');
   });
 });
-
-//Cypress.Commands.add('connectWallet', () => {
-//  const address = '0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345';
-//
-//  let accountId;
-//  switch (`${Cypress.env('CHAIN_ID')}-${Cypress.env('PRESET')}`) {
-//    case '1-main':
-//      accountId = '651583203448';
-//      break;
-//    case '11155111-main':
-//      accountId = '777777';
-//      break;
-//    case '10-main':
-//      accountId = '58655818123';
-//      break;
-//    case '8453-andromeda':
-//      accountId = '522433293696';
-//      break;
-//    case '84532-andromeda':
-//      // does not exist but will create one
-//      accountId = '522433293696';
-//    case '42161-main':
-//      accountId = '58655818123';
-//      break;
-//    case '421614-main':
-//      accountId = '200489353353';
-//      break;
-//
-//    default:
-//      accountId = '777777';
-//  }
-//
-//  cy.on('window:before:load', (win) => {
-//    win.localStorage.setItem('MAGIC_WALLET', address);
-//  });
-//  return { address, accountId };
-//});
