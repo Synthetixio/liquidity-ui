@@ -252,7 +252,7 @@ jobs:
 
   contract-test:
     parameters:
-      workspace:
+      working_directory:
         type: string
     docker:
       - image: cimg/node:<< pipeline.parameters.node-version >>
@@ -271,9 +271,10 @@ jobs:
 
       - run:
           name: 'Run tests'
+          working_directory: << parameters.working_directory >>
           command: |-
             echo "0" > /tmp/test_exit_code
-            yarn workspace << parameters.workspace >> run test-cov \
+            yarn run test-cov \
               || echo $? > /tmp/test_exit_code
 
       - save_cache:
@@ -283,16 +284,17 @@ jobs:
 
       - run:
           name: 'Upload coverage report to Codecov'
+          working_directory: << parameters.working_directory >>
           command: |-
             curl -Os https://uploader.codecov.io/latest/linux/codecov
             chmod +x codecov
-            ./codecov -t ${CODECOV_TOKEN} --file /tmp/clean.lcov.info
+            ./codecov -t ${CODECOV_TOKEN} --file lcov.info
 
       - run: exit $(cat /tmp/test_exit_code)
 
   contract-e2e:
     parameters:
-      workspace:
+      working_directory:
         type: string
     docker:
       - image: cimg/node:<< pipeline.parameters.node-version >>
@@ -311,9 +313,10 @@ jobs:
 
       - run:
           name: 'Run tests'
+          working_directory: << parameters.working_directory >>
           command: |-
             echo "0" > /tmp/test_exit_code
-            yarn workspace << parameters.workspace >> run e2e-cov \
+            yarn run e2e-cov \
               || echo $? > /tmp/test_exit_code
 
       - save_cache:
@@ -323,10 +326,11 @@ jobs:
 
       - run:
           name: 'Upload coverage report to Codecov'
+          working_directory: << parameters.working_directory >>
           command: |-
             curl -Os https://uploader.codecov.io/latest/linux/codecov
             chmod +x codecov
-            ./codecov -t ${CODECOV_TOKEN} --file /tmp/clean.lcov.info
+            ./codecov -t ${CODECOV_TOKEN} --file lcov.info
 
       - run: exit $(cat /tmp/test_exit_code)
 
@@ -342,16 +346,16 @@ workflows:
 
       - contract-test:
           name: close-position-arbitrum-test
-          workspace: '@snx-v3/close-position-arbitrum'
+          working_directory: 'contracts/close-position-arbitrum'
       - contract-e2e:
           name: close-position-arbitrum-e2e
-          workspace: '@snx-v3/close-position-arbitrum'
+          working_directory: 'contracts/close-position-arbitrum'
       - contract-test:
           name: debt-repayer-base-andromeda-test
-          workspace: '@snx-v3/debt-repayer-base-andromeda'
+          working_directory: 'contracts/debt-repayer-base-andromeda'
       - contract-e2e:
           name: debt-repayer-base-andromeda-e2e
-          workspace: '@snx-v3/debt-repayer-base-andromeda'
+          working_directory: 'contracts/debt-repayer-base-andromeda'
 
       - cy
       - e2e
