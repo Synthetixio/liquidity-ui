@@ -6672,14 +6672,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@synthetixio/download-cci-coverage@workspace:*, @synthetixio/download-cci-coverage@workspace:tools/download-cci-coverage":
-  version: 0.0.0-use.local
-  resolution: "@synthetixio/download-cci-coverage@workspace:tools/download-cci-coverage"
-  bin:
-    download-cci-coverage: ./download-cci-coverage.js
-  languageName: unknown
-  linkType: soft
-
 "@synthetixio/safe-import@workspace:*, @synthetixio/safe-import@workspace:tools/safe-import":
   version: 0.0.0-use.local
   resolution: "@synthetixio/safe-import@workspace:tools/safe-import"
@@ -18273,7 +18265,6 @@ __metadata:
     "@babel/preset-react": "npm:^7.24.6"
     "@babel/preset-typescript": "npm:^7.24.6"
     "@synthetixio/deps": "workspace:*"
-    "@synthetixio/download-cci-coverage": "workspace:*"
     "@tanstack/eslint-plugin-query": "npm:^5.8.3"
     "@types/jest": "npm:^29.5.8"
     "@typescript-eslint/eslint-plugin": "npm:^6.11.0"

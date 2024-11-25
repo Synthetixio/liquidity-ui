@@ -35,7 +35,6 @@
     "@babel/preset-react": "^7.24.6",
     "@babel/preset-typescript": "^7.24.6",
     "@synthetixio/deps": "workspace:*",
-    "@synthetixio/download-cci-coverage": "workspace:*",
     "@tanstack/eslint-plugin-query": "^5.8.3",
     "@types/jest": "^29.5.8",
     "@typescript-eslint/eslint-plugin": "^6.11.0",

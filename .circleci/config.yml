@@ -236,27 +236,6 @@ jobs:
           path: 'liquidity/cypress/cypress/videos'
           destination: 'videos'
 
-  combine-coverage:
-    docker:
-      - image: cimg/node:<< pipeline.parameters.node-version >>
-    steps:
-      - checkout
-      - yarn-install
-      - run: rm -rf /tmp/cov
-      - run: yarn download-cci-coverage tests /tmp/cov || true
-      - run: yarn download-cci-coverage cy /tmp/cov || true
-      - run: yarn download-cci-coverage e2e /tmp/cov || true
-      - run: mkdir -p /tmp/cov
-      - run: ls -alR /tmp/cov
-      - run: mkdir -p /tmp/cov/combined
-      - run: yarn nyc merge /tmp/cov /tmp/cov/combined/coverage.json || true
-      - run:
-          name: 'Upload coverage report to Codecov'
-          command: |-
-            curl -Os https://uploader.codecov.io/latest/linux/codecov
-            chmod +x codecov
-            ./codecov -t ${CODECOV_TOKEN} --file /tmp/cov/combined/coverage.json
-
   ipfs:
     docker:
       - image: cimg/node:<< pipeline.parameters.node-version >>
@@ -372,12 +351,6 @@ workflows:
 
       - cy
       - e2e
-
-      #      - combine-coverage:
-      #          requires:
-      #            - tests
-      #            - cy
-      #            - e2e
 
       - ipfs:
           requires:
