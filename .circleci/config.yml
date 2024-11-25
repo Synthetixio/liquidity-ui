@@ -16,7 +16,7 @@ commands:
       - run: yarn -v
       - run: yarn install --immutable
       - run: sudo apt update
-      - run: sudo apt install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+      - run: sudo apt install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libnss3 libxss1 libasound2 libxtst6 xauth xvfb lcov
       - save_cache:
           key: *yarn_cache
           paths:
@@ -341,12 +341,16 @@ workflows:
       - tests
 
       - contract-test:
+          name: close-position-arbitrum-test
           workspace: '@snx-v3/close-position-arbitrum'
       - contract-e2e:
+          name: close-position-arbitrum-e2e
           workspace: '@snx-v3/close-position-arbitrum'
       - contract-test:
+          name: debt-repayer-base-andromeda-test
           workspace: '@snx-v3/debt-repayer-base-andromeda'
       - contract-e2e:
+          name: debt-repayer-base-andromeda-e2e
           workspace: '@snx-v3/debt-repayer-base-andromeda'
 
       - cy
