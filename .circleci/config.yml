@@ -345,6 +345,10 @@ workflows:
           workspace: '@snx-v3/close-position-arbitrum'
       - contract-e2e:
           workspace: '@snx-v3/close-position-arbitrum'
+      - contract-test:
+          workspace: '@snx-v3/debt-repayer-base-andromeda'
+      - contract-e2e:
+          workspace: '@snx-v3/debt-repayer-base-andromeda'
 
       - cy
       - e2e
