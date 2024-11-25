@@ -5035,7 +5035,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/contracts@workspace:liquidity/lib/contracts/importers"
   dependencies:
-    "@synthetixio/v3-contracts": "npm:^7.1.0"
+    "@synthetixio/v3-contracts": "npm:^7.11.0"
     viem: "npm:^2.13.5"
   languageName: unknown
   linkType: soft
@@ -6667,10 +6667,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@synthetixio/v3-contracts@npm:^7.1.0":
-  version: 7.8.0
-  resolution: "@synthetixio/v3-contracts@npm:7.8.0"
-  checksum: 10/1cc8f6c757a3129e384a0ca23b977d5d294069309c57c2e73404f150a2b7cfbb60fdbe316f595905e7e2ac3367c4cc1f6a0de9c1fdfea1b363b5a42faab1bfa3
+"@synthetixio/v3-contracts@npm:^7.11.0":
+  version: 7.11.0
+  resolution: "@synthetixio/v3-contracts@npm:7.11.0"
+  checksum: 10/8f0148ce008769e1d15ad70b6118b764788301b2e208d2c00d84122e4dac8f3bf518d86f865baae762a033c4fe163e310f48529815f21997602f11ba36534ba3
   languageName: node
   linkType: hard
 
