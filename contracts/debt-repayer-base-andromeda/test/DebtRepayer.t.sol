@@ -247,7 +247,7 @@ contract DebtRepayerTest is Test {
         );
     }
 
-    function test_depositDebtToRepay_debtMorethanUSDCAmount_reverts() public {
+    function test_depositDebtToRepay_debtMoreThanUSDCAmount_reverts() public {
         vm.startPrank(user);
 
         vm.mockCall(
@@ -264,7 +264,7 @@ contract DebtRepayerTest is Test {
             abi.encode(neededSynth, 0, 0, 0, 0)
         );
 
-        vm.expectRevert();
+        vm.expectRevert('ERC20: subtraction underflow');
 
         debtRepayer.depositDebtToRepay(
             coreProxyAddress, spotMarketAddress, accountProxyAddress, accountId, poolId, address(USDC), spotMarketId
