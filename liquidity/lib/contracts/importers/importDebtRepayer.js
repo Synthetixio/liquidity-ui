@@ -1,17 +1,17 @@
 const abi = [
-  'function depositDebtToRepay(address synthetixCore, address spotMarket, uint128 accountId, uint128 poolId, address collateralType, uint128 spotMarketId)',
+  'function depositDebtToRepay(address synthetixCore, address spotMarket, address accountProxy, uint128 accountId, uint128 poolId, address collateralType, uint128 spotMarketId)',
 ];
 
 export async function importDebtRepayer(chainId, preset) {
   const deployment = `${Number(chainId).toFixed(0)}-${preset}`;
   switch (deployment) {
     case '8453-andromeda': {
-      // https://basescan.org/address/0xBD8004ea5c73E33d405d35d594221Efc733F7E37#code
-      return { address: '0xBD8004ea5c73E33d405d35d594221Efc733F7E37', abi };
+      // https://basescan.org/address/0x220bd4ba855a954a57d5eac74ca686e73c58f388#code
+      return { address: '0x220bd4ba855a954a57d5eac74ca686e73c58f388', abi };
     }
     case '84532-andromeda': {
-      // https://sepolia.basescan.org/address/0x0d08ff9e0ceddf81a85bc160d5d378eea7a1e200#code
-      return { address: '0x0d08ff9e0ceddf81a85bc160d5d378eea7a1e200', abi };
+      // https://sepolia.basescan.org/address/0x4e41a49dc192b3c31acea9db38be74ac224e7212#code
+      return { address: '0x4e41a49dc192b3c31acea9db38be74ac224e7212', abi };
     }
     // Arbitrum contracts cannot be the same as Base as the workflow is different
     //    case '42161-main': {

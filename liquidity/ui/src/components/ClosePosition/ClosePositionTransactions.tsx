@@ -26,6 +26,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { FC, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { LiquidityPositionUpdated } from '../Manage/LiquidityPositionUpdated';
 import { useParams } from '@snx-v3/useParams';
+import { useUSDC } from '@snx-v3/useUSDC';
 
 export const ClosePositionTransactions: FC<{
   onClose: () => void;
@@ -93,6 +94,7 @@ export const ClosePositionTransactions: FC<{
 
   const { data: DebtRepayer } = useDebtRepayer();
   const { data: ClosePositionContract } = useClosePosition();
+  const { data: USDC } = useUSDC();
 
   // repay approval for base
   const {
@@ -100,10 +102,10 @@ export const ClosePositionTransactions: FC<{
     requireApproval: requireApprovalUSDC,
     isLoading,
   } = useApprove({
-    contractAddress: wrapperToken,
+    contractAddress: USDC?.address,
     // slippage for approval
     amount: parseUnits(liquidityPosition?.debt.abs().toString(), 6)
-      .mul(110)
+      .mul(120)
       .div(100),
     spender: DebtRepayer?.address,
   });
@@ -181,13 +183,11 @@ export const ClosePositionTransactions: FC<{
         cb: () => undelegate(),
       });
     } else {
-      if (liquidityPosition?.debt.gt(-0.00001)) {
-        if (requireApprovalUSDC) {
-          transactions.push({
-            title: `Approve ${debtSymbol} transfer`,
-            cb: () => approveUSDC(false),
-          });
-        }
+      if (liquidityPosition?.debt.gt(-0.00001) && requireApprovalUSDC) {
+        transactions.push({
+          title: `Approve ${debtSymbol} transfer`,
+          cb: () => approveUSDC(false),
+        });
       }
 
       transactions.push({
@@ -200,20 +200,6 @@ export const ClosePositionTransactions: FC<{
         ),
         cb: () => undelegateBaseAndromeda(),
       });
-
-      if (liquidityPosition?.debt.lt(0)) {
-        transactions.push({
-          title: 'Claim',
-          subtitle: (
-            <Amount
-              prefix="Claim "
-              value={liquidityPosition?.debt.abs()}
-              suffix={` ${debtSymbol}`}
-            />
-          ),
-          cb: () => execBorrow(),
-        });
-      }
     }
 
     return transactions;

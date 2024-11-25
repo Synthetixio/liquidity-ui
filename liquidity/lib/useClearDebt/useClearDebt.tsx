@@ -1,5 +1,6 @@
 import { USDC_BASE_MARKET } from '@snx-v3/isBaseAndromeda';
 import { initialState, reducer } from '@snx-v3/txnReducer';
+import { useAccountProxy } from '@snx-v3/useAccountProxy';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
@@ -9,7 +10,6 @@ import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { withERC7412 } from '@snx-v3/withERC7412';
-import Wei from '@synthetixio/wei';
 import { useMutation } from '@tanstack/react-query';
 import { ethers } from 'ethers';
 import React from 'react';
@@ -18,18 +18,15 @@ export const useClearDebt = ({
   accountId,
   poolId,
   collateralTypeAddress,
-  availableUSDCollateral,
-  debt,
 }: {
   accountId?: string;
   poolId?: string;
   collateralTypeAddress?: string;
-  availableUSDCollateral?: Wei;
-  debt?: Wei;
 }) => {
   const [txnState, dispatch] = React.useReducer(reducer, initialState);
   const { data: CoreProxy } = useCoreProxy();
   const { data: SpotMarketProxy } = useSpotMarketProxy();
+  const { data: AccountProxy } = useAccountProxy();
   const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
 
   const signer = useSigner();
@@ -42,51 +39,57 @@ export const useClearDebt = ({
   const mutation = useMutation({
     mutationFn: async () => {
       if (!signer || !network || !provider) throw new Error('No signer or network');
-      if (!(CoreProxy && poolId && accountId && collateralTypeAddress && SpotMarketProxy)) {
+      if (
+        !(
+          CoreProxy &&
+          poolId &&
+          accountId &&
+          collateralTypeAddress &&
+          SpotMarketProxy &&
+          DebtRepayer &&
+          AccountProxy
+        )
+      ) {
         return;
       }
-
-      if (!availableUSDCollateral) return;
 
       try {
         dispatch({ type: 'prompting' });
 
-        const transactions = [];
-
-        if (DebtRepayer) {
-          const DebtRepayerContract = new ethers.Contract(
-            DebtRepayer.address,
-            DebtRepayer.abi,
-            signer
-          );
-          const depositDebtToRepay = DebtRepayerContract.populateTransaction.depositDebtToRepay(
-            CoreProxy.address,
-            SpotMarketProxy.address,
-            accountId,
-            poolId,
-            collateralTypeAddress,
-            USDC_BASE_MARKET
-          );
-          transactions.push(depositDebtToRepay);
-        }
-
-        const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
-
-        const burn = CoreProxyContract.populateTransaction.burnUsd(
-          ethers.BigNumber.from(accountId),
-          ethers.BigNumber.from(poolId),
-          collateralTypeAddress,
-          debt?.mul(110).div(100).toBN().toString() || '0'
+        const AccountProxyContract = new ethers.Contract(
+          AccountProxy.address,
+          AccountProxy.abi,
+          signer
         );
-        transactions.push(burn);
+        const DebtRepayerContract = new ethers.Contract(
+          DebtRepayer.address,
+          DebtRepayer.abi,
+          signer
+        );
 
-        const callsPromise = Promise.all(transactions);
+        const approveAccountTx = AccountProxyContract.populateTransaction.approve(
+          DebtRepayer.address,
+          accountId
+        );
+
+        const depositDebtToRepay = DebtRepayerContract.populateTransaction.depositDebtToRepay(
+          CoreProxy.address,
+          SpotMarketProxy.address,
+          AccountProxy.address,
+          accountId,
+          poolId,
+          collateralTypeAddress,
+          USDC_BASE_MARKET
+        );
+
+        const callsPromise = Promise.all([approveAccountTx, depositDebtToRepay]);
 
         const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
 
         if (priceUpdateTx) {
           calls.unshift(priceUpdateTx as any);
         }
+
         const walletAddress = await signer.getAddress();
         const { multicallTxn: erc7412Tx, gasLimit } = await withERC7412(
           network,

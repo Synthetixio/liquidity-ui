@@ -232,7 +232,7 @@ export const ClosePosition = ({
           debt={liquidityPosition?.debt || ZEROWEI}
           collateralAmount={liquidityPosition?.collateralAmount || ZEROWEI}
           onClose={onClose}
-          debtSymbol={isBase ? params.collateralSymbol : systemToken?.symbol}
+          debtSymbol={isBase ? 'USDC' : systemToken?.symbol}
           collateralSymbol={collateralType.displaySymbol}
           onSubmit={() => setTransactions(true)}
         />

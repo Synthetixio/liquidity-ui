@@ -88,8 +88,7 @@ export const UndelegateUi: FC<{
     isAnyMarketLocked ||
     collateralChange.gte(0) ||
     !isValidLeftover ||
-    overAvailableBalance ||
-    (currentDebt?.gt(0) && isBase);
+    overAvailableBalance;
 
   const txSummaryItems = useMemo(() => {
     const items = [

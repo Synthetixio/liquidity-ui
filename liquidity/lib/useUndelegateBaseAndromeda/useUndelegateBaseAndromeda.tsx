@@ -1,8 +1,7 @@
-import { parseUnits } from '@snx-v3/format';
 import { USDC_BASE_MARKET } from '@snx-v3/isBaseAndromeda';
 import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
-import { useApprove } from '@snx-v3/useApprove';
+import { useAccountProxy } from '@snx-v3/useAccountProxy';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
@@ -10,7 +9,6 @@ import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
-import { useGetUSDTokens } from '@snx-v3/useGetUSDTokens';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { withERC7412 } from '@snx-v3/withERC7412';
@@ -25,7 +23,6 @@ export const useUndelegateBaseAndromeda = ({
   collateralTypeAddress,
   collateralChange,
   currentCollateral,
-  liquidityPosition,
 }: {
   accountId?: string;
   poolId?: string;
@@ -43,73 +40,70 @@ export const useUndelegateBaseAndromeda = ({
   const { gasSpeed } = useGasSpeed();
   const provider = useProvider();
   const { network } = useNetwork();
-  const { data: usdTokens } = useGetUSDTokens();
 
-  const debtExists = liquidityPosition?.debt.gt(0);
-  const currentDebt = debtExists && liquidityPosition ? liquidityPosition.debt : wei(0);
-
+  const { data: AccountProxy } = useAccountProxy();
   const { data: DebtRepayer } = useDebtRepayer();
-  const { approve, requireApproval } = useApprove({
-    contractAddress: usdTokens?.USDC,
-    //slippage for approval
-    amount: parseUnits(currentDebt.toString(), 6).mul(110).div(100),
-    spender: DebtRepayer?.address,
-  });
 
   const mutation = useMutation({
     mutationFn: async () => {
       if (!signer || !network || !provider) throw new Error('No signer or network');
-      if (!(CoreProxy && poolId && collateralTypeAddress && SpotMarketProxy)) return;
+      if (
+        !(
+          CoreProxy &&
+          AccountProxy &&
+          DebtRepayer &&
+          poolId &&
+          collateralTypeAddress &&
+          SpotMarketProxy
+        )
+      )
+        return;
       if (collateralChange.eq(0)) return;
       if (currentCollateral.eq(0)) return;
+
       try {
         dispatch({ type: 'prompting' });
 
-        if (debtExists && requireApproval) {
-          await approve(false);
-        }
+        const AccountProxyContract = new ethers.Contract(
+          AccountProxy.address,
+          AccountProxy.abi,
+          signer
+        );
 
-        const transactions: Promise<ethers.PopulatedTransaction>[] = [];
+        const DebtRepayerContract = new ethers.Contract(
+          DebtRepayer.address,
+          DebtRepayer.abi,
+          signer
+        );
 
-        if (DebtRepayer) {
-          const DebtRepayerContract = new ethers.Contract(
-            DebtRepayer.address,
-            DebtRepayer.abi,
-            signer
-          );
-          const depositDebtToRepay = DebtRepayerContract.populateTransaction.depositDebtToRepay(
-            CoreProxy.address,
-            SpotMarketProxy.address,
-            accountId,
-            poolId,
-            collateralTypeAddress,
-            USDC_BASE_MARKET
-          );
-          transactions.push(depositDebtToRepay);
-        }
+        const approveAccountTx = AccountProxyContract.populateTransaction.approve(
+          DebtRepayer.address,
+          accountId
+        );
+
+        const depositDebtToRepay = DebtRepayerContract.populateTransaction.depositDebtToRepay(
+          CoreProxy.address,
+          SpotMarketProxy.address,
+          AccountProxy.address,
+          accountId,
+          poolId,
+          collateralTypeAddress,
+          USDC_BASE_MARKET
+        );
 
         const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
 
-        const burn = CoreProxyContract.populateTransaction.burnUsd(
-          ethers.BigNumber.from(accountId),
-          ethers.BigNumber.from(poolId),
-          collateralTypeAddress,
-          currentDebt.abs().mul(10).toBN()
-        );
-        transactions.push(burn);
-
-        const populatedTxnPromised = CoreProxyContract.populateTransaction.delegateCollateral(
+        const delegateTx = CoreProxyContract.populateTransaction.delegateCollateral(
           ethers.BigNumber.from(accountId),
           ethers.BigNumber.from(poolId),
           collateralTypeAddress,
           currentCollateral.add(collateralChange).toBN(),
           wei(1).toBN()
         );
-        transactions.push(populatedTxnPromised);
 
         const callsPromise: Promise<
           (ethers.PopulatedTransaction & { requireSuccess?: boolean })[]
-        > = Promise.all([...transactions].filter(notNil));
+        > = Promise.all([approveAccountTx, depositDebtToRepay, delegateTx].filter(notNil));
 
         const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
 

@@ -86,6 +86,7 @@
     "@snx-v3/useTokenPrice": "workspace:*",
     "@snx-v3/useTransferAccountId": "workspace:*",
     "@snx-v3/useTransferableSynthetix": "workspace:*",
+    "@snx-v3/useUSDC": "workspace:*",
     "@snx-v3/useUSDProxy": "workspace:*",
     "@snx-v3/useUndelegate": "workspace:*",
     "@snx-v3/useUndelegateBaseAndromeda": "workspace:*",

@@ -3,17 +3,20 @@ import { Button, Divider, Link, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
-import { currency } from '@snx-v3/format';
+import { currency, parseUnits } from '@snx-v3/format';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
+import { useApprove } from '@snx-v3/useApprove';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { CollateralType, useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
+import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { useParams } from '@snx-v3/useParams';
 import { useUndelegate } from '@snx-v3/useUndelegate';
 import { useUndelegateBaseAndromeda } from '@snx-v3/useUndelegateBaseAndromeda';
+import { useUSDC } from '@snx-v3/useUSDC';
 import { Wei, wei } from '@synthetixio/wei';
 import { useQueryClient } from '@tanstack/react-query';
 import { useMachine } from '@xstate/react';
@@ -143,6 +146,19 @@ export const UndelegateModal: UndelegateModalProps = ({ onClose, isOpen, liquidi
     collateralChange,
     currentCollateral: currentCollateral,
   });
+
+  const debtExists = liquidityPosition?.debt.gt(0);
+  const currentDebt = debtExists && liquidityPosition ? liquidityPosition.debt : wei(0);
+  const { data: USDC } = useUSDC();
+  const { data: DebtRepayer } = useDebtRepayer();
+
+  const { approve, requireApproval } = useApprove({
+    contractAddress: USDC?.address,
+    //slippage for approval
+    amount: debtExists ? parseUnits(currentDebt.toString(), 6).mul(120).div(100) : 0,
+    spender: DebtRepayer?.address,
+  });
+
   const { exec: undelegateBaseAndromeda } = useUndelegateBaseAndromeda({
     accountId: params.accountId,
     poolId: params.poolId,
@@ -169,6 +185,9 @@ export const UndelegateModal: UndelegateModalProps = ({ onClose, isOpen, liquidi
           });
 
           if (isBase) {
+            if (requireApproval) {
+              await approve(false);
+            }
             await undelegateBaseAndromeda();
           } else {
             await execUndelegate();

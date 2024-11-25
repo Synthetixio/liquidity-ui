@@ -11,6 +11,7 @@ import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
+import { useUSDC } from '@snx-v3/useUSDC';
 import { wei } from '@synthetixio/wei';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
@@ -27,6 +28,8 @@ export const RepayAllDebt = ({ liquidityPosition }: { liquidityPosition: Liquidi
   const debtExists = liquidityPosition.debt.gt(0.01);
   const currentDebt = debtExists ? liquidityPosition.debt : wei(0);
   const { data: systemToken } = useSystemToken();
+  const { data: USDC } = useUSDC();
+
   const { data: wrapperToken } = useGetWrapperToken(getSpotMarketId(params.collateralSymbol));
 
   const { data: tokenBalance } = useTokenBalance(
@@ -39,15 +42,13 @@ export const RepayAllDebt = ({ liquidityPosition }: { liquidityPosition: Liquidi
   );
 
   const {
-    exec: execRepay,
+    exec: clearDebt,
     settle: settleRepay,
     isLoading,
   } = useClearDebt({
     accountId: searchParams.get('accountId') || '',
     poolId: params.poolId,
     collateralTypeAddress: liquidityPosition?.tokenAddress,
-    availableUSDCollateral: liquidityPosition.accountCollateral.availableCollateral,
-    debt: currentDebt,
   });
 
   const { data: DebtRepayer } = useDebtRepayer();
@@ -56,7 +57,7 @@ export const RepayAllDebt = ({ liquidityPosition }: { liquidityPosition: Liquidi
     requireApproval,
     isLoading: approvalLoading,
   } = useApprove({
-    contractAddress: wrapperToken,
+    contractAddress: USDC?.address,
     //slippage for approval
     amount: parseUnits(currentDebt.toString(), 6).mul(110).div(100),
     spender: DebtRepayer?.address,
@@ -67,7 +68,7 @@ export const RepayAllDebt = ({ liquidityPosition }: { liquidityPosition: Liquidi
       if (requireApproval) {
         await approve(false);
       }
-      await execRepay();
+      await clearDebt();
 
       await Promise.all([
         queryClient.invalidateQueries({
@@ -86,7 +87,7 @@ export const RepayAllDebt = ({ liquidityPosition }: { liquidityPosition: Liquidi
 
       settleRepay();
     } catch (error) {}
-  }, [approve, execRepay, network?.id, network?.preset, queryClient, requireApproval, settleRepay]);
+  }, [approve, clearDebt, network?.id, network?.preset, queryClient, requireApproval, settleRepay]);
 
   if (liquidityPosition.debt.lte(0)) {
     return (
