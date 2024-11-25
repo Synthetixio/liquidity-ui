@@ -4,13 +4,13 @@ import { PoolHeader, CollateralSection } from '../components';
 import { useParams } from '@snx-v3/useParams';
 import { HomeLink } from '@snx-v3/HomeLink';
 import { usePool } from '@snx-v3/usePoolsList';
-import { MAINNET, NETWORKS } from '@snx-v3/useBlockchain';
+import { NETWORKS } from '@snx-v3/useBlockchain';
 import { NavLink } from 'react-router-dom';
 
 export const Pool = () => {
   const { poolId, networkId } = useParams();
 
-  const { data: pool, isLoading } = usePool(Number(networkId), String(poolId));
+  const { data: pool, isPending } = usePool(Number(networkId), String(poolId));
   const network = NETWORKS.find((n) => n.id === Number(networkId));
 
   const { poolInfo } = pool || {};
@@ -25,7 +25,7 @@ export const Pool = () => {
       </Helmet>
       <>
         <HomeLink mt={4} />
-        {!isLoading && !pool && (
+        {!isPending && !pool && (
           <Flex
             height="100%"
             direction="column"
@@ -41,13 +41,9 @@ export const Pool = () => {
             </NavLink>
           </Flex>
         )}
-        {!isLoading && pool && (
+        {!isPending && pool && network && (
           <>
-            <PoolHeader
-              mt={3}
-              name={poolInfo && poolInfo[0].pool.name}
-              network={network || MAINNET}
-            />
+            <PoolHeader mt={3} name={poolInfo && poolInfo[0].pool.name} network={network} />
             <Divider my={6} bg="gray.900" />
             <Flex gap={4} mb={16}>
               <Box w="100%">

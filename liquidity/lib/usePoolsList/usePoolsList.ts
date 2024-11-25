@@ -33,7 +33,7 @@ export function usePool(networkId: number, poolId: string) {
     data: data?.synthetixPools.find(
       (p) => p?.network?.id === networkId && p?.poolInfo?.[0]?.pool?.id === poolId
     ),
-    isLoading: isPending,
+    isPending,
   };
 }
 
