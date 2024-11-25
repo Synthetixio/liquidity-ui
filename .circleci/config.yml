@@ -216,10 +216,12 @@ jobs:
           working_directory: liquidity/cypress
           command: yarn cypress run --component
 
-      - run: |-
-          curl -Os https://uploader.codecov.io/latest/linux/codecov
-          chmod +x codecov
-          ./codecov -t ${CODECOV_TOKEN} --file liquidity/cypress/.nyc_output/out.json
+      - run:
+          name: 'Upload coverage report to Codecov'
+          command: |-
+            curl -Os https://uploader.codecov.io/latest/linux/codecov
+            chmod +x codecov
+            ./codecov -t ${CODECOV_TOKEN} --file liquidity/cypress/.nyc_output/out.json
 
       - store_test_results:
           path: 'liquidity/cypress/cypress/reports'
@@ -282,15 +284,10 @@ jobs:
           paths:
             - '~/.foundry/cache'
 
-      - run:
-          name: 'Upload coverage report to Codecov'
-          working_directory: << parameters.working_directory >>
-          command: |-
-            curl -Os https://uploader.codecov.io/latest/linux/codecov
-            chmod +x codecov
-            ./codecov -t ${CODECOV_TOKEN} --file lcov.info
-
       - run: exit $(cat /tmp/test_exit_code)
+
+      - store_artifacts:
+          path: '<< parameters.working_directory >>/coverage'
 
   contract-e2e:
     parameters:
@@ -324,15 +321,10 @@ jobs:
           paths:
             - '~/.foundry/cache'
 
-      - run:
-          name: 'Upload coverage report to Codecov'
-          working_directory: << parameters.working_directory >>
-          command: |-
-            curl -Os https://uploader.codecov.io/latest/linux/codecov
-            chmod +x codecov
-            ./codecov -t ${CODECOV_TOKEN} --file lcov.info
-
       - run: exit $(cat /tmp/test_exit_code)
+
+      - store_artifacts:
+          path: '<< parameters.working_directory >>/coverage'
 
 workflows:
   ui:
