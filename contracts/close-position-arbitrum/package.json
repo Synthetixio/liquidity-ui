@@ -13,12 +13,11 @@
   "author": "Synthetix",
   "license": "MIT",
   "scripts": {
-    "cov": "./cov.sh",
     "build": "forge build",
     "test": "forge test -vvvvv ./test/*.t.sol",
     "e2e": "forge test -vvvvv ./test/*.e2e.sol",
-    "test-cov": "forge coverage -vvvvv ./test/*.t.sol",
-    "e2e-cov": "forge coverage -vvvvv ./test/*.e2e.sol"
+    "test-cov": "./cov.sh ./test/*.t.sol",
+    "e2e-cov": "./cov.sh ./test/*.e2e.sol"
   },
   "devDependencies": {
     "forge-std": "github:foundry-rs/forge-std"

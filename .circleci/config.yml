@@ -179,10 +179,12 @@ jobs:
           paths:
             - '~/.foundry/cache'
 
-      - run: |-
-          curl -Os https://uploader.codecov.io/latest/linux/codecov
-          chmod +x codecov
-          ./codecov -t ${CODECOV_TOKEN} --file liquidity/cypress/.nyc_output/out.json
+      - run:
+          name: 'Upload coverage report to Codecov'
+          command: |-
+            curl -Os https://uploader.codecov.io/latest/linux/codecov
+            chmod +x codecov
+            ./codecov -t ${CODECOV_TOKEN} --file liquidity/cypress/.nyc_output/out.json
 
       - run: exit $(cat /tmp/cypress_exit_code)
 
@@ -248,10 +250,12 @@ jobs:
       - run: ls -alR /tmp/cov
       - run: mkdir -p /tmp/cov/combined
       - run: yarn nyc merge /tmp/cov /tmp/cov/combined/coverage.json || true
-      - run: |-
-          curl -Os https://uploader.codecov.io/latest/linux/codecov
-          chmod +x codecov
-          ./codecov -t ${CODECOV_TOKEN} --file /tmp/cov/combined/coverage.json
+      - run:
+          name: 'Upload coverage report to Codecov'
+          command: |-
+            curl -Os https://uploader.codecov.io/latest/linux/codecov
+            chmod +x codecov
+            ./codecov -t ${CODECOV_TOKEN} --file /tmp/cov/combined/coverage.json
 
   ipfs:
     docker:
@@ -287,7 +291,8 @@ jobs:
             - anvil-fork-cache-{{ .Environment.ANVIL_CACHE_VERSION }}-
 
       - run:
-          command: |
+          name: 'Run tests'
+          command: |-
             echo "0" > /tmp/test_exit_code
             yarn workspace << parameters.workspace >> run test-cov \
               || echo $? > /tmp/test_exit_code
@@ -296,6 +301,13 @@ jobs:
           key: *anvil-fork-cache
           paths:
             - '~/.foundry/cache'
+
+      - run:
+          name: 'Upload coverage report to Codecov'
+          command: |-
+            curl -Os https://uploader.codecov.io/latest/linux/codecov
+            chmod +x codecov
+            ./codecov -t ${CODECOV_TOKEN} --file /tmp/clean.lcov.info
 
       - run: exit $(cat /tmp/test_exit_code)
 
@@ -319,7 +331,8 @@ jobs:
             - anvil-fork-cache-{{ .Environment.ANVIL_CACHE_VERSION }}-
 
       - run:
-          command: |
+          name: 'Run tests'
+          command: |-
             echo "0" > /tmp/test_exit_code
             yarn workspace << parameters.workspace >> run e2e-cov \
               || echo $? > /tmp/test_exit_code
@@ -328,6 +341,13 @@ jobs:
           key: *anvil-fork-cache
           paths:
             - '~/.foundry/cache'
+
+      - run:
+          name: 'Upload coverage report to Codecov'
+          command: |-
+            curl -Os https://uploader.codecov.io/latest/linux/codecov
+            chmod +x codecov
+            ./codecov -t ${CODECOV_TOKEN} --file /tmp/clean.lcov.info
 
       - run: exit $(cat /tmp/test_exit_code)
 

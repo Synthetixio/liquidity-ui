@@ -264,7 +264,7 @@ contract DebtRepayerTest is Test {
             abi.encode(neededSynth, 0, 0, 0, 0)
         );
 
-        vm.expectRevert('ERC20: subtraction underflow');
+        vm.expectRevert("ERC20: subtraction underflow");
 
         debtRepayer.depositDebtToRepay(
             coreProxyAddress, spotMarketAddress, accountProxyAddress, accountId, poolId, address(USDC), spotMarketId
