@@ -25,7 +25,7 @@ export function usePoolsList() {
   });
 }
 
-export function usePool(networkId: number, poolId: string) {
+export function usePool(networkId?: number, poolId?: string) {
   const { data, isPending } = usePoolsList();
 
   // TODO: In the future if we have multiple pools per network filter by poolId also

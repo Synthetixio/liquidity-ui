@@ -1,16 +1,20 @@
 import { Box, Divider, Flex, Heading, Link } from '@chakra-ui/react';
-import { Helmet } from 'react-helmet';
-import { PoolHeader, CollateralSection } from '../components';
-import { useParams } from '@snx-v3/useParams';
 import { HomeLink } from '@snx-v3/HomeLink';
+import { NETWORKS, useNetwork } from '@snx-v3/useBlockchain';
+import { useParams } from '@snx-v3/useParams';
 import { usePool } from '@snx-v3/usePoolsList';
-import { NETWORKS } from '@snx-v3/useBlockchain';
+import { Helmet } from 'react-helmet';
 import { NavLink } from 'react-router-dom';
+import { CollateralSection, PoolHeader } from '../components';
 
 export const Pool = () => {
-  const { poolId, networkId } = useParams();
-  const { data: pool, isPending } = usePool(Number(networkId), String(poolId));
-  const network = NETWORKS.find((n) => n.id === Number(networkId));
+  const params = useParams();
+
+  const { network: connectedNetwork } = useNetwork();
+  const networkId = params.networkId ? Number(params.networkId) : connectedNetwork?.id;
+  const { data: pool, isPending } = usePool(networkId, String(params.poolId));
+  const network = NETWORKS.find((n) => n.id === networkId);
+
   const title = pool
     ? `Pool #${pool.poolInfo?.[0]?.pool?.id} / ${pool.poolInfo?.[0]?.pool?.name}`
     : 'Pool';

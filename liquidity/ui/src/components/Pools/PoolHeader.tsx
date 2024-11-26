@@ -1,12 +1,15 @@
 import { Flex, Heading, Skeleton, Tag, Text } from '@chakra-ui/react';
-import { ARBITRUM, MAINNET, NetworkIcon, NETWORKS } from '@snx-v3/useBlockchain';
+import { ARBITRUM, MAINNET, NetworkIcon, NETWORKS, useNetwork } from '@snx-v3/useBlockchain';
 import { useParams } from '@snx-v3/useParams';
 import { usePool } from '@snx-v3/usePoolsList';
 
 export function PoolHeader() {
-  const { poolId, networkId } = useParams();
-  const { data: pool, isPending } = usePool(Number(networkId), String(poolId));
-  const network = NETWORKS.find((n) => n.id === Number(networkId));
+  const params = useParams();
+
+  const { network: connectedNetwork } = useNetwork();
+  const networkId = params.networkId ? Number(params.networkId) : connectedNetwork?.id;
+  const { data: pool, isPending } = usePool(networkId, String(params.poolId));
+  const network = NETWORKS.find((n) => n.id === networkId);
 
   const poolName = pool?.poolInfo?.[0]?.pool?.name ?? '';
   const networkName = network?.name ?? '';
@@ -19,7 +22,7 @@ export function PoolHeader() {
             {poolName ? poolName : 'Unknown Pool'}
           </Heading>
         </Skeleton>
-        {Number(networkId) === MAINNET.id || Number(networkId) === ARBITRUM.id ? (
+        {networkId === MAINNET.id || networkId === ARBITRUM.id ? (
           <Tag size="sm" bg="purple.500" mr="auto" color="white" height="fit-content">
             Borrow Interest-Free
           </Tag>
