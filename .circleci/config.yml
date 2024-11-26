@@ -70,7 +70,7 @@ commands:
     steps:
       - run:
           name: 'Install IPFS'
-          command: |
+          command: |-
             LATEST_VERSION=$(curl -sSL https://dist.ipfs.tech/go-ipfs/versions | tail -n 1)
             LATEST_VERSION_NUMBER=${LATEST_VERSION#*v}
             DOWNLOAD_URL="https://dist.ipfs.tech/go-ipfs/${LATEST_VERSION}/go-ipfs_${LATEST_VERSION}_linux-amd64.tar.gz"
@@ -90,7 +90,7 @@ commands:
       - run: ipfs add --progress=true --pin=true --recursive "<< parameters.source-dir >>"
       - run:
           name: 'Save IPFS_CID'
-          command: |
+          command: |-
             export IPFS_CID=$(ipfs add --progress=false --pin=true --recursive --quieter "<< parameters.source-dir >>")
             echo $IPFS_CID
             echo "export IPFS_CID=$IPFS_CID" >> $BASH_ENV
@@ -99,12 +99,12 @@ commands:
           command: curl --silent --request POST --user "$IPFS_USER:$IPFS_PASS" "<< parameters.ipfs-api >>/pin/add?recursive=true&progress=true&arg=$IPFS_CID"
       - run:
           name: 'Publish IPFS_CID to IPNS key << parameters.ipns-key >>'
-          command: |
+          command: |-
             curl --silent --request POST --user "$IPFS_USER:$IPFS_PASS" "<< parameters.ipfs-api >>/name/publish?key=<< parameters.ipns-key >>&arg=$IPFS_CID" | tee /tmp/name-publish-$IPFS_CID.log
             cat /tmp/name-publish-$IPFS_CID.log | jq
       - run:
           name: 'Pin to Synthetix IPFS cluster'
-          command: |
+          command: |-
             curl --silent --request POST --user "$IPFS_USER:$IPFS_PASS" "<< parameters.ipfs-cluster-api >>/pin/add?arg=$IPFS_CID" | tee /tmp/pin-add-$IPFS_CID.log
             cat /tmp/pin-add-$IPFS_CID.log | jq
 
@@ -165,14 +165,13 @@ jobs:
           command: wget --retry-connrefused --waitretry=20 --read-timeout=20 --timeout=15 -t 10 http://localhost:3000
 
       - run:
+          name: 'Run tests'
           working_directory: liquidity/cypress
-          command: |
+          command: |-
             echo "0" > /tmp/cypress_exit_code
-
             export NODE_ENV=test
             export CYPRESS_INFURA_KEY=$INFURA_KEY
-
-            circleci tests glob 'cypress/e2e/**/*.e2e.js' | circleci tests run --verbose --split-by=timings --command="xargs yarn cypress run --e2e --spec" || echo $? > /tmp/cypress_exit_code
+            yarn cypress run --e2e || echo $? > /tmp/cypress_exit_code
 
       - save_cache:
           key: *anvil-fork-cache
