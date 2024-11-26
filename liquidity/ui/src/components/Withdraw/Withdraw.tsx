@@ -149,7 +149,7 @@ export const Withdraw = ({
         isDisabled={
           withdrawAmount.lte(0) || isRunning || !unlockDate || withdrawAmount.gt(maxWithdrawable)
         }
-        data-cy="claim submit"
+        data-cy="withdraw submit"
         type="submit"
       >
         {withdrawAmount.gt(0) ? 'Withdraw' : 'Enter Amount'}

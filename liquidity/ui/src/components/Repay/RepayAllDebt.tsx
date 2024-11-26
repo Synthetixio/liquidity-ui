@@ -1,4 +1,5 @@
-import { Button, Flex, Text } from '@chakra-ui/react';
+import { CheckIcon } from '@chakra-ui/icons';
+import { Alert, Button, Divider, Flex, Text } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { parseUnits } from '@snx-v3/format';
 import { getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
@@ -87,8 +88,21 @@ export const RepayAllDebt = ({ liquidityPosition }: { liquidityPosition: Liquidi
     } catch (error) {}
   }, [approve, execRepay, network?.id, network?.preset, queryClient, requireApproval, settleRepay]);
 
+  if (liquidityPosition.debt.lte(0)) {
+    return (
+      <Alert data-cy="repay debt success" my={2} status="success" rounded="base" borderRadius="6px">
+        <Flex bg="green.500" p="1" rounded="full" mr="2">
+          <CheckIcon w="12px" h="12px" color="green.900" />
+        </Flex>
+        <Text color="white" fontSize="16px" fontWeight={400}>
+          Your account currently has no debt.
+        </Text>
+      </Alert>
+    );
+  }
+
   return (
-    <Flex flexDirection="column">
+    <Flex data-cy="repay debt form" flexDirection="column">
       <Text fontSize="md" fontWeight="700" mb="0.5">
         Repay {isBase ? params.collateralSymbol : systemToken?.symbol}
       </Text>
@@ -100,7 +114,7 @@ export const RepayAllDebt = ({ liquidityPosition }: { liquidityPosition: Liquidi
         isDisabled={!sufficientBalance}
         isLoading={isLoading || approvalLoading}
         onClick={submit}
-        data-cy="repay"
+        data-cy="repay debt submit"
       >
         <Amount
           prefix="Repay USDC $"

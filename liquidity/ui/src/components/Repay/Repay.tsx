@@ -31,7 +31,7 @@ export const Repay = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosi
   const symbol = isBase ? collateralSymbol : systemToken?.symbol;
   const price = useTokenPrice(symbol);
 
-  if (liquidityPosition?.debt.gt(0.01) && isBaseAndromeda(network?.id, network?.preset)) {
+  if (liquidityPosition && isBaseAndromeda(network?.id, network?.preset)) {
     return <RepayAllDebt liquidityPosition={liquidityPosition} />;
   }
 
