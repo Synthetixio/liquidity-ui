@@ -44,9 +44,8 @@ describe('Manage USDC Position - Deposit', () => {
     cy.get('[data-cy="deposit confirm button"]').should('include.text', 'Execute Transaction');
     cy.get('[data-cy="deposit confirm button"]').click();
 
-    cy.contains(
-      '[data-status="success"]',
-      'Your locked collateral amount has been updated.'
-    ).should('exist');
+    cy.contains('[data-status="success"]', 'Your locked collateral amount has been updated.', {
+      timeout: 180_000,
+    }).should('exist');
   });
 });

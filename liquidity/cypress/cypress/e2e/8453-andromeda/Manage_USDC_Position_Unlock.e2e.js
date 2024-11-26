@@ -47,9 +47,8 @@ describe('should be able to unlock USDC collateral after depositing', () => {
     cy.get('[data-cy="undelegate confirm button"]').should('include.text', 'Execute Transaction');
     cy.get('[data-cy="undelegate confirm button"]').click();
 
-    cy.contains(
-      '[data-status="success"]',
-      'Your locked collateral amount has been updated.'
-    ).should('exist');
+    cy.contains('[data-status="success"]', 'Your locked collateral amount has been updated.', {
+      timeout: 180_000,
+    }).should('exist');
   });
 });

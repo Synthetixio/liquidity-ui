@@ -28,7 +28,9 @@ describe('Create Account', () => {
 
     cy.get('[data-cy="wallet button"]').click();
     cy.get('[data-cy="accounts list"]').children().should('have.length', 1);
-    cy.contains('[data-cy="create new account button"]', 'Create Account').should('exist');
+    cy.contains('[data-cy="create new account button"]', 'Create Account')
+      .should('exist')
+      .and('be.enabled');
     cy.get('[data-cy="create new account button"]').click();
     cy.get('[data-cy="accounts list"]').children().should('have.length', 2);
 

@@ -49,6 +49,9 @@ describe('Manage WETH Position - Repay', () => {
     cy.get('[data-cy="repay confirm button"]').should('include.text', 'Execute Transaction');
     cy.get('[data-cy="repay confirm button"]').click();
     cy.contains('[data-status="success"]', 'Your debt has been repaid.').should('exist');
-    cy.contains('[data-status="info"]', 'Debt successfully Updated').should('exist');
+
+    cy.contains('[data-status="success"]', 'Debt successfully Updated', {
+      timeout: 180_000,
+    }).should('exist');
   });
 });

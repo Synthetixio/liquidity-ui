@@ -54,6 +54,8 @@ describe('Manage WETH Position - Borrow', () => {
     cy.get('[data-cy="claim confirm button"]').should('include.text', 'Execute Transaction');
     cy.get('[data-cy="claim confirm button"]').click();
 
-    cy.contains('[data-status="info"]', 'Debt successfully Updated').should('exist');
+    cy.contains('[data-status="success"]', 'Debt successfully Updated', {
+      timeout: 180_000,
+    }).should('exist');
   });
 });
