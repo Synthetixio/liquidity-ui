@@ -2,7 +2,6 @@ import { contractsHash } from '@snx-v3/tsHelpers';
 import { AccountCollateralType, loadAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { loadPrices } from '@snx-v3/useCollateralPrices';
-import { getPriceUpdates, getPythFeedIds } from '@snx-v3/useCollateralPriceUpdates';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useSystemToken } from '@snx-v3/useSystemToken';
@@ -125,14 +124,6 @@ export const useLiquidityPosition = ({
         });
 
       const allCalls = priceCalls.concat(positionCalls).concat(accountCollateralCalls);
-
-      const priceUpdateTx = (await getPriceUpdates(
-        (await getPythFeedIds(network)) as string[],
-        network
-      ).catch(() => undefined)) as any;
-      if (priceUpdateTx) {
-        allCalls.unshift(priceUpdateTx);
-      }
 
       return await erc7412Call(
         network,

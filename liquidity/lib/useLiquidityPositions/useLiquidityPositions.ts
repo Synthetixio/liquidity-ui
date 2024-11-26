@@ -1,8 +1,7 @@
 import { calculateCRatio } from '@snx-v3/calculations';
-import { keyBy, stringToHash, contractsHash } from '@snx-v3/tsHelpers';
+import { contractsHash, keyBy, stringToHash } from '@snx-v3/tsHelpers';
 import { useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { loadPrices } from '@snx-v3/useCollateralPrices';
-import { getPriceUpdates, getPythFeedIds } from '@snx-v3/useCollateralPriceUpdates';
 import { CollateralType, useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { loadPosition } from '@snx-v3/useLiquidityPosition';
@@ -98,14 +97,6 @@ export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => 
 
       const allCalls = priceCalls.concat(positionCalls).concat(availableCollateralCalls);
       const singlePositionDecoder = positionCallsAndData.at(0)?.decoder;
-
-      const priceUpdateTx = (await getPriceUpdates(
-        (await getPythFeedIds(network)) as string[],
-        network
-      ).catch(() => undefined)) as any;
-      if (priceUpdateTx) {
-        allCalls.unshift(priceUpdateTx);
-      }
 
       return await erc7412Call(
         network,

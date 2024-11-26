@@ -1,6 +1,5 @@
 import { contractsHash } from '@snx-v3/tsHelpers';
 import { useNetwork, useProvider } from '@snx-v3/useBlockchain';
-import { getPriceUpdates, getPythFeedIds } from '@snx-v3/useCollateralPriceUpdates';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useSystemToken } from '@snx-v3/useSystemToken';
@@ -117,14 +116,6 @@ export function useAccountCollaterals({ accountId }: { accountId?: string }) {
         CoreProxy,
       });
       const allCalls = [...calls];
-
-      const priceUpdateTx = (await getPriceUpdates(
-        (await getPythFeedIds(network)) as string[],
-        network
-      ).catch(() => undefined)) as any;
-      if (priceUpdateTx) {
-        allCalls.unshift(priceUpdateTx);
-      }
 
       const data = await erc7412Call(network, provider, allCalls, decoder, 'useAccountCollateral');
 

@@ -1,6 +1,5 @@
 import { contractsHash } from '@snx-v3/tsHelpers';
 import { useNetwork, useProvider } from '@snx-v3/useBlockchain';
-import { getPriceUpdates, getPythFeedIds } from '@snx-v3/useCollateralPriceUpdates';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { erc7412Call } from '@snx-v3/withERC7412';
 import { SmallIntSchema, WeiSchema } from '@snx-v3/zod';
@@ -56,14 +55,6 @@ export const usePoolConfiguration = (poolId?: string) => {
       const allCalls = await Promise.all(
         markets.map((m) => CoreProxyContract.populateTransaction.isMarketCapacityLocked(m.id))
       );
-
-      const priceUpdateTx = (await getPriceUpdates(
-        (await getPythFeedIds(network)) as string[],
-        network
-      ).catch(() => undefined)) as any;
-      if (priceUpdateTx) {
-        allCalls.unshift(priceUpdateTx);
-      }
 
       const decoded = await erc7412Call(
         network,

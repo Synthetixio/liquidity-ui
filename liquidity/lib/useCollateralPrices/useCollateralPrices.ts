@@ -1,12 +1,11 @@
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
-import { stringToHash, contractsHash } from '@snx-v3/tsHelpers';
+import { contractsHash, stringToHash } from '@snx-v3/tsHelpers';
 import {
   Network,
   useDefaultProvider,
   useNetwork,
   useProviderForChain,
 } from '@snx-v3/useBlockchain';
-import { getPriceUpdates, getPythFeedIds } from '@snx-v3/useCollateralPriceUpdates';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useGetUSDTokens } from '@snx-v3/useGetUSDTokens';
@@ -100,14 +99,6 @@ export const useCollateralPrices = (customNetwork?: Network) => {
       });
 
       const allCalls = [...calls];
-
-      const priceUpdateTx = (await getPriceUpdates(
-        (await getPythFeedIds(targetNetwork)) as string[],
-        targetNetwork
-      ).catch(() => undefined)) as any;
-      if (priceUpdateTx) {
-        allCalls.unshift(priceUpdateTx);
-      }
 
       const prices = await erc7412Call(
         targetNetwork,

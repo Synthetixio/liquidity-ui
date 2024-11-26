@@ -5,7 +5,6 @@
   "version": "0.0.1",
   "dependencies": {
     "@snx-v3/useBlockchain": "workspace:*",
-    "@snx-v3/useCollateralPriceUpdates": "workspace:*",
     "@snx-v3/useCollateralTypes": "workspace:*",
     "@snx-v3/useCoreProxy": "workspace:*",
     "@snx-v3/withERC7412": "workspace:*",

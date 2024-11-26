@@ -1,5 +1,4 @@
 import { Network, useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
-import { getPriceUpdates, getPythFeedIds } from '@snx-v3/useCollateralPriceUpdates';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { erc7412Call } from '@snx-v3/withERC7412';
@@ -55,14 +54,6 @@ export const useVaultsData = (poolId?: number, customNetwork?: Network) => {
       );
 
       const allCalls = await Promise.all([collateralCallsP, debtCallsP]);
-
-      const priceUpdateTx = (await getPriceUpdates(
-        (await getPythFeedIds(targetNetwork)) as string[],
-        targetNetwork
-      ).catch(() => undefined)) as any;
-      if (priceUpdateTx) {
-        allCalls.unshift(priceUpdateTx);
-      }
 
       return await erc7412Call(
         targetNetwork,
