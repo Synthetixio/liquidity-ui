@@ -243,7 +243,6 @@ export const ClosePosition = ({
           onClose={onClose}
           collateralType={collateralType}
           liquidityPosition={liquidityPosition}
-          poolId={params.poolId}
         />
       ) : null}
       {transactionStep && ClosePositionDeployment ? (

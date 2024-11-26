@@ -25,14 +25,15 @@ import { useUndelegateBaseAndromeda } from '@snx-v3/useUndelegateBaseAndromeda';
 import { useQueryClient } from '@tanstack/react-query';
 import { FC, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { LiquidityPositionUpdated } from '../Manage/LiquidityPositionUpdated';
+import { useParams } from '@snx-v3/useParams';
 
 export const ClosePositionTransactions: FC<{
   onClose: () => void;
   onBack: () => void;
-  poolId: string | undefined;
-  liquidityPosition: LiquidityPosition | undefined;
+  liquidityPosition?: LiquidityPosition;
   collateralType: CollateralType;
-}> = ({ collateralType, liquidityPosition, poolId, onClose, onBack }) => {
+}> = ({ collateralType, liquidityPosition, onClose, onBack }) => {
+  const params = useParams();
   const [steps, setSteps] = useState<
     {
       title: ReactNode;
@@ -76,7 +77,7 @@ export const ClosePositionTransactions: FC<{
   });
   const { exec: execRepay } = useRepay({
     accountId: liquidityPosition?.accountId,
-    poolId: poolId,
+    poolId: params.poolId,
     collateralTypeAddress: collateralType?.tokenAddress,
     debtChange: liquidityPosition?.debt.mul(-1) || ZEROWEI,
     availableUSDCollateral,
@@ -84,7 +85,7 @@ export const ClosePositionTransactions: FC<{
   });
   const { exec: undelegate } = useUndelegate({
     accountId: liquidityPosition?.accountId,
-    poolId: poolId,
+    poolId: params.poolId,
     collateralTypeAddress: liquidityPosition?.tokenAddress,
     collateralChange: liquidityPosition?.collateralAmount.mul(-1) || ZEROWEI,
     currentCollateral: liquidityPosition?.collateralAmount || ZEROWEI,
@@ -109,7 +110,7 @@ export const ClosePositionTransactions: FC<{
 
   const { exec: undelegateBaseAndromeda } = useUndelegateBaseAndromeda({
     accountId: liquidityPosition?.accountId,
-    poolId: poolId,
+    poolId: params.poolId,
     collateralTypeAddress: liquidityPosition?.tokenAddress,
     collateralChange: liquidityPosition?.collateralAmount.mul(-1) || ZEROWEI,
     currentCollateral: liquidityPosition?.collateralAmount || ZEROWEI,
@@ -119,7 +120,7 @@ export const ClosePositionTransactions: FC<{
   //claim
   const { exec: execBorrow } = useBorrow({
     accountId: liquidityPosition?.accountId,
-    poolId: poolId,
+    poolId: params.poolId,
     collateralTypeAddress: collateralType?.tokenAddress,
     debtChange: liquidityPosition?.debt.mul(-1) || ZEROWEI,
   });

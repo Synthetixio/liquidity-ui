@@ -4823,36 +4823,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/PoolBox@workspace:liquidity/components/PoolBox":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/PoolBox@workspace:liquidity/components/PoolBox"
-  dependencies:
-    "@chakra-ui/react": "npm:^2.8.2"
-    "@snx-v3/BorderBox": "workspace:*"
-    "@snx-v3/calculations": "workspace:*"
-    "@snx-v3/useParams": "workspace:*"
-    "@snx-v3/usePoolData": "workspace:*"
-    "@snx-v3/usePools": "workspace:*"
-    "@synthetixio/wei": "npm:^2.74.4"
-    react: "npm:^18.2.0"
-    react-router-dom: "npm:^6.18.0"
-  languageName: unknown
-  linkType: soft
-
-"@snx-v3/PoolSelector@workspace:liquidity/components/PoolSelector":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/PoolSelector@workspace:liquidity/components/PoolSelector"
-  dependencies:
-    "@chakra-ui/icons": "npm:^2.1.1"
-    "@chakra-ui/react": "npm:^2.8.2"
-    "@snx-v3/Tooltip": "workspace:*"
-    "@snx-v3/usePools": "workspace:*"
-    "@snx-v3/useSystemToken": "workspace:*"
-    react: "npm:^18.2.0"
-    react-router-dom: "npm:^6.18.0"
-  languageName: unknown
-  linkType: soft
-
 "@snx-v3/RepayModal@workspace:*, @snx-v3/RepayModal@workspace:liquidity/components/RepayModal":
   version: 0.0.0-use.local
   resolution: "@snx-v3/RepayModal@workspace:liquidity/components/RepayModal"

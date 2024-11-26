@@ -49,9 +49,9 @@ export const ManageUi: FC<{
   liquidityPosition?: LiquidityPosition;
   network?: Network;
   collateralSymbol?: string;
-  poolName?: string;
-  poolId?: string;
-}> = ({ collateralType, liquidityPosition, network, collateralSymbol, poolName, poolId }) => {
+}> = ({ collateralType, liquidityPosition, network, collateralSymbol }) => {
+  const { poolId } = useParams();
+
   const [closePosition, setClosePosition] = useState(false);
 
   const { data: poolData } = usePool(Number(network?.id), String(poolId));
@@ -75,12 +75,7 @@ export const ManageUi: FC<{
         mb="8px"
         gap={4}
       >
-        <PositionTitle
-          collateralSymbol={collateralSymbol}
-          poolName={poolName}
-          isOpen={false}
-          poolId={poolId}
-        />
+        <PositionTitle collateralSymbol={collateralSymbol} isOpen={false} />
         {poolData && (
           <Flex alignItems={['center', 'flex-end']} direction="column">
             <Tooltip label="APR is averaged over the trailing 7 days and is comprised of both performance and rewards">
@@ -206,7 +201,7 @@ export const Manage = () => {
           ) : null}
 
           {params.accountId && isPendingLiquidityPosition ? (
-            <ManageLoading poolName={poolData?.name} collateralSymbol={collateralType?.symbol} />
+            <ManageLoading collateralSymbol={collateralType?.symbol} />
           ) : null}
 
           {params.accountId &&
@@ -220,8 +215,6 @@ export const Manage = () => {
           !isPendingLiquidityPosition &&
           (hasPosition || hasAvailableCollateral) ? (
             <ManageUi
-              poolName={poolData?.name}
-              poolId={params.poolId}
               liquidityPosition={liquidityPosition}
               network={network}
               collateralSymbol={collateralType?.symbol}

@@ -9,7 +9,7 @@ import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { useParams } from '@snx-v3/useParams';
-import { FC, useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { CRatioBar } from '../CRatioBar/CRatioBar';
 import { InitialDeposit } from '../InitialDeposit';
 import { Rewards } from '../Rewards';
@@ -18,10 +18,7 @@ import { DebtStats } from './DebtStats';
 import { PnlStats } from './PnlStats';
 import { PositionTitle } from './PositionTitle';
 
-export const NoPosition: FC<{
-  poolName?: string;
-  liquidityPosition?: LiquidityPosition;
-}> = ({ liquidityPosition, poolName }) => {
+export function NoPosition({ liquidityPosition }: { liquidityPosition?: LiquidityPosition }) {
   const { collateralSymbol, accountId } = useParams();
   const { data: collateralType } = useCollateralType(collateralSymbol);
 
@@ -34,7 +31,7 @@ export const NoPosition: FC<{
   return (
     <Box mb={12} mt={8}>
       <Box px={[0, 6]}>
-        <PositionTitle collateralSymbol={collateralSymbol} poolName={poolName} isOpen />
+        <PositionTitle collateralSymbol={collateralSymbol} isOpen />
       </Box>
       <Flex mt={6} flexDirection={['column', 'column', 'row']} gap={4}>
         <BorderBox gap={4} flex={1} p={6} flexDirection="column" bg="navy.700" height="fit-content">
@@ -108,4 +105,4 @@ export const NoPosition: FC<{
       </Flex>
     </Box>
   );
-};
+}

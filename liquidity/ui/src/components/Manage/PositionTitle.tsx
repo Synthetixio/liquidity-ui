@@ -4,18 +4,19 @@ import { NetworkIcon, useNetwork } from '@snx-v3/useBlockchain';
 import { useNavigate } from 'react-router-dom';
 import { TokenIcon } from '../TokenIcon';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { usePool } from '@snx-v3/usePoolsList';
+import { useParams } from '@snx-v3/useParams';
 
 export const PositionTitle: FC<{
   collateralSymbol?: string;
-  poolName?: string;
-  isOpen?: boolean;
-  poolId?: string;
-}> = ({ collateralSymbol, poolName, isOpen, poolId }) => {
+  isOpen: boolean;
+}> = ({ collateralSymbol, isOpen }) => {
+  const { poolId, networkId } = useParams();
+  const { data: pool } = usePool(Number(networkId), String(poolId));
   const { data: collateral } = useCollateralType(collateralSymbol);
-
   const { network } = useNetwork();
   const navigate = useNavigate();
-
+  const poolName = pool?.poolInfo?.[0]?.pool?.name ?? '';
   return (
     <Flex alignItems="center">
       <Flex
@@ -52,11 +53,11 @@ export const PositionTitle: FC<{
           display="flex"
           alignItems="center"
           _hover={{ cursor: 'pointer' }}
-          onClick={() =>
-            poolId && network ? navigate(`/pools/${network?.id}/${poolId}`) : undefined
+          onClick={
+            poolId && networkId ? () => navigate(`/pools/${network?.id}/${poolId}`) : undefined
           }
         >
-          {poolName && <Text mr={2}>{poolName}</Text>}
+          <Text mr={2}>{poolName}</Text>
           <Flex
             mt={0.25}
             alignItems="center"

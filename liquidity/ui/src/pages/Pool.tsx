@@ -9,10 +9,8 @@ import { NavLink } from 'react-router-dom';
 
 export const Pool = () => {
   const { poolId, networkId } = useParams();
-
   const { data: pool, isPending } = usePool(Number(networkId), String(poolId));
   const network = NETWORKS.find((n) => n.id === Number(networkId));
-
   const title = pool
     ? `Pool #${pool.poolInfo?.[0]?.pool?.id} / ${pool.poolInfo?.[0]?.pool?.name}`
     : 'Pool';
@@ -43,7 +41,7 @@ export const Pool = () => {
         ) : null}
         {!isPending && pool && network ? (
           <>
-            <PoolHeader mt={3} name={pool.poolInfo?.[0]?.pool?.name} network={network} />
+            <PoolHeader />
             <Divider my={6} bg="gray.900" />
             <Flex gap={4} mb={16}>
               <Box w="100%">
