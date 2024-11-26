@@ -13,9 +13,9 @@ export const Pool = () => {
   const { data: pool, isPending } = usePool(Number(networkId), String(poolId));
   const network = NETWORKS.find((n) => n.id === Number(networkId));
 
-  const { poolInfo } = pool || {};
-
-  const title = poolInfo ? `Pool #${poolInfo[0].pool.id} / ${poolInfo[0].pool.name}` : 'Pool';
+  const title = pool
+    ? `Pool #${pool.poolInfo?.[0]?.pool?.id} / ${pool.poolInfo?.[0]?.pool?.name}`
+    : 'Pool';
 
   return (
     <>
@@ -25,7 +25,7 @@ export const Pool = () => {
       </Helmet>
       <>
         <HomeLink mt={4} />
-        {!isPending && !pool && (
+        {!isPending && !pool ? (
           <Flex
             height="100%"
             direction="column"
@@ -40,10 +40,10 @@ export const Pool = () => {
               <Link color="cyan.500">Return to Home</Link>
             </NavLink>
           </Flex>
-        )}
-        {!isPending && pool && network && (
+        ) : null}
+        {!isPending && pool && network ? (
           <>
-            <PoolHeader mt={3} name={poolInfo && poolInfo[0].pool.name} network={network} />
+            <PoolHeader mt={3} name={pool.poolInfo?.[0]?.pool?.name} network={network} />
             <Divider my={6} bg="gray.900" />
             <Flex gap={4} mb={16}>
               <Box w="100%">
@@ -51,7 +51,7 @@ export const Pool = () => {
               </Box>
             </Flex>
           </>
-        )}
+        ) : null}
       </>
     </>
   );
