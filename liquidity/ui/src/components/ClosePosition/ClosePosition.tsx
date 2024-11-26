@@ -72,7 +72,7 @@ function ClosePositionUi({
   const { data: ClosePositionDeployment } = useClosePosition();
 
   return (
-    <Flex flexDirection="column">
+    <Flex data-cy="close position multistep" flexDirection="column">
       <Text color="gray.50" fontSize="20px" fontWeight={700}>
         <ArrowBackIcon cursor="pointer" onClick={onClose} mr={2} />
         Close Position
