@@ -141,7 +141,8 @@ jobs:
   e2e:
     docker:
       - image: cimg/node:<< pipeline.parameters.node-version >>
-    resource_class: xlarge
+    resource_class: large
+    parallelism: 3
     steps:
       - checkout
       - install-foundry
@@ -171,7 +172,7 @@ jobs:
             echo "0" > /tmp/cypress_exit_code
             export NODE_ENV=test
             export CYPRESS_INFURA_KEY=$INFURA_KEY
-            yarn cypress run --e2e || echo $? > /tmp/cypress_exit_code
+            circleci tests glob 'cypress/e2e/**/*.e2e.js' | circleci tests run --verbose --split-by=timings --command="xargs yarn cypress run --e2e --spec" || echo $? > /tmp/cypress_exit_code
 
       - save_cache:
           key: *anvil-fork-cache
