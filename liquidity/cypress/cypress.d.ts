@@ -33,6 +33,18 @@ declare global {
         poolId: number;
       }) => Promise<void>;
 
+      clearDebt: ({
+        address,
+        accountId,
+        symbol,
+        poolId,
+      }: {
+        address?: string;
+        accountId?: string;
+        symbol: string;
+        poolId: number;
+      }) => Promise<void>;
+
       delegateCollateral: ({
         address,
         accountId,

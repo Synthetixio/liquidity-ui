@@ -28,6 +28,7 @@ describe('should be able to unlock USDC collateral after depositing', () => {
     cy.wrapCollateral({ symbol: 'USDC', amount: 500 });
     cy.approveCollateral({ symbol: 'sUSDC', spender: 'CoreProxy' });
     cy.depositCollateral({ symbol: 'sUSDC', amount: 150 });
+    cy.clearDebt({ symbol: 'sUSDC', poolId: 1 });
     cy.delegateCollateral({ symbol: 'sUSDC', amount: 150, poolId: 1 });
 
     cy.visit(`/#/positions/USDC/1?manageAction=undelegate&accountId=${Cypress.env('accountId')}`);

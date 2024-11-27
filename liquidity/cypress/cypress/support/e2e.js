@@ -3,6 +3,7 @@ import { default as installLogsCollector } from 'cypress-terminal-report/src/ins
 
 import { approveCollateral } from './commands/approveCollateral';
 import { borrowUsd } from './commands/borrowUsd';
+import { clearDebt } from './commands/clearDebt';
 import { delegateCollateral } from './commands/delegateCollateral';
 import { depositCollateral } from './commands/depositCollateral';
 import { getSNX } from './commands/getSNX';
@@ -13,6 +14,7 @@ import { wrapEth } from './commands/wrapEth';
 
 Cypress.Commands.add('approveCollateral', approveCollateral);
 Cypress.Commands.add('borrowUsd', borrowUsd);
+Cypress.Commands.add('clearDebt', clearDebt);
 Cypress.Commands.add('delegateCollateral', delegateCollateral);
 Cypress.Commands.add('depositCollateral', depositCollateral);
 Cypress.Commands.add('getSNX', getSNX);
