@@ -10,7 +10,6 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
-import { calculateCRatio } from '@snx-v3/calculations';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { useNetwork } from '@snx-v3/useBlockchain';
@@ -101,38 +100,6 @@ export const ManageAction = ({
     [isFormValid, parsedAction, setTxnModalOpen]
   );
 
-  useEffect(() => {
-    // This is just for initial state, if we have a manage action selected return
-    const queryParams = new URLSearchParams(location.search);
-
-    if (queryParams.get('manageAction')) {
-      return;
-    }
-    if (!liquidityPosition) return;
-    if (!collateralType) return;
-
-    const cRatio = calculateCRatio(liquidityPosition.debt, liquidityPosition.collateralValue);
-    const canBorrow =
-      !isBase && (liquidityPosition.debt.eq(0) || cRatio.gt(collateralType.issuanceRatioD18));
-
-    if (canBorrow) {
-      queryParams.set('manageAction', 'borrow');
-      navigate({ pathname: location.pathname, search: queryParams.toString() }, { replace: true });
-      return;
-    }
-
-    const cRatioIsCloseToLiqRatio = cRatio.mul(0.9).lt(collateralType.liquidationRatioD18);
-
-    if (cRatioIsCloseToLiqRatio) {
-      queryParams.set('manageAction', isBase ? 'deposit' : 'repay');
-      navigate({ pathname: location.pathname, search: queryParams.toString() }, { replace: true });
-      return;
-    }
-
-    queryParams.set('manageAction', 'deposit');
-    navigate({ pathname: location.pathname, search: queryParams.toString() }, { replace: true });
-  }, [collateralType, isBase, liquidityPosition, location.pathname, location.search, navigate]);
-
   const setActiveAction = (action: string) => {
     setCollateralChange(wei(0));
     setDebtChange(wei(0));
@@ -179,7 +146,7 @@ export const ManageAction = ({
                 }}
                 whiteSpace="nowrap"
               >
-                {`Manage ${isBase ? 'PnL' : 'Debt'}`}
+                {isBase ? 'Manage PnL' : 'Manage Debt'}
               </Tab>
             </TabList>
 

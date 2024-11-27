@@ -81,11 +81,11 @@ export const UndelegateUi: FC<{
   const isValidLeftover =
     leftoverCollateral.gte(minDelegation || wei(0)) || leftoverCollateral.eq(0);
 
-  const isInputDisabled = isAnyMarketLocked === true;
-  const overAvailableBalance = collateralChange.abs().gt(max);
+  const isInputDisabled = isAnyMarketLocked;
+  const overAvailableBalance = max ? collateralChange.abs().gt(max) : false;
   const isSubmitDisabled =
     isLoadingRequiredData ||
-    isAnyMarketLocked === true ||
+    isAnyMarketLocked ||
     collateralChange.gte(0) ||
     !isValidLeftover ||
     overAvailableBalance ||

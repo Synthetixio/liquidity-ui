@@ -1,5 +1,5 @@
 import { CheckIcon } from '@chakra-ui/icons';
-import { Alert, Button, Divider, Flex, Text } from '@chakra-ui/react';
+import { Alert, Button, Flex, Text } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { parseUnits } from '@snx-v3/format';
 import { getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
