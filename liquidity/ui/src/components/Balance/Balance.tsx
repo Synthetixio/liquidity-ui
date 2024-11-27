@@ -1,6 +1,6 @@
 import { Flex, Text } from '@chakra-ui/react';
-import { TokenIcon } from '../TokenIcon';
 import Wei from '@synthetixio/wei';
+import { TokenIcon } from '../TokenIcon/TokenIcon';
 
 interface BalanceProps {
   isBase: boolean;

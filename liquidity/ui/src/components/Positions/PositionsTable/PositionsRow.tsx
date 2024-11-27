@@ -1,6 +1,8 @@
 import { TimeIcon } from '@chakra-ui/icons';
 import { Box, Button, Collapse, Fade, Flex, Td, Text, Tooltip, Tr } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
+import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
+import { useNetwork } from '@snx-v3/useBlockchain';
 import { LiquidityPositionType } from '@snx-v3/useLiquidityPositions';
 import { useRewards } from '@snx-v3/useRewards';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
@@ -9,10 +11,8 @@ import { useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CRatioAmount } from '../../CRatioBar/CRatioAmount';
 import { CRatioBadge } from '../../CRatioBar/CRatioBadge';
-import { TokenIcon } from '../../TokenIcon';
+import { TokenIcon } from '../../TokenIcon/TokenIcon';
 import { DebtAmount } from './DebtAmount';
-import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
-import { useNetwork } from '@snx-v3/useBlockchain';
 
 interface PositionRow extends LiquidityPositionType {
   final: boolean;

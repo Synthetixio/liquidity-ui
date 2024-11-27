@@ -6,7 +6,7 @@ import { useLiquidityPositions } from '@snx-v3/useLiquidityPositions';
 import { useParams } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { calculatePositions } from '../../utils/positions';
-import { PositionsTable } from './PositionsTable';
+import { PositionsTable } from './PositionsTable/PositionsTable';
 
 export const PositionsList = () => {
   const params = useParams();

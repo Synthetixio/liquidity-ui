@@ -1,8 +1,8 @@
 import { InfoIcon } from '@chakra-ui/icons';
-import { Flex, Text, Fade } from '@chakra-ui/react';
-import { SynthSkeleton as Skeleton } from '../SynthSkeleton';
-import { ReactNode } from 'react';
+import { Fade, Flex, Text } from '@chakra-ui/react';
 import { Tooltip } from '@snx-v3/Tooltip';
+import { ReactNode } from 'react';
+import { SynthSkeleton } from '../SynthSkeleton/SynthSkeleton';
 
 interface StatBoxProps {
   isLoading: boolean;
@@ -38,7 +38,7 @@ export const StatBox = ({ isLoading, title, label, value }: StatBoxProps) => {
         )}
       </Flex>
       <Flex w="100%" justifyContent="center" height="36px" alignItems="center">
-        <Skeleton
+        <SynthSkeleton
           isLoaded={!isLoading}
           height="24px"
           minWidth={isLoading ? '40%' : 'initial'}
@@ -56,7 +56,7 @@ export const StatBox = ({ isLoading, title, label, value }: StatBoxProps) => {
               {value || '$0.00'}
             </Text>
           </Fade>
-        </Skeleton>
+        </SynthSkeleton>
       </Flex>
     </Flex>
   );

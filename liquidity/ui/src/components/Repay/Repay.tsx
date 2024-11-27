@@ -6,6 +6,7 @@ import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
 import { useNetwork } from '@snx-v3/useBlockchain';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
@@ -13,9 +14,8 @@ import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { wei } from '@synthetixio/wei';
 import { useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import { TokenIcon } from '../TokenIcon';
-import { RepayAllDebt } from './';
-import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { TokenIcon } from '../TokenIcon/TokenIcon';
+import { RepayAllDebt } from './RepayAllDebt';
 
 export const Repay = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosition }) => {
   const { debtChange, setDebtChange } = useContext(ManagePositionContext);

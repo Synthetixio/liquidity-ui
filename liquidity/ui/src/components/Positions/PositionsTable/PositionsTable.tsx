@@ -1,16 +1,14 @@
 import { Button, Fade, Flex, Heading, Table, TableContainer, Tbody } from '@chakra-ui/react';
-import { Link, useNavigate } from 'react-router-dom';
+import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { NetworkIcon, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { LiquidityPositionType } from '@snx-v3/useLiquidityPositions';
-import {
-  PositionsNotConnected,
-  PositionRow,
-  PositionTableHeader,
-  PositionsRowLoading,
-  PositionsEmpty,
-  TableDivider,
-} from './';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { Link, useNavigate } from 'react-router-dom';
+import { PositionsEmpty } from './PositionEmpty';
+import { PositionsNotConnected } from './PositionNotConnected';
+import { PositionRow } from './PositionsRow';
+import { PositionsRowLoading } from './PositionsRowLoading';
+import { PositionTableHeader } from './PositionTableHeader';
+import { TableDivider } from './TableDivider';
 
 interface PositionsTableInterface {
   isLoading: boolean;

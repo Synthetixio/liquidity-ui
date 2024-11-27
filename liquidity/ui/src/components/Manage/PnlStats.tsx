@@ -6,7 +6,7 @@ import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { type Wei } from '@synthetixio/wei';
-import { ChangeStat } from '../ChangeStat';
+import { ChangeStat } from '../ChangeStat/ChangeStat';
 
 export function PnlStats({
   debt,

@@ -1,16 +1,18 @@
-import { useReducer, useMemo } from 'react';
-import { Flex, Heading, Text, Divider } from '@chakra-ui/react';
-import { ChainFilter, CollateralFilter, PoolCard } from './';
-import { TorosPoolCard } from './PoolCards/TorosPoolCard';
-import { usePoolsList } from '@snx-v3/usePoolsList';
-import { PoolCardsLoading } from './PoolCards/PoolCardsLoading';
+import { Divider, Flex, Heading, Text } from '@chakra-ui/react';
+import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { ARBITRUM, BASE_ANDROMEDA, MAINNET } from '@snx-v3/useBlockchain';
 import { useOfflinePrices } from '@snx-v3/useCollateralPriceUpdates';
 import { CollateralType, useCollateralTypes } from '@snx-v3/useCollateralTypes';
-import { ARBITRUM, BASE_ANDROMEDA, MAINNET } from '@snx-v3/useBlockchain';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
-import { useRewardsDistributors } from '@snx-v3/useRewardsDistributors';
 import { useOraclePrice } from '@snx-v3/useOraclePrice';
+import { usePoolsList } from '@snx-v3/usePoolsList';
+import { useRewardsDistributors } from '@snx-v3/useRewardsDistributors';
+import { useMemo, useReducer } from 'react';
 import { Balloon } from './Balloon';
+import { ChainFilter } from './ChainFilter';
+import { CollateralFilter } from './CollateralFilter';
+import { PoolCard } from './PoolCards/PoolCard';
+import { PoolCardsLoading } from './PoolCards/PoolCardsLoading';
+import { TorosPoolCard } from './PoolCards/TorosPoolCard';
 
 export const PoolsList = () => {
   const [state, dispatch] = useReducer(poolsReducer, { collaterals: [], chains: [] });

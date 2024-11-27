@@ -1,10 +1,10 @@
 import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
-import { Badge, Td, Tr, Text, Flex, IconButton, useDisclosure } from '@chakra-ui/react';
-import { FC, useEffect } from 'react';
+import { Badge, Flex, IconButton, Td, Text, Tr, useDisclosure } from '@chakra-ui/react';
 import { useManagePermissions } from '@snx-v3/useManagePermissions';
-import { Address } from '../Address';
-import { PermissionModal } from './PermissionModal';
+import { FC, useEffect } from 'react';
+import { Address } from '../Address/Address';
 import { permissionsList } from './AccountPermissions';
+import { PermissionModal } from './PermissionModal';
 
 interface Props {
   address: string;

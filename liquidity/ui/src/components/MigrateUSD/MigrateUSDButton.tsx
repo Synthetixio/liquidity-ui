@@ -2,7 +2,7 @@ import { Button } from '@chakra-ui/react';
 import { Network, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { useParams } from '@snx-v3/useParams';
 import { useEffect, useState } from 'react';
-import { TokenIcon } from '../TokenIcon';
+import { TokenIcon } from '../TokenIcon/TokenIcon';
 import { MigrateUSDModal } from './MigrateUSDModal';
 
 export function MigrateUSDButton({ network }: { network: Network }) {

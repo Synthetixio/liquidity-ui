@@ -19,7 +19,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useMachine } from '@xstate/react';
 import { FC, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { StateFrom } from 'xstate';
-import { ChangeStat } from '../../ui/src/components/ChangeStat';
+import { ChangeStat } from '../../ui/src/components/ChangeStat/ChangeStat';
 import { CRatioChangeStat } from '../../ui/src/components/CRatioBar/CRatioChangeStat';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
 import { TransactionSummary } from '../../ui/src/components/TransactionSummary/TransactionSummary';

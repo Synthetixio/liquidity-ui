@@ -10,35 +10,36 @@ import {
 } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
-import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
-import { NumberInput } from '@snx-v3/NumberInput';
-import { useCollateralType } from '@snx-v3/useCollateralTypes';
-import { useEthBalance } from '@snx-v3/useEthBalance';
-import Wei from '@synthetixio/wei';
-import { FC, useContext, useMemo } from 'react';
-import { useParams } from '@snx-v3/useParams';
-import { AccountCollateralType } from '@snx-v3/useAccountCollateral';
-import { useTransferableSynthetix } from '@snx-v3/useTransferableSynthetix';
-import { CollateralAlert, TokenIcon } from '../';
-import { ChangeStat } from '../ChangeStat';
-import { useTokenBalance } from '@snx-v3/useTokenBalance';
-import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { useNetwork } from '@snx-v3/useBlockchain';
+import { ZEROWEI } from '@snx-v3/constants';
+import { currency } from '@snx-v3/format';
+import { formatNumber } from '@snx-v3/formatters';
 import {
   getSpotMarketId,
   getUSDCOnBase,
   getWrappedStataUSDCOnBase,
   isBaseAndromeda,
 } from '@snx-v3/isBaseAndromeda';
+import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
+import { NumberInput } from '@snx-v3/NumberInput';
+import { AccountCollateralType } from '@snx-v3/useAccountCollateral';
+import { useNetwork } from '@snx-v3/useBlockchain';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { useEthBalance } from '@snx-v3/useEthBalance';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
-import { WithdrawIncrease } from '@snx-v3/WithdrawIncrease';
-import { formatNumber } from '@snx-v3/formatters';
-import { ZEROWEI } from '@snx-v3/constants';
-import { useTokenPrice } from '@snx-v3/useTokenPrice';
-import { TransactionSummary } from '../TransactionSummary/TransactionSummary';
-import { currency } from '@snx-v3/format';
-import { CRatioChangeStat } from '../CRatioBar/CRatioChangeStat';
+import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { useParams } from '@snx-v3/useParams';
 import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
+import { useTokenBalance } from '@snx-v3/useTokenBalance';
+import { useTokenPrice } from '@snx-v3/useTokenPrice';
+import { useTransferableSynthetix } from '@snx-v3/useTransferableSynthetix';
+import { WithdrawIncrease } from '@snx-v3/WithdrawIncrease';
+import Wei from '@synthetixio/wei';
+import { FC, useContext, useMemo } from 'react';
+import { ChangeStat } from '../ChangeStat/ChangeStat';
+import { CollateralAlert } from '../CollateralAlert/CollateralAlert';
+import { CRatioChangeStat } from '../CRatioBar/CRatioChangeStat';
+import { TokenIcon } from '../TokenIcon/TokenIcon';
+import { TransactionSummary } from '../TransactionSummary/TransactionSummary';
 
 export const DepositUi: FC<{
   accountCollateral: AccountCollateralType;

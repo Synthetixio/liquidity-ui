@@ -1,9 +1,10 @@
 import { Flex, Heading } from '@chakra-ui/react';
-import { Helmet } from 'react-helmet';
-import { PositionsList, StatsList } from '../components';
-import { WatchAccountBanner } from '../components/WatchAccountBanner/WatchAccountBanner';
 import { MAINNET, SEPOLIA, useNetwork } from '@snx-v3/useBlockchain';
+import { Helmet } from 'react-helmet';
 import { MigrationBanner } from '../components/Migration/MigrationBanner';
+import { PositionsList } from '../components/Positions/PositionsList';
+import { StatsList } from '../components/Stats/StatsList';
+import { WatchAccountBanner } from '../components/WatchAccountBanner/WatchAccountBanner';
 
 export function Dashboard() {
   const { network } = useNetwork();

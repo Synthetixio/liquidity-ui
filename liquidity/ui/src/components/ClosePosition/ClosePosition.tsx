@@ -25,7 +25,7 @@ import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import Wei from '@synthetixio/wei';
 import React from 'react';
-import { TokenIcon } from '../TokenIcon';
+import { TokenIcon } from '../TokenIcon/TokenIcon';
 import { ClosePositionOneStep } from './ClosePositionOneStep';
 import { ClosePositionTransactions } from './ClosePositionTransactions';
 import { useAccountAvailableCollateral } from './useAccountAvailableCollateral';

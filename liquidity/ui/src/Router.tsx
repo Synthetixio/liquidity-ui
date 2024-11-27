@@ -1,9 +1,14 @@
+import { Spinner } from '@chakra-ui/react';
 import { Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { Spinner } from '@chakra-ui/react';
-import { DefaultLayout } from './layouts/Default';
-import { Home, Manage, NotFoundPage, Dashboard, Pool, Pools } from './pages';
+import { DefaultLayout } from './layouts/Default/DefaultLayout';
+import { NotFoundPage } from './pages/404';
 import { Settings } from './pages/Account/Settings';
+import { Dashboard } from './pages/Dashboard';
+import { Home } from './pages/Home';
+import { Manage } from './pages/Manage';
+import { Pool } from './pages/Pool';
+import { Pools } from './pages/Pools';
 
 export const Router = () => {
   return (

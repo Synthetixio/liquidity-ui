@@ -24,7 +24,7 @@ import { useVaultsData, VaultsDataType } from '@snx-v3/useVaultsData';
 import { wei } from '@synthetixio/wei';
 import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { TokenIcon } from '../TokenIcon';
+import { TokenIcon } from '../TokenIcon/TokenIcon';
 
 export const calculateVaultTotals = (vaultsData: VaultsDataType) => {
   const zeroValues = { collateral: { value: wei(0), amount: wei(0) }, debt: wei(0) };

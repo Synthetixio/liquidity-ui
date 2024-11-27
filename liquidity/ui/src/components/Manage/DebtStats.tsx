@@ -4,7 +4,7 @@ import { BorderBox } from '@snx-v3/BorderBox';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { type Wei } from '@synthetixio/wei';
-import { ChangeStat } from '../ChangeStat';
+import { ChangeStat } from '../ChangeStat/ChangeStat';
 import { DebtAmount } from '../Positions/PositionsTable/DebtAmount';
 
 export function DebtStats({

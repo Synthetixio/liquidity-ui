@@ -5,7 +5,7 @@ import { truncateAddress } from '@snx-v3/formatters';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import Wei, { wei } from '@synthetixio/wei';
-import { TokenIcon } from '../TokenIcon';
+import { TokenIcon } from '../TokenIcon/TokenIcon';
 
 interface RewardsRowInterface {
   displaySymbol?: string;

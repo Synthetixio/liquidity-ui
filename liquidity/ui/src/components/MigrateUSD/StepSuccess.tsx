@@ -1,10 +1,10 @@
-import React from 'react';
-import { VStack, Text, Button, Alert, Flex } from '@chakra-ui/react';
 import { ArrowUpIcon, CheckIcon } from '@chakra-ui/icons';
-import { TransactionSummary } from '../TransactionSummary/TransactionSummary';
-import Wei from '@synthetixio/wei';
+import { Alert, Button, Flex, Text, VStack } from '@chakra-ui/react';
 import { currency } from '@snx-v3/format';
-import { ChangeStat } from '../ChangeStat';
+import Wei from '@synthetixio/wei';
+import React from 'react';
+import { ChangeStat } from '../ChangeStat/ChangeStat';
+import { TransactionSummary } from '../TransactionSummary/TransactionSummary';
 
 export const StepSuccess = ({
   onConfirm,

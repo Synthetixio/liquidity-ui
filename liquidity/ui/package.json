@@ -16,7 +16,6 @@
     "@safe-global/safe-apps-sdk": "^9.1.0",
     "@snx-v3/Amount": "workspace:*",
     "@snx-v3/BorderBox": "workspace:*",
-    "@snx-v3/BorrowModal": "workspace:*",
     "@snx-v3/ClaimModal": "workspace:*",
     "@snx-v3/ContractError": "workspace:*",
     "@snx-v3/DepositModal": "workspace:*",

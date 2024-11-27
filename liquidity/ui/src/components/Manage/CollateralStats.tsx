@@ -5,7 +5,7 @@ import { currency } from '@snx-v3/format';
 import { CollateralType } from '@snx-v3/useCollateralTypes';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import Wei from '@synthetixio/wei';
-import { ChangeStat } from '../ChangeStat';
+import { ChangeStat } from '../ChangeStat/ChangeStat';
 
 export function CollateralStats({
   liquidityPosition,

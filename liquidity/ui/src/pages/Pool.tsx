@@ -5,7 +5,8 @@ import { useParams } from '@snx-v3/useParams';
 import { usePool } from '@snx-v3/usePoolsList';
 import { Helmet } from 'react-helmet';
 import { NavLink } from 'react-router-dom';
-import { CollateralSection, PoolHeader } from '../components';
+import { CollateralSection } from '../components/Pools/CollateralSection';
+import { PoolHeader } from '../components/Pools/PoolHeader';
 
 export const Pool = () => {
   const params = useParams();

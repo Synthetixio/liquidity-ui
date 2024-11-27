@@ -4,7 +4,7 @@ import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useParams } from '@snx-v3/useParams';
 import { usePool } from '@snx-v3/usePoolsList';
 import { useNavigate } from 'react-router-dom';
-import { TokenIcon } from '../TokenIcon';
+import { TokenIcon } from '../TokenIcon/TokenIcon';
 
 export function PositionTitle({
   collateralSymbol,

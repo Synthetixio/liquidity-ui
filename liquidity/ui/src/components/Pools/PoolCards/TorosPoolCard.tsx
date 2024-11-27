@@ -1,12 +1,12 @@
-import { Flex, Text, Button, Link, Fade, Icon, IconProps } from '@chakra-ui/react';
-import { ARBITRUM, BASE_ANDROMEDA, NetworkIcon } from '@snx-v3/useBlockchain';
-import { TokenIcon } from '../../TokenIcon';
-import { useTokenBalance } from '@snx-v3/useTokenBalance';
+import { Button, Fade, Flex, Icon, IconProps, Link, Text } from '@chakra-ui/react';
 import { formatNumberToUsd } from '@snx-v3/formatters';
-import { formatNumber } from 'humanize-plus';
-import { Specifics } from './Specifics';
-import { useQuery } from '@tanstack/react-query';
+import { ARBITRUM, BASE_ANDROMEDA, NetworkIcon } from '@snx-v3/useBlockchain';
 import { fetchTorosPool } from '@snx-v3/usePoolsList';
+import { useTokenBalance } from '@snx-v3/useTokenBalance';
+import { useQuery } from '@tanstack/react-query';
+import { formatNumber } from 'humanize-plus';
+import { TokenIcon } from '../../TokenIcon/TokenIcon';
+import { Specifics } from './Specifics';
 
 interface TorosPoolCardProps {
   token: 'USDC' | 'wstETH';

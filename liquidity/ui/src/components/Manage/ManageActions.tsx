@@ -22,19 +22,20 @@ import { wei } from '@synthetixio/wei';
 import { FormEvent, lazy, Suspense, useCallback, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
-import { Borrow, Claim, Deposit, Repay, Undelegate } from '../';
+import { Claim } from '../Claim/Claim';
+import { Deposit } from '../Deposit/Deposit';
+import { Repay } from '../Repay/Repay';
+import { Undelegate } from '../Undelegate/Undelegate';
 import { Withdraw } from '../Withdraw/Withdraw';
 import { COLLATERALACTIONS, DEBTACTIONS } from './actions';
 
 const RepayModal = lazy(() => safeImport(() => import('@snx-v3/RepayModal')));
-const BorrowModal = lazy(() => safeImport(() => import('@snx-v3/BorrowModal')));
 const ClaimModal = lazy(() => safeImport(() => import('@snx-v3/ClaimModal')));
 const DepositModal = lazy(() => safeImport(() => import('@snx-v3/DepositModal')));
 const UndelegateModal = lazy(() => safeImport(() => import('@snx-v3/UndelegateModal')));
 const WithdrawModal = lazy(() => safeImport(() => import('@snx-v3/WithdrawModal')));
 
 const ManageActionSchema = z.enum([
-  'borrow',
   'deposit',
   'repay',
   'claim',
@@ -206,7 +207,6 @@ export const ManageAction = ({
           </Tabs>
 
           <Flex direction="column">
-            {manageAction === 'borrow' ? <Borrow liquidityPosition={liquidityPosition} /> : null}
             {manageAction === 'claim' ? <Claim liquidityPosition={liquidityPosition} /> : null}
             {manageAction === 'withdraw' ? (
               <Withdraw liquidityPosition={liquidityPosition} />
@@ -242,16 +242,6 @@ export const ManageAction = ({
               setTxnModalOpen(undefined);
             }}
             isOpen={txnModalOpen === 'repay'}
-          />
-        ) : null}
-        {txnModalOpen === 'borrow' ? (
-          <BorrowModal
-            onClose={() => {
-              setCollateralChange(wei(0));
-              setDebtChange(wei(0));
-              setTxnModalOpen(undefined);
-            }}
-            isOpen={txnModalOpen === 'borrow'}
           />
         ) : null}
         {txnModalOpen === 'claim' ? (

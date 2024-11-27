@@ -12,9 +12,12 @@ import { useParams } from '@snx-v3/useParams';
 import { usePoolData } from '@snx-v3/usePoolData';
 import { usePool } from '@snx-v3/usePoolsList';
 import { useState } from 'react';
-import { ManageAction, ManageStats, Rewards, UnsupportedCollateralAlert } from '../components';
 import { ClosePosition } from '../components/ClosePosition/ClosePosition';
+import { UnsupportedCollateralAlert } from '../components/CollateralAlert/UnsupportedCollateralAlert';
+import { ManageAction, type ManageActionType } from '../components/Manage/ManageActions';
+import { ManageStats } from '../components/Manage/ManageStats';
 import { PositionTitle } from '../components/Manage/PositionTitle';
+import { Rewards } from '../components/Rewards/Rewards';
 import { WatchAccountBanner } from '../components/WatchAccountBanner/WatchAccountBanner';
 
 export const Manage = () => {
@@ -51,7 +54,7 @@ export const Manage = () => {
   const stataUSDCAPRParsed = stataUSDCAPR || 0;
   const isStataUSDC = getWrappedStataUSDCOnBase(network?.id) === collateralType?.tokenAddress;
 
-  const [txnModalOpen, setTxnModalOpen] = useState<ManageAction | undefined>(undefined);
+  const [txnModalOpen, setTxnModalOpen] = useState<ManageActionType | undefined>(undefined);
 
   const { data: pool } = usePool(Number(network?.id), String(params.poolId));
 

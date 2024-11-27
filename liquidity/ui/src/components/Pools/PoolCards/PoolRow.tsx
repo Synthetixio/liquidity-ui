@@ -1,5 +1,10 @@
-import { Flex, Button, Text, Fade } from '@chakra-ui/react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Button, Fade, Flex, Text } from '@chakra-ui/react';
+import { ZEROWEI } from '@snx-v3/constants';
+import { formatNumber, formatNumberToUsd } from '@snx-v3/formatters';
+import { Sparkles } from '@snx-v3/icons';
+import { getSpotMarketId, getUSDCOnBase, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { Tooltip } from '@snx-v3/Tooltip';
+import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import {
   MAINNET,
   Network,
@@ -8,23 +13,18 @@ import {
   useNetwork,
   useWallet,
 } from '@snx-v3/useBlockchain';
+import { CollateralType } from '@snx-v3/useCollateralTypes';
+import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
+import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
+import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { wei } from '@synthetixio/wei';
 import { BigNumberish } from 'ethers';
-import { TokenIcon } from '../../TokenIcon';
-import { CollateralType } from '@snx-v3/useCollateralTypes';
-import { Sparkles } from '@snx-v3/icons';
-import { formatNumber, formatNumberToUsd } from '@snx-v3/formatters';
-import { formatApr } from '../CollateralSection';
-import { Tooltip } from '@snx-v3/Tooltip';
-import { useTokenBalance } from '@snx-v3/useTokenBalance';
-import { getSpotMarketId, getUSDCOnBase, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
-import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
-import { ZEROWEI } from '@snx-v3/constants';
-import { MigrationBanner } from '../../Migration/MigrationBanner';
-import { Specifics } from './Specifics';
-import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import { useMemo } from 'react';
-import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { MigrationBanner } from '../../Migration/MigrationBanner';
+import { TokenIcon } from '../../TokenIcon/TokenIcon';
+import { formatApr } from '../CollateralSection';
+import { Specifics } from './Specifics';
 
 interface CollateralTypeWithDeposited extends CollateralType {
   collateralDeposited: string;

@@ -15,16 +15,16 @@ import {
   Tr,
   useDisclosure,
 } from '@chakra-ui/react';
-import { PermissionRow } from './PermissionRow';
-import { useAccountOwner, useAccountPermissions } from '@snx-v3/useAccountPermissions';
 import { prettyString } from '@snx-v3/format';
+import { useAccountOwner, useAccountPermissions } from '@snx-v3/useAccountPermissions';
 import { useWallet } from '@snx-v3/useBlockchain';
-import { PermissionModal } from './PermissionModal';
-import { TransferOwnershipModal } from './TransferOwnershipModal';
-import { PermissionTableLoading } from './PermissionTableLoading';
 import { useMemo } from 'react';
-import { Address } from '../Address';
+import { Address } from '../Address/Address';
+import { PermissionModal } from './PermissionModal';
+import { PermissionRow } from './PermissionRow';
 import PermissionsInfo from './PermissionsInfo';
+import { PermissionTableLoading } from './PermissionTableLoading';
+import { TransferOwnershipModal } from './TransferOwnershipModal';
 
 export default function PermissionTable({
   accountId,

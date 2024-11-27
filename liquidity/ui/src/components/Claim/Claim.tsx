@@ -1,20 +1,20 @@
 import { Alert, AlertIcon, Box, Button, Collapse, Flex, Text } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
-import { NumberInput } from '@snx-v3/NumberInput';
-import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
-import { FC, useContext, useMemo } from 'react';
-import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import Wei, { wei } from '@synthetixio/wei';
-import { useNetwork } from '@snx-v3/useBlockchain';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ZEROWEI } from '@snx-v3/constants';
-import { useSystemToken } from '@snx-v3/useSystemToken';
-import { TokenIcon } from '../TokenIcon';
-import { validatePosition } from '@snx-v3/validatePosition';
+import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
+import { NumberInput } from '@snx-v3/NumberInput';
+import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
-import { useParams } from 'react-router-dom';
+import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
+import { validatePosition } from '@snx-v3/validatePosition';
+import Wei, { wei } from '@synthetixio/wei';
+import { FC, useContext, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+import { TokenIcon } from '../TokenIcon/TokenIcon';
 
 const ClaimUi: FC<{
   maxClaimble: Wei;
