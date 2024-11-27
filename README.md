@@ -33,34 +33,26 @@ foundryup
 
 Have `INFURA_KEY` env variable set
 
-## Testing Base
+## Testing with Cypress
 
-1.  Run Foundry Anvil fork
-
-    ```sh
-    yarn anvil:base
-    ```
-
-2.  Update all prices
-
-    ```sh
-    yarn update-prices:base
-    ```
-
-3.  Run Liquidity app locally
+1.  Run Liquidity app locally
 
     ```sh
     yarn start
     ```
 
-4.  Open Cypress for Base
+2.  Open Cypress to debug
+
     ```sh
-    yarn e2e:base
+    yarn e2e
+    ```
+
+3.  To run all the tests for all chains
+    ```sh
+    yarn e2e:run
     ```
 
 ## Local development with fork and Magic Wallet
-
-Example for Arbitrum Mainnet
 
 All RPC calls in this mode will be made to `127.0.0.1:8585`
 and all transactions will be automatically signed, without any popups
@@ -68,38 +60,40 @@ and all transactions will be automatically signed, without any popups
 1.  Run Foundry Anvil fork
 
     ```sh
-    yarn anvil:arbitrum
+    # Mainnets
+    anvil --auto-impersonate --chain-id 1 --fork-url wss://mainnet.infura.io/ws/v3/$INFURA_KEY --no-rate-limit --steps-tracing --fork-block-number 21233424
+    anvil --auto-impersonate --chain-id 8453 --fork-url wss://base-mainnet.infura.io/ws/v3/$INFURA_KEY --no-rate-limit --steps-tracing --fork-block-number 22683522
+    anvil --auto-impersonate --chain-id 42161 --fork-url wss://arbitrum-mainnet.infura.io/ws/v3/$INFURA_KEY --no-rate-limit --steps-tracing --fork-block-number 271813668
+
+    # Testnets
+    anvil --auto-impersonate --chain-id 11155111 --fork-url wss://sepolia.infura.io/ws/v3/$INFURA_KEY --no-rate-limit --steps-tracing
+    anvil --auto-impersonate --chain-id 84532 --fork-url wss://base-sepolia.infura.io/ws/v3/$INFURA_KEY --no-rate-limit --steps-tracing
+    anvil --auto-impersonate --chain-id 421614 --fork-url wss://arbitrum-sepolia.infura.io/ws/v3/$INFURA_KEY --no-rate-limit --steps-tracing
     ```
 
-2.  Update all prices (optionally, to speed up UI as it will not need to attach price updates to each call)
-
-    ```sh
-    yarn update-prices:arbitrum
-    ```
-
-3.  Run Liquidity app locally
+2.  Run Liquidity app locally
 
     ```sh
     yarn start
     ```
 
-4.  Open app in browser
+3.  Open app in browser
 
     ```sh
     open http://localhost:3000
     ```
 
-5.  Open devtools and set `localStorage` values
+4.  Open devtools and set `localStorage` values
 
     ```js
-    localStorage.DEBUG = 'true';
+    localStorage.DEBUG = 'snx:*';
     localStorage.MAGIC_WALLET = '0xWalletAddress';
     ```
 
-6.  Reload page and proceed with connecting your wallet through UI choosing "Metamask" in popup
+5.  Reload page and proceed with connecting your wallet through UI choosing "Metamask" in popup
     (the only option)
 
-7.  If wallet needs some ETH balance you can use foundry's `cast` to set balance
+6.  If wallet needs some ETH balance you can use foundry's `cast` to set balance
 
     ```sh
     cast rpc anvil_setBalance 0xWalletAddress 10000000000000000000
@@ -107,13 +101,3 @@ and all transactions will be automatically signed, without any popups
     # check your balance
     cast balance 0xWalletAddress -e
     ```
-
-8.  Periodically (once an hour or less) sync fork time and update prices.
-
-    ```sh
-    yarn update-prices:arbitrum
-    yarn sync-time
-    ```
-
-    Because price updates are coming from offchain server we need to bring fork's internal time to realtime,
-    otherwise we will will have empty `priceUpdateTx` but then consistently get `OracleDataRequiredError` for ALL price feeds
