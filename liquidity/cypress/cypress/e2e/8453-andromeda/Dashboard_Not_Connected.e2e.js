@@ -1,4 +1,4 @@
-describe('Dashboard - Not Connected', () => {
+describe(__filename, () => {
   Cypress.env('chainId', '8453');
   Cypress.env('preset', 'andromeda');
   Cypress.env('walletAddress', '0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345');
@@ -13,7 +13,7 @@ describe('Dashboard - Not Connected', () => {
     });
   });
 
-  it('works', () => {
+  it(__filename, () => {
     cy.visit('/#/dashboard');
 
     cy.contains('h2', 'Dashboard').should('exist');

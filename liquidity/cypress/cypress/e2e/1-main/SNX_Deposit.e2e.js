@@ -1,14 +1,14 @@
-describe('Manage Static AaveUSDC Position - Deposit', () => {
-  Cypress.env('chainId', '8453');
-  Cypress.env('preset', 'andromeda');
+describe(__filename, () => {
+  Cypress.env('chainId', '1');
+  Cypress.env('preset', 'main');
   Cypress.env('walletAddress', '0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345');
-  Cypress.env('accountId', '522433293696');
+  Cypress.env('accountId', '651583203448');
 
   beforeEach(() => {
     cy.task('startAnvil', {
       chainId: Cypress.env('chainId'),
-      forkUrl: `wss://base-mainnet.infura.io/ws/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '22946353',
+      forkUrl: `wss://mainnet.infura.io/ws/v3/${Cypress.env('INFURA_KEY')}`,
+      block: '21233424',
     }).then(() => cy.log('Anvil started'));
 
     cy.on('window:before:load', (win) => {
@@ -21,27 +21,24 @@ describe('Manage Static AaveUSDC Position - Deposit', () => {
   });
   afterEach(() => cy.task('stopAnvil').then(() => cy.log('Anvil stopped')));
 
-  it('works', () => {
+  it(__filename, () => {
     cy.setEthBalance({ balance: 100 });
-    cy.getUSDC({ amount: 1000 });
+    cy.getSNX({ amount: 500 });
 
-    cy.visit(`/#/positions/stataUSDC/1?manageAction=deposit&accountId=${Cypress.env('accountId')}`);
+    cy.visit(`/#/positions/SNX/1?manageAction=deposit&accountId=${Cypress.env('accountId')}`);
 
     cy.get('[data-cy="deposit and lock collateral form"]', { timeout: 180_000 }).should('exist');
     cy.get('[data-cy="balance amount"]').should('exist').and('include.text', 'Max');
 
-    cy.get('[data-cy="deposit amount input"]').should('exist');
-    cy.get('[data-cy="deposit amount input"]').type('1');
+    cy.get('[data-cy="deposit amount input"]').type('101');
     cy.get('[data-cy="deposit submit"]').should('be.enabled');
     cy.get('[data-cy="deposit submit"]').click();
 
     cy.get('[data-cy="deposit multistep"]')
       .should('exist')
-      .and('include.text', 'Manage Collateral')
-      .and('include.text', 'Approve USDC transfer')
-      .and('include.text', 'Wrap USDC into Static aUSDC')
-      .and('include.text', 'Approve Static aUSDC transfer')
-      .and('include.text', 'Deposit and Lock Static aUSDC');
+      .and('include.text', 'Approve SNX transfer')
+      .and('include.text', 'Deposit and Lock SNX')
+      .and('include.text', 'This will deposit and lock 101 SNX into Spartan Council Pool.');
 
     cy.get('[data-cy="deposit confirm button"]').should('include.text', 'Execute Transaction');
     cy.get('[data-cy="deposit confirm button"]').click();
