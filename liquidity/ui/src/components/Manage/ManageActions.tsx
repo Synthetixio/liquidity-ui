@@ -19,7 +19,7 @@ import { useParams } from '@snx-v3/useParams';
 import { validatePosition } from '@snx-v3/validatePosition';
 import { safeImport } from '@synthetixio/safe-import';
 import { wei } from '@synthetixio/wei';
-import { FormEvent, lazy, Suspense, useCallback, useContext, useEffect, useState } from 'react';
+import { FormEvent, lazy, Suspense, useCallback, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { Borrow, Claim, Deposit, Repay, Undelegate } from '../';
@@ -33,7 +33,7 @@ const DepositModal = lazy(() => safeImport(() => import('@snx-v3/DepositModal'))
 const UndelegateModal = lazy(() => safeImport(() => import('@snx-v3/UndelegateModal')));
 const WithdrawModal = lazy(() => safeImport(() => import('@snx-v3/WithdrawModal')));
 
-const validActions = [
+const ManageActionSchema = z.enum([
   'borrow',
   'deposit',
   'repay',
@@ -41,17 +41,8 @@ const validActions = [
   'undelegate',
   'withdraw',
   'withdraw-debt',
-] as const;
-const ManageActionSchema = z.enum(validActions);
-export type ManageAction = z.infer<typeof ManageActionSchema>;
-
-const getInitialTab = (manageAction?: ManageAction) => {
-  if (!manageAction || COLLATERALACTIONS.find((aciton) => aciton.link === manageAction)) {
-    return 'collateral';
-  }
-
-  return 'debt';
-};
+]);
+export type ManageActionType = z.infer<typeof ManageActionSchema>;
 
 export const ManageAction = ({
   liquidityPosition,
@@ -59,8 +50,8 @@ export const ManageAction = ({
   txnModalOpen,
 }: {
   liquidityPosition?: LiquidityPosition;
-  setTxnModalOpen: (action?: ManageAction) => void;
-  txnModalOpen?: ManageAction;
+  setTxnModalOpen: (action?: ManageActionType) => void;
+  txnModalOpen?: ManageActionType;
 }) => {
   const params = useParams();
   const { network } = useNetwork();
@@ -83,8 +74,10 @@ export const ManageAction = ({
     debtChange,
   });
 
-  const parsedActionParam = ManageActionSchema.safeParse(params.manageAction);
-  const parsedAction = parsedActionParam.success ? parsedActionParam.data : undefined;
+  const manageActionParam = ManageActionSchema.safeParse(params.manageAction);
+  const manageAction = manageActionParam.success ? manageActionParam.data : undefined;
+  const debtActions = DEBTACTIONS(isBase);
+  const tab = debtActions.some((action) => action.link === manageAction) ? 'debt' : 'collateral';
 
   const isFormValid = isBase ? true : isValid;
 
@@ -95,9 +88,9 @@ export const ManageAction = ({
       if (!form.reportValidity() || !isFormValid) {
         return;
       }
-      setTxnModalOpen(parsedAction);
+      setTxnModalOpen(manageAction);
     },
-    [isFormValid, parsedAction, setTxnModalOpen]
+    [isFormValid, manageAction, setTxnModalOpen]
   );
 
   const setActiveAction = (action: string) => {
@@ -107,14 +100,6 @@ export const ManageAction = ({
     queryParams.set('manageAction', action);
     navigate({ pathname: location.pathname, search: queryParams.toString() }, { replace: true });
   };
-  const manageAction = parsedAction;
-
-  const [tab, setTab] = useState(getInitialTab(manageAction));
-  const debtActions = DEBTACTIONS(isBase);
-
-  useEffect(() => {
-    setTab(getInitialTab(manageAction));
-  }, [manageAction]);
 
   return (
     <>
