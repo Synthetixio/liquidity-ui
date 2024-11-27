@@ -71,12 +71,7 @@ export const WithdrawModalUi: FC<{
         <Multistep
           step={1}
           title="Withdraw"
-          subtitle={
-            <Text as="div">
-              <Amount value={amount} />
-              &nbsp;{symbol} will be withdrawn
-            </Text>
-          }
+          subtitle={<Amount value={amount} suffix={` ${symbol} will be withdrawn`} />}
           status={{
             failed: state.step === 1 && state.status === 'error',
             success: state.step > 1,
