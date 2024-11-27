@@ -30,7 +30,7 @@ describe('Manage SNX Position - Borrow', () => {
 
     cy.visit(`/#/positions/SNX/1?manageAction=claim&accountId=${Cypress.env('accountId')}`);
 
-    cy.get('[data-cy="claim form"]').should('exist');
+    cy.get('[data-cy="claim form"]', { timeout: 180_000 }).should('exist');
     cy.contains('[data-status="info"]', 'You can take an interest-free loan up to').should('exist');
 
     cy.get('[data-cy="claim amount input"]').should('exist');

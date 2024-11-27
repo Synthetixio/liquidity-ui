@@ -30,7 +30,7 @@ describe('Manage SNX Position - Unlock', () => {
 
     cy.visit(`/#/positions/SNX/1?manageAction=undelegate&accountId=${Cypress.env('accountId')}`);
 
-    cy.get('[data-cy="unlock collateral form"]').should('exist');
+    cy.get('[data-cy="unlock collateral form"]', { timeout: 180_000 }).should('exist');
     cy.get('[data-cy="locked amount"]').should('exist').and('include.text', 'Max');
 
     cy.get('[data-cy="undelegate amount input"]').should('exist');

@@ -8,7 +8,7 @@ describe('Manage Static AaveUSDC Position - Withdraw', () => {
     cy.task('startAnvil', {
       chainId: Cypress.env('chainId'),
       forkUrl: `wss://base-mainnet.infura.io/ws/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '22890156',
+      block: '22946353',
     }).then(() => cy.log('Anvil started'));
 
     cy.on('window:before:load', (win) => {

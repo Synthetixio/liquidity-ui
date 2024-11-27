@@ -8,7 +8,7 @@ describe('Manage Static AaveUSDC Position - Repay', () => {
     cy.task('startAnvil', {
       chainId: Cypress.env('chainId'),
       forkUrl: `wss://base-mainnet.infura.io/ws/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '22683522',
+      block: '22946353',
     }).then(() => cy.log('Anvil started'));
 
     cy.on('window:before:load', (win) => {
@@ -27,7 +27,7 @@ describe('Manage Static AaveUSDC Position - Repay', () => {
 
     cy.visit(`/#/positions/stataUSDC/1?manageAction=repay&accountId=${Cypress.env('accountId')}`);
 
-    cy.get('[data-cy="repay debt form"]').should('exist');
+    cy.get('[data-cy="repay debt form"]', { timeout: 180_000 }).should('exist');
     cy.get('[data-cy="repay debt submit"]').should('exist');
     cy.get('[data-cy="repay debt submit"]').click();
 

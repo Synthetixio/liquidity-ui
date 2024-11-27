@@ -27,7 +27,7 @@ describe('Manage SNX Position - Deposit', () => {
 
     cy.visit(`/#/positions/SNX/1?manageAction=deposit&accountId=${Cypress.env('accountId')}`);
 
-    cy.get('[data-cy="deposit and lock collateral form"]').should('exist');
+    cy.get('[data-cy="deposit and lock collateral form"]', { timeout: 180_000 }).should('exist');
     cy.get('[data-cy="balance amount"]').should('exist').and('include.text', 'Max');
 
     cy.get('[data-cy="deposit amount input"]').type('101');

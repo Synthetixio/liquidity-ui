@@ -32,7 +32,7 @@ describe('Manage WETH Position - Borrow', () => {
 
     cy.visit(`/#/positions/WETH/1?manageAction=claim&accountId=${Cypress.env('accountId')}`);
 
-    cy.get('[data-cy="claim form"]').should('exist');
+    cy.get('[data-cy="claim form"]', { timeout: 180_000 }).should('exist');
     cy.contains('[data-status="info"]', 'You can take an interest-free loan up to').should('exist');
 
     cy.get('[data-cy="claim amount input"]').type('100');

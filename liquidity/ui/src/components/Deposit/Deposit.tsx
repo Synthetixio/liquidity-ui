@@ -42,7 +42,7 @@ import { TokenIcon } from '../TokenIcon/TokenIcon';
 import { TransactionSummary } from '../TransactionSummary/TransactionSummary';
 
 export const DepositUi: FC<{
-  accountCollateral: AccountCollateralType;
+  accountCollateral?: AccountCollateralType;
   collateralChange: Wei;
   ethBalance?: Wei;
   snxBalance?: {
@@ -53,7 +53,7 @@ export const DepositUi: FC<{
   displaySymbol: string;
   symbol: string;
   setCollateralChange: (val: Wei) => void;
-  minDelegation: Wei;
+  minDelegation?: Wei;
   currentCollateral: Wei;
   currentDebt: Wei;
   collateralPrice: Wei;
@@ -104,9 +104,10 @@ export const DepositUi: FC<{
     return tokenBalance.add(ethBalance);
   }, [symbol, isStataUSDC, tokenBalance, ethBalance, snxBalance?.transferable, stataUSDCBalance]);
 
-  const maxAmount = useMemo(() => {
-    return combinedTokenBalance?.add(accountCollateral.availableCollateral);
-  }, [accountCollateral.availableCollateral, combinedTokenBalance]);
+  const maxAmount =
+    combinedTokenBalance && accountCollateral?.availableCollateral
+      ? combinedTokenBalance.add(accountCollateral.availableCollateral)
+      : ZEROWEI;
 
   const txSummaryItems = useMemo(() => {
     const items = [
@@ -248,18 +249,22 @@ export const DepositUi: FC<{
           </AlertDescription>
         </Alert>
       </Collapse>
-      <Collapse
-        in={collateralChange.gt(0) && collateralChange.add(currentCollateral).lt(minDelegation)}
-        animateOpacity
-      >
-        <Alert mb={6} status="error" borderRadius="6px">
-          <AlertIcon />
-          <AlertDescription>
-            Your deposit must be {formatNumber(parseFloat(minDelegation.toString()))} {symbol} or
-            higher
-          </AlertDescription>
-        </Alert>
-      </Collapse>
+
+      {minDelegation ? (
+        <Collapse
+          in={collateralChange.gt(0) && collateralChange.add(currentCollateral).lt(minDelegation)}
+          animateOpacity
+        >
+          <Alert mb={6} status="error" borderRadius="6px">
+            <AlertIcon />
+            <AlertDescription>
+              Your deposit must be {formatNumber(parseFloat(minDelegation.toString()))} {symbol} or
+              higher
+            </AlertDescription>
+          </Alert>
+        </Collapse>
+      ) : null}
+
       <Collapse in={overAvailableBalance} animateOpacity>
         <Alert mb={6} status="error" borderRadius="6px">
           <AlertIcon />
@@ -269,20 +274,24 @@ export const DepositUi: FC<{
         </Alert>
       </Collapse>
 
-      <Collapse
-        in={
-          collateralChange.abs().gt(0) &&
-          !overAvailableBalance &&
-          collateralChange.add(currentCollateral).gte(minDelegation)
-        }
-        animateOpacity
-      >
-        <TransactionSummary mb={6} items={txSummaryItems} />
-      </Collapse>
+      {minDelegation ? (
+        <Collapse
+          in={
+            collateralChange.abs().gt(0) &&
+            !overAvailableBalance &&
+            collateralChange.add(currentCollateral).gte(minDelegation)
+          }
+          animateOpacity
+        >
+          <TransactionSummary mb={6} items={txSummaryItems} />
+        </Collapse>
+      ) : null}
+
       <Button
         data-cy="deposit submit"
         type="submit"
         isDisabled={
+          !minDelegation ||
           collateralChange.lte(0) ||
           combinedTokenBalance === undefined ||
           collateralChange.add(currentCollateral).lt(minDelegation) ||
@@ -320,13 +329,9 @@ export const Deposit = ({ liquidityPosition }: { liquidityPosition?: LiquidityPo
 
   const { data: ethBalance } = useEthBalance();
 
-  if (!collateralType || !liquidityPosition?.accountCollateral) {
-    return null;
-  }
-
   return (
     <DepositUi
-      accountCollateral={liquidityPosition.accountCollateral}
+      accountCollateral={liquidityPosition?.accountCollateral}
       displaySymbol={collateralType?.displaySymbol || ''}
       tokenBalance={tokenBalance}
       snxBalance={transferrableSnx}
@@ -334,7 +339,7 @@ export const Deposit = ({ liquidityPosition }: { liquidityPosition?: LiquidityPo
       symbol={collateralType?.symbol || ''}
       setCollateralChange={setCollateralChange}
       collateralChange={collateralChange}
-      minDelegation={collateralType.minDelegationD18}
+      minDelegation={collateralType?.minDelegationD18}
       currentCollateral={liquidityPosition?.collateralAmount ?? ZEROWEI}
       currentDebt={liquidityPosition?.debt ?? ZEROWEI}
       collateralPrice={liquidityPosition?.collateralPrice ?? ZEROWEI}

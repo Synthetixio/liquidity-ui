@@ -62,7 +62,7 @@ and all transactions will be automatically signed, without any popups
     ```sh
     # Mainnets
     anvil --auto-impersonate --chain-id 1 --fork-url wss://mainnet.infura.io/ws/v3/$INFURA_KEY --no-rate-limit --steps-tracing --fork-block-number 21233424
-    anvil --auto-impersonate --chain-id 8453 --fork-url wss://base-mainnet.infura.io/ws/v3/$INFURA_KEY --no-rate-limit --steps-tracing --fork-block-number 22683522
+    anvil --auto-impersonate --chain-id 8453 --fork-url wss://base-mainnet.infura.io/ws/v3/$INFURA_KEY --no-rate-limit --steps-tracing --fork-block-number 22946353
     anvil --auto-impersonate --chain-id 42161 --fork-url wss://arbitrum-mainnet.infura.io/ws/v3/$INFURA_KEY --no-rate-limit --steps-tracing --fork-block-number 271813668
 
     # Testnets
