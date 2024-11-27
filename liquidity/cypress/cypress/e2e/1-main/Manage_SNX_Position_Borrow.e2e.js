@@ -28,30 +28,30 @@ describe('Manage SNX Position - Borrow', () => {
     cy.depositCollateral({ symbol: 'SNX', amount: 150 });
     cy.delegateCollateral({ symbol: 'SNX', amount: 150, poolId: 1 });
 
-    cy.visit(`/#/positions/SNX/1?manageAction=borrow&accountId=${Cypress.env('accountId')}`);
+    cy.visit(`/#/positions/SNX/1?manageAction=claim&accountId=${Cypress.env('accountId')}`);
 
-    cy.get('[data-cy="borrow form"]').should('exist');
-    cy.get('[data-cy="borrow amount"]').should('exist').and('include.text', 'Max');
+    cy.get('[data-cy="claim form"]').should('exist');
+    cy.contains('[data-status="info"]', 'You can take an interest-free loan up to').should('exist');
 
-    cy.get('[data-cy="borrow amount input"]').should('exist');
-    cy.get('[data-cy="borrow amount input"]').type('10');
+    cy.get('[data-cy="claim amount input"]').should('exist');
+    cy.get('[data-cy="claim amount input"]').type('10');
 
     cy.contains(
       '[data-status="warning"]',
-      'As a security precaution, borrowed assets can only be withdrawn to your wallet after 24 hs since your previous account activity.'
+      'Assets will be available to withdraw 24 hours after your last interaction with this position.'
     ).should('exist');
 
-    cy.get('[data-cy="borrow submit"]').should('be.enabled');
-    cy.get('[data-cy="borrow submit"]').click();
+    cy.get('[data-cy="claim submit"]').should('be.enabled').and('include.text', 'Borrow');
+    cy.get('[data-cy="claim submit"]').click();
 
-    cy.get('[data-cy="borrow multistep"]')
+    cy.get('[data-cy="claim multistep"]')
       .should('exist')
       .and('include.text', 'Manage Debt')
       .and('include.text', 'Borrow')
       .and('include.text', 'Borrow 10 sUSD');
 
-    cy.get('[data-cy="borrow confirm button"]').should('include.text', 'Execute Transaction');
-    cy.get('[data-cy="borrow confirm button"]').click();
+    cy.get('[data-cy="claim confirm button"]').should('include.text', 'Execute Transaction');
+    cy.get('[data-cy="claim confirm button"]').click();
 
     cy.contains('[data-status="success"]', 'Debt successfully Updated', {
       timeout: 180_000,
