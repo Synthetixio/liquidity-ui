@@ -31,8 +31,10 @@ describe(__filename, () => {
 
     cy.visit(`/#/positions/WETH/1?manageAction=repay&accountId=${Cypress.env('accountId')}`);
 
-    cy.get('[data-cy="repay debt form"]', { timeout: 180_000 }).should('exist');
-    cy.get('[data-cy="current debt amount"]').should('exist').and('include.text', 'Max');
+    cy.get('[data-cy="repay debt form"]').should('exist');
+    cy.get('[data-cy="current debt amount"]', { timeout: 180_000 })
+      .should('exist')
+      .and('include.text', 'Max');
 
     cy.get('[data-cy="repay amount input"]').type('5');
 

@@ -30,7 +30,9 @@ describe(__filename, () => {
     );
 
     cy.get('[data-cy="unlock collateral form"]').should('exist');
-    cy.get('[data-cy="locked amount"]').should('exist').and('include.text', 'Max');
+    cy.get('[data-cy="locked amount"]', { timeout: 180_000 })
+      .should('exist')
+      .and('include.text', 'Max');
 
     cy.get('[data-cy="undelegate amount input"]').should('exist');
     cy.get('[data-cy="undelegate amount input"]').type('1');

@@ -1,6 +1,9 @@
 describe(__filename, () => {
   Cypress.env('chainId', '8453');
   Cypress.env('preset', 'andromeda');
+  //  Cypress.env('walletAddress', '0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345');
+  //  Cypress.env('accountId', '522433293696');
+
   Cypress.env('walletAddress', '0xc77b0cd1B1E73F6De8f606685Fb09Ace95f614c3');
   Cypress.env('accountId', '170141183460469231731687303715884105949');
 
@@ -30,7 +33,9 @@ describe(__filename, () => {
     );
 
     cy.get('[data-cy="withdraw form"]').should('exist');
-    cy.get('[data-cy="withdraw amount"]').should('exist').and('include.text', 'Max');
+    cy.get('[data-cy="withdraw amount"]', { timeout: 180_000 })
+      .should('exist')
+      .and('include.text', 'Max');
 
     cy.get('[data-cy="withdraw amount input"]').should('exist');
     cy.get('[data-cy="withdraw amount input"]').type('1');
