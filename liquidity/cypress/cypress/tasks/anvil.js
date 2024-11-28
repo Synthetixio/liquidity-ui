@@ -15,10 +15,12 @@ export async function startAnvil({ chainId, forkUrl, block }) {
     chainId,
     '--fork-url',
     forkUrl,
-    '--no-rate-limit',
-    '--steps-tracing',
+    // '--no-rate-limit',
+    // '--steps-tracing',
     '--fork-block-number',
     block,
+    '--memory-limit',
+    '12884901888', // 12G
   ];
   console.log(`Starting anvil:`, cmd, args.join(' '));
   return new Promise(async (resolve, reject) => {
