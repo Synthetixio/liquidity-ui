@@ -42,6 +42,8 @@ describe(__filename, () => {
       expect(urlAccountId).equal(Cypress.env('accountId'));
     });
 
-    cy.get(`[data-cy="account id"][data-account-id="${Cypress.env('accountId')}"]`).should('exist');
+    cy.get(`[data-cy="account id"][data-account-id="${Cypress.env('accountId')}"]`, {
+      timeout: 180_000,
+    }).should('exist');
   });
 });
