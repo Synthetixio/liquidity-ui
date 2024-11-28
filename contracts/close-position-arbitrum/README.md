@@ -85,4 +85,10 @@ forge verify-contract \
   --etherscan-api-key $ETHERSCAN_API_KEY \
   0x800B12D24ebb639BCe7280861b05149F0D60F99e \
   src/ClosePosition.sol:ClosePosition
+
+forge verify-contract \
+  --verifier-url "https://api.arbiscan.io/api" \
+  --etherscan-api-key $ARBISCAN_API_KEY \
+  0x800B12D24ebb639BCe7280861b05149F0D60F99e \
+  src/DebtRepayer.sol:DebtRepayer
 ```
