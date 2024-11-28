@@ -208,12 +208,8 @@ export const ManageAction = ({
 
           <Flex direction="column">
             {manageAction === 'claim' ? <Claim liquidityPosition={liquidityPosition} /> : null}
-            {manageAction === 'withdraw' ? (
-              <Withdraw liquidityPosition={liquidityPosition} />
-            ) : null}
-            {manageAction === 'withdraw-debt' ? (
-              <Withdraw liquidityPosition={liquidityPosition} isDebtWithdrawal />
-            ) : null}
+            {manageAction === 'withdraw' ? <Withdraw /> : null}
+            {manageAction === 'withdraw-debt' ? <Withdraw isDebtWithdrawal /> : null}
             {manageAction === 'deposit' ? <Deposit liquidityPosition={liquidityPosition} /> : null}
             {manageAction === 'repay' ? <Repay liquidityPosition={liquidityPosition} /> : null}
             {manageAction === 'undelegate' ? (
@@ -279,29 +275,23 @@ export const ManageAction = ({
         ) : null}
         {txnModalOpen === 'withdraw' ? (
           <WithdrawModal
-            liquidityPosition={liquidityPosition}
             onClose={() => {
               setCollateralChange(wei(0));
               setDebtChange(wei(0));
               setWithdrawAmount(wei(0));
               setTxnModalOpen(undefined);
             }}
-            isOpen={txnModalOpen === 'withdraw'}
-            account
           />
         ) : null}
 
         {txnModalOpen === 'withdraw-debt' ? (
           <WithdrawModal
-            liquidityPosition={liquidityPosition}
             onClose={() => {
               setCollateralChange(wei(0));
               setDebtChange(wei(0));
               setWithdrawAmount(wei(0));
               setTxnModalOpen(undefined);
             }}
-            isOpen={txnModalOpen === 'withdraw-debt'}
-            account
             isDebtWithdrawal
           />
         ) : null}

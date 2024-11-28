@@ -9,30 +9,29 @@ import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useAccountCollateralUnlockDate } from '@snx-v3/useAccountCollateralUnlockDate';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
-import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { useParams } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
 import { useContext, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
 
-export const Withdraw = ({
-  liquidityPosition,
-  isDebtWithdrawal = false,
-}: {
-  liquidityPosition?: LiquidityPosition;
-  isDebtWithdrawal?: boolean;
-}) => {
+export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: boolean }) {
   const { setWithdrawAmount, withdrawAmount } = useContext(ManagePositionContext);
-  const accountId = liquidityPosition?.accountId;
   const params = useParams();
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { network } = useNetwork();
   const isBase = isBaseAndromeda(network?.id, network?.preset);
 
+  const { data: liquidityPosition } = useLiquidityPosition({
+    tokenAddress: collateralType?.tokenAddress,
+    accountId: params.accountId,
+    poolId: params.poolId,
+  });
+
   const { data: systemToken } = useSystemToken();
-  const { data: systemTokenBalance } = useAccountCollateral(accountId, systemToken?.address);
+  const { data: systemTokenBalance } = useAccountCollateral(params.accountId, systemToken?.address);
 
   const maxWithdrawable = useMemo(() => {
     if (isBase) {
@@ -52,13 +51,11 @@ export const Withdraw = ({
   ]);
 
   const { data: accountCollateralUnlockDate, isLoading: isLoadingDate } =
-    useAccountCollateralUnlockDate({
-      accountId,
-    });
+    useAccountCollateralUnlockDate({ accountId: params.accountId });
 
   const symbol = isDebtWithdrawal ? systemToken?.symbol : collateralType?.symbol;
   const price = useTokenPrice(symbol);
-  const { minutes, hours, isRunning } = useWithdrawTimer(accountId);
+  const { minutes, hours, isRunning } = useWithdrawTimer(params.accountId);
   const unlockDate = !isLoadingDate ? accountCollateralUnlockDate : null;
 
   return (
@@ -156,4 +153,4 @@ export const Withdraw = ({
       </Button>
     </Flex>
   );
-};
+}

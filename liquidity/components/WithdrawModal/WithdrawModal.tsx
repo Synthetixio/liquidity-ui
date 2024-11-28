@@ -10,120 +10,22 @@ import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useDefaultProvider, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
-import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { useParams } from '@snx-v3/useParams';
 import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useUnwrapStataUSDC } from '@snx-v3/useUnwrapStataUSDC';
 import { useWithdraw } from '@snx-v3/useWithdraw';
 import { useWithdrawBaseAndromeda } from '@snx-v3/useWithdrawBaseAndromeda';
-import { Wei } from '@synthetixio/wei';
 import { useQueryClient } from '@tanstack/react-query';
 import { ethers } from 'ethers';
-import React, { FC, useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
 
-export const WithdrawModalUi: FC<{
-  amount: Wei;
-  isOpen: boolean;
-  onClose: () => void;
-  symbol?: string;
-  state: {
-    step: number;
-    status: string;
-  };
-  onSubmit: () => void;
-  isDebtWithdrawal: boolean;
-  isStataUSDC: boolean;
-}> = ({ isStataUSDC, isDebtWithdrawal, amount, isOpen, onClose, onSubmit, state, symbol }) => {
-  if (isOpen) {
-    if (state.status === 'success') {
-      return (
-        <LiquidityPositionUpdated
-          onClose={onSubmit}
-          title={(isDebtWithdrawal ? 'Debt' : 'Collateral') + ' successfully Withdrawn'}
-          subline={
-            <>
-              Your <b>{isDebtWithdrawal ? 'Debt' : 'Collateral'}</b> has been withdrawn, read more
-              about it in the{' '}
-              <Link
-                href="https://docs.synthetix.io/v/synthetix-v3-user-documentation"
-                target="_blank"
-                color="cyan.500"
-              >
-                Synthetix V3 Documentation
-              </Link>
-            </>
-          }
-          alertText={(isDebtWithdrawal ? 'Debt' : 'Collateral') + ' successfully Withdrawn'}
-        />
-      );
-    }
-
-    return (
-      <div data-cy="withdraw multistep">
-        <Text color="gray.50" fontSize="20px" fontWeight={700}>
-          <ArrowBackIcon cursor="pointer" onClick={onClose} mr={2} />
-          Manage {isDebtWithdrawal ? 'Debt' : 'Collateral'}
-        </Text>
-        <Divider my={4} />
-
-        <Multistep
-          step={1}
-          title="Withdraw"
-          subtitle={<Amount value={amount} suffix={` ${symbol} will be withdrawn`} />}
-          status={{
-            failed: state.step === 1 && state.status === 'error',
-            success: state.step > 1,
-            loading: state.step === 1 && state.status === 'pending',
-          }}
-        />
-        {isStataUSDC && (
-          <Multistep
-            step={2}
-            title="Unwrap"
-            subtitle={<Text as="div">unwrap Static aUSDC into USDC</Text>}
-            status={{
-              failed: state.step === 2 && state.status === 'error',
-              success: state.status === 'success',
-              loading: state.step === 2 && state.status === 'pending',
-            }}
-          />
-        )}
-
-        <Button
-          isDisabled={state.status === 'pending'}
-          onClick={onSubmit}
-          width="100%"
-          mt="6"
-          data-cy="withdraw confirm button"
-        >
-          {(() => {
-            switch (true) {
-              case state.status === 'error':
-                return 'Retry';
-              case state.status === 'pending':
-                return 'Processing...';
-              case state.status === 'success':
-                return 'Done';
-              default:
-                return 'Execute Transaction';
-            }
-          })()}
-        </Button>
-      </div>
-    );
-  }
-};
-
 export function WithdrawModal({
-  liquidityPosition,
   onClose,
-  isOpen,
   isDebtWithdrawal = false,
 }: {
-  liquidityPosition?: LiquidityPosition;
-  isOpen: boolean;
   onClose: () => void;
   isDebtWithdrawal?: boolean;
 }) {
@@ -143,14 +45,19 @@ export function WithdrawModal({
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const errorParser = useContractErrorParser();
-  const accountId = liquidityPosition?.accountId;
+
+  const { data: liquidityPosition } = useLiquidityPosition({
+    tokenAddress: collateralType?.tokenAddress,
+    accountId: params.accountId,
+    poolId: params.poolId,
+  });
 
   const isBase = isBaseAndromeda(network?.id, network?.preset);
   const isStataUSDC =
     collateralType?.address.toLowerCase() === getWrappedStataUSDCOnBase(network?.id).toLowerCase();
 
   const { data: systemToken } = useSystemToken();
-  const { data: systemTokenBalance } = useAccountCollateral(accountId, systemToken?.address);
+  const { data: systemTokenBalance } = useAccountCollateral(params.accountId, systemToken?.address);
 
   const { data: StaticAaveUSDC } = useStaticAaveUSDC();
 
@@ -158,14 +65,14 @@ export function WithdrawModal({
 
   const { mutation: withdrawMain } = useWithdraw({
     amount: withdrawAmount,
-    accountId,
+    accountId: params.accountId,
     collateralTypeAddress: isDebtWithdrawal
       ? systemToken?.address
       : liquidityPosition?.accountCollateral?.tokenAddress,
   });
 
   const { mutation: withdrawAndromeda } = useWithdrawBaseAndromeda({
-    accountId,
+    accountId: params.accountId,
     availableCollateral: liquidityPosition?.accountCollateral.availableCollateral || ZEROWEI,
     snxUSDCollateral: systemTokenBalance?.availableCollateral || ZEROWEI,
     amountToWithdraw: withdrawAmount,
@@ -230,20 +137,16 @@ export function WithdrawModal({
       }
 
       queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPosition', { accountId }],
+        queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPosition'],
       });
       queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'AccountSpecificCollateral', { accountId }],
+        queryKey: [`${network?.id}-${network?.preset}`, 'AccountSpecificCollateral'],
       });
       queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPositions', { accountId }],
+        queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPositions'],
       });
       queryClient.invalidateQueries({
-        queryKey: [
-          `${network?.id}-${network?.preset}`,
-          'AccountCollateralUnlockDate',
-          { accountId },
-        ],
+        queryKey: [`${network?.id}-${network?.preset}`, 'AccountCollateralUnlockDate'],
       });
       queryClient.invalidateQueries({
         queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
@@ -276,16 +179,84 @@ export function WithdrawModal({
     }
   };
 
+  const amount = withdrawAmount;
+  const symbol = isDebtWithdrawal ? systemToken?.symbol : collateralType?.displaySymbol;
+  const state = txState;
+
+  if (state.status === 'success') {
+    return (
+      <LiquidityPositionUpdated
+        onClose={onSubmit}
+        title={(isDebtWithdrawal ? 'Debt' : 'Collateral') + ' successfully Withdrawn'}
+        subline={
+          <>
+            Your <b>{isDebtWithdrawal ? 'Debt' : 'Collateral'}</b> has been withdrawn, read more
+            about it in the{' '}
+            <Link
+              href="https://docs.synthetix.io/v/synthetix-v3-user-documentation"
+              target="_blank"
+              color="cyan.500"
+            >
+              Synthetix V3 Documentation
+            </Link>
+          </>
+        }
+        alertText={(isDebtWithdrawal ? 'Debt' : 'Collateral') + ' successfully Withdrawn'}
+      />
+    );
+  }
+
   return (
-    <WithdrawModalUi
-      amount={withdrawAmount}
-      isOpen={isOpen}
-      onClose={onClose}
-      symbol={isDebtWithdrawal ? systemToken?.symbol : collateralType?.displaySymbol}
-      state={txState}
-      onSubmit={onSubmit}
-      isDebtWithdrawal={isDebtWithdrawal}
-      isStataUSDC={isStataUSDC}
-    />
+    <div data-cy="withdraw multistep">
+      <Text color="gray.50" fontSize="20px" fontWeight={700}>
+        <ArrowBackIcon cursor="pointer" onClick={onClose} mr={2} />
+        Manage {isDebtWithdrawal ? 'Debt' : 'Collateral'}
+      </Text>
+      <Divider my={4} />
+
+      <Multistep
+        step={1}
+        title="Withdraw"
+        subtitle={<Amount value={amount} suffix={` ${symbol} will be withdrawn`} />}
+        status={{
+          failed: state.step === 1 && state.status === 'error',
+          success: state.step > 1,
+          loading: state.step === 1 && state.status === 'pending',
+        }}
+      />
+      {isStataUSDC && (
+        <Multistep
+          step={2}
+          title="Unwrap"
+          subtitle={<Text as="div">unwrap Static aUSDC into USDC</Text>}
+          status={{
+            failed: state.step === 2 && state.status === 'error',
+            success: state.status === 'success',
+            loading: state.step === 2 && state.status === 'pending',
+          }}
+        />
+      )}
+
+      <Button
+        isDisabled={state.status === 'pending' || !Boolean(provider && StaticAaveUSDC)}
+        onClick={onSubmit}
+        width="100%"
+        mt="6"
+        data-cy="withdraw confirm button"
+      >
+        {(() => {
+          switch (true) {
+            case state.status === 'error':
+              return 'Retry';
+            case state.status === 'pending':
+              return 'Processing...';
+            case state.status === 'success':
+              return 'Done';
+            default:
+              return 'Execute Transaction';
+          }
+        })()}
+      </Button>
+    </div>
   );
 }
