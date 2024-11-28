@@ -8,7 +8,7 @@ describe(__filename, () => {
     cy.task('startAnvil', {
       chainId: Cypress.env('chainId'),
       forkUrl: `wss://base-mainnet.infura.io/ws/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '22946353', // positive debt
+      block: '22991081', // positive debt
     }).then(() => cy.log('Anvil started'));
 
     cy.on('window:before:load', (win) => {
