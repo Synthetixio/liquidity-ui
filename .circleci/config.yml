@@ -141,7 +141,7 @@ jobs:
   e2e:
     docker:
       - image: cimg/node:<< pipeline.parameters.node-version >>
-    resource_class: xlarge
+    resource_class: large
     parallelism: 3
     steps:
       - checkout
