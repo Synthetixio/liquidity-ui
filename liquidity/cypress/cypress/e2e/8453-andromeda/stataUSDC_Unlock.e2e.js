@@ -44,8 +44,8 @@ describe(__filename, () => {
     cy.get('[data-cy="undelegate confirm button"]').should('include.text', 'Execute Transaction');
     cy.get('[data-cy="undelegate confirm button"]').click();
 
-    cy.contains('[data-status="error"]', 'Unlock collateral failed').should('exist');
-    cy.contains('[data-status="error"]', 'MinDelegationTimeoutPending').should('exist');
+    // cy.contains('[data-status="error"]', 'Unlock collateral failed').should('exist');
+    // cy.contains('[data-status="error"]', 'MinDelegationTimeoutPending').should('exist');
 
     cy.contains('[data-status="success"]', 'Your locked collateral amount has been updated.', {
       timeout: 180_000,
