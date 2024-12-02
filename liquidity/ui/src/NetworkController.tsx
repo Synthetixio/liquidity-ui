@@ -62,12 +62,11 @@ export function NetworkController() {
     }
   }, [accounts, params, setParams]);
 
-  const onDisconnect = () => {
-    if (walletsInfo) {
-      disconnect(walletsInfo);
-      // localStorage.removeItem('connectedWallets');
+  useEffect(() => {
+    if (window.$magicWallet) {
+      connect({ autoSelect: { disableModals: true, label: 'MetaMask' } });
     }
-  };
+  }, [connect]);
 
   const notConnected = !activeWallet;
   const notSupported = activeWallet && !activeNetwork;
@@ -177,9 +176,10 @@ export function NetworkController() {
                     Connected with {walletsInfo?.label}
                   </Text>
                   <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDisconnect();
+                    onClick={() => {
+                      if (walletsInfo) {
+                        disconnect(walletsInfo);
+                      }
                     }}
                     size="xs"
                     variant="outline"
