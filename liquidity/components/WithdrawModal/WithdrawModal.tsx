@@ -82,13 +82,10 @@ export function WithdrawModal({
 
   const onSubmit = async () => {
     try {
-      if (!(provider && StaticAaveUSDC)) {
-        throw new Error('Not ready');
-      }
-
       if (txState.status === 'success') {
         onClose();
       }
+
       let step = txState.step;
       if (step === 1) {
         setTxState({
@@ -100,22 +97,26 @@ export function WithdrawModal({
           await withdrawMain.mutateAsync();
         } else {
           await withdrawAndromeda.mutateAsync();
+        }
 
+        if (isStataUSDC) {
           step = 2;
-          if (isStataUSDC) {
-            setTxState({
-              step: 2,
-              status: 'pending',
-            });
-          } else {
-            setTxState({
-              step: 2,
-              status: 'success',
-            });
-          }
+          setTxState({
+            step: 2,
+            status: 'pending',
+          });
+        } else {
+          setTxState({
+            step: 2,
+            status: 'success',
+          });
         }
       }
       if (step === 2) {
+        if (!(provider && StaticAaveUSDC)) {
+          throw new Error('Not ready');
+        }
+
         setTxState({
           step: 2,
           status: 'pending',
@@ -238,7 +239,7 @@ export function WithdrawModal({
       )}
 
       <Button
-        isDisabled={state.status === 'pending' || !Boolean(provider && StaticAaveUSDC)}
+        isDisabled={state.status === 'pending'}
         onClick={onSubmit}
         width="100%"
         mt="6"

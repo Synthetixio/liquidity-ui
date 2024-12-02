@@ -88,6 +88,10 @@ declare global {
       }) => Promise<void>;
 
       wrapEth: ({ address, amount }: { address?: string; amount: number }) => Promise<void>;
+
+      setWithdrawTimeout: ({ timeout }: { timeout: string }) => Promise<void>;
+
+      getSUSD: ({ address, amount }: { address?: string; amount: number }) => Promise<void>;
     }
   }
 }

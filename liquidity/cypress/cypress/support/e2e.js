@@ -11,6 +11,8 @@ import { getUSDC } from './commands/getUSDC';
 import { setEthBalance } from './commands/setEthBalance';
 import { wrapCollateral } from './commands/wrapCollateral';
 import { wrapEth } from './commands/wrapEth';
+import { setWithdrawTimeout } from './commands/setWithdrawTimeout';
+import { getSUSD } from './commands/getSUSD';
 
 Cypress.Commands.add('approveCollateral', approveCollateral);
 Cypress.Commands.add('borrowUsd', borrowUsd);
@@ -22,6 +24,8 @@ Cypress.Commands.add('getUSDC', getUSDC);
 Cypress.Commands.add('setEthBalance', setEthBalance);
 Cypress.Commands.add('wrapCollateral', wrapCollateral);
 Cypress.Commands.add('wrapEth', wrapEth);
+Cypress.Commands.add('setWithdrawTimeout', setWithdrawTimeout);
+Cypress.Commands.add('getSUSD', getSUSD);
 
 installLogsCollector({
   enableExtendedCollector: true,
