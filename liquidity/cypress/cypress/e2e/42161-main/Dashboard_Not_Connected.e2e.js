@@ -14,7 +14,7 @@ describe(__filename, () => {
   });
 
   it(__filename, () => {
-    cy.visit('/#/dashboard');
+    cy.visit('?page=dashboard');
 
     cy.contains('h2', 'Dashboard').should('exist');
 

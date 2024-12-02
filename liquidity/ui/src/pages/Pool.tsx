@@ -1,19 +1,19 @@
+import { ArrowBackIcon } from '@chakra-ui/icons';
 import { Box, Divider, Flex, Heading, Link } from '@chakra-ui/react';
-import { HomeLink } from '@snx-v3/HomeLink';
-import { NETWORKS, useNetwork } from '@snx-v3/useBlockchain';
-import { useParams } from '@snx-v3/useParams';
+import { NETWORKS } from '@snx-v3/useBlockchain';
+import { PoolPageSchema, useParams } from '@snx-v3/useParams';
 import { usePool } from '@snx-v3/usePoolsList';
 import { Helmet } from 'react-helmet';
-import { NavLink } from 'react-router-dom';
+import { Link as ReactRouterLink, NavLink } from 'react-router-dom';
 import { CollateralSection } from '../components/Pools/CollateralSection';
 import { PoolHeader } from '../components/Pools/PoolHeader';
 
 export const Pool = () => {
-  const params = useParams();
-
-  const { network: connectedNetwork } = useNetwork();
-  const networkId = params.networkId ? Number(params.networkId) : connectedNetwork?.id;
-  const { data: pool, isPending } = usePool(networkId, String(params.poolId));
+  const [params] = useParams();
+  const safeParams = PoolPageSchema.safeParse(params);
+  const poolId = safeParams.success ? String(safeParams.data.poolId) : undefined;
+  const networkId = safeParams.success ? Number(safeParams.data.networkId) : undefined;
+  const { data: pool, isPending } = usePool(networkId, poolId);
   const network = NETWORKS.find((n) => n.id === networkId);
 
   const title = pool
@@ -27,7 +27,28 @@ export const Pool = () => {
         <meta name="description" content={title} />
       </Helmet>
       <>
-        <HomeLink mt={4} />
+        <Link
+          as={ReactRouterLink}
+          px={3}
+          py={2}
+          width="fit-content"
+          display="flex"
+          alignItems="center"
+          variant="outline"
+          lineHeight="20px"
+          color="white"
+          borderRadius="4px"
+          borderWidth="1px"
+          borderColor="gray.900"
+          _hover={{ textTransform: 'none', opacity: 0.9 }}
+          to="/"
+          fontSize="sm"
+          fontWeight={700}
+          mt={4}
+          mb={2}
+        >
+          <ArrowBackIcon mr={1} /> All Pools
+        </Link>
         {!isPending && !pool ? (
           <Flex
             height="100%"

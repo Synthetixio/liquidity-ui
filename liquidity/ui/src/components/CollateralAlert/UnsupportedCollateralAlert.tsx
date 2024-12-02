@@ -1,15 +1,17 @@
 import {
+  Button,
+  Divider,
+  Link,
   Modal,
-  ModalOverlay,
   ModalContent,
   ModalHeader,
+  ModalOverlay,
   Text,
-  Divider,
-  Button,
 } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { makeSearch, type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 
 export const UnsupportedCollateralAlert = ({ isOpen }: { isOpen: boolean }) => {
+  const [params, setParams] = useParams<PositionPageSchemaType>();
   return (
     <Modal isOpen={isOpen} onClose={() => {}}>
       <ModalOverlay />
@@ -22,11 +24,20 @@ export const UnsupportedCollateralAlert = ({ isOpen }: { isOpen: boolean }) => {
         </Text>
         <Button
           as={Link}
-          mt={6}
-          to={{
-            pathname: '/dashboard',
-            search: location.search,
+          href={`?${makeSearch({
+            page: 'dashboard',
+            accountId: params.accountId,
+          })}`}
+          onClick={(e) => {
+            e.preventDefault();
+            setParams({
+              page: 'dashboard',
+              accountId: params.accountId,
+            });
           }}
+          mt={6}
+          textDecoration="none"
+          _hover={{ textDecoration: 'none' }}
         >
           Back to Dashboard
         </Button>

@@ -12,7 +12,7 @@ import { useBorrow } from '@snx-v3/useBorrow';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { useParams } from '@snx-v3/useParams';
+import { useParams, type PositionPageSchemaType } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import Wei, { wei } from '@synthetixio/wei';
 import { useQueryClient } from '@tanstack/react-query';
@@ -114,9 +114,9 @@ export const ClaimModal: React.FC<{
   isOpen: boolean;
   liquidityPosition?: LiquidityPosition;
 }> = ({ onClose, isOpen, liquidityPosition }) => {
+  const [params] = useParams<PositionPageSchemaType>();
   const { debtChange, setDebtChange } = useContext(ManagePositionContext);
   const queryClient = useQueryClient();
-  const params = useParams();
   const { network } = useNetwork();
   const isBase = isBaseAndromeda(network?.id, network?.preset);
   const { data: collateralType } = useCollateralType(params.collateralSymbol);

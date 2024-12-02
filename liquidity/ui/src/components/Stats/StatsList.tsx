@@ -22,7 +22,7 @@ import { calculateDebt } from '../../utils/positions';
 import { StatBox } from './StatBox';
 
 export const StatsList = () => {
-  const params = useParams();
+  const [params] = useParams();
   const { network } = useNetwork();
 
   const { data: usdTokens } = useGetUSDTokens();

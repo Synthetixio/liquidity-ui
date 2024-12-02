@@ -1,14 +1,15 @@
 import { Button } from '@chakra-ui/react';
 import { Network, useNetwork, useWallet } from '@snx-v3/useBlockchain';
-import { useParams } from '@snx-v3/useParams';
+import { type DashboardPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useEffect, useState } from 'react';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
 import { MigrateUSDModal } from './MigrateUSDModal';
 
 export function MigrateUSDButton({ network }: { network: Network }) {
+  const [params] = useParams<DashboardPageSchemaType>();
+
   const [isOpen, setIsOpen] = useState(false);
   const { network: currentNetwork } = useNetwork();
-  const params = useParams();
   const { activeWallet } = useWallet();
 
   useEffect(() => {

@@ -1,3 +1,5 @@
+import { makeSearch } from '@snx-v3/useParams';
+
 describe(__filename, () => {
   Cypress.env('chainId', '8453');
   Cypress.env('preset', 'andromeda');
@@ -26,7 +28,13 @@ describe(__filename, () => {
     cy.getUSDC({ amount: 1000 });
 
     cy.visit(
-      `/#/positions/stataUSDC/1?manageAction=undelegate&accountId=${Cypress.env('accountId')}`
+      `?${makeSearch({
+        page: 'position',
+        collateralSymbol: 'stataUSDC',
+        poolId: 1,
+        manageAction: 'undelegate',
+        accountId: Cypress.env('accountId'),
+      })}`
     );
 
     cy.get('[data-cy="unlock collateral form"]').should('exist');

@@ -1,3 +1,5 @@
+import { makeSearch } from '@snx-v3/useParams';
+
 describe(__filename, () => {
   Cypress.env('chainId', '8453');
   Cypress.env('preset', 'andromeda');
@@ -30,7 +32,15 @@ describe(__filename, () => {
     cy.depositCollateral({ symbol: 'sUSDC', amount: 150 });
     cy.delegateCollateral({ symbol: 'sUSDC', amount: 150, poolId: 1 });
 
-    cy.visit(`/#/positions/USDC/1?manageAction=undelegate&accountId=${Cypress.env('accountId')}`);
+    cy.visit(
+      `?${makeSearch({
+        page: 'position',
+        collateralSymbol: 'USDC',
+        poolId: 1,
+        manageAction: 'undelegate',
+        accountId: Cypress.env('accountId'),
+      })}`
+    );
 
     cy.get('[data-cy="unlock collateral form"]').should('exist');
     cy.get('[data-cy="locked amount"]', { timeout: 180_000 })

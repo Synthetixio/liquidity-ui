@@ -8,51 +8,39 @@ import {
   ModalContent,
   ModalOverlay,
 } from '@chakra-ui/react';
-import { FC, useCallback, useEffect, useState } from 'react';
-import { StepIntro } from './StepIntro';
 import { ZEROWEI } from '@snx-v3/constants';
-import { MigrateUSDTransaction } from './MigrateUSDTransaction';
 import { Network } from '@snx-v3/useBlockchain';
+import { useParams } from '@snx-v3/useParams';
+import React from 'react';
 import { StepSuccessFinal } from '../Migration/StepSuccessFinal';
-import { generatePath, useLocation, useNavigate } from 'react-router-dom';
+import { MigrateUSDTransaction } from './MigrateUSDTransaction';
+import { StepIntro } from './StepIntro';
+import { type DashboardPageSchemaType } from '@snx-v3/useParams';
 
-interface Props {
+export function MigrateUSDModal({
+  onClose,
+  isOpen,
+  network,
+  type,
+  accountId,
+}: {
   onClose: () => void;
   isOpen: boolean;
   network: Network;
   type: 'migration' | 'convert';
   accountId?: string;
-}
+}) {
+  const [_params, setParams] = useParams<DashboardPageSchemaType>();
 
-export const MigrateUSDModal: FC<Props> = ({ onClose, isOpen, network, type, accountId }) => {
-  const [step, setStep] = useState(0);
-  const [amount, setAmount] = useState(ZEROWEI);
-  const location = useLocation();
-  const navigate = useNavigate();
+  const [step, setStep] = React.useState(0);
+  const [amount, setAmount] = React.useState(ZEROWEI);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!isOpen) {
       setStep(0);
       setAmount(ZEROWEI);
     }
   }, [isOpen]);
-
-  const handleConfirm = useCallback(() => {
-    if (accountId) {
-      const queryParams = new URLSearchParams(location.search);
-
-      queryParams.set('accountId', accountId);
-
-      navigate(
-        {
-          pathname: generatePath('/dashboard'),
-          search: queryParams.toString(),
-        },
-        { replace: true }
-      );
-    }
-    onClose();
-  }, [accountId, location.search, navigate, onClose]);
 
   return (
     <Modal size="lg" isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false}>
@@ -93,11 +81,19 @@ export const MigrateUSDModal: FC<Props> = ({ onClose, isOpen, network, type, acc
                   amount={amount}
                 />
               )}
-              {step === 2 && <StepSuccessFinal network={network} onConfirm={handleConfirm} />}
+              {step === 2 && (
+                <StepSuccessFinal
+                  network={network}
+                  onConfirm={() => {
+                    setParams({ page: 'dashboard', accountId });
+                    onClose();
+                  }}
+                />
+              )}
             </>
           )}
         </ModalBody>
       </ModalContent>
     </Modal>
   );
-};
+}

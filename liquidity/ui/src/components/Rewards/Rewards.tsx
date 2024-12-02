@@ -15,7 +15,7 @@ import { BorderBox } from '@snx-v3/BorderBox';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useClaimAllRewards } from '@snx-v3/useClaimAllRewards';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
-import { useParams } from '@snx-v3/useParams';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useRewards } from '@snx-v3/useRewards';
 import React from 'react';
 import { AllRewardsModal } from './AllRewardsModal';
@@ -23,7 +23,7 @@ import { RewardsLoading } from './RewardsLoading';
 import { RewardsRow } from './RewardsRow';
 
 export function Rewards() {
-  const params = useParams();
+  const [params] = useParams<PositionPageSchemaType>();
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { isPending, data: rewards } = useRewards({
     poolId: params.poolId,

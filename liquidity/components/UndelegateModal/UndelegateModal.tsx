@@ -13,7 +13,7 @@ import { CollateralType, useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { useParams } from '@snx-v3/useParams';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useUndelegate } from '@snx-v3/useUndelegate';
 import { useUndelegateBaseAndromeda } from '@snx-v3/useUndelegateBaseAndromeda';
 import { useUSDC } from '@snx-v3/useUSDC';
@@ -120,8 +120,9 @@ export type UndelegateModalProps = FC<{
   onClose: () => void;
   liquidityPosition?: LiquidityPosition;
 }>;
+
 export const UndelegateModal: UndelegateModalProps = ({ onClose, isOpen, liquidityPosition }) => {
-  const params = useParams();
+  const [params] = useParams<PositionPageSchemaType>();
   const { collateralChange, setCollateralChange } = useContext(ManagePositionContext);
   const { network } = useNetwork();
 

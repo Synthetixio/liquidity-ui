@@ -1,10 +1,10 @@
 import { Flex, Heading, Skeleton, Tag, Text } from '@chakra-ui/react';
 import { ARBITRUM, MAINNET, NetworkIcon, NETWORKS, useNetwork } from '@snx-v3/useBlockchain';
-import { useParams } from '@snx-v3/useParams';
+import { type PoolPageSchemaType, useParams } from '@snx-v3/useParams';
 import { usePool } from '@snx-v3/usePoolsList';
 
 export function PoolHeader() {
-  const params = useParams();
+  const [params] = useParams<PoolPageSchemaType>();
 
   const { network: connectedNetwork } = useNetwork();
   const networkId = params.networkId ? Number(params.networkId) : connectedNetwork?.id;

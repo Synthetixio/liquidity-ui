@@ -1,4 +1,4 @@
-import { Button, Fade, Flex, Text } from '@chakra-ui/react';
+import { Button, Fade, Flex, Link, Text } from '@chakra-ui/react';
 import { ZEROWEI } from '@snx-v3/constants';
 import { formatNumber, formatNumberToUsd } from '@snx-v3/formatters';
 import { Sparkles } from '@snx-v3/icons';
@@ -15,12 +15,12 @@ import {
 } from '@snx-v3/useBlockchain';
 import { CollateralType } from '@snx-v3/useCollateralTypes';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
+import { makeSearch, useParams } from '@snx-v3/useParams';
 import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { wei } from '@synthetixio/wei';
 import { BigNumberish } from 'ethers';
-import { useMemo } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React from 'react';
 import { MigrationBanner } from '../../Migration/MigrationBanner';
 import { TokenIcon } from '../../TokenIcon/TokenIcon';
 import { formatApr } from '../CollateralSection';
@@ -49,6 +49,8 @@ export interface Props {
 }
 
 export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }: Props) => {
+  const [params, setParams] = useParams();
+
   const { data: wrapperToken } = useGetWrapperToken(
     getSpotMarketId(collateralType.symbol),
     network
@@ -63,15 +65,12 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
   const { data: tokenBalance } = useTokenBalance(balanceAddress, network);
   const { data: usdcBalance } = useTokenBalance(getUSDCOnBase(network?.id));
 
-  const navigate = useNavigate();
-  const [queryParams] = useSearchParams();
-
   const { network: currentNetwork, setNetwork } = useNetwork();
   const { connect } = useWallet();
 
   const isStataUSDC = collateralType.symbol === 'stataUSDC';
 
-  const balance = useMemo(() => {
+  const balance = React.useMemo(() => {
     if (!isStataUSDC || !stataUSDCRate) {
       return tokenBalance || ZEROWEI;
     }
@@ -91,25 +90,28 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
 
   const { apr7d, apr7dRewards, apr7dPnl } = collateralApr;
 
-  const onClick = async () => {
+  const onClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
     try {
       if (!currentNetwork) {
-        connect();
+        await connect();
         return;
       }
-
       if (currentNetwork.id !== network.id) {
         if (!(await setNetwork(network.id))) {
           return;
         }
       }
-
-      queryParams.set('manageAction', 'deposit');
-      navigate({
-        pathname: `/positions/${collateralType.symbol}/${pool.id}`,
-        search: queryParams.toString(),
+      setParams({
+        page: 'position',
+        collateralSymbol: collateralType.symbol,
+        poolId: pool.id,
+        manageAction: 'deposit',
+        accountId: params.accountId,
       });
-    } catch (error) {}
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const buttonText = !currentNetwork ? 'Connect Wallet' : 'Deposit';
@@ -127,7 +129,21 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
         py={4}
       >
         <Flex px={4} flexDir="row" w="100%" gap={4}>
-          <Flex width="190px" alignItems="center" _hover={{ cursor: 'pointer' }} onClick={onClick}>
+          <Flex
+            as={Link}
+            href={`?${makeSearch({
+              page: 'position',
+              collateralSymbol: collateralType.symbol,
+              poolId: pool.id,
+              manageAction: 'deposit',
+              accountId: params.accountId,
+            })}`}
+            onClick={onClick}
+            width="190px"
+            alignItems="center"
+            textDecoration="none"
+            _hover={{ textDecoration: 'none' }}
+          >
             <Flex position="relative">
               <TokenIcon w={40} h={40} symbol={collateralType.symbol} />
               <NetworkIcon
@@ -247,6 +263,14 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
           </Flex>
           <Flex minW="159px" flex="1" justifyContent="flex-end">
             <Button
+              as={Link}
+              href={`?${makeSearch({
+                page: 'position',
+                collateralSymbol: collateralType.symbol,
+                poolId: pool.id,
+                manageAction: 'deposit',
+                accountId: params.accountId,
+              })}`}
               onClick={onClick}
               size="sm"
               height="32px"
@@ -258,6 +282,9 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
               fontWeight={700}
               fontSize="14px"
               lineHeight="20px"
+              color="black"
+              textDecoration="none"
+              _hover={{ textDecoration: 'none', color: 'black' }}
             >
               {buttonText}
             </Button>

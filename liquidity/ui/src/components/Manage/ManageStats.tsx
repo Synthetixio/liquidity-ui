@@ -1,18 +1,18 @@
 import { Flex, Text } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { calculateCRatio } from '@snx-v3/calculations';
+import { ZEROWEI } from '@snx-v3/constants';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { CollateralType, useCollateralType } from '@snx-v3/useCollateralTypes';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { useParams } from '@snx-v3/useParams';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { validatePosition } from '@snx-v3/validatePosition';
 import Wei, { wei } from '@synthetixio/wei';
 import { FC, useContext } from 'react';
 import { CRatioBar } from '../CRatioBar/CRatioBar';
 import { CollateralStats } from './CollateralStats';
-import { ZEROWEI } from '@snx-v3/constants';
 import { DebtStats } from './DebtStats';
 import { PnlStats } from './PnlStats';
 
@@ -90,10 +90,10 @@ export const ManageStatsUi: FC<{
 };
 
 export const ManageStats = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosition }) => {
-  const { collateralSymbol } = useParams();
+  const [params] = useParams<PositionPageSchemaType>();
   const { debtChange, collateralChange } = useContext(ManagePositionContext);
 
-  const { data: collateralType } = useCollateralType(collateralSymbol);
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
 
   const collateralValue = liquidityPosition?.collateralValue || wei(0);
 

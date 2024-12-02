@@ -10,7 +10,7 @@ import { useAccountCollateralUnlockDate } from '@snx-v3/useAccountCollateralUnlo
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { useParams } from '@snx-v3/useParams';
+import { useParams, type PositionPageSchemaType } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
@@ -18,8 +18,8 @@ import { useContext, useMemo } from 'react';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
 
 export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: boolean }) {
+  const [params] = useParams<PositionPageSchemaType>();
   const { setWithdrawAmount, withdrawAmount } = useContext(ManagePositionContext);
-  const params = useParams();
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { network } = useNetwork();
   const isBase = isBaseAndromeda(network?.id, network?.preset);

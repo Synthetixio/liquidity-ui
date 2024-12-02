@@ -27,7 +27,7 @@ import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useEthBalance } from '@snx-v3/useEthBalance';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { useParams } from '@snx-v3/useParams';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
@@ -305,18 +305,18 @@ export const DepositUi: FC<{
 };
 
 export const Deposit = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosition }) => {
+  const [params] = useParams<PositionPageSchemaType>();
+
   const { collateralChange, setCollateralChange } = useContext(ManagePositionContext);
   const { network } = useNetwork();
 
-  const { collateralSymbol } = useParams();
-
-  const { data: collateralType } = useCollateralType(collateralSymbol);
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { data: transferrableSnx } = useTransferableSynthetix();
   const isBase = isBaseAndromeda(network?.id, network?.preset);
   const isStataUSDC =
     collateralType?.address.toLowerCase() === getWrappedStataUSDCOnBase().toLowerCase();
 
-  const { data: wrapperToken } = useGetWrapperToken(getSpotMarketId(collateralSymbol));
+  const { data: wrapperToken } = useGetWrapperToken(getSpotMarketId(params.collateralSymbol));
 
   // TODO: This will need refactoring
   const balanceAddress = isBase

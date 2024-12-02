@@ -8,20 +8,19 @@ import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType, useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { useParams } from '@snx-v3/useParams';
+import { type ManageActionType, type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { usePoolData } from '@snx-v3/usePoolData';
 import { usePool } from '@snx-v3/usePoolsList';
 import { useState } from 'react';
 import { ClosePosition } from '../components/ClosePosition/ClosePosition';
 import { UnsupportedCollateralAlert } from '../components/CollateralAlert/UnsupportedCollateralAlert';
-import { ManageAction, type ManageActionType } from '../components/Manage/ManageActions';
+import { ManageAction } from '../components/Manage/ManageActions';
 import { ManageStats } from '../components/Manage/ManageStats';
 import { PositionTitle } from '../components/Manage/PositionTitle';
 import { Rewards } from '../components/Rewards/Rewards';
-import { WatchAccountBanner } from '../components/WatchAccountBanner/WatchAccountBanner';
 
 export const Manage = () => {
-  const params = useParams();
+  const [params] = useParams<PositionPageSchemaType>();
   const { network } = useNetwork();
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
@@ -64,7 +63,6 @@ export const Manage = () => {
 
   return (
     <ManagePositionProvider>
-      <WatchAccountBanner />
       <UnsupportedCollateralAlert isOpen={Boolean(notSupported)} />
       <Box mb={12} mt={8}>
         <Flex

@@ -16,7 +16,7 @@ import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useDeposit } from '@snx-v3/useDeposit';
 import { useDepositBaseAndromeda } from '@snx-v3/useDepositBaseAndromeda';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { useParams } from '@snx-v3/useParams';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { usePool } from '@snx-v3/usePools';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
@@ -30,7 +30,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useMachine } from '@xstate/react';
 import { BigNumber } from 'ethers';
 import { FC, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { generatePath, useLocation, useNavigate } from 'react-router-dom';
 import type { StateFrom } from 'xstate';
 import { ChangeStat } from '../../ui/src/components/ChangeStat/ChangeStat';
 import { CRatioChangeStat } from '../../ui/src/components/CRatioBar/CRatioChangeStat';
@@ -322,8 +321,7 @@ export type DepositModalProps = FC<{
 }>;
 
 export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquidityPosition }) => {
-  const navigate = useNavigate();
-  const { collateralSymbol, poolId, accountId } = useParams();
+  const [params, setParams] = useParams<PositionPageSchemaType>();
   const queryClient = useQueryClient();
   const { network } = useNetwork();
   const { collateralChange, setCollateralChange } = useContext(ManagePositionContext);
@@ -432,9 +430,9 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   //Deposit
   const newAccountId = useMemo(() => `${Math.floor(Math.random() * 1000000000000)}`, []);
   const { exec: execDeposit } = useDeposit({
-    accountId: accountId,
+    accountId: params.accountId,
     newAccountId,
-    poolId,
+    poolId: params.poolId,
     collateralTypeAddress: collateral?.tokenAddress,
     collateralChange,
     currentCollateral,
@@ -442,14 +440,14 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
     decimals: Number(collateral?.decimals) || 18,
   });
   const { exec: depositBaseAndromeda } = useDepositBaseAndromeda({
-    accountId,
+    accountId: params.accountId,
     newAccountId,
-    poolId,
+    poolId: params.poolId,
     collateralTypeAddress: synth?.token.address,
     collateralChange,
     currentCollateral,
     availableCollateral: availableCollateral || ZEROWEI,
-    collateralSymbol,
+    collateralSymbol: params.collateralSymbol,
   });
   //Deposit done
 
@@ -457,7 +455,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
 
   // TODO: Update logic on new account id
 
-  const { data: pool } = usePool(poolId);
+  const { data: pool } = usePool(params.poolId);
 
   const errorParser = useContractErrorParser();
 
@@ -592,7 +590,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
         try {
           toast.closeAll();
           toast({
-            title: Boolean(accountId)
+            title: Boolean(params.accountId)
               ? 'Locking your collateral'
               : 'Creating your account and locking your collateral',
             description: '',
@@ -611,34 +609,27 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
             await execDeposit();
           }
 
-          await Promise.all([
-            queryClient.invalidateQueries({
-              queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
-            }),
-            queryClient.invalidateQueries({
-              queryKey: [`${network?.id}-${network?.preset}`, 'EthBalance'],
-            }),
-            queryClient.invalidateQueries({
-              queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPosition'],
-            }),
-            collateral?.symbol === 'SNX'
-              ? queryClient.invalidateQueries({
-                  queryKey: [`${network?.id}-${network?.preset}`, 'TransferableSynthetix'],
-                })
-              : Promise.resolve(),
-            queryClient.invalidateQueries({
-              queryKey: [`${network?.id}-${network?.preset}`, 'Allowance'],
-            }),
-            queryClient.invalidateQueries({
-              queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPositions'],
-            }),
-            !accountId
-              ? queryClient.invalidateQueries({
-                  queryKey: [`${network?.id}-${network?.preset}`, 'Accounts'],
-                })
-              : Promise.resolve(),
-          ]);
-
+          queryClient.invalidateQueries({
+            queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
+          });
+          queryClient.invalidateQueries({
+            queryKey: [`${network?.id}-${network?.preset}`, 'EthBalance'],
+          });
+          queryClient.invalidateQueries({
+            queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPosition'],
+          });
+          queryClient.invalidateQueries({
+            queryKey: [`${network?.id}-${network?.preset}`, 'TransferableSynthetix'],
+          });
+          queryClient.invalidateQueries({
+            queryKey: [`${network?.id}-${network?.preset}`, 'Allowance'],
+          });
+          queryClient.invalidateQueries({
+            queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPositions'],
+          });
+          queryClient.invalidateQueries({
+            queryKey: [`${network?.id}-${network?.preset}`, 'Accounts'],
+          });
           setCollateralChange(ZEROWEI);
 
           toast.closeAll();
@@ -705,25 +696,24 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
     });
   }, [isStataUSDC, send]);
 
-  const location = useLocation();
-
   const handleClose = useCallback(() => {
     const isSuccess = state.matches(State.success);
 
-    if (isSuccess && poolId && collateral?.symbol) {
+    if (isSuccess && params.poolId && params.accountId && collateral?.symbol) {
       send(Events.RESET);
       onClose();
-      navigate({
-        pathname: generatePath('/positions/:collateralType/:poolId', {
-          collateralType: collateral.symbol,
-          poolId,
-        }),
-        search: location.search,
+      setParams({
+        page: 'position',
+        collateralSymbol: collateral.symbol,
+        poolId: params.poolId,
+        manageAction: 'deposit',
+        accountId: params.accountId,
       });
+      return;
     }
     send(Events.RESET);
     onClose();
-  }, [location.search, send, onClose, state, poolId, collateral?.symbol, navigate]);
+  }, [state, params.poolId, params.accountId, collateral?.symbol, send, onClose, setParams]);
 
   const onSubmit = useCallback(async () => {
     if (state.matches(State.success)) {
@@ -741,7 +731,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   const txSummaryItems = useMemo(() => {
     const items = [
       {
-        label: 'Locked ' + collateral?.symbol,
+        label: `Locked ${collateral?.symbol}`,
         value: (
           <ChangeStat
             value={txSummary.currentCollateral}

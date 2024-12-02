@@ -1,14 +1,14 @@
 import { TimeIcon } from '@chakra-ui/icons';
-import { Box, Button, Collapse, Fade, Flex, Td, Text, Tooltip, Tr } from '@chakra-ui/react';
+import { Box, Button, Collapse, Fade, Flex, Td, Text, Tooltip, Tr, Link } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { LiquidityPositionType } from '@snx-v3/useLiquidityPositions';
+import { makeSearch, useParams } from '@snx-v3/useParams';
 import { useRewards } from '@snx-v3/useRewards';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
 import { useMemo } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CRatioAmount } from '../../CRatioBar/CRatioAmount';
 import { CRatioBadge } from '../../CRatioBar/CRatioBadge';
 import { TokenIcon } from '../../TokenIcon/TokenIcon';
@@ -35,6 +35,8 @@ export function PositionRow({
   accountId,
   isStataUSDC,
 }: PositionRow) {
+  const [params, setParams] = useParams();
+
   const { data: rewardsData } = useRewards({
     poolId,
     collateralSymbol: collateralType?.symbol,
@@ -42,18 +44,9 @@ export function PositionRow({
   });
   const { network } = useNetwork();
   const collateralPrice = useTokenPrice(collateralType.symbol);
-  const [queryParams] = useSearchParams();
-  const navigate = useNavigate();
   const { minutes, hours, isRunning } = useWithdrawTimer(accountId);
   const { data: stataUSDCAPR } = useStataUSDCApr(network?.id, network?.preset);
   const stataUSDCAPRParsed = stataUSDCAPR || 0;
-  const handleNavigate = (actions: string) => {
-    queryParams.set('manageAction', actions);
-    navigate({
-      pathname: `/positions/${collateralType.symbol}/${poolId}`,
-      search: queryParams.toString(),
-    });
-  };
 
   const hasRewards = useMemo(
     () => (rewardsData || []).reduce((curr, acc) => curr + acc.claimableAmount.toNumber(), 0) > 0,
@@ -65,9 +58,27 @@ export function PositionRow({
       <Td border="none">
         <Fade in>
           <Flex
+            as={Link}
+            href={`?${makeSearch({
+              page: 'position',
+              collateralSymbol: collateralType.symbol,
+              poolId,
+              manageAction: debt.gt(0) ? 'repay' : 'claim',
+              accountId: params.accountId,
+            })}`}
+            onClick={(e) => {
+              e.preventDefault();
+              setParams({
+                page: 'position',
+                collateralSymbol: collateralType.symbol,
+                poolId,
+                manageAction: debt.gt(0) ? 'repay' : 'claim',
+                accountId: params.accountId,
+              });
+            }}
             alignItems="center"
-            _hover={{ textDecoration: 'underline', cursor: 'pointer' }}
-            onClick={() => handleNavigate(debt.gt(0) ? 'repay' : 'claim')}
+            textDecoration="none"
+            _hover={{ textDecoration: 'none' }}
           >
             <TokenIcon symbol={collateralType.symbol} />
             <Flex flexDirection="column" ml={3}>
@@ -122,16 +133,9 @@ export function PositionRow({
           </Text>
           <Box color="gray.500" fontFamily="heading" fontSize="0.75rem" lineHeight="1rem">
             {availableCollateral.gt(0) && !isRunning ? (
-              <Text
-                color="cyan.500"
-                fontFamily="heading"
-                fontSize="0.75rem"
-                lineHeight="1rem"
-                cursor="pointer"
-                onClick={() => handleNavigate('withdraw')}
-              >
+              <Link color="cyan.500" fontFamily="heading" fontSize="0.75rem" lineHeight="1rem">
                 Withdraw
-              </Text>
+              </Link>
             ) : (
               <Amount value={availableCollateral} suffix={` ${collateralType.symbol.toString()}`} />
             )}
@@ -146,18 +150,33 @@ export function PositionRow({
                 ? (isStataUSDC ? apr + stataUSDCAPRParsed : apr).toFixed(2).concat('%')
                 : '-'}
             </Text>
-            {hasRewards && (
-              <Text
+            {hasRewards ? (
+              <Link
                 color="cyan.500"
                 fontFamily="heading"
                 fontSize="0.75rem"
                 lineHeight="1rem"
-                cursor="pointer"
-                onClick={() => handleNavigate('deposit')}
+                href={`?${makeSearch({
+                  page: 'position',
+                  collateralSymbol: collateralType.symbol,
+                  poolId,
+                  manageAction: 'deposit',
+                  accountId: params.accountId,
+                })}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setParams({
+                    page: 'position',
+                    collateralSymbol: collateralType.symbol,
+                    poolId,
+                    manageAction: 'deposit',
+                    accountId: params.accountId,
+                  });
+                }}
               >
                 Claim Rewards
-              </Text>
-            )}
+              </Link>
+            ) : null}
           </Flex>
         </Fade>
       </Td>
@@ -171,17 +190,61 @@ export function PositionRow({
             fontFamily="heading"
             fontSize="sm"
           />
-          <Collapse in={!debt.eq(0)}>
-            <Text
-              color="cyan.500"
-              fontFamily="heading"
-              fontSize="0.75rem"
-              lineHeight="1rem"
-              cursor="pointer"
-              onClick={() => handleNavigate(debt.gt(0) ? 'repay' : 'claim')}
-            >
-              {debt.gt(0) ? 'Repay Debt' : 'Claim Credit'}
-            </Text>
+          <Collapse in={debt.gt(0) || debt.lt(0)}>
+            {debt.gt(0) ? (
+              <Link
+                color="cyan.500"
+                fontFamily="heading"
+                fontSize="0.75rem"
+                lineHeight="1rem"
+                href={`?${makeSearch({
+                  page: 'position',
+                  collateralSymbol: collateralType.symbol,
+                  poolId,
+                  manageAction: 'repay',
+                  accountId: params.accountId,
+                })}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setParams({
+                    page: 'position',
+                    collateralSymbol: collateralType.symbol,
+                    poolId,
+                    manageAction: 'repay',
+                    accountId: params.accountId,
+                  });
+                }}
+              >
+                Repay Debt
+              </Link>
+            ) : null}
+            {debt.lt(0) ? (
+              <Link
+                color="cyan.500"
+                fontFamily="heading"
+                fontSize="0.75rem"
+                lineHeight="1rem"
+                href={`?${makeSearch({
+                  page: 'position',
+                  collateralSymbol: collateralType.symbol,
+                  poolId,
+                  manageAction: 'claim',
+                  accountId: params.accountId,
+                })}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setParams({
+                    page: 'position',
+                    collateralSymbol: collateralType.symbol,
+                    poolId,
+                    manageAction: 'claim',
+                    accountId: params.accountId,
+                  });
+                }}
+              >
+                Claim Credit
+              </Link>
+            ) : null}
           </Collapse>
         </Flex>
       </Td>
@@ -204,6 +267,24 @@ export function PositionRow({
       <Td border="none" pr={0}>
         <Flex justifyContent="flex-end">
           <Button
+            as={Link}
+            href={`?${makeSearch({
+              page: 'position',
+              collateralSymbol: collateralType.symbol,
+              poolId,
+              manageAction: 'deposit',
+              accountId: params.accountId,
+            })}`}
+            onClick={(e) => {
+              e.preventDefault();
+              setParams({
+                page: 'position',
+                collateralSymbol: collateralType.symbol,
+                poolId,
+                manageAction: 'deposit',
+                accountId: params.accountId,
+              });
+            }}
             fontSize="sm"
             lineHeight="1.25rem"
             height="2rem"
@@ -215,7 +296,8 @@ export function PositionRow({
             borderWidth="1px"
             borderColor="gray.900"
             borderRadius="4px"
-            onClick={() => handleNavigate('deposit')}
+            textDecoration="none"
+            _hover={{ textDecoration: 'none' }}
           >
             Manage
           </Button>

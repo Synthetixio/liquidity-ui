@@ -4,7 +4,6 @@ import { Helmet } from 'react-helmet';
 import { MigrationBanner } from '../components/Migration/MigrationBanner';
 import { PositionsList } from '../components/Positions/PositionsList';
 import { StatsList } from '../components/Stats/StatsList';
-import { WatchAccountBanner } from '../components/WatchAccountBanner/WatchAccountBanner';
 
 export function Dashboard() {
   const { network } = useNetwork();
@@ -21,7 +20,6 @@ export function Dashboard() {
         <Heading color="gray.50" fontSize="1.5rem">
           Dashboard
         </Heading>
-        <WatchAccountBanner />
         <StatsList />
         <PositionsList />
       </Flex>

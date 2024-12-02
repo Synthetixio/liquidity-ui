@@ -9,7 +9,7 @@ import { calculatePositions } from '../../utils/positions';
 import { PositionsTable } from './PositionsTable/PositionsTable';
 
 export const PositionsList = () => {
-  const params = useParams();
+  const [params] = useParams();
   const { network } = useNetwork();
 
   const { data: liquidityPositions, isPending: isPendingLiquidityPositions } =

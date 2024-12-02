@@ -16,7 +16,7 @@ import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useMulticall3 } from '@snx-v3/useMulticall3';
-import { useParams } from '@snx-v3/useParams';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { usePythFeeds } from '@snx-v3/usePythFeeds';
 import { usePythVerifier } from '@snx-v3/usePythVerifier';
 import { useSystemToken } from '@snx-v3/useSystemToken';
@@ -42,7 +42,8 @@ export function ClosePositionOneStep({
   onClose: () => void;
   onBack: () => void;
 }) {
-  const params = useParams();
+  const [params] = useParams<PositionPageSchemaType>();
+
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
 
   const { setCollateralChange, setDebtChange } = React.useContext(ManagePositionContext);

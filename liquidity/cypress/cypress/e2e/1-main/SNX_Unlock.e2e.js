@@ -1,3 +1,5 @@
+import { makeSearch } from '@snx-v3/useParams';
+
 describe(__filename, () => {
   Cypress.env('chainId', '1');
   Cypress.env('preset', 'main');
@@ -28,7 +30,15 @@ describe(__filename, () => {
     cy.depositCollateral({ symbol: 'SNX', amount: 150 });
     cy.delegateCollateral({ symbol: 'SNX', amount: 150, poolId: 1 });
 
-    cy.visit(`/#/positions/SNX/1?manageAction=undelegate&accountId=${Cypress.env('accountId')}`);
+    cy.visit(
+      `?${makeSearch({
+        page: 'position',
+        collateralSymbol: 'SNX',
+        poolId: 1,
+        manageAction: 'undelegate',
+        accountId: Cypress.env('accountId'),
+      })}`
+    );
 
     cy.get('[data-cy="unlock collateral form"]').should('exist');
     cy.get('[data-cy="locked amount"]', { timeout: 180_000 })

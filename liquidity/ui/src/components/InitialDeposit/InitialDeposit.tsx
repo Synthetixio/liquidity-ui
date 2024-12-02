@@ -24,7 +24,7 @@ import { MAINNET, SEPOLIA, useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useEthBalance } from '@snx-v3/useEthBalance';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { useParams } from '@snx-v3/useParams';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
 import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
@@ -305,13 +305,13 @@ export const InitialDeposit: FC<{
   hasAccount: boolean;
   liquidityPosition?: LiquidityPosition;
 }> = ({ submit, hasAccount, liquidityPosition }) => {
+  const [params] = useParams<PositionPageSchemaType>();
   const { collateralChange, setCollateralChange } = useContext(ManagePositionContext);
-  const { collateralSymbol } = useParams();
 
   const { data: collateralTypes } = useCollateralTypes();
 
   const collateral = collateralTypes?.filter(
-    (collateral) => collateral.symbol.toLowerCase() === collateralSymbol?.toLowerCase()
+    (collateral) => collateral.symbol.toLowerCase() === params.collateralSymbol?.toLowerCase()
   )[0];
 
   const { data: transferrableSnx } = useTransferableSynthetix();

@@ -1,9 +1,8 @@
-import { Flex, Heading, Text } from '@chakra-ui/react';
+import { Flex, Heading, Link, Text } from '@chakra-ui/react';
 import { NetworkIcon, useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
-import { useParams } from '@snx-v3/useParams';
+import { makeSearch, type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { usePool } from '@snx-v3/usePoolsList';
-import { useNavigate } from 'react-router-dom';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
 
 export function PositionTitle({
@@ -13,14 +12,13 @@ export function PositionTitle({
   collateralSymbol?: string;
   isOpen: boolean;
 }) {
-  const params = useParams();
+  const [params, setParams] = useParams<PositionPageSchemaType>();
 
   const { network } = useNetwork();
   const { data: pool } = usePool(network?.id, String(params.poolId));
 
   const poolName = pool?.poolInfo?.[0]?.pool?.name ?? '';
 
-  const navigate = useNavigate();
   const { data: collateral } = useCollateralType(collateralSymbol);
 
   return (
@@ -52,18 +50,38 @@ export function PositionTitle({
           {isOpen ? 'Open ' : ''} {collateral?.displaySymbol} Liquidity Position
         </Heading>
         <Heading
+          as={Link}
+          href={`?${makeSearch(
+            network?.id && params.poolId
+              ? {
+                  page: 'pool',
+                  networkId: `${network.id}`,
+                  poolId: params.poolId,
+                  accountId: params.accountId,
+                }
+              : { page: 'pools', accountId: params.accountId }
+          )}`}
+          onClick={(e) => {
+            e.preventDefault();
+            setParams(
+              network?.id && params.poolId
+                ? {
+                    page: 'pool',
+                    networkId: `${network.id}`,
+                    poolId: params.poolId,
+                    accountId: params.accountId,
+                  }
+                : { page: 'pools', accountId: params.accountId }
+            );
+          }}
           ml={4}
           fontWeight={700}
           fontSize={['12px', '16px']}
           color="gray.50"
           display="flex"
           alignItems="center"
-          _hover={{ cursor: 'pointer' }}
-          onClick={
-            params.poolId && network?.id
-              ? () => navigate(`/pools/${network?.id}/${params.poolId}`)
-              : undefined
-          }
+          textDecoration="none"
+          _hover={{ textDecoration: 'none' }}
         >
           <Text mr={2}>{poolName}</Text>
           <Flex

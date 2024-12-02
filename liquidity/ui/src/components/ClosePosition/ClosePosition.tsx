@@ -19,7 +19,7 @@ import { useNetwork, useProvider } from '@snx-v3/useBlockchain';
 import { useClosePosition } from '@snx-v3/useClosePosition';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { useParams } from '@snx-v3/useParams';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
@@ -46,7 +46,7 @@ function ClosePositionUi({
   debtSymbol?: string;
   collateralSymbol: string;
 }) {
-  const params = useParams();
+  const [params] = useParams<PositionPageSchemaType>();
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { data: systemToken } = useSystemToken();
   const provider = useProvider();
@@ -199,9 +199,10 @@ export const ClosePosition = ({
   liquidityPosition?: LiquidityPosition;
   onClose: () => void;
 }) => {
+  const [params] = useParams<PositionPageSchemaType>();
+
   const [transactionStep, setTransactions] = React.useState(false);
   const { setCollateralChange, setDebtChange } = React.useContext(ManagePositionContext);
-  const params = useParams();
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { network } = useNetwork();
   const isBase = isBaseAndromeda(network?.id, network?.preset);

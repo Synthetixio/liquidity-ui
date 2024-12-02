@@ -1,8 +1,17 @@
-export const COLLATERALACTIONS = [
+import { ManageActionType } from '@snx-v3/useParams';
+import React from 'react';
+
+type ManageActionButtonType = {
+  title: string;
+  link: ManageActionType;
+  icon: (fill: 'white' | 'cyan') => React.ReactElement;
+};
+
+export const COLLATERALACTIONS: ManageActionButtonType[] = [
   {
     title: 'Deposit and Lock',
     link: 'deposit',
-    icon: (fill: 'white' | 'cyan') => (
+    icon: (fill) => (
       <svg
         width="37"
         height="36"
@@ -75,12 +84,12 @@ export const COLLATERALACTIONS = [
   },
 ];
 
-export const DEBTACTIONS = (isBase: boolean) => {
-  const actions = [
+export const DEBTACTIONS = (isBase: boolean): ManageActionButtonType[] => {
+  const actions: ManageActionButtonType[] = [
     {
       title: isBase ? 'Claim' : 'Claim/Borrow',
       link: 'claim',
-      icon: (fill: 'white' | 'cyan') => (
+      icon: (fill) => (
         <svg
           width="37"
           height="36"
@@ -134,7 +143,7 @@ export const DEBTACTIONS = (isBase: boolean) => {
     {
       title: 'Repay Debt',
       link: 'repay',
-      icon: (fill: 'white' | 'cyan') => (
+      icon: (fill) => (
         <svg
           width="37"
           height="36"
@@ -196,7 +205,7 @@ export const DEBTACTIONS = (isBase: boolean) => {
     {
       title: 'Withdraw',
       link: 'withdraw-debt',
-      icon: (fill: 'white' | 'cyan') => (
+      icon: (fill) => (
         <svg
           width="37"
           height="36"

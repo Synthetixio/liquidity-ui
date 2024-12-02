@@ -8,27 +8,28 @@ import { NumberInput } from '@snx-v3/NumberInput';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { wei } from '@synthetixio/wei';
 import { useContext } from 'react';
-import { useParams } from 'react-router-dom';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
 import { RepayAllDebt } from './RepayAllDebt';
 
 export const Repay = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosition }) => {
+  const [params] = useParams<PositionPageSchemaType>();
+
   const { debtChange, setDebtChange } = useContext(ManagePositionContext);
   const { network } = useNetwork();
-  const { collateralSymbol } = useParams();
-  const { data: collateralType } = useCollateralType(collateralSymbol);
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
 
   const isBase = isBaseAndromeda(network?.id, network?.preset);
   const availableUSDCollateral = liquidityPosition?.usdCollateral.availableCollateral;
   const { data: systemToken } = useSystemToken();
   const { data: balance } = useTokenBalance(systemToken?.address);
 
-  const symbol = isBase ? collateralSymbol : systemToken?.symbol;
+  const symbol = isBase ? params.collateralSymbol : systemToken?.symbol;
   const price = useTokenPrice(symbol);
 
   if (liquidityPosition && isBaseAndromeda(network?.id, network?.preset)) {

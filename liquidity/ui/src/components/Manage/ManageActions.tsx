@@ -2,6 +2,7 @@ import {
   Box,
   Divider,
   Flex,
+  Link,
   Skeleton,
   Tab,
   TabList,
@@ -10,40 +11,32 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
+import { ClaimModal } from '@snx-v3/ClaimModal';
+import { DepositModal } from '@snx-v3/DepositModal';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
+import { RepayModal } from '@snx-v3/RepayModal';
+import { UndelegateModal } from '@snx-v3/UndelegateModal';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { useParams } from '@snx-v3/useParams';
+import {
+  makeSearch,
+  ManageActionSchema,
+  ManageActionType,
+  type PositionPageSchemaType,
+  useParams,
+} from '@snx-v3/useParams';
 import { validatePosition } from '@snx-v3/validatePosition';
-import { safeImport } from '@synthetixio/safe-import';
+import { WithdrawModal } from '@snx-v3/WithdrawModal';
 import { wei } from '@synthetixio/wei';
-import { FormEvent, lazy, Suspense, useCallback, useContext } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { z } from 'zod';
+import { FormEvent, Suspense, useCallback, useContext } from 'react';
 import { Claim } from '../Claim/Claim';
 import { Deposit } from '../Deposit/Deposit';
 import { Repay } from '../Repay/Repay';
 import { Undelegate } from '../Undelegate/Undelegate';
 import { Withdraw } from '../Withdraw/Withdraw';
 import { COLLATERALACTIONS, DEBTACTIONS } from './actions';
-
-const RepayModal = lazy(() => safeImport(() => import('@snx-v3/RepayModal')));
-const ClaimModal = lazy(() => safeImport(() => import('@snx-v3/ClaimModal')));
-const DepositModal = lazy(() => safeImport(() => import('@snx-v3/DepositModal')));
-const UndelegateModal = lazy(() => safeImport(() => import('@snx-v3/UndelegateModal')));
-const WithdrawModal = lazy(() => safeImport(() => import('@snx-v3/WithdrawModal')));
-
-const ManageActionSchema = z.enum([
-  'deposit',
-  'repay',
-  'claim',
-  'undelegate',
-  'withdraw',
-  'withdraw-debt',
-]);
-export type ManageActionType = z.infer<typeof ManageActionSchema>;
 
 export const ManageAction = ({
   liquidityPosition,
@@ -54,11 +47,8 @@ export const ManageAction = ({
   setTxnModalOpen: (action?: ManageActionType) => void;
   txnModalOpen?: ManageActionType;
 }) => {
-  const params = useParams();
+  const [params, setParams] = useParams<PositionPageSchemaType>();
   const { network } = useNetwork();
-
-  const navigate = useNavigate();
-  const location = useLocation();
 
   const { debtChange, collateralChange, setCollateralChange, setDebtChange, setWithdrawAmount } =
     useContext(ManagePositionContext);
@@ -94,14 +84,6 @@ export const ManageAction = ({
     [isFormValid, manageAction, setTxnModalOpen]
   );
 
-  const setActiveAction = (action: string) => {
-    setCollateralChange(wei(0));
-    setDebtChange(wei(0));
-    const queryParams = new URLSearchParams(location.search);
-    queryParams.set('manageAction', action);
-    navigate({ pathname: location.pathname, search: queryParams.toString() }, { replace: true });
-  };
-
   return (
     <>
       {!txnModalOpen ? (
@@ -109,28 +91,66 @@ export const ManageAction = ({
           <Tabs isFitted index={tab === 'collateral' ? 0 : 1}>
             <TabList>
               <Tab
+                as={Link}
+                href={`?${makeSearch({
+                  page: 'position',
+                  collateralSymbol: params.collateralSymbol,
+                  poolId: params.poolId,
+                  manageAction: COLLATERALACTIONS[0].link,
+                  accountId: params.accountId,
+                })}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (tab !== 'collateral') {
+                    setCollateralChange(wei(0));
+                    setDebtChange(wei(0));
+                  }
+                  setParams({
+                    page: 'position',
+                    collateralSymbol: params.collateralSymbol,
+                    poolId: params.poolId,
+                    manageAction: COLLATERALACTIONS[0].link,
+                    accountId: params.accountId,
+                  });
+                }}
                 color={tab === 'collateral' ? 'white' : 'gray.500'}
                 fontWeight={700}
                 fontSize={['12px', '16px']}
-                onClick={() => {
-                  if (tab !== 'collateral') {
-                    setActiveAction(COLLATERALACTIONS[0].link);
-                  }
-                }}
                 whiteSpace="nowrap"
+                textDecoration="none"
+                _hover={{ textDecoration: 'none' }}
               >
                 Manage Collateral
               </Tab>
               <Tab
+                as={Link}
+                href={`?${makeSearch({
+                  page: 'position',
+                  collateralSymbol: params.collateralSymbol,
+                  poolId: params.poolId,
+                  manageAction: debtActions[0].link,
+                  accountId: params.accountId,
+                })}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (tab !== 'debt') {
+                    setCollateralChange(wei(0));
+                    setDebtChange(wei(0));
+                  }
+                  setParams({
+                    page: 'position',
+                    collateralSymbol: params.collateralSymbol,
+                    poolId: params.poolId,
+                    manageAction: debtActions[0].link,
+                    accountId: params.accountId,
+                  });
+                }}
                 color={tab === 'debt' ? 'white' : 'gray.500'}
                 fontWeight={700}
                 fontSize={['12px', '16px']}
-                onClick={() => {
-                  if (tab !== 'debt') {
-                    setActiveAction(debtActions[0].link);
-                  }
-                }}
                 whiteSpace="nowrap"
+                textDecoration="none"
+                _hover={{ textDecoration: 'none' }}
               >
                 {isBase ? 'Manage PnL' : 'Manage Debt'}
               </Tab>
@@ -141,6 +161,26 @@ export const ManageAction = ({
                 <Flex flexDir={['column', 'row']} gap={4}>
                   {COLLATERALACTIONS.map((action) => (
                     <Flex
+                      as={Link}
+                      href={`?${makeSearch({
+                        page: 'position',
+                        collateralSymbol: params.collateralSymbol,
+                        poolId: params.poolId,
+                        manageAction: action.link,
+                        accountId: params.accountId,
+                      })}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCollateralChange(wei(0));
+                        setDebtChange(wei(0));
+                        setParams({
+                          page: 'position',
+                          collateralSymbol: params.collateralSymbol,
+                          poolId: params.poolId,
+                          manageAction: action.link,
+                          accountId: params.accountId,
+                        });
+                      }}
                       h="84px"
                       minH={['90px', '84px']}
                       justifyContent="center"
@@ -150,10 +190,10 @@ export const ManageAction = ({
                       alignItems="center"
                       borderColor={manageAction === action.link ? 'cyan.500' : 'gray.900'}
                       rounded="base"
-                      cursor="pointer"
-                      onClick={() => setActiveAction(action.link)}
                       flex="1"
                       minWidth={['100%', 'auto']}
+                      textDecoration="none"
+                      _hover={{ textDecoration: 'none' }}
                     >
                       {action.icon(manageAction === action.link ? 'cyan' : 'white')}
                       <Text
@@ -174,6 +214,26 @@ export const ManageAction = ({
                 <Flex flexDir={['column', 'row']} gap={4}>
                   {debtActions.map((action) => (
                     <Flex
+                      as={Link}
+                      href={`?${makeSearch({
+                        page: 'position',
+                        collateralSymbol: params.collateralSymbol,
+                        poolId: params.poolId,
+                        manageAction: action.link,
+                        accountId: params.accountId,
+                      })}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCollateralChange(wei(0));
+                        setDebtChange(wei(0));
+                        setParams({
+                          page: 'position',
+                          collateralSymbol: params.collateralSymbol,
+                          poolId: params.poolId,
+                          manageAction: action.link,
+                          accountId: params.accountId,
+                        });
+                      }}
                       flex="1"
                       h="84px"
                       minH={['90px', '84px']}
@@ -185,8 +245,9 @@ export const ManageAction = ({
                       borderColor={manageAction === action.link ? 'cyan.500' : 'gray.900'}
                       rounded="base"
                       cursor="pointer"
-                      onClick={() => setActiveAction(action.link)}
                       minWidth={['100%', 'auto']}
+                      textDecoration="none"
+                      _hover={{ textDecoration: 'none' }}
                     >
                       {action.icon(manageAction === action.link ? 'cyan' : 'white')}
                       <Text

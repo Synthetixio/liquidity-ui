@@ -19,11 +19,10 @@ import { Sparkles } from '@snx-v3/icons';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useApr } from '@snx-v3/useApr';
 import { ARBITRUM, NETWORKS, useNetwork, useWallet } from '@snx-v3/useBlockchain';
-import { useParams } from '@snx-v3/useParams';
+import { type PoolPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useVaultsData, VaultsDataType } from '@snx-v3/useVaultsData';
 import { wei } from '@synthetixio/wei';
 import React from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
 
 export const calculateVaultTotals = (vaultsData: VaultsDataType) => {
@@ -47,12 +46,13 @@ export function formatApr(apr?: number, networkId?: number) {
 }
 
 export const CollateralSection = () => {
-  const { poolId, networkId } = useParams();
-  const network = NETWORKS.find((n) => n.id === Number(networkId));
-  const { data: vaultsData, isPending: isVaultsLoading } = useVaultsData(Number(poolId), network);
+  const [params, setParams] = useParams<PoolPageSchemaType>();
+  const network = NETWORKS.find((n) => n.id === Number(params.networkId));
+  const { data: vaultsData, isPending: isVaultsLoading } = useVaultsData(
+    Number(params.poolId),
+    network
+  );
   const { data: aprData, isPending: isAprLoading } = useApr(network);
-  const navigate = useNavigate();
-  const [queryParams] = useSearchParams();
   const { network: currentNetwork, setNetwork } = useNetwork();
   const { connect } = useWallet();
   const { collateral: totalCollateral, debt: totalDebt } = calculateVaultTotals(vaultsData);
@@ -478,12 +478,16 @@ export const CollateralSection = () => {
                               }
                             }
 
-                            queryParams.set('manageAction', 'deposit');
-                            navigate({
-                              pathname: `/positions/${vaultCollateral.collateralType.symbol}/${poolId}`,
-                              search: queryParams.toString(),
+                            setParams({
+                              page: 'position',
+                              collateralSymbol: vaultCollateral.collateralType.symbol,
+                              poolId: params.poolId,
+                              manageAction: 'deposit',
+                              accountId: params.accountId,
                             });
-                          } catch (error) {}
+                          } catch (error) {
+                            console.error(error);
+                          }
                         }}
                         height="32px"
                         py="10px"

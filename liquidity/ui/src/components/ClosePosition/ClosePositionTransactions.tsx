@@ -10,23 +10,23 @@ import { Multistep } from '@snx-v3/Multistep';
 import { useApprove } from '@snx-v3/useApprove';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useBorrow } from '@snx-v3/useBorrow';
+import { useClosePosition } from '@snx-v3/useClosePosition';
 import { CollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
-import { useClosePosition } from '@snx-v3/useClosePosition';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useRepay } from '@snx-v3/useRepay';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useUndelegate } from '@snx-v3/useUndelegate';
 import { useUndelegateBaseAndromeda } from '@snx-v3/useUndelegateBaseAndromeda';
+import { useUSDC } from '@snx-v3/useUSDC';
 import { useQueryClient } from '@tanstack/react-query';
 import { FC, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { LiquidityPositionUpdated } from '../Manage/LiquidityPositionUpdated';
-import { useParams } from '@snx-v3/useParams';
-import { useUSDC } from '@snx-v3/useUSDC';
 
 export const ClosePositionTransactions: FC<{
   onClose: () => void;
@@ -34,7 +34,7 @@ export const ClosePositionTransactions: FC<{
   liquidityPosition?: LiquidityPosition;
   collateralType: CollateralType;
 }> = ({ collateralType, liquidityPosition, onClose, onBack }) => {
-  const params = useParams();
+  const [params] = useParams<PositionPageSchemaType>();
   const [steps, setSteps] = useState<
     {
       title: ReactNode;

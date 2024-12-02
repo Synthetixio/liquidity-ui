@@ -31,6 +31,10 @@ export const chains: ChainWithDecimalId[] = Object.values(
 );
 
 export const onboard = init({
+  connect: {
+    autoConnectLastWallet: true,
+    autoConnectAllPreviousWallet: true,
+  },
   wallets: window.$magicWallet
     ? [injectedModule()]
     : [

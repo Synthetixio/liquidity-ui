@@ -6,6 +6,7 @@ import {
   Button,
   Collapse,
   Flex,
+  Link,
   Text,
 } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
@@ -19,7 +20,7 @@ import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { useParams } from '@snx-v3/useParams';
+import { makeSearch, type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { usePoolConfiguration } from '@snx-v3/usePoolConfiguration';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
@@ -27,7 +28,6 @@ import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
 import { validatePosition } from '@snx-v3/validatePosition';
 import Wei, { wei } from '@synthetixio/wei';
 import React, { FC, useCallback, useContext, useMemo } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChangeStat } from '../ChangeStat/ChangeStat';
 import { CRatioChangeStat } from '../CRatioBar/CRatioChangeStat';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
@@ -48,7 +48,6 @@ export const UndelegateUi: FC<{
   isBase: boolean;
   accountId: string | undefined;
   maxWithdrawable?: Wei;
-  navigate: (action: string) => void;
 }> = ({
   collateralChange,
   setCollateralChange,
@@ -64,8 +63,9 @@ export const UndelegateUi: FC<{
   collateralPrice,
   accountId,
   maxWithdrawable,
-  navigate,
 }) => {
+  const [params, setParams] = useParams<PositionPageSchemaType>();
+
   const price = useTokenPrice(symbol);
 
   const onMaxClick = useCallback(() => {
@@ -230,14 +230,28 @@ export const UndelegateUi: FC<{
           <Text>
             You already have <Amount value={maxWithdrawable} suffix={` ${symbol}`} /> unlocked.
             &nbsp;
-            <Text
-              onClick={() => navigate('withdraw')}
-              cursor="pointer"
-              as="span"
+            <Link
+              href={`?${makeSearch({
+                page: 'position',
+                collateralSymbol: symbol,
+                poolId: params.poolId,
+                manageAction: 'withdraw',
+                accountId: params.accountId,
+              })}`}
+              onClick={(e) => {
+                e.preventDefault();
+                setParams({
+                  page: 'position',
+                  collateralSymbol: symbol,
+                  poolId: params.poolId,
+                  manageAction: 'withdraw',
+                  accountId: params.accountId,
+                });
+              }}
               textDecoration="underline"
             >
               Withdraw
-            </Text>{' '}
+            </Link>{' '}
             before unlocking again as it will restart the 24h withdrawal timeout.
           </Text>
         </Alert>
@@ -247,16 +261,29 @@ export const UndelegateUi: FC<{
         <Alert status="error" mb="6" borderRadius="6px">
           <AlertIcon />
           <Text>
-            To Unlock this amount, you need to &nbsp;
-            <Text
-              onClick={() => navigate('repay')}
-              cursor="pointer"
-              as="span"
+            To Unlock this amount, you need to
+            <Link
+              href={`?${makeSearch({
+                page: 'position',
+                collateralSymbol: symbol,
+                poolId: params.poolId,
+                manageAction: 'repay',
+                accountId: params.accountId,
+              })}`}
+              onClick={(e) => {
+                e.preventDefault();
+                setParams({
+                  page: 'position',
+                  collateralSymbol: symbol,
+                  poolId: params.poolId,
+                  manageAction: 'repay',
+                  accountId: params.accountId,
+                });
+              }}
               textDecoration="underline"
             >
-              repay <Amount value={currentDebt} suffix={` ${symbol}`} />
-            </Text>{' '}
-            to your position
+              <Amount prefix=" repay" value={currentDebt} suffix={` ${symbol} to your position`} />
+            </Link>
           </Text>
         </Alert>
       </Collapse>
@@ -273,11 +300,11 @@ export const UndelegateUi: FC<{
 };
 
 export const Undelegate = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosition }) => {
+  const [params] = useParams<PositionPageSchemaType>();
   const { collateralChange, debtChange, setCollateralChange } = useContext(ManagePositionContext);
-  const { poolId, accountId, collateralSymbol } = useParams();
-  const { data: collateralType } = useCollateralType(collateralSymbol);
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
 
-  const poolConfiguration = usePoolConfiguration(poolId);
+  const poolConfiguration = usePoolConfiguration(params.poolId);
   const { network } = useNetwork();
 
   const collateralPrice = liquidityPosition?.collateralPrice;
@@ -293,17 +320,7 @@ export const Undelegate = ({ liquidityPosition }: { liquidityPosition?: Liquidit
 
   const isBase = isBaseAndromeda(network?.id, network?.preset);
   const { data: systemToken } = useSystemToken();
-  const { data: systemTokenBalance } = useAccountCollateral(accountId, systemToken?.address);
-
-  const [queryParams] = useSearchParams();
-  const navigate = useNavigate();
-  const handleNavigate = (actions: string) => {
-    queryParams.set('manageAction', actions);
-    navigate({
-      pathname: `/positions/${collateralType?.symbol}/${poolId}`,
-      search: queryParams.toString(),
-    });
-  };
+  const { data: systemTokenBalance } = useAccountCollateral(params.accountId, systemToken?.address);
 
   const maxWithdrawable = useMemo(() => {
     if (isBase) {
@@ -363,9 +380,8 @@ export const Undelegate = ({ liquidityPosition }: { liquidityPosition?: Liquidit
       isAnyMarketLocked={poolConfiguration.data?.isAnyMarketLocked}
       isBase={isBase}
       collateralPrice={liquidityPosition?.collateralPrice}
-      accountId={accountId}
+      accountId={params.accountId}
       maxWithdrawable={maxWithdrawable}
-      navigate={handleNavigate}
     />
   );
 };

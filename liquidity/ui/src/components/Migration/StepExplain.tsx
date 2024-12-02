@@ -1,5 +1,6 @@
+import { Alert, AlertIcon, Button, Flex, Link, Text, VStack } from '@chakra-ui/react';
+import { type DashboardPageSchemaType, makeSearch, useParams } from '@snx-v3/useParams';
 import React from 'react';
-import { VStack, Alert, Text, Button, AlertIcon, Link, Flex } from '@chakra-ui/react';
 
 export const StepExplain = ({
   onClose,
@@ -8,6 +9,7 @@ export const StepExplain = ({
   onClose: () => void;
   onConfirm: () => void;
 }) => {
+  const [params, setParams] = useParams<DashboardPageSchemaType>();
   return (
     <VStack spacing={2} align="start">
       <Text fontWeight="700">Migrating to Synthetix V3 consists of:</Text>
@@ -119,8 +121,19 @@ export const StepExplain = ({
             (optional) Conversion of your sUSD into V3 compatible sUSD. You can
             <Link
               color="cyan.500"
-              target="_blank"
-              href={`${window.location.origin}/#/?convert=snxusd`}
+              href={`?${makeSearch({
+                page: 'dashboard',
+                convert: 'snxusd',
+                accountId: params.accountId,
+              })}`}
+              onClick={(e) => {
+                e.preventDefault();
+                setParams({
+                  page: 'dashboard',
+                  convert: 'snxusd',
+                  accountId: params.accountId,
+                });
+              }}
             >
               &nbsp;convert your sUSD&nbsp;
             </Link>

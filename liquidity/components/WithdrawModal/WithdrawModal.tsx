@@ -11,7 +11,7 @@ import { useDefaultProvider, useNetwork, useWallet } from '@snx-v3/useBlockchain
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { useParams } from '@snx-v3/useParams';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useUnwrapStataUSDC } from '@snx-v3/useUnwrapStataUSDC';
@@ -36,7 +36,7 @@ export function WithdrawModal({
 
   const provider = useDefaultProvider();
   const { activeWallet } = useWallet();
-  const params = useParams();
+  const [params] = useParams<PositionPageSchemaType>();
   const toast = useToast({ isClosable: true, duration: 9000 });
   const { network } = useNetwork();
   const queryClient = useQueryClient();

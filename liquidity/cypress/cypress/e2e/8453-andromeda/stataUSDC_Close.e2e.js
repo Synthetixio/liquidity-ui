@@ -1,3 +1,5 @@
+import { makeSearch } from '@snx-v3/useParams';
+
 describe(__filename, () => {
   Cypress.env('chainId', '8453');
   Cypress.env('preset', 'andromeda');
@@ -25,7 +27,15 @@ describe(__filename, () => {
     cy.setEthBalance({ balance: 100 });
     cy.getUSDC({ amount: 1000 });
 
-    cy.visit(`/#/positions/stataUSDC/1?manageAction=deposit&accountId=${Cypress.env('accountId')}`);
+    cy.visit(
+      `?${makeSearch({
+        page: 'position',
+        collateralSymbol: 'stataUSDC',
+        poolId: 1,
+        manageAction: 'deposit',
+        accountId: Cypress.env('accountId'),
+      })}`
+    );
 
     cy.get('[data-cy="close position"]', { timeout: 180_000 }).should('exist').click();
 

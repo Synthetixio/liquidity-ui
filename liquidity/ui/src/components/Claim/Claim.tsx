@@ -8,12 +8,12 @@ import { NumberInput } from '@snx-v3/NumberInput';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { validatePosition } from '@snx-v3/validatePosition';
 import Wei, { wei } from '@synthetixio/wei';
 import { FC, useContext, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
 
 const ClaimUi: FC<{
@@ -21,13 +21,15 @@ const ClaimUi: FC<{
   maxDebt: Wei;
   debtChange: Wei;
   setDebtChange: (val: Wei) => void;
-  collateralSymbol: string | undefined;
-}> = ({ collateralSymbol, maxDebt, debtChange, setDebtChange, maxClaimble }) => {
+}> = ({ maxDebt, debtChange, setDebtChange, maxClaimble }) => {
   const { network } = useNetwork();
   const isBase = isBaseAndromeda(network?.id, network?.preset);
   const { data: systemToken } = useSystemToken();
   const max = useMemo(() => maxClaimble.add(maxDebt), [maxClaimble, maxDebt]);
-  const { data: collateralType } = useCollateralType(collateralSymbol);
+
+  const [params] = useParams<PositionPageSchemaType>();
+
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const symbol = isBase ? collateralType?.symbol : systemToken?.symbol;
   const price = useTokenPrice(symbol);
 
@@ -164,8 +166,8 @@ const ClaimUi: FC<{
 export const Claim = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosition }) => {
   const { network } = useNetwork();
   const { debtChange, collateralChange, setDebtChange } = useContext(ManagePositionContext);
-  const { collateralSymbol } = useParams();
-  const { data: collateralType } = useCollateralType(collateralSymbol);
+  const [params] = useParams<PositionPageSchemaType>();
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
 
   const maxClaimble = useMemo(() => {
     if (!liquidityPosition || liquidityPosition?.debt.gte(0)) {
@@ -190,7 +192,6 @@ export const Claim = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosi
       debtChange={debtChange}
       maxClaimble={maxClaimble}
       maxDebt={isBaseAndromeda(network?.id, network?.preset) ? ZEROWEI : maxDebt.mul(99).div(100)}
-      collateralSymbol={collateralSymbol}
     />
   );
 };

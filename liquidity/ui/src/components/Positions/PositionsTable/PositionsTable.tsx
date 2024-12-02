@@ -1,8 +1,8 @@
-import { Button, Fade, Flex, Heading, Table, TableContainer, Tbody } from '@chakra-ui/react';
+import { Button, Fade, Flex, Heading, Link, Table, TableContainer, Tbody } from '@chakra-ui/react';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { NetworkIcon, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { LiquidityPositionType } from '@snx-v3/useLiquidityPositions';
-import { Link, useNavigate } from 'react-router-dom';
+import { makeSearch, useParams } from '@snx-v3/useParams';
 import { PositionsEmpty } from './PositionEmpty';
 import { PositionsNotConnected } from './PositionNotConnected';
 import { PositionRow } from './PositionsRow';
@@ -27,7 +27,7 @@ export const PositionsTable = ({
   apr,
   systemToken,
 }: PositionsTableInterface) => {
-  const navigate = useNavigate();
+  const [params, setParams] = useParams();
   const { activeWallet } = useWallet();
   const { network } = useNetwork();
   const isBase = isBaseAndromeda(network?.id, network?.preset);
@@ -54,12 +54,36 @@ export const PositionsTable = ({
         <>
           <Flex alignItems="center" justifyContent="space-between">
             <Heading
-              _hover={{ cursor: 'pointer', opacity: 0.9 }}
-              onClick={() => navigate(`/pools/${network?.id}/1`)}
+              as={Link}
+              href={`?${makeSearch(
+                network?.id
+                  ? {
+                      page: 'pool',
+                      networkId: `${network.id}`,
+                      poolId: '1',
+                      accountId: params.accountId,
+                    }
+                  : { page: 'pools', accountId: params.accountId }
+              )}`}
+              onClick={(e) => {
+                e.preventDefault();
+                setParams(
+                  network?.id
+                    ? {
+                        page: 'pool',
+                        networkId: `${network.id}`,
+                        poolId: '1',
+                        accountId: params.accountId,
+                      }
+                    : { page: 'pools', accountId: params.accountId }
+                );
+              }}
               fontSize="18px"
               fontWeight={700}
               lineHeight="28px"
               color="gray.50"
+              textDecoration="none"
+              _hover={{ textDecoration: 'none', color: 'gray.50' }}
             >
               Spartan Council Pool
               {network && (
@@ -80,15 +104,36 @@ export const PositionsTable = ({
             <Fade in>
               <Button
                 as={Link}
+                href={`?${makeSearch(
+                  network?.id
+                    ? {
+                        page: 'pool',
+                        networkId: `${network.id}`,
+                        poolId: '1',
+                        accountId: params.accountId,
+                      }
+                    : { page: 'pools', accountId: params.accountId }
+                )}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setParams(
+                    network?.id
+                      ? {
+                          page: 'pool',
+                          networkId: `${network.id}`,
+                          poolId: '1',
+                          accountId: params.accountId,
+                        }
+                      : { page: 'pools', accountId: params.accountId }
+                  );
+                }}
                 mt={{ base: 2, md: 0 }}
                 size="sm"
-                to={{
-                  pathname: `/pools/${network?.id}/1`,
-                  search: location.search,
-                }}
                 variant="outline"
                 colorScheme="gray"
                 color="white"
+                textDecoration="none"
+                _hover={{ textDecoration: 'none', color: 'white' }}
               >
                 Details
               </Button>

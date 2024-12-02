@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { CopyIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
   Badge,
   Button,
@@ -14,97 +14,58 @@ import {
   Switch,
   Text,
 } from '@chakra-ui/react';
-import { WalletIcon } from '@snx-v3/icons';
-import { NetworkIcon, useNetwork, useWallet, NETWORKS } from '@snx-v3/useBlockchain';
-import { prettyString } from '@snx-v3/format';
-import { useLocalStorage } from '@snx-v3/useLocalStorage';
 import { LOCAL_STORAGE_KEYS } from '@snx-v3/constants';
-import { CopyIcon, SettingsIcon } from '@chakra-ui/icons';
-import { useAccounts, useCreateAccount } from '@snx-v3/useAccounts';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { prettyString } from '@snx-v3/format';
+import { WalletIcon } from '@snx-v3/icons';
 import { Tooltip } from '@snx-v3/Tooltip';
+import { useAccounts, useCreateAccount } from '@snx-v3/useAccounts';
+import { NetworkIcon, NETWORKS, useNetwork, useWallet } from '@snx-v3/useBlockchain';
+import { useLocalStorage } from '@snx-v3/useLocalStorage';
+import { makeSearch, useParams } from '@snx-v3/useParams';
+import { ethers } from 'ethers';
+import { useEffect, useState } from 'react';
 
 const mainnets = NETWORKS.filter(({ isSupported, isTestnet }) => isSupported && !isTestnet);
 const testnets = NETWORKS.filter(({ isSupported, isTestnet }) => isSupported && isTestnet);
 
+export function renderAccountId(accountId?: ethers.BigNumber) {
+  if (!accountId) {
+    return '---';
+  }
+  const hex = accountId.toHexString();
+  // auto-generated 0x80000000000000000000000000000008 value
+  if (hex.length === 34) {
+    return `0x...${hex.slice(-4)}`;
+  }
+  return `#${accountId}`;
+}
+
 export function NetworkController() {
+  const [params, setParams] = useParams();
+
   const [toolTipLabel, setTooltipLabel] = useState('Copy');
   const { activeWallet, walletsInfo, connect, disconnect } = useWallet();
   const { network: activeNetwork, setNetwork } = useNetwork();
-  const {
-    data: accounts,
-    isPending: isAccountsLoading,
-    isFetching: isAccountsFetching,
-  } = useAccounts();
+  const { data: accounts } = useAccounts();
   const createAccount = useCreateAccount();
   const [showTestnets, setShowTestnets] = useLocalStorage(LOCAL_STORAGE_KEYS.SHOW_TESTNETS, false);
-  const [queryParams] = useSearchParams();
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
 
   useEffect(() => {
-    if (!isAccountsLoading && !isAccountsFetching) {
-      if (!!accounts?.length) {
-        const accountId = queryParams.get('accountId');
-
-        if (accountId && !accounts?.includes(accountId)) {
-          queryParams.set('accountId', accounts[0]);
-          navigate({ pathname, search: queryParams.toString() }, { replace: true });
-        }
-      } else {
-        const accountId = queryParams.get('accountId');
-        if (!!accountId) {
-          queryParams.delete('accountId');
-          navigate({ pathname, search: queryParams.toString() }, { replace: true });
-        }
-      }
+    if (
+      accounts &&
+      accounts.length > 0 &&
+      (!('accountId' in params) ||
+        ('accountId' in params && params.accountId && !accounts.includes(params.accountId)))
+    ) {
+      const [accountId] = accounts;
+      setParams({ ...params, accountId });
     }
-  }, [accounts, isAccountsLoading, isAccountsFetching, queryParams, navigate, pathname]);
-
-  useEffect(() => {
-    // Check if wallet preference is stored in local storage
-    if (!walletsInfo) {
-      const defaultWallet = localStorage.getItem('connectedWallets');
-
-      if (defaultWallet) {
-        connect({
-          autoSelect: { disableModals: true, label: JSON.parse(defaultWallet) },
-        });
-      }
-    }
-
-    if (walletsInfo) {
-      // store in local storage
-      localStorage.setItem('connectedWallets', JSON.stringify(walletsInfo.label));
-    }
-  }, [walletsInfo, connect, navigate, pathname]);
-
-  useEffect(() => {
-    const accountId = queryParams.get('accountId');
-
-    if (!accountId && !!accounts?.length) {
-      const lastUsedAccount = localStorage.getItem('accountId');
-      if (lastUsedAccount && accounts.find((account) => String(account) === lastUsedAccount)) {
-        queryParams.set('accountId', lastUsedAccount);
-      } else {
-        queryParams.set('accountId', accounts[0]);
-      }
-      navigate({ pathname, search: queryParams.toString() }, { replace: true });
-    }
-  }, [accounts, navigate, pathname, queryParams]);
-
-  useEffect(() => {
-    const accountId = queryParams.get('accountId');
-
-    if (accountId) {
-      localStorage.setItem('accountId', accountId);
-    }
-  }, [queryParams]);
+  }, [accounts, params, setParams]);
 
   const onDisconnect = () => {
     if (walletsInfo) {
       disconnect(walletsInfo);
-      localStorage.removeItem('connectedWallets');
+      // localStorage.removeItem('connectedWallets');
     }
   };
 
@@ -255,7 +216,13 @@ export function NetworkController() {
                     <Text fontWeight={400} fontSize="14px">
                       Account(s)
                     </Text>
-                    <Link href="/#/account/settings">
+                    <Link
+                      href={`?${makeSearch({ page: 'settings', accountId: params.accountId })}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setParams({ page: 'settings', accountId: params.accountId });
+                      }}
+                    >
                       <IconButton
                         variant="outline"
                         colorScheme="gray"
@@ -266,9 +233,9 @@ export function NetworkController() {
                     </Link>
                   </Flex>
                   <Flex data-cy="accounts list" flexDir="column">
-                    {accounts?.map((account) => (
+                    {accounts?.map((accountId) => (
                       <Text
-                        key={account}
+                        key={accountId}
                         display="flex"
                         alignItems="center"
                         color="white"
@@ -277,16 +244,15 @@ export function NetworkController() {
                         cursor="pointer"
                         p="3"
                         data-cy="account id"
-                        data-account-id={account}
+                        data-account-id={accountId}
                         _hover={{ bg: 'whiteAlpha.300' }}
                         onClick={(e) => {
                           e.stopPropagation();
-                          queryParams.set('accountId', account);
-                          navigate({ pathname, search: queryParams.toString() });
+                          setParams({ ...params, accountId });
                         }}
                       >
-                        #{prettyString(account, 4, 4)}
-                        {queryParams.get('accountId') === account && (
+                        {renderAccountId(ethers.BigNumber.from(accountId))}
+                        {params.accountId === accountId && (
                           <Badge ml={2} colorScheme="cyan" variant="outline">
                             Connected
                           </Badge>

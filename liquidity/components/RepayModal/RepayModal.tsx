@@ -13,7 +13,7 @@ import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
-import { useParams } from '@snx-v3/useParams';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useRepay } from '@snx-v3/useRepay';
 import { useRepayBaseAndromeda } from '@snx-v3/useRepayBaseAndromeda';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
@@ -135,7 +135,7 @@ export const RepayModal: React.FC<{
   availableCollateral?: Wei;
 }> = ({ onClose, isOpen, availableCollateral }) => {
   const { debtChange, setDebtChange } = useContext(ManagePositionContext);
-  const params = useParams();
+  const [params] = useParams<PositionPageSchemaType>();
 
   const { network } = useNetwork();
   const queryClient = useQueryClient();

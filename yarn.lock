@@ -4615,18 +4615,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@snx-v3/AccountNav@workspace:liquidity/components/AccountNav":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/AccountNav@workspace:liquidity/components/AccountNav"
-  dependencies:
-    "@chakra-ui/icons": "npm:^2.1.1"
-    "@chakra-ui/react": "npm:^2.8.2"
-    "@snx-v3/useParams": "workspace:*"
-    react: "npm:^18.2.0"
-    react-router-dom: "npm:^6.18.0"
-  languageName: unknown
-  linkType: soft
-
 "@snx-v3/Amount@workspace:*, @snx-v3/Amount@workspace:liquidity/components/Amount":
   version: 0.0.0-use.local
   resolution: "@snx-v3/Amount@workspace:liquidity/components/Amount"
@@ -4744,19 +4732,7 @@ __metadata:
     "@xstate/react": "npm:^3.2.2"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
-    react-router-dom: "npm:^6.18.0"
     xstate: "npm:^4.38.3"
-  languageName: unknown
-  linkType: soft
-
-"@snx-v3/HomeLink@workspace:*, @snx-v3/HomeLink@workspace:liquidity/components/HomeLink":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/HomeLink@workspace:liquidity/components/HomeLink"
-  dependencies:
-    "@chakra-ui/icons": "npm:^2.1.1"
-    "@chakra-ui/react": "npm:^2.8.2"
-    react: "npm:^18.2.0"
-    react-router-dom: "npm:^6.18.0"
   languageName: unknown
   linkType: soft
 
@@ -5048,6 +5024,7 @@ __metadata:
     "@snx-v3/liquidity": "workspace:*"
     "@snx-v3/parseContractError": "workspace:*"
     "@snx-v3/theme": "workspace:*"
+    "@snx-v3/useParams": "workspace:*"
     cypress: "npm:13.16.0"
     cypress-terminal-report: "npm:^7.0.4"
     ethers: "npm:^5.7.2"
@@ -5078,7 +5055,6 @@ __metadata:
     "@snx-v3/ClaimModal": "workspace:*"
     "@snx-v3/ContractError": "workspace:*"
     "@snx-v3/DepositModal": "workspace:*"
-    "@snx-v3/HomeLink": "workspace:*"
     "@snx-v3/ManagePositionContext": "workspace:*"
     "@snx-v3/Multistep": "workspace:*"
     "@snx-v3/NumberInput": "workspace:*"
@@ -5199,7 +5175,6 @@ __metadata:
     webpack-bundle-analyzer: "npm:^4.10.0"
     webpack-cli: "npm:^5.1.4"
     webpack-dev-server: "npm:^4.15.1"
-    zod: "npm:^3.22.4"
   languageName: unknown
   linkType: soft
 
@@ -5847,6 +5822,7 @@ __metadata:
   dependencies:
     react: "npm:^18.2.0"
     react-router-dom: "npm:^6.18.0"
+    zod: "npm:^3.22.4"
   languageName: unknown
   linkType: soft
 

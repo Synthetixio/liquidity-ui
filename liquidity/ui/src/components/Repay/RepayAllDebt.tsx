@@ -9,19 +9,19 @@ import { useClearDebt } from '@snx-v3/useClearDebt';
 import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useUSDC } from '@snx-v3/useUSDC';
 import { wei } from '@synthetixio/wei';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
 
 export const RepayAllDebt = ({ liquidityPosition }: { liquidityPosition: LiquidityPosition }) => {
+  const [params] = useParams<PositionPageSchemaType>();
+
   const { network } = useNetwork();
   const isBase = isBaseAndromeda(network?.id, network?.preset);
-  const params = useParams();
-  const [searchParams] = useSearchParams();
 
   const queryClient = useQueryClient();
 
@@ -46,7 +46,7 @@ export const RepayAllDebt = ({ liquidityPosition }: { liquidityPosition: Liquidi
     settle: settleRepay,
     isLoading,
   } = useClearDebt({
-    accountId: searchParams.get('accountId') || '',
+    accountId: params.accountId,
     poolId: params.poolId,
     collateralTypeAddress: liquidityPosition?.tokenAddress,
   });

@@ -1,3 +1,5 @@
+import { makeSearch } from '@snx-v3/useParams';
+
 describe(__filename, () => {
   Cypress.env('chainId', '42161');
   Cypress.env('preset', 'main');
@@ -29,7 +31,15 @@ describe(__filename, () => {
     cy.delegateCollateral({ symbol: 'WETH', amount: 10, poolId: 1 });
     cy.borrowUsd({ symbol: 'WETH', amount: 100, poolId: 1 });
 
-    cy.visit(`/#/positions/WETH/1?manageAction=repay&accountId=${Cypress.env('accountId')}`);
+    cy.visit(
+      `?${makeSearch({
+        page: 'position',
+        collateralSymbol: 'WETH',
+        poolId: 1,
+        manageAction: 'repay',
+        accountId: Cypress.env('accountId'),
+      })}`
+    );
 
     cy.get('[data-cy="repay debt form"]').should('exist');
     cy.get('[data-cy="current debt amount"]', { timeout: 180_000 })

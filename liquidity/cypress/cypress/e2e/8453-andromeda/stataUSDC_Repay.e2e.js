@@ -1,3 +1,5 @@
+import { makeSearch } from '@snx-v3/useParams';
+
 describe(__filename, () => {
   Cypress.env('chainId', '8453');
   Cypress.env('preset', 'andromeda');
@@ -25,10 +27,18 @@ describe(__filename, () => {
     cy.setEthBalance({ balance: 100 });
     cy.getUSDC({ amount: 1000 });
 
-    cy.visit(`/#/positions/stataUSDC/1?manageAction=repay&accountId=${Cypress.env('accountId')}`);
+    cy.visit(
+      `?${makeSearch({
+        page: 'position',
+        collateralSymbol: 'stataUSDC',
+        poolId: 1,
+        manageAction: 'repay',
+        accountId: Cypress.env('accountId'),
+      })}`
+    );
 
     cy.get('[data-cy="repay debt form"]', { timeout: 180_000 }).should('exist');
-    cy.get('[data-cy="repay debt submit"]').should('exist');
+    cy.get('[data-cy="repay debt submit"]').should('be.enabled');
     cy.get('[data-cy="repay debt submit"]').click();
 
     cy.contains('[data-status="success"]', 'Your account currently has no debt.', {

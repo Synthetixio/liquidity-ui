@@ -10,30 +10,31 @@ import {
   Link,
   Text,
 } from '@chakra-ui/react';
-import { FC, useCallback, useEffect, useState } from 'react';
-import { Network, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { Amount } from '@snx-v3/Amount';
-import { MigrationDialog } from './MigrationDialog';
-import { MigrateUSDModal } from '../MigrateUSD/MigrateUSDModal';
+import { Network, useNetwork, useWallet } from '@snx-v3/useBlockchain';
+import { type DashboardPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useV2Position } from '@snx-v3/useV2Position';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { MigrateUSDModal } from '../MigrateUSD/MigrateUSDModal';
+import { MigrationDialog } from './MigrationDialog';
 
-interface Props {
+export function MigrationBanner({
+  network,
+  type = 'banner',
+}: {
   network: Network;
   type?: 'banner' | 'alert';
-}
+}) {
+  const [params, setParams] = useParams<DashboardPageSchemaType>();
 
-export const MigrationBanner: FC<Props> = ({ network, type = 'banner' }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [accountId, setAccountId] = useState('');
-  const [isUSDModalOpen, setIsUSDModalOpen] = useState(false);
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [accountId, setAccountId] = React.useState('');
+  const [isUSDModalOpen, setIsUSDModalOpen] = React.useState(false);
   const { data } = useV2Position(network);
   const { network: currentNetwork, setNetwork } = useNetwork();
   const { connect, activeWallet } = useWallet();
-  const location = useLocation();
-  const navigate = useNavigate();
 
-  const onClick = useCallback(async () => {
+  const onClick = React.useCallback(async () => {
     try {
       if (!activeWallet) {
         connect();
@@ -50,22 +51,13 @@ export const MigrationBanner: FC<Props> = ({ network, type = 'banner' }) => {
     } catch (error) {}
   }, [activeWallet, connect, currentNetwork, network.id, setNetwork]);
 
-  useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-
-    const convert = queryParams.get('migrate');
-
-    if (convert && convert.toLowerCase() === 'snx') {
+  React.useEffect(() => {
+    if (params.migrate?.toLowerCase() === 'snx') {
       setIsOpen(true);
-
-      const queryParams = new URLSearchParams(location.search);
-      queryParams.delete('migrate');
-      navigate({
-        pathname: location.pathname,
-        search: queryParams.toString(),
-      });
+      const { migrate: _migrate, ...newParams } = params;
+      setParams(newParams);
     }
-  }, [location.pathname, location.search, navigate]);
+  }, [params, setParams]);
 
   return (
     <>
@@ -155,4 +147,4 @@ export const MigrationBanner: FC<Props> = ({ network, type = 'banner' }) => {
       )}
     </>
   );
-};
+}

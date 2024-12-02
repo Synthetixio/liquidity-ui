@@ -1,3 +1,5 @@
+import { makeSearch } from '@snx-v3/useParams';
+
 describe(__filename, () => {
   Cypress.env('chainId', '8453');
   Cypress.env('preset', 'andromeda');
@@ -25,7 +27,15 @@ describe(__filename, () => {
     cy.setEthBalance({ balance: 100 });
     cy.getUSDC({ amount: 500 });
 
-    cy.visit(`/#/positions/USDC/1?manageAction=deposit&accountId=${Cypress.env('accountId')}`);
+    cy.visit(
+      `?${makeSearch({
+        page: 'position',
+        collateralSymbol: 'USDC',
+        poolId: 1,
+        manageAction: 'deposit',
+        accountId: Cypress.env('accountId'),
+      })}`
+    );
 
     cy.get('[data-cy="deposit and lock collateral form"]').should('exist');
     cy.get('[data-cy="balance amount"]', { timeout: 180_000 })
