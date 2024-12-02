@@ -19,7 +19,7 @@ export async function getWhale() {
 
 export async function getSUSD({ address = Cypress.env('walletAddress'), amount }) {
   const config = await importSystemToken(Cypress.env('chainId'), Cypress.env('preset'));
-  console.log('getSUSD', { address, amount, config});
+  console.log('getSUSD', { address, amount, config });
 
   const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
   const whale = await getWhale();
