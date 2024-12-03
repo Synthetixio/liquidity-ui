@@ -13,6 +13,7 @@ import { wrapCollateral } from './commands/wrapCollateral';
 import { wrapEth } from './commands/wrapEth';
 import { setWithdrawTimeout } from './commands/setWithdrawTimeout';
 import { getSUSD } from './commands/getSUSD';
+import { getSystemToken } from './commands/getSystemToken';
 
 Cypress.Commands.add('approveCollateral', approveCollateral);
 Cypress.Commands.add('borrowUsd', borrowUsd);
@@ -26,6 +27,7 @@ Cypress.Commands.add('wrapCollateral', wrapCollateral);
 Cypress.Commands.add('wrapEth', wrapEth);
 Cypress.Commands.add('setWithdrawTimeout', setWithdrawTimeout);
 Cypress.Commands.add('getSUSD', getSUSD);
+Cypress.Commands.add('getSystemToken', getSystemToken);
 
 installLogsCollector({
   enableExtendedCollector: true,

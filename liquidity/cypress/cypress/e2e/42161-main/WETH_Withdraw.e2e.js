@@ -1,16 +1,16 @@
 import { makeSearch } from '@snx-v3/useParams';
 
 describe(__filename, () => {
-  Cypress.env('chainId', '1');
+  Cypress.env('chainId', '42161');
   Cypress.env('preset', 'main');
   Cypress.env('walletAddress', '0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345');
-  Cypress.env('accountId', '651583203448');
+  Cypress.env('accountId', '58655818123');
 
   beforeEach(() => {
     cy.task('startAnvil', {
       chainId: Cypress.env('chainId'),
-      forkUrl: `wss://mainnet.infura.io/ws/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '21233424',
+      forkUrl: `wss://arbitrum-mainnet.infura.io/ws/v3/${Cypress.env('INFURA_KEY')}`,
+      block: '271813668',
     }).then(() => cy.log('Anvil started'));
 
     cy.on('window:before:load', (win) => {
@@ -25,14 +25,14 @@ describe(__filename, () => {
 
   it(__filename, () => {
     cy.setEthBalance({ balance: 100 });
-    cy.approveCollateral({ symbol: 'SNX', spender: 'CoreProxy' });
-    cy.setWithdrawTimeout({ timeout: '0' });
-    cy.delegateCollateral({ symbol: 'SNX', amount: 100, poolId: 1 });
+    cy.approveCollateral({ symbol: 'WETH', spender: 'CoreProxy' });
+    cy.wrapEth({ amount: 20 });
+    cy.depositCollateral({ symbol: 'WETH', amount: 10 });
 
     cy.visit(
       `?${makeSearch({
         page: 'position',
-        collateralSymbol: 'SNX',
+        collateralSymbol: 'WETH',
         poolId: 1,
         manageAction: 'withdraw',
         accountId: Cypress.env('accountId'),
@@ -45,7 +45,7 @@ describe(__filename, () => {
       .and('include.text', 'Max');
 
     cy.get('[data-cy="withdraw amount input"]').should('exist');
-    cy.get('[data-cy="withdraw amount input"]').type('10');
+    cy.get('[data-cy="withdraw amount input"]').type('1');
     cy.get('[data-cy="withdraw submit"]').should('be.enabled');
     cy.get('[data-cy="withdraw submit"]').click();
 
@@ -53,7 +53,7 @@ describe(__filename, () => {
       .should('exist')
       .and('include.text', 'Manage Collateral')
       .and('include.text', 'Withdraw')
-      .and('include.text', '10 SNX will be withdrawn');
+      .and('include.text', '1 WETH will be withdrawn');
 
     cy.get('[data-cy="withdraw confirm button"]').should('include.text', 'Execute Transaction');
     cy.get('[data-cy="withdraw confirm button"]').click();

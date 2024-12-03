@@ -92,6 +92,8 @@ declare global {
       setWithdrawTimeout: ({ timeout }: { timeout: string }) => Promise<void>;
 
       getSUSD: ({ address, amount }: { address?: string; amount: number }) => Promise<void>;
+
+      getSystemToken: ({ address, amount }: { address?: string; amount: number }) => Promise<void>;
     }
   }
 }
