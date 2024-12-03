@@ -47,6 +47,7 @@ export const ManageActionSchema = z.union([
   z.literal('undelegate'),
   z.literal('withdraw'),
   z.literal('withdraw-debt'),
+  z.literal('close'),
 ]);
 export type ManageActionType = z.infer<typeof ManageActionSchema>;
 

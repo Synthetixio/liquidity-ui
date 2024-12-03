@@ -9,17 +9,18 @@ export const PositionsEmpty = () => {
         You can open a new position by browsing the different Pools and choosing a vault for
         collateral type
       </Text>
-      <Link
-        href={`?${makeSearch({ page: 'dashboard', accountId: params.accountId })}`}
+      <Button
+        as={Link}
+        href={`?${makeSearch({ accountId: params.accountId })}`}
         onClick={(e) => {
           e.preventDefault();
-          setParams({ page: 'dashboard', accountId: params.accountId });
+          setParams({ accountId: params.accountId });
         }}
+        size="sm"
+        data-cy="all pools button"
       >
-        <Button size="sm" data-cy="all pools button">
-          Explore all Pools
-        </Button>
-      </Link>
+        Explore all Pools
+      </Button>
     </Flex>
   );
 };

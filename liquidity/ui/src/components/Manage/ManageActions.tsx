@@ -19,7 +19,7 @@ import { RepayModal } from '@snx-v3/RepayModal';
 import { UndelegateModal } from '@snx-v3/UndelegateModal';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
-import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import {
   makeSearch,
   ManageActionSchema,
@@ -39,11 +39,9 @@ import { Withdraw } from '../Withdraw/Withdraw';
 import { COLLATERALACTIONS, DEBTACTIONS } from './actions';
 
 export const ManageAction = ({
-  liquidityPosition,
   setTxnModalOpen,
   txnModalOpen,
 }: {
-  liquidityPosition?: LiquidityPosition;
   setTxnModalOpen: (action?: ManageActionType) => void;
   txnModalOpen?: ManageActionType;
 }) => {
@@ -54,6 +52,13 @@ export const ManageAction = ({
     useContext(ManagePositionContext);
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
+
+  const { data: liquidityPosition } = useLiquidityPosition({
+    tokenAddress: collateralType?.tokenAddress,
+    accountId: params.accountId,
+    poolId: params.poolId,
+  });
+
   const isBase = isBaseAndromeda(network?.id, network?.preset);
 
   const { isValid } = validatePosition({

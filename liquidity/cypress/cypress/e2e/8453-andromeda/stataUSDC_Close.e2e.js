@@ -32,12 +32,17 @@ describe(__filename, () => {
         page: 'position',
         collateralSymbol: 'stataUSDC',
         poolId: 1,
-        manageAction: 'deposit',
+        manageAction: 'close',
         accountId: Cypress.env('accountId'),
       })}`
     );
 
-    cy.get('[data-cy="close position"]', { timeout: 180_000 }).should('exist').click();
+    cy.get('[data-cy="debt amount"]', { timeout: 180_000 })
+      .should('exist')
+      .and('include.text', 'Max');
+    cy.get('[data-cy="locked collateral amount"]', { timeout: 180_000 })
+      .should('exist')
+      .and('include.text', 'Max');
 
     cy.get('[data-cy="close position multistep"]')
       .should('exist')

@@ -20,7 +20,7 @@ import { PositionTitle } from '../components/Manage/PositionTitle';
 import { Rewards } from '../components/Rewards/Rewards';
 
 export const Manage = () => {
-  const [params] = useParams<PositionPageSchemaType>();
+  const [params, setParams] = useParams<PositionPageSchemaType>();
   const { network } = useNetwork();
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
@@ -46,8 +46,6 @@ export const Manage = () => {
       )
     );
   const collateralSymbol = collateralType?.symbol;
-
-  const [closePosition, setClosePosition] = useState(false);
 
   const { data: stataUSDCAPR } = useStataUSDCApr(network?.id, network?.preset);
   const stataUSDCAPRParsed = stataUSDCAPR || 0;
@@ -111,52 +109,66 @@ export const Manage = () => {
             <ManageStats liquidityPosition={liquidityPosition} />
             <Rewards />
           </BorderBox>
-          {!closePosition ? (
-            <Flex
-              maxWidth={['100%', '100%', '501px']}
-              width="100%"
-              flex={1}
-              alignSelf="flex-start"
-              flexDirection="column"
-            >
-              <BorderBox flex={1} p={6} flexDirection="column" bg="navy.700" height="fit-content">
-                <ManageAction
-                  liquidityPosition={liquidityPosition}
-                  setTxnModalOpen={setTxnModalOpen}
-                  txnModalOpen={txnModalOpen}
+          <Flex
+            maxWidth={['100%', '100%', '501px']}
+            width="100%"
+            flex={1}
+            alignSelf="flex-start"
+            flexDirection="column"
+          >
+            {params.manageAction === 'close' ? (
+              <BorderBox
+                flex={1}
+                maxW={['100%', '100%', '501px']}
+                p={6}
+                flexDirection="column"
+                bg="navy.700"
+                height="fit-content"
+              >
+                <ClosePosition
+                  onClose={() =>
+                    setParams({
+                      page: 'position',
+                      collateralSymbol: params.collateralSymbol,
+                      poolId: params.poolId,
+                      manageAction: 'deposit',
+                      accountId: params.accountId,
+                    })
+                  }
                 />
               </BorderBox>
-              {liquidityPosition?.collateralAmount.gt(0) && !txnModalOpen && (
-                <Text
-                  textAlign="center"
-                  cursor="pointer"
-                  onClick={() => setClosePosition(true)}
-                  color="cyan.500"
-                  fontWeight={700}
-                  mt="5"
-                  data-cy="close position"
-                >
-                  Close Position
-                </Text>
-              )}
-            </Flex>
-          ) : null}
+            ) : null}
 
-          {closePosition ? (
-            <BorderBox
-              flex={1}
-              maxW={['100%', '100%', '501px']}
-              p={6}
-              flexDirection="column"
-              bg="navy.700"
-              height="fit-content"
-            >
-              <ClosePosition
-                liquidityPosition={liquidityPosition}
-                onClose={() => setClosePosition(false)}
-              />
-            </BorderBox>
-          ) : null}
+            {params.manageAction !== 'close' ? (
+              <>
+                <BorderBox flex={1} p={6} flexDirection="column" bg="navy.700" height="fit-content">
+                  <ManageAction setTxnModalOpen={setTxnModalOpen} txnModalOpen={txnModalOpen} />
+                </BorderBox>
+
+                {!txnModalOpen && liquidityPosition?.collateralAmount.gt(0) ? (
+                  <Text
+                    textAlign="center"
+                    cursor="pointer"
+                    onClick={() =>
+                      setParams({
+                        page: 'position',
+                        collateralSymbol: params.collateralSymbol,
+                        poolId: params.poolId,
+                        manageAction: 'close',
+                        accountId: params.accountId,
+                      })
+                    }
+                    color="cyan.500"
+                    fontWeight={700}
+                    mt="5"
+                    data-cy="close position"
+                  >
+                    Close Position
+                  </Text>
+                ) : null}
+              </>
+            ) : null}
+          </Flex>
         </Flex>
       </Box>
     </ManagePositionProvider>
