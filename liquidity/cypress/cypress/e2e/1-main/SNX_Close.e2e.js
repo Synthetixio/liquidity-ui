@@ -1,3 +1,5 @@
+import { makeSearch } from '@snx-v3/useParams';
+
 describe(__filename, () => {
   Cypress.env('chainId', '1');
   Cypress.env('preset', 'main');
@@ -25,7 +27,15 @@ describe(__filename, () => {
     cy.setEthBalance({ balance: 100 });
     cy.getSUSD({ amount: 100 });
 
-    cy.visit(`/#/positions/SNX/1?manageAction=withdraw&accountId=${Cypress.env('accountId')}`);
+    cy.visit(
+      `?${makeSearch({
+        page: 'position',
+        collateralSymbol: 'SNX',
+        poolId: 1,
+        manageAction: 'withdraw',
+        accountId: Cypress.env('accountId'),
+      })}`
+    );
 
     cy.get('[data-cy="close position"]', { timeout: 180_000 }).should('exist').click();
 

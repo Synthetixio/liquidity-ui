@@ -1,3 +1,5 @@
+import { makeSearch } from '@snx-v3/useParams';
+
 describe(__filename, () => {
   Cypress.env('chainId', '1');
   Cypress.env('preset', 'main');
@@ -27,7 +29,15 @@ describe(__filename, () => {
     cy.setWithdrawTimeout({ timeout: '0' });
     cy.delegateCollateral({ symbol: 'SNX', amount: 100, poolId: 1 });
 
-    cy.visit(`/#/positions/SNX/1?manageAction=withdraw&accountId=${Cypress.env('accountId')}`);
+    cy.visit(
+      `?${makeSearch({
+        page: 'position',
+        collateralSymbol: 'SNX',
+        poolId: 1,
+        manageAction: 'withdraw',
+        accountId: Cypress.env('accountId'),
+      })}`
+    );
 
     cy.get('[data-cy="withdraw amount input"]').should('exist');
     cy.get('[data-cy="withdraw amount input"]').type('10');
