@@ -71,13 +71,15 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
               {isDebtWithdrawal ? systemToken?.symbol : collateralType?.displaySymbol}
             </Text>
           </BorderBox>
-          <Flex fontSize="12px" gap="1" data-cy="withdraw amount">
+          <Text fontSize="12px" whiteSpace="nowrap" data-cy="withdraw amount">
             <Amount
-              prefix={isDebtWithdrawal ? 'Max Withdraw: ' : 'Unlocked: '}
+              prefix={isDebtWithdrawal ? 'Available: ' : 'Unlocked: '}
               value={maxWithdrawable}
+              suffix=" "
             />
             {maxWithdrawable.gt(0) && (
               <Text
+                as="span"
                 cursor="pointer"
                 onClick={() => {
                   if (!maxWithdrawable) {
@@ -88,10 +90,10 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
                 color="cyan.500"
                 fontWeight={700}
               >
-                &nbsp;Max
+                Max
               </Text>
             )}
-          </Flex>
+          </Text>
         </Flex>
         <Flex flexDir="column" flexGrow={1}>
           <NumberInput

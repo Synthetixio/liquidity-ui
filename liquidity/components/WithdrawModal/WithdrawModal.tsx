@@ -176,7 +176,6 @@ export function WithdrawModal({
         variant: 'left-accent',
         duration: 3_600_000,
       });
-      throw Error('Withdraw failed', { cause: error });
     }
   };
 
@@ -187,7 +186,7 @@ export function WithdrawModal({
   if (state.status === 'success') {
     return (
       <LiquidityPositionUpdated
-        onClose={onSubmit}
+        onClose={onClose}
         title={(isDebtWithdrawal ? 'Debt' : 'Collateral') + ' successfully Withdrawn'}
         subline={
           <>

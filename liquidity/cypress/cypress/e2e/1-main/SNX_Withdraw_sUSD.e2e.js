@@ -26,14 +26,16 @@ describe(__filename, () => {
   it(__filename, () => {
     cy.setEthBalance({ balance: 100 });
     cy.approveCollateral({ symbol: 'SNX', spender: 'CoreProxy' });
+    cy.depositCollateral({ symbol: 'SNX', amount: 100 });
     cy.delegateCollateral({ symbol: 'SNX', amount: 100, poolId: 1 });
+    cy.borrowUsd({ symbol: 'SNX', amount: 100, poolId: 1 });
 
     cy.visit(
       `?${makeSearch({
         page: 'position',
         collateralSymbol: 'SNX',
         poolId: 1,
-        manageAction: 'withdraw',
+        manageAction: 'withdraw-debt',
         accountId: Cypress.env('accountId'),
       })}`
     );
@@ -50,9 +52,9 @@ describe(__filename, () => {
 
     cy.get('[data-cy="withdraw multistep"]')
       .should('exist')
-      .and('include.text', 'Manage Collateral')
+      .and('include.text', 'Manage Debt')
       .and('include.text', 'Withdraw')
-      .and('include.text', '10 SNX will be withdrawn');
+      .and('include.text', '10 sUSD will be withdrawn');
 
     cy.get('[data-cy="withdraw confirm button"]').should('include.text', 'Execute Transaction');
     cy.get('[data-cy="withdraw confirm button"]').click();
@@ -66,7 +68,7 @@ describe(__filename, () => {
     cy.get('[data-cy="withdraw confirm button"]').should('include.text', 'Retry');
     cy.get('[data-cy="withdraw confirm button"]').click();
 
-    cy.contains('[data-status="success"]', 'Collateral successfully Withdrawn', {
+    cy.contains('[data-status="success"]', 'Debt successfully Withdrawn', {
       timeout: 180_000,
     }).should('exist');
   });
