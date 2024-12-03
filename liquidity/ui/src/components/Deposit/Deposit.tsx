@@ -40,6 +40,7 @@ import { CollateralAlert } from '../CollateralAlert/CollateralAlert';
 import { CRatioChangeStat } from '../CRatioBar/CRatioChangeStat';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
 import { TransactionSummary } from '../TransactionSummary/TransactionSummary';
+import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
 
 export const DepositUi: FC<{
   accountCollateral?: AccountCollateralType;
@@ -313,15 +314,16 @@ export const Deposit = ({ liquidityPosition }: { liquidityPosition?: LiquidityPo
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { data: transferrableSnx } = useTransferableSynthetix();
   const isBase = isBaseAndromeda(network?.id, network?.preset);
-  const isStataUSDC =
-    collateralType?.address.toLowerCase() === getWrappedStataUSDCOnBase().toLowerCase();
 
   const { data: wrapperToken } = useGetWrapperToken(getSpotMarketId(params.collateralSymbol));
+  const { data: stataUSDC } = useStaticAaveUSDC();
+  const isStataUSDC =
+    collateralType?.address.toLowerCase() === getWrappedStataUSDCOnBase(network?.id).toLowerCase();
 
   // TODO: This will need refactoring
   const balanceAddress = isBase
     ? isStataUSDC
-      ? getUSDCOnBase(network?.id)
+      ? stataUSDC?.address
       : wrapperToken
     : collateralType?.tokenAddress;
 
