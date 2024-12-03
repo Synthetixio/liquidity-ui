@@ -25,10 +25,11 @@ describe(__filename, () => {
 
   it(__filename, () => {
     cy.setEthBalance({ balance: 100 });
+    cy.getSNX({ amount: 2000 });
     cy.approveCollateral({ symbol: 'SNX', spender: 'CoreProxy' });
     cy.depositCollateral({ symbol: 'SNX', amount: 100 });
     cy.delegateCollateral({ symbol: 'SNX', amount: 100, poolId: 1 });
-    cy.borrowUsd({ symbol: 'SNX', amount: 100, poolId: 1 });
+    cy.borrowUsd({ symbol: 'SNX', amount: 10, poolId: 1 });
 
     cy.visit(
       `?${makeSearch({
@@ -46,7 +47,7 @@ describe(__filename, () => {
       .and('include.text', 'Max');
 
     cy.get('[data-cy="withdraw amount input"]').should('exist');
-    cy.get('[data-cy="withdraw amount input"]').type('10');
+    cy.get('[data-cy="withdraw amount input"]').type('5');
     cy.get('[data-cy="withdraw submit"]').should('be.enabled');
     cy.get('[data-cy="withdraw submit"]').click();
 
@@ -54,7 +55,7 @@ describe(__filename, () => {
       .should('exist')
       .and('include.text', 'Manage Debt')
       .and('include.text', 'Withdraw')
-      .and('include.text', '10 sUSD will be withdrawn');
+      .and('include.text', '5 sUSD will be withdrawn');
 
     cy.get('[data-cy="withdraw confirm button"]').should('include.text', 'Execute Transaction');
     cy.get('[data-cy="withdraw confirm button"]').click();
