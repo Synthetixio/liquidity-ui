@@ -59,7 +59,7 @@ export function WithdrawModal({
   const { data: systemToken } = useSystemToken();
   const { data: systemTokenBalance } = useAccountCollateral(params.accountId, systemToken?.address);
 
-  const { data: StaticAaveUSDC } = useStaticAaveUSDC();
+  const { data: StaticAaveUSDC, isPending: isPendingStaticAaveUSDC } = useStaticAaveUSDC();
 
   const { mutateAsync: unwrapStata } = useUnwrapStataUSDC();
 
@@ -214,7 +214,6 @@ export function WithdrawModal({
         Manage {isDebtWithdrawal ? 'Debt' : 'Collateral'}
       </Text>
       <Divider my={4} />
-
       <Multistep
         step={1}
         title="Withdraw"
@@ -237,9 +236,8 @@ export function WithdrawModal({
           }}
         />
       )}
-
       <Button
-        isDisabled={state.status === 'pending'}
+        isDisabled={state.status === 'pending' || isPendingStaticAaveUSDC || !provider}
         onClick={onSubmit}
         width="100%"
         mt="6"
