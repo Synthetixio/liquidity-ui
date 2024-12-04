@@ -2,7 +2,7 @@ import { Button, Fade, Flex, Link, Text } from '@chakra-ui/react';
 import { ZEROWEI } from '@snx-v3/constants';
 import { formatNumber, formatNumberToUsd } from '@snx-v3/formatters';
 import { Sparkles } from '@snx-v3/icons';
-import { getSpotMarketId, getUSDCOnBase, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import {
@@ -18,6 +18,7 @@ import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { makeSearch, useParams } from '@snx-v3/useParams';
 import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
+import { useUSDC } from '@snx-v3/useUSDC';
 import { wei } from '@synthetixio/wei';
 import { BigNumberish } from 'ethers';
 import React from 'react';
@@ -63,7 +64,9 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
 
   const { data: stataUSDCRate } = useStaticAaveUSDCRate();
   const { data: tokenBalance } = useTokenBalance(balanceAddress, network);
-  const { data: usdcBalance } = useTokenBalance(getUSDCOnBase(network?.id));
+
+  const { data: USDCToken } = useUSDC(network);
+  const { data: usdcBalance } = useTokenBalance(USDCToken?.address, network);
 
   const { network: currentNetwork, setNetwork } = useNetwork();
   const { connect } = useWallet();

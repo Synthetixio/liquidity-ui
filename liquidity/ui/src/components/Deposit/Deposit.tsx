@@ -15,7 +15,6 @@ import { currency } from '@snx-v3/format';
 import { formatNumber } from '@snx-v3/formatters';
 import {
   getSpotMarketId,
-  getUSDCOnBase,
   getWrappedStataUSDCOnBase,
   isBaseAndromeda,
 } from '@snx-v3/isBaseAndromeda';
@@ -28,10 +27,12 @@ import { useEthBalance } from '@snx-v3/useEthBalance';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
+import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
 import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { useTransferableSynthetix } from '@snx-v3/useTransferableSynthetix';
+import { useUSDC } from '@snx-v3/useUSDC';
 import { WithdrawIncrease } from '@snx-v3/WithdrawIncrease';
 import Wei from '@synthetixio/wei';
 import { FC, useContext, useMemo } from 'react';
@@ -40,7 +41,6 @@ import { CollateralAlert } from '../CollateralAlert/CollateralAlert';
 import { CRatioChangeStat } from '../CRatioBar/CRatioChangeStat';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
 import { TransactionSummary } from '../TransactionSummary/TransactionSummary';
-import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
 
 export const DepositUi: FC<{
   accountCollateral?: AccountCollateralType;
@@ -77,7 +77,8 @@ export const DepositUi: FC<{
   const { network } = useNetwork();
   const price = useTokenPrice(symbol);
   const { data: stataUSDCRate } = useStaticAaveUSDCRate();
-  const { data: usdcBalance } = useTokenBalance(getUSDCOnBase(network?.id));
+  const { data: USDCToken } = useUSDC(network);
+  const { data: usdcBalance } = useTokenBalance(USDCToken?.address, network);
 
   const isStataUSDC = symbol === 'stataUSDC';
 

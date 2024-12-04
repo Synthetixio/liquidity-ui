@@ -17,7 +17,6 @@ import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { ZEROWEI } from '@snx-v3/constants';
 import { formatNumber } from '@snx-v3/formatters';
-import { getUSDCOnBase } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
 import { MAINNET, SEPOLIA, useNetwork } from '@snx-v3/useBlockchain';
@@ -30,6 +29,7 @@ import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { useTransferableSynthetix } from '@snx-v3/useTransferableSynthetix';
+import { useUSDC } from '@snx-v3/useUSDC';
 import { WithdrawIncrease } from '@snx-v3/WithdrawIncrease';
 import Wei from '@synthetixio/wei';
 import { FC, useContext, useMemo, useState } from 'react';
@@ -68,7 +68,9 @@ export const InitialDepositUi: FC<{
   const price = useTokenPrice(symbol);
   const { network } = useNetwork();
   const { data: stataUSDCRate } = useStaticAaveUSDCRate();
-  const { data: usdcBalance } = useTokenBalance(getUSDCOnBase(network?.id));
+
+  const { data: USDCToken } = useUSDC(network);
+  const { data: usdcBalance } = useTokenBalance(USDCToken?.address, network);
 
   const isStataUSDC = symbol === 'stataUSDC';
 
