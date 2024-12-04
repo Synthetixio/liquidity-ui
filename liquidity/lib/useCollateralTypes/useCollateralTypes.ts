@@ -1,11 +1,11 @@
 import { importCollateralTokens } from '@snx-v3/contracts';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { contractsHash } from '@snx-v3/tsHelpers';
 import { Network, useNetwork } from '@snx-v3/useBlockchain';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { wei, Wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
-import { useMemo } from 'react';
 
 export type CollateralType = {
   address: string;
@@ -111,25 +111,27 @@ export function useCollateralTypes(includeDelegationOff = false, customNetwork?:
   });
 }
 
-export function useCollateralType(collateralSymbol?: string) {
-  const { data: collateralTypes, isFetching: isCollateralTypesFetching } = useCollateralTypes();
+export function useCollateralType(collateralSymbol?: string, customNetwork?: Network) {
+  const { network } = useNetwork();
+  const targetNetwork = customNetwork || network;
 
-  const data = useMemo(() => {
-    if (!collateralTypes || !collateralTypes?.length) {
-      return;
-    }
-
-    if (!collateralSymbol) {
-      return collateralTypes[0];
-    }
-
-    return collateralTypes?.find(
-      (collateral) => `${collateral.symbol}`.toLowerCase() === `${collateralSymbol}`.toLowerCase()
-    );
-  }, [collateralSymbol, collateralTypes]);
-
-  return {
-    isFetching: isCollateralTypesFetching,
-    data,
-  };
+  const { data: collateralTypes } = useCollateralTypes();
+  return useQuery({
+    enabled: Boolean(targetNetwork?.id && targetNetwork?.preset && collateralTypes),
+    queryKey: [
+      `${targetNetwork?.id}-${targetNetwork?.preset}`,
+      'CollateralType',
+      { collaterals: contractsHash(collateralTypes ?? []) },
+      { collateralSymbol },
+    ],
+    queryFn: async () => {
+      if (!(targetNetwork?.id && targetNetwork?.preset && collateralTypes && collateralSymbol))
+        throw Error('OMFG');
+      return collateralTypes.find(
+        (collateral) => `${collateral.symbol}`.toLowerCase() === `${collateralSymbol}`.toLowerCase()
+      );
+    },
+    // one hour in ms
+    staleTime: 3_600_000,
+  });
 }

@@ -5,7 +5,6 @@ import { ZEROWEI } from '@snx-v3/constants';
 import { wei } from '@synthetixio/wei';
 import { useOraclePrice } from '@snx-v3/useOraclePrice';
 
-// TODO: Update this hook to use a multicall through the oracle manager proxy
 export const useTokenPrice = (symbol?: string) => {
   const { data: collateralTypes } = useCollateralTypes(true);
 

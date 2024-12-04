@@ -1,17 +1,17 @@
 import { InfoIcon } from '@chakra-ui/icons';
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
-import { getWrappedStataUSDCOnBase } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionProvider } from '@snx-v3/ManagePositionContext';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType, useCollateralTypes } from '@snx-v3/useCollateralTypes';
+import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type ManageActionType, type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { usePoolData } from '@snx-v3/usePoolData';
 import { usePool } from '@snx-v3/usePoolsList';
-import { useState } from 'react';
+import React from 'react';
 import { ClosePosition } from '../components/ClosePosition/ClosePosition';
 import { UnsupportedCollateralAlert } from '../components/CollateralAlert/UnsupportedCollateralAlert';
 import { ManageAction } from '../components/Manage/ManageActions';
@@ -49,9 +49,13 @@ export const Manage = () => {
 
   const { data: stataUSDCAPR } = useStataUSDCApr(network?.id, network?.preset);
   const stataUSDCAPRParsed = stataUSDCAPR || 0;
-  const isStataUSDC = getWrappedStataUSDCOnBase(network?.id) === collateralType?.tokenAddress;
 
-  const [txnModalOpen, setTxnModalOpen] = useState<ManageActionType | undefined>(undefined);
+  const isStataUSDC = useIsSynthStataUSDC({
+    tokenAddress: collateralType?.tokenAddress,
+    customNetwork: network,
+  });
+
+  const [txnModalOpen, setTxnModalOpen] = React.useState<ManageActionType | undefined>(undefined);
 
   const { data: pool } = usePool(Number(network?.id), String(params.poolId));
 

@@ -15,6 +15,7 @@ import {
 } from '@snx-v3/useBlockchain';
 import { CollateralType } from '@snx-v3/useCollateralTypes';
 import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
+import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { makeSearch, useParams } from '@snx-v3/useParams';
 import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
@@ -31,7 +32,13 @@ interface CollateralTypeWithDeposited extends CollateralType {
   collateralDeposited: string;
 }
 
-export interface Props {
+export function PoolRow({
+  pool,
+  network,
+  apr,
+  collateralType,
+  collateralPrices,
+}: {
   collateralType: CollateralTypeWithDeposited;
   pool: {
     name: string;
@@ -47,9 +54,7 @@ export interface Props {
     cumulativePnl: number;
     collateralAprs: any[];
   };
-}
-
-export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }: Props) => {
+}) {
   const [params, setParams] = useParams();
 
   const { data: wrapperToken } = useGetWrapperToken(
@@ -57,7 +62,7 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
     network
   );
   const isBase = isBaseAndromeda(network?.id, network?.preset);
-  const { data: stataUSDC } = useStataUSDCApr(network.id, network.preset);
+  const { data: stataUSDCApr } = useStataUSDCApr(network.id, network.preset);
 
   // TODO: This will need refactoring
   const balanceAddress = isBase ? wrapperToken : collateralType?.tokenAddress;
@@ -71,7 +76,10 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
   const { network: currentNetwork, setNetwork } = useNetwork();
   const { connect } = useWallet();
 
-  const isStataUSDC = collateralType.symbol === 'stataUSDC';
+  const isStataUSDC = useIsSynthStataUSDC({
+    tokenAddress: collateralType?.tokenAddress,
+    customNetwork: network,
+  });
 
   const balance = React.useMemo(() => {
     if (!isStataUSDC || !stataUSDCRate) {
@@ -232,8 +240,8 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
               fontWeight={500}
               color="white"
             >
-              {isBase && collateralType.symbol === 'stataUSDC' && stataUSDC
-                ? formatApr(apr7d * 100 + stataUSDC, network?.id)
+              {isStataUSDC && stataUSDCApr
+                ? formatApr(apr7d * 100 + stataUSDCApr, network?.id)
                 : formatApr(apr7d * 100, network?.id)}
               <Tooltip
                 label={
@@ -300,4 +308,4 @@ export const PoolRow = ({ pool, network, apr, collateralType, collateralPrices }
       </Flex>
     </Fade>
   );
-};
+}

@@ -3,7 +3,7 @@ import { Button, Divider, Link, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
-import { getWrappedStataUSDCOnBase, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
 import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
@@ -13,6 +13,7 @@ import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
+import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useUnwrapStataUSDC } from '@snx-v3/useUnwrapStataUSDC';
 import { useWithdraw } from '@snx-v3/useWithdraw';
@@ -53,8 +54,11 @@ export function WithdrawModal({
   });
 
   const isBase = isBaseAndromeda(network?.id, network?.preset);
-  const isStataUSDC =
-    collateralType?.address.toLowerCase() === getWrappedStataUSDCOnBase(network?.id).toLowerCase();
+
+  const isStataUSDC = useIsSynthStataUSDC({
+    tokenAddress: collateralType?.tokenAddress,
+    customNetwork: network,
+  });
 
   const { data: systemToken } = useSystemToken();
   const { data: systemTokenBalance } = useAccountCollateral(params.accountId, systemToken?.address);

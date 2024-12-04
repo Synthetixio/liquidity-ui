@@ -4,17 +4,18 @@ import { Amount } from '@snx-v3/Amount';
 import { ONEWEI, ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
 import { currency, parseUnits } from '@snx-v3/format';
-import { getWrappedStataUSDCOnBase, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
 import { useApprove } from '@snx-v3/useApprove';
-import { useNetwork } from '@snx-v3/useBlockchain';
+import { Network, useNetwork } from '@snx-v3/useBlockchain';
 import { CollateralType, useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useConvertStataUSDC } from '@snx-v3/useConvertStataUSDC';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useDeposit } from '@snx-v3/useDeposit';
 import { useDepositBaseAndromeda } from '@snx-v3/useDepositBaseAndromeda';
+import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { usePool } from '@snx-v3/usePools';
@@ -28,8 +29,8 @@ import { useWrapEth } from '@snx-v3/useWrapEth';
 import { Wei, wei } from '@synthetixio/wei';
 import { useQueryClient } from '@tanstack/react-query';
 import { useMachine } from '@xstate/react';
-import { BigNumber } from 'ethers';
-import { FC, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { ethers } from 'ethers';
+import React from 'react';
 import type { StateFrom } from 'xstate';
 import { ChangeStat } from '../../ui/src/components/ChangeStat/ChangeStat';
 import { CRatioChangeStat } from '../../ui/src/components/CRatioBar/CRatioChangeStat';
@@ -37,23 +38,7 @@ import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/Liquidi
 import { TransactionSummary } from '../../ui/src/components/TransactionSummary/TransactionSummary';
 import { DepositMachine, Events, ServiceNames, State } from './DepositMachine';
 
-export const DepositModalUi: FC<{
-  collateralChange: Wei;
-  isOpen: boolean;
-  onClose: () => void;
-  collateralType?: CollateralType;
-  state: StateFrom<typeof DepositMachine>;
-  setInfiniteApproval: (x: boolean) => void;
-  onSubmit: () => void;
-  availableCollateral: Wei;
-  poolName: string;
-  title?: string;
-  txSummary?: ReactNode;
-  hasEnoughStataUSDC?: boolean;
-  requireUSDCApprovalForStata?: boolean;
-  networkId?: number;
-  symbol?: string;
-}> = ({
+export function DepositModalUi({
   collateralChange,
   isOpen,
   onClose,
@@ -67,9 +52,25 @@ export const DepositModalUi: FC<{
   txSummary,
   hasEnoughStataUSDC,
   requireUSDCApprovalForStata,
-  networkId,
+  network,
   symbol,
-}) => {
+}: {
+  collateralChange: Wei;
+  isOpen: boolean;
+  onClose: () => void;
+  collateralType?: CollateralType;
+  state: StateFrom<typeof DepositMachine>;
+  setInfiniteApproval: (x: boolean) => void;
+  onSubmit: () => void;
+  availableCollateral: Wei;
+  poolName: string;
+  title?: string;
+  txSummary?: React.ReactNode;
+  hasEnoughStataUSDC?: boolean;
+  requireUSDCApprovalForStata?: boolean;
+  network?: Network;
+  symbol?: string;
+}) {
   const wrapAmount = state.context.wrapAmount;
   const infiniteApproval = state.context.infiniteApproval;
   const requireApproval = state.context.requireApproval;
@@ -80,9 +81,11 @@ export const DepositModalUi: FC<{
     state.matches(State.wrap);
 
   const isWETH = collateralType?.symbol === 'WETH';
-  const isStataUSDC =
-    collateralType?.tokenAddress.toLowerCase() ===
-    getWrappedStataUSDCOnBase(networkId).toLowerCase();
+
+  const isStataUSDC = useIsSynthStataUSDC({
+    tokenAddress: collateralType?.tokenAddress,
+    customNetwork: network,
+  });
 
   const stepNumbers = {
     wrap: isWETH ? 1 : 0,
@@ -311,65 +314,71 @@ export const DepositModalUi: FC<{
       </div>
     );
   }
-};
+}
 
-export type DepositModalProps = FC<{
+export function DepositModal({
+  onClose,
+  isOpen,
+  title,
+  liquidityPosition,
+}: {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
   liquidityPosition?: LiquidityPosition;
-}>;
-
-export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquidityPosition }) => {
+}) {
   const [params, setParams] = useParams<PositionPageSchemaType>();
   const queryClient = useQueryClient();
   const { network } = useNetwork();
-  const { collateralChange, setCollateralChange } = useContext(ManagePositionContext);
+  const { collateralChange, setCollateralChange } = React.useContext(ManagePositionContext);
   const { data: CoreProxy } = useCoreProxy();
   const { data: SpotMarketProxy } = useSpotMarketProxy();
   const { data: collateralTypes } = useCollateralTypes();
 
-  const collateral = collateralTypes?.filter(
+  const collateralType = collateralTypes?.filter(
     (collateral) =>
       collateral.tokenAddress.toLowerCase() === liquidityPosition?.tokenAddress.toLowerCase()
   )[0];
   const isBase = isBaseAndromeda(network?.id, network?.preset);
-  const isStataUSDC =
-    collateral?.tokenAddress.toLowerCase() === getWrappedStataUSDCOnBase(network?.id).toLowerCase();
+
+  const isStataUSDC = useIsSynthStataUSDC({
+    tokenAddress: collateralType?.tokenAddress,
+    customNetwork: network,
+  });
 
   const { data: USDC } = useUSDC();
-  const { data: stataUSDC } = useStaticAaveUSDC();
-  const { data: stataUSDCRate } = useStaticAaveUSDCRate();
+  const { data: StaticAaveUSDC } = useStaticAaveUSDC();
+  const { data: staticAaveUSDCRate } = useStaticAaveUSDCRate();
 
-  const { data: synthTokens } = useSynthTokens();
+  const { data: synthTokens } = useSynthTokens(network);
   const synth = synthTokens?.find(
     (synth) =>
-      collateral?.tokenAddress?.toLowerCase() === synth?.address?.toLowerCase() ||
-      collateral?.tokenAddress?.toLowerCase() === synth?.token?.address.toLowerCase()
+      collateralType?.tokenAddress?.toLowerCase() === synth?.address?.toLowerCase() ||
+      collateralType?.tokenAddress?.toLowerCase() === synth?.token?.address.toLowerCase()
   );
 
   const { data: stataUSDCTokenBalance, refetch: refetchStataUSDCBalance } = useTokenBalance(
-    stataUSDC?.address
+    StaticAaveUSDC?.address
   );
 
   const currentCollateral = liquidityPosition?.collateralAmount ?? ZEROWEI;
   const availableCollateral = liquidityPosition?.accountCollateral.availableCollateral ?? ZEROWEI;
 
-  const [txSummary, setTxSummary] = useState({
+  const [txSummary, setTxSummary] = React.useState({
     currentCollateral: ZEROWEI,
     collateralChange: ZEROWEI,
     currentDebt: ZEROWEI,
   });
 
-  const collateralRate = useMemo(() => {
+  const collateralRate = React.useMemo(() => {
     if (isBase && isStataUSDC) {
-      return stataUSDCRate || ZEROWEI;
+      return staticAaveUSDCRate || ZEROWEI;
     } else {
       return ONEWEI;
     }
-  }, [isBase, isStataUSDC, stataUSDCRate]);
+  }, [isBase, isStataUSDC, staticAaveUSDCRate]);
 
-  const synthNeeded = useMemo(() => {
+  const synthNeeded = React.useMemo(() => {
     let amount = collateralChange.sub(availableCollateral);
     if (isStataUSDC) {
       amount = wei(amount.toNumber().toFixed(6));
@@ -377,7 +386,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
     return amount.lt(0) ? ZEROWEI : amount;
   }, [availableCollateral, collateralChange, isStataUSDC]);
 
-  const collateralNeeded = useMemo(() => {
+  const collateralNeeded = React.useMemo(() => {
     let amount = synthNeeded;
     if (isBase && isStataUSDC) {
       amount = synthNeeded.sub(stataUSDCTokenBalance || ZEROWEI);
@@ -388,23 +397,23 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   //Preparing wETH
   const { exec: wrapEth, wethBalance } = useWrapEth();
   const wrapETHAmount =
-    collateral?.symbol === 'WETH' && collateralNeeded.gt(wethBalance || 0)
+    collateralType?.symbol === 'WETH' && collateralNeeded.gt(wethBalance || 0)
       ? collateralNeeded.sub(wethBalance || 0)
       : ZEROWEI;
   //Preparing wETH done
 
   //Preparing stataUSDC
-  const USDCAmountForStataUSDC = useMemo(() => {
+  const USDCAmountForStataUSDC = React.useMemo(() => {
     if (isBase && isStataUSDC) {
       return parseUnits(collateralNeeded.mul(collateralRate).toNumber().toFixed(6), 6);
     }
-    return BigNumber.from(0);
+    return ethers.BigNumber.from(0);
   }, [collateralNeeded, collateralRate, isBase, isStataUSDC]);
 
   const { approve: approveUSDC, requireApproval: requireUSDCApproval } = useApprove({
     contractAddress: USDC?.address,
     amount: USDCAmountForStataUSDC.mul(110).div(100).toString(),
-    spender: stataUSDC?.address,
+    spender: StaticAaveUSDC?.address,
   });
 
   const { mutateAsync: wrapUSDCToStataUSDC } = useConvertStataUSDC({
@@ -414,30 +423,30 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
   //Preparing stataUSDC Done
 
   //Collateral Approval
-  const amountToApprove = useMemo(() => {
+  const amountToApprove = React.useMemo(() => {
     if (collateralChange.sub(availableCollateral).lte(0)) {
       return 0;
     }
     return parseUnits(collateralChange.sub(availableCollateral), synth?.token.decimals);
   }, [availableCollateral, collateralChange, synth?.token.decimals]);
   const { approve, requireApproval } = useApprove({
-    contractAddress: isBase ? synth?.token?.address : collateral?.tokenAddress,
+    contractAddress: isBase ? synth?.token?.address : collateralType?.tokenAddress,
     amount: amountToApprove,
     spender: isBase ? SpotMarketProxy?.address : CoreProxy?.address,
   });
   //Collateral Approval Done
 
   //Deposit
-  const newAccountId = useMemo(() => `${Math.floor(Math.random() * 1000000000000)}`, []);
+  const newAccountId = React.useMemo(() => `${Math.floor(Math.random() * 1000000000000)}`, []);
   const { exec: execDeposit } = useDeposit({
     accountId: params.accountId,
     newAccountId,
     poolId: params.poolId,
-    collateralTypeAddress: collateral?.tokenAddress,
+    collateralTypeAddress: collateralType?.tokenAddress,
     collateralChange,
     currentCollateral,
     availableCollateral: availableCollateral || ZEROWEI,
-    decimals: Number(collateral?.decimals) || 18,
+    decimals: Number(collateralType?.decimals) || 18,
   });
   const { exec: depositBaseAndromeda } = useDepositBaseAndromeda({
     accountId: params.accountId,
@@ -666,7 +675,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
 
   const wrapAmountString = wrapETHAmount.toString();
   const isSuccessOrDeposit = state.matches(State.success) || state.matches(State.deposit);
-  useEffect(() => {
+  React.useEffect(() => {
     if (isSuccessOrDeposit) {
       // We do this to ensure the success state displays the wrap amount used before deposit
       return;
@@ -675,36 +684,36 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccessOrDeposit, wrapAmountString]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     send(Events.SET_REQUIRE_APPROVAL, { requireApproval });
   }, [requireApproval, send]);
 
   const hasEnoughStataUSDCBalance = stataUSDCTokenBalance?.gte(synthNeeded);
-  useEffect(() => {
+  React.useEffect(() => {
     send(Events.SET_HAS_ENOUGH_STATAUSDC, { hasEnoughStataUSDC: hasEnoughStataUSDCBalance });
   }, [hasEnoughStataUSDCBalance, send]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     send(Events.SET_REQUIRE_APPROVAL_FOR_STATAUSDC, {
       requireStataUSDCApproval: requireUSDCApproval,
     });
   }, [requireUSDCApproval, send]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     send(Events.SET_IS_STATA_USDC, {
       isStataUSDC,
     });
   }, [isStataUSDC, send]);
 
-  const handleClose = useCallback(() => {
+  const handleClose = React.useCallback(() => {
     const isSuccess = state.matches(State.success);
 
-    if (isSuccess && params.poolId && params.accountId && collateral?.symbol) {
+    if (isSuccess && params.poolId && params.accountId && collateralType?.symbol) {
       send(Events.RESET);
       onClose();
       setParams({
         page: 'position',
-        collateralSymbol: collateral.symbol,
+        collateralSymbol: collateralType.symbol,
         poolId: params.poolId,
         manageAction: 'deposit',
         accountId: params.accountId,
@@ -713,9 +722,9 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
     }
     send(Events.RESET);
     onClose();
-  }, [state, params.poolId, params.accountId, collateral?.symbol, send, onClose, setParams]);
+  }, [state, params.poolId, params.accountId, collateralType?.symbol, send, onClose, setParams]);
 
-  const onSubmit = useCallback(async () => {
+  const onSubmit = React.useCallback(async () => {
     if (state.matches(State.success)) {
       handleClose();
       return;
@@ -728,10 +737,10 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
     send(Events.RUN);
   }, [handleClose, send, state]);
 
-  const txSummaryItems = useMemo(() => {
+  const txSummaryItems = React.useMemo(() => {
     const items = [
       {
-        label: `Locked ${collateral?.symbol}`,
+        label: `Locked ${collateralType?.symbol}`,
         value: (
           <ChangeStat
             value={txSummary.currentCollateral}
@@ -765,7 +774,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
       },
     ];
   }, [
-    collateral?.symbol,
+    collateralType?.symbol,
     isBase,
     liquidityPosition?.collateralPrice,
     txSummary.collateralChange,
@@ -778,7 +787,7 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
       collateralChange={collateralChange}
       isOpen={isOpen}
       onClose={onClose}
-      collateralType={collateral}
+      collateralType={collateralType}
       state={state}
       setInfiniteApproval={(infiniteApproval) => {
         send(Events.SET_INFINITE_APPROVAL, { infiniteApproval });
@@ -790,8 +799,8 @@ export const DepositModal: DepositModalProps = ({ onClose, isOpen, title, liquid
       txSummary={<TransactionSummary items={txSummaryItems} />}
       hasEnoughStataUSDC={hasEnoughStataUSDCBalance}
       requireUSDCApprovalForStata={requireUSDCApproval}
-      networkId={network?.id}
-      symbol={collateral?.displaySymbol}
+      network={network}
+      symbol={collateralType?.displaySymbol}
     />
   );
-};
+}

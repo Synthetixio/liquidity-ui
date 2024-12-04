@@ -4717,6 +4717,7 @@ __metadata:
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useDeposit": "workspace:*"
     "@snx-v3/useDepositBaseAndromeda": "workspace:*"
+    "@snx-v3/useIsSynthStataUSDC": "workspace:*"
     "@snx-v3/useLiquidityPosition": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
     "@snx-v3/usePools": "workspace:*"
@@ -4892,6 +4893,7 @@ __metadata:
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useContractErrorParser": "workspace:*"
+    "@snx-v3/useIsSynthStataUSDC": "workspace:*"
     "@snx-v3/useLiquidityPosition": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
     "@snx-v3/useStaticAaveUSDC": "workspace:*"
@@ -5095,6 +5097,7 @@ __metadata:
     "@snx-v3/useGasPrice": "workspace:*"
     "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/useGetUSDTokens": "workspace:*"
+    "@snx-v3/useIsSynthStataUSDC": "workspace:*"
     "@snx-v3/useLegacyMarket": "workspace:*"
     "@snx-v3/useLiquidityPosition": "workspace:*"
     "@snx-v3/useLiquidityPositions": "workspace:*"
@@ -5485,6 +5488,7 @@ __metadata:
   dependencies:
     "@snx-v3/contracts": "workspace:*"
     "@snx-v3/isBaseAndromeda": "workspace:*"
+    "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useSystemToken": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
@@ -5669,6 +5673,16 @@ __metadata:
     "@snx-v3/useSystemToken": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
     ethers: "npm:^5.7.2"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
+"@snx-v3/useIsSynthStataUSDC@workspace:*, @snx-v3/useIsSynthStataUSDC@workspace:liquidity/lib/useIsSynthStataUSDC":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useIsSynthStataUSDC@workspace:liquidity/lib/useIsSynthStataUSDC"
+  dependencies:
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useSynthTokens": "workspace:*"
     react: "npm:^18.2.0"
   languageName: unknown
   linkType: soft
