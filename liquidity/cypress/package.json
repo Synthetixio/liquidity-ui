@@ -23,5 +23,14 @@
     "@snx-v3/parseContractError": "workspace:*",
     "@snx-v3/theme": "workspace:*",
     "@snx-v3/useParams": "workspace:*"
+  },
+  "nyc": {
+    "all": true,
+    "include": [
+      "../ui/src/**/*.tsx",
+      "../ui/src/**/*.ts",
+      "../lib/**/*.tsx",
+      "../lib/**/*.ts"
+    ]
   }
 }
