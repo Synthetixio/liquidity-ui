@@ -133,7 +133,29 @@ export function PositionRow({
           </Text>
           <Box color="gray.500" fontFamily="heading" fontSize="0.75rem" lineHeight="1rem">
             {availableCollateral.gt(0) && !isRunning ? (
-              <Link color="cyan.500" fontFamily="heading" fontSize="0.75rem" lineHeight="1rem">
+              <Link
+                href={`?${makeSearch({
+                  page: 'position',
+                  collateralSymbol: collateralType.symbol,
+                  poolId,
+                  manageAction: 'withdraw',
+                  accountId: params.accountId,
+                })}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setParams({
+                    page: 'position',
+                    collateralSymbol: collateralType.symbol,
+                    poolId,
+                    manageAction: 'withdraw',
+                    accountId: params.accountId,
+                  });
+                }}
+                color="cyan.500"
+                fontFamily="heading"
+                fontSize="0.75rem"
+                lineHeight="1rem"
+              >
                 Withdraw
               </Link>
             ) : (
