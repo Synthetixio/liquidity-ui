@@ -38,7 +38,7 @@ contract ClosePositionTest is Test {
     }
 
     function setUp() public {
-        //        string memory forkUrl = string.concat('wss://arbitrum-mainnet.infura.io/ws/v3/', vm.envString("INFURA_KEY"));
+        //        string memory forkUrl = string.concat('https://arbitrum-mainnet.infura.io/v3/', vm.envString("INFURA_KEY"));
         string memory forkUrl = string.concat("https://arbitrum-mainnet.infura.io/v3/", vm.envString("INFURA_KEY"));
         fork = vm.createFork(forkUrl, 269104835);
         vm.selectFork(fork);

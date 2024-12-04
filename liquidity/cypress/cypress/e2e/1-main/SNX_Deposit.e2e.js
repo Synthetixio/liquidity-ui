@@ -9,7 +9,7 @@ describe(__filename, () => {
   beforeEach(() => {
     cy.task('startAnvil', {
       chainId: Cypress.env('chainId'),
-      forkUrl: `wss://mainnet.infura.io/ws/v3/${Cypress.env('INFURA_KEY')}`,
+      forkUrl: `https://mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
       block: '21233424',
     }).then(() => cy.log('Anvil started'));
 
