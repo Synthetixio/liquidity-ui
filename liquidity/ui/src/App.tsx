@@ -63,22 +63,22 @@ export const App = () => {
     <>
       <Head>
         {/* open graph */}
-        <meta property="og:url" content="https://liquidity.synthetix.eth.limo/" />
+        <meta property="og:url" content="https://liquidity.synthetix.io/" />
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Synthetix | Liquidity" />
         <meta
           property="og:description"
           content="The Liquidity Layer of DeFi. Provide liquidity for the next generation of permissionless protocols"
         />
-        <meta property="og:image" content="https://liquidity.synthetix.eth.limo/Liquidity.jpg" />
+        <meta property="og:image" content="https://liquidity.synthetix.io/Liquidity.jpg" />
         <meta property="og:image:alt" content="Synthetix | Liquidity" />
         <meta property="og:site_name" content="" />
         {/* twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@synthetix_io" />
         <meta name="twitter:creator" content="@synthetix_io" />
-        <meta name="twitter:image" content="https://liquidity.synthetix.eth.limo/Liquidity.jpg" />
-        <meta name="twitter:url" content="https://liquidity.synthetix.eth.limo/" />
+        <meta name="twitter:image" content="https://liquidity.synthetix.io/Liquidity.jpg" />
+        <meta name="twitter:url" content="https://liquidity.synthetix.io/" />
       </Head>
       <QueryClientProvider client={queryClient}>
         <Web3OnboardProvider web3Onboard={onboard}>
