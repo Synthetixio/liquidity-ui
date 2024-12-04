@@ -10,7 +10,7 @@ import { useAccountCollateralUnlockDate } from '@snx-v3/useAccountCollateralUnlo
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { useParams, type PositionPageSchemaType } from '@snx-v3/useParams';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
@@ -53,7 +53,7 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
   const { data: accountCollateralUnlockDate, isLoading: isLoadingDate } =
     useAccountCollateralUnlockDate({ accountId: params.accountId });
 
-  const symbol = isDebtWithdrawal ? systemToken?.symbol : collateralType?.symbol;
+  const symbol = isBase ? 'USDC' : isDebtWithdrawal ? systemToken?.symbol : collateralType?.symbol;
   const price = useTokenPrice(symbol);
   const { minutes, hours, isRunning } = useWithdrawTimer(params.accountId);
   const unlockDate = !isLoadingDate ? accountCollateralUnlockDate : null;
@@ -128,9 +128,7 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
       <Collapse in={maxWithdrawable.gt(0) && !isRunning} animateOpacity>
         <Alert status="success" mb="6" borderRadius="6px">
           <AlertIcon />
-          <Text>
-            You can now withdraw <Amount value={maxWithdrawable} suffix={` ${symbol}`} />
-          </Text>
+          <Amount prefix="You can now withdraw " value={maxWithdrawable} suffix={` ${symbol}`} />
         </Alert>
       </Collapse>
 
