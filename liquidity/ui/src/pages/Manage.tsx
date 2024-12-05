@@ -23,28 +23,15 @@ export const Manage = () => {
   const [params, setParams] = useParams<PositionPageSchemaType>();
   const { network } = useNetwork();
 
-  const { data: collateralType } = useCollateralType(params.collateralSymbol);
+  const { data: collateralType, error } = useCollateralType(params.collateralSymbol);
+  // UnsupportedCollateralAlert
   const { data: poolData } = usePoolData(params.poolId);
 
   const { data: liquidityPosition } = useLiquidityPosition({
-    tokenAddress: collateralType?.tokenAddress,
     accountId: params.accountId,
-    poolId: params.poolId,
+    collateralType,
   });
 
-  const collateralDisplayName = collateralType?.displaySymbol;
-  const { data: collateralTypes, isPending: isPendingCollaterals } = useCollateralTypes();
-
-  const notSupported =
-    !isPendingCollaterals &&
-    poolData &&
-    collateralTypes?.length &&
-    collateralDisplayName &&
-    !collateralTypes.some((item) =>
-      [item.symbol.toUpperCase(), item.displaySymbol.toUpperCase()].includes(
-        collateralDisplayName.toUpperCase()
-      )
-    );
   const collateralSymbol = collateralType?.symbol;
 
   const { data: stataUSDCAPR } = useStataUSDCApr(network?.id, network?.preset);
@@ -65,7 +52,9 @@ export const Manage = () => {
 
   return (
     <ManagePositionProvider>
-      <UnsupportedCollateralAlert isOpen={Boolean(notSupported)} />
+      <UnsupportedCollateralAlert
+        isOpen={Boolean(error && error.message === 'Unsupported collateral')}
+      />
       <Box mb={12} mt={8}>
         <Flex
           flexDir={['column', 'row']}

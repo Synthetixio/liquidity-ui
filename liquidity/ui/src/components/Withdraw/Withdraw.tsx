@@ -2,7 +2,6 @@ import { Alert, AlertIcon, Button, Collapse, Flex, Text } from '@chakra-ui/react
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { ZEROWEI } from '@snx-v3/constants';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
 import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
@@ -12,51 +11,42 @@ import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
-import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
-import { useContext, useMemo } from 'react';
+import React from 'react';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
 
 export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: boolean }) {
   const [params] = useParams<PositionPageSchemaType>();
-  const { setWithdrawAmount, withdrawAmount } = useContext(ManagePositionContext);
+  const { setWithdrawAmount, withdrawAmount } = React.useContext(ManagePositionContext);
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { network } = useNetwork();
-  const isBase = isBaseAndromeda(network?.id, network?.preset);
 
-  const { data: liquidityPosition } = useLiquidityPosition({
-    tokenAddress: collateralType?.tokenAddress,
+  const { data: liquidityPosition, isPending: isPendingLiquidityPosition } = useLiquidityPosition({
     accountId: params.accountId,
-    poolId: params.poolId,
+    collateralType,
   });
 
   const { data: systemToken } = useSystemToken();
-  const { data: systemTokenBalance } = useAccountCollateral(params.accountId, systemToken?.address);
-
-  const maxWithdrawable = useMemo(() => {
-    if (isBase) {
-      return (liquidityPosition?.accountCollateral.availableCollateral || ZEROWEI).add(
-        systemTokenBalance?.availableCollateral || ZEROWEI
-      );
-    }
-    if (isDebtWithdrawal) {
-      return systemTokenBalance?.availableCollateral || ZEROWEI;
-    }
-    return liquidityPosition?.accountCollateral.availableCollateral || ZEROWEI;
-  }, [
-    isBase,
-    isDebtWithdrawal,
-    liquidityPosition?.accountCollateral.availableCollateral,
-    systemTokenBalance?.availableCollateral,
-  ]);
+  const { data: systemTokenBalance, isPending: isPendingSystemTokenBalance } = useAccountCollateral(
+    params.accountId,
+    systemToken?.address
+  );
 
   const { data: accountCollateralUnlockDate, isLoading: isLoadingDate } =
     useAccountCollateralUnlockDate({ accountId: params.accountId });
 
-  const symbol = isBase ? 'USDC' : isDebtWithdrawal ? systemToken?.symbol : collateralType?.symbol;
-  const price = useTokenPrice(symbol);
+  const symbol =
+    network?.preset === 'andromeda'
+      ? 'USDC'
+      : isDebtWithdrawal
+        ? systemToken?.symbol
+        : collateralType?.symbol;
   const { minutes, hours, isRunning } = useWithdrawTimer(params.accountId);
   const unlockDate = !isLoadingDate ? accountCollateralUnlockDate : null;
+
+  const maxWithdrawable = isDebtWithdrawal
+    ? systemTokenBalance?.availableCollateral
+    : liquidityPosition?.availableCollateral;
 
   return (
     <Flex flexDirection="column" data-cy="withdraw form">
@@ -72,27 +62,28 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
             </Text>
           </BorderBox>
           <Text fontSize="12px" whiteSpace="nowrap" data-cy="withdraw amount">
-            <Amount
-              prefix={isDebtWithdrawal ? 'Available: ' : 'Unlocked: '}
-              value={maxWithdrawable}
-              suffix=" "
-            />
-            {maxWithdrawable.gt(0) && (
-              <Text
-                as="span"
-                cursor="pointer"
-                onClick={() => {
-                  if (!maxWithdrawable) {
-                    return;
-                  }
-                  setWithdrawAmount(maxWithdrawable);
-                }}
-                color="cyan.500"
-                fontWeight={700}
-              >
-                Max
-              </Text>
-            )}
+            {isDebtWithdrawal && isPendingSystemTokenBalance ? '~' : null}
+            {!isDebtWithdrawal && isPendingLiquidityPosition ? '~' : null}
+            {maxWithdrawable ? (
+              <>
+                <Amount
+                  prefix={isDebtWithdrawal ? 'Available: ' : 'Unlocked: '}
+                  value={maxWithdrawable}
+                  suffix=" "
+                />
+                {maxWithdrawable.gt(0) && (
+                  <Text
+                    as="span"
+                    cursor="pointer"
+                    onClick={() => setWithdrawAmount(maxWithdrawable)}
+                    color="cyan.500"
+                    fontWeight={700}
+                  >
+                    Max
+                  </Text>
+                )}
+              </>
+            ) : null}
           </Text>
         </Flex>
         <Flex flexDir="column" flexGrow={1}>
@@ -100,7 +91,6 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
             InputProps={{
               isRequired: true,
               'data-cy': 'withdraw amount input',
-              'data-max': maxWithdrawable.toString(),
               type: 'number',
               min: 0,
             }}
@@ -110,12 +100,20 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
             min={ZEROWEI}
           />
           <Flex fontSize="xs" color="whiteAlpha.700" alignSelf="flex-end" gap="1">
-            {price.gt(0) && <Amount prefix="$" value={withdrawAmount.abs().mul(price)} />}
+            {isPendingLiquidityPosition ? '~' : null}
+            {!isPendingLiquidityPosition &&
+            liquidityPosition &&
+            liquidityPosition.collateralPrice.gt(0) ? (
+              <Amount
+                prefix="$"
+                value={withdrawAmount.abs().mul(liquidityPosition.collateralPrice)}
+              />
+            ) : null}
           </Flex>
         </Flex>
       </BorderBox>
 
-      <Collapse in={maxWithdrawable.gt(0) && isRunning} animateOpacity>
+      <Collapse in={maxWithdrawable && maxWithdrawable.gt(0) && isRunning} animateOpacity>
         <Alert status="warning" mb="6" borderRadius="6px">
           <AlertIcon />
           <Text>
@@ -125,14 +123,14 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
         </Alert>
       </Collapse>
 
-      <Collapse in={maxWithdrawable.gt(0) && !isRunning} animateOpacity>
+      <Collapse in={maxWithdrawable && maxWithdrawable.gt(0) && !isRunning} animateOpacity>
         <Alert status="success" mb="6" borderRadius="6px">
           <AlertIcon />
           <Amount prefix="You can now withdraw " value={maxWithdrawable} suffix={` ${symbol}`} />
         </Alert>
       </Collapse>
 
-      <Collapse in={withdrawAmount.gt(maxWithdrawable)} animateOpacity>
+      <Collapse in={maxWithdrawable && withdrawAmount.gt(maxWithdrawable)} animateOpacity>
         <Alert colorScheme="red" mb="6" borderRadius="6px">
           <AlertIcon />
           <Text>
@@ -144,7 +142,10 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
 
       <Button
         isDisabled={
-          withdrawAmount.lte(0) || isRunning || !unlockDate || withdrawAmount.gt(maxWithdrawable)
+          withdrawAmount.lte(0) ||
+          isRunning ||
+          !unlockDate ||
+          (maxWithdrawable && withdrawAmount.gt(maxWithdrawable))
         }
         data-cy="withdraw submit"
         type="submit"
