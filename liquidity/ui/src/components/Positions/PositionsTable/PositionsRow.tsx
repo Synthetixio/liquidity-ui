@@ -1,12 +1,12 @@
 import { TimeIcon } from '@chakra-ui/icons';
-import { Box, Button, Collapse, Fade, Flex, Td, Text, Tooltip, Tr, Link } from '@chakra-ui/react';
+import { Box, Button, Collapse, Fade, Flex, Link, Td, Text, Tooltip } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import { useNetwork } from '@snx-v3/useBlockchain';
-import { LiquidityPositionType } from '@snx-v3/useLiquidityPositions';
+import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
+import { type LiquidityPositionType } from '@snx-v3/useLiquidityPosition';
 import { makeSearch, useParams } from '@snx-v3/useParams';
 import { useRewards } from '@snx-v3/useRewards';
-import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
 import { useMemo } from 'react';
 import { CRatioAmount } from '../../CRatioBar/CRatioAmount';
@@ -14,37 +14,29 @@ import { CRatioBadge } from '../../CRatioBar/CRatioBadge';
 import { TokenIcon } from '../../TokenIcon/TokenIcon';
 import { DebtAmount } from './DebtAmount';
 
-interface PositionRow extends LiquidityPositionType {
-  final: boolean;
-  isBase: boolean;
-  apr?: number;
-  systemTokenSymbol?: string;
-  isStataUSDC?: boolean;
-}
+const poolId = '1';
 
 export function PositionRow({
-  poolId,
-  collateralType,
-  debt,
-  final,
-  cRatio,
-  isBase,
+  liquidityPosition,
   apr,
-  collateralAmount,
-  availableCollateral,
-  accountId,
-  isStataUSDC,
-}: PositionRow) {
+}: {
+  liquidityPosition: LiquidityPositionType;
+  apr?: number;
+}) {
   const [params, setParams] = useParams();
-
   const { data: rewardsData } = useRewards({
     poolId,
-    collateralSymbol: collateralType?.symbol,
-    accountId,
+    collateralSymbol: liquidityPosition.collateralType.symbol,
+    accountId: params.accountId,
   });
   const { network } = useNetwork();
-  const collateralPrice = useTokenPrice(collateralType.symbol);
-  const { minutes, hours, isRunning } = useWithdrawTimer(accountId);
+
+  const isStataUSDC = useIsSynthStataUSDC({
+    tokenAddress: liquidityPosition.collateralType.tokenAddress,
+    customNetwork: network,
+  });
+
+  const { minutes, hours, isRunning } = useWithdrawTimer(params.accountId);
   const { data: stataUSDCAPR } = useStataUSDCApr(network?.id, network?.preset);
   const stataUSDCAPRParsed = stataUSDCAPR || 0;
 
@@ -54,25 +46,25 @@ export function PositionRow({
   );
 
   return (
-    <Tr borderBottomWidth={final ? 'none' : '1px'}>
+    <>
       <Td border="none">
         <Fade in>
           <Flex
             as={Link}
             href={`?${makeSearch({
               page: 'position',
-              collateralSymbol: collateralType.symbol,
+              collateralSymbol: liquidityPosition.collateralType.symbol,
               poolId,
-              manageAction: debt.gt(0) ? 'repay' : 'claim',
+              manageAction: liquidityPosition.debt.gt(0) ? 'repay' : 'claim',
               accountId: params.accountId,
             })}`}
             onClick={(e) => {
               e.preventDefault();
               setParams({
                 page: 'position',
-                collateralSymbol: collateralType.symbol,
+                collateralSymbol: liquidityPosition.collateralType.symbol,
                 poolId,
-                manageAction: debt.gt(0) ? 'repay' : 'claim',
+                manageAction: liquidityPosition.debt.gt(0) ? 'repay' : 'claim',
                 accountId: params.accountId,
               });
             }}
@@ -80,7 +72,7 @@ export function PositionRow({
             textDecoration="none"
             _hover={{ textDecoration: 'none' }}
           >
-            <TokenIcon symbol={collateralType.symbol} />
+            <TokenIcon symbol={liquidityPosition.collateralType.symbol} />
             <Flex flexDirection="column" ml={3}>
               <Text
                 color="white"
@@ -89,10 +81,10 @@ export function PositionRow({
                 fontFamily="heading"
                 fontSize="sm"
               >
-                {collateralType.symbol}
+                {liquidityPosition.collateralType.symbol}
               </Text>
               <Text color="gray.500" fontFamily="heading" fontSize="0.75rem" lineHeight="1rem">
-                {collateralType.displaySymbol}
+                {liquidityPosition.collateralType.displaySymbol}
               </Text>
             </Flex>
           </Flex>
@@ -101,12 +93,13 @@ export function PositionRow({
       <Td border="none">
         <Flex flexDirection="column" alignItems="flex-end">
           <Text color="white" lineHeight="1.25rem" fontFamily="heading" fontSize="sm">
-            {collateralPrice.gt(0) && (
-              <Amount prefix="$" value={collateralAmount.mul(collateralPrice)} />
-            )}
+            <Amount prefix="$" value={liquidityPosition.collateralValue} />
           </Text>
           <Text color="gray.500" fontFamily="heading" fontSize="0.75rem" lineHeight="1rem">
-            <Amount value={collateralAmount} suffix={` ${collateralType.symbol.toString()}`} />
+            <Amount
+              value={liquidityPosition.collateralAmount}
+              suffix={` ${liquidityPosition.collateralType.displaySymbol}`}
+            />
           </Text>
         </Flex>
       </Td>
@@ -121,22 +114,26 @@ export function PositionRow({
             fontSize="sm"
             gap={1.5}
           >
-            {collateralPrice.gt(0) && (
-              <Amount prefix="$" value={availableCollateral.mul(collateralPrice)} />
-            )}
-
-            {availableCollateral.gt(0) && isRunning && (
+            <Amount
+              prefix="$"
+              value={liquidityPosition.availableCollateral.mul(liquidityPosition.collateralPrice)}
+            />
+            {liquidityPosition.availableCollateral.gt(0) && isRunning && (
               <Tooltip label={`Withdrawal available in ${hours}H${minutes}M`}>
                 <TimeIcon />
               </Tooltip>
             )}
           </Text>
           <Box color="gray.500" fontFamily="heading" fontSize="0.75rem" lineHeight="1rem">
-            {availableCollateral.gt(0) && !isRunning ? (
+            <Amount
+              value={liquidityPosition.availableCollateral}
+              suffix={` ${liquidityPosition.collateralType.displaySymbol}`}
+            />{' '}
+            {liquidityPosition.availableCollateral.gt(0) && !isRunning ? (
               <Link
                 href={`?${makeSearch({
                   page: 'position',
-                  collateralSymbol: collateralType.symbol,
+                  collateralSymbol: liquidityPosition.collateralType.symbol,
                   poolId,
                   manageAction: 'withdraw',
                   accountId: params.accountId,
@@ -145,7 +142,7 @@ export function PositionRow({
                   e.preventDefault();
                   setParams({
                     page: 'position',
-                    collateralSymbol: collateralType.symbol,
+                    collateralSymbol: liquidityPosition.collateralType.symbol,
                     poolId,
                     manageAction: 'withdraw',
                     accountId: params.accountId,
@@ -158,9 +155,7 @@ export function PositionRow({
               >
                 Withdraw
               </Link>
-            ) : (
-              <Amount value={availableCollateral} suffix={` ${collateralType.symbol.toString()}`} />
-            )}
+            ) : null}
           </Box>
         </Flex>
       </Td>
@@ -180,7 +175,7 @@ export function PositionRow({
                 lineHeight="1rem"
                 href={`?${makeSearch({
                   page: 'position',
-                  collateralSymbol: collateralType.symbol,
+                  collateralSymbol: liquidityPosition.collateralType.symbol,
                   poolId,
                   manageAction: 'deposit',
                   accountId: params.accountId,
@@ -189,7 +184,7 @@ export function PositionRow({
                   e.preventDefault();
                   setParams({
                     page: 'position',
-                    collateralSymbol: collateralType.symbol,
+                    collateralSymbol: liquidityPosition.collateralType.symbol,
                     poolId,
                     manageAction: 'deposit',
                     accountId: params.accountId,
@@ -206,14 +201,14 @@ export function PositionRow({
       <Td border="none">
         <Flex flexDirection="column" alignItems="flex-end">
           <DebtAmount
-            debt={debt}
-            showPNL={isBase}
+            debt={liquidityPosition.debt}
+            showPNL={network?.preset === 'andromeda'}
             lineHeight="1.25rem"
             fontFamily="heading"
             fontSize="sm"
           />
-          <Collapse in={debt.gt(0) || debt.lt(0)}>
-            {debt.gt(0) ? (
+          <Collapse in={liquidityPosition.debt.gt(0) || liquidityPosition.debt.lt(0)}>
+            {liquidityPosition.debt.gt(0) ? (
               <Link
                 color="cyan.500"
                 fontFamily="heading"
@@ -221,7 +216,7 @@ export function PositionRow({
                 lineHeight="1rem"
                 href={`?${makeSearch({
                   page: 'position',
-                  collateralSymbol: collateralType.symbol,
+                  collateralSymbol: liquidityPosition.collateralType.symbol,
                   poolId,
                   manageAction: 'repay',
                   accountId: params.accountId,
@@ -230,7 +225,7 @@ export function PositionRow({
                   e.preventDefault();
                   setParams({
                     page: 'position',
-                    collateralSymbol: collateralType.symbol,
+                    collateralSymbol: liquidityPosition.collateralType.symbol,
                     poolId,
                     manageAction: 'repay',
                     accountId: params.accountId,
@@ -240,7 +235,7 @@ export function PositionRow({
                 Repay Debt
               </Link>
             ) : null}
-            {debt.lt(0) ? (
+            {liquidityPosition.debt.lt(0) ? (
               <Link
                 color="cyan.500"
                 fontFamily="heading"
@@ -248,7 +243,7 @@ export function PositionRow({
                 lineHeight="1rem"
                 href={`?${makeSearch({
                   page: 'position',
-                  collateralSymbol: collateralType.symbol,
+                  collateralSymbol: liquidityPosition.collateralType.symbol,
                   poolId,
                   manageAction: 'claim',
                   accountId: params.accountId,
@@ -257,7 +252,7 @@ export function PositionRow({
                   e.preventDefault();
                   setParams({
                     page: 'position',
-                    collateralSymbol: collateralType.symbol,
+                    collateralSymbol: liquidityPosition.collateralType.symbol,
                     poolId,
                     manageAction: 'claim',
                     accountId: params.accountId,
@@ -270,17 +265,25 @@ export function PositionRow({
           </Collapse>
         </Flex>
       </Td>
-      {!isBase && (
+      {network?.preset === 'andromeda' ? null : (
         <Td border="none">
           <Fade in>
             <Flex flexDirection="column" alignItems="flex-end">
               <Text color="white" fontSize="sm" lineHeight="1.25rem" fontFamily="heading">
-                <CRatioAmount value={cRatio.toNumber() * 100} />
+                <CRatioAmount value={liquidityPosition.cRatio.toNumber() * 100} />
               </Text>
               <CRatioBadge
-                cRatio={cRatio.toNumber() * 100}
-                liquidationCratio={(collateralType?.liquidationRatioD18?.toNumber() || 0) * 100}
-                targetCratio={(collateralType?.issuanceRatioD18.toNumber() || 0) * 100}
+                cRatio={liquidityPosition.cRatio.toNumber() * 100}
+                liquidationCratio={
+                  liquidityPosition.collateralType.liquidationRatioD18
+                    ? liquidityPosition.collateralType.liquidationRatioD18.toNumber() * 100
+                    : 0
+                }
+                targetCratio={
+                  liquidityPosition.collateralType.issuanceRatioD18
+                    ? liquidityPosition.collateralType.issuanceRatioD18.toNumber() * 100
+                    : 0
+                }
               />
             </Flex>
           </Fade>
@@ -292,7 +295,7 @@ export function PositionRow({
             as={Link}
             href={`?${makeSearch({
               page: 'position',
-              collateralSymbol: collateralType.symbol,
+              collateralSymbol: liquidityPosition.collateralType.symbol,
               poolId,
               manageAction: 'deposit',
               accountId: params.accountId,
@@ -301,7 +304,7 @@ export function PositionRow({
               e.preventDefault();
               setParams({
                 page: 'position',
-                collateralSymbol: collateralType.symbol,
+                collateralSymbol: liquidityPosition.collateralType.symbol,
                 poolId,
                 manageAction: 'deposit',
                 accountId: params.accountId,
@@ -325,6 +328,6 @@ export function PositionRow({
           </Button>
         </Flex>
       </Td>
-    </Tr>
+    </>
   );
 }

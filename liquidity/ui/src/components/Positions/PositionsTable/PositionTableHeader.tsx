@@ -1,8 +1,10 @@
 import { InfoIcon } from '@chakra-ui/icons';
-import { Thead, Tr, Th, Flex, Text } from '@chakra-ui/react';
+import { Flex, Text, Th, Thead, Tr } from '@chakra-ui/react';
 import { Tooltip } from '@snx-v3/Tooltip';
+import { useNetwork } from '@snx-v3/useBlockchain';
 
-export function PositionTableHeader({ isBase }: { isBase: boolean }) {
+export function PositionTableHeader() {
+  const { network } = useNetwork();
   return (
     <Thead>
       <Tr>
@@ -61,11 +63,11 @@ export function PositionTableHeader({ isBase }: { isBase: boolean }) {
         <Th border="none" textTransform="unset" py={5}>
           <Flex justifyContent="flex-end" alignItems="center">
             <Text color="gray.600" fontFamily="heading" fontSize="12px" lineHeight="16px" mr={1}>
-              {isBase ? 'PNL' : 'Debt'}
+              {network?.preset === 'andromeda' ? 'PNL' : 'Debt'}
             </Text>
             <Tooltip
               label={
-                isBase ? (
+                network?.preset === 'andromeda' ? (
                   "Your portion of the pool's total debt, which fluctuates based on trader performance and market conditions"
                 ) : (
                   <Text textAlign="left">
@@ -83,7 +85,7 @@ export function PositionTableHeader({ isBase }: { isBase: boolean }) {
             </Tooltip>
           </Flex>
         </Th>
-        {!isBase && (
+        {network?.preset === 'andromeda' ? null : (
           <Th border="none" textTransform="unset" py={5}>
             <Flex justifyContent="flex-end" alignItems="center">
               <Text color="gray.600" fontFamily="heading" fontSize="12px" lineHeight="16px" mr={1}>

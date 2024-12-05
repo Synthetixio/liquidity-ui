@@ -10,12 +10,9 @@ import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useGetUSDTokens } from '@snx-v3/useGetUSDTokens';
 import { erc7412Call } from '@snx-v3/withERC7412';
-import { ZodBigNumber } from '@snx-v3/zod';
 import Wei, { wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
-
-const PriceSchema = ZodBigNumber.transform((x) => wei(x));
 
 export async function loadPrices({
   CoreProxyContract,
@@ -30,23 +27,21 @@ export async function loadPrices({
     })
   );
   if (calls.length === 0) return { calls: [], decoder: () => [] };
-
   const decoder = (multicallEncoded: string | string[]) => {
     if (Array.isArray(multicallEncoded)) {
       return multicallEncoded.map((encoded) => {
-        const pricesEncoded = CoreProxyContract.interface.decodeFunctionResult(
+        const [price] = CoreProxyContract.interface.decodeFunctionResult(
           'getCollateralPrice',
           encoded
-        )[0];
-
-        return PriceSchema.parse(pricesEncoded);
+        );
+        return wei(price);
       });
     } else {
-      const pricesEncoded = CoreProxyContract.interface.decodeFunctionResult(
+      const [price] = CoreProxyContract.interface.decodeFunctionResult(
         'getCollateralPrice',
         multicallEncoded
-      )[0];
-      return PriceSchema.parse(pricesEncoded);
+      );
+      return wei(price);
     }
   };
   return { calls, decoder };
