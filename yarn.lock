@@ -5901,7 +5901,6 @@ __metadata:
   dependencies:
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
