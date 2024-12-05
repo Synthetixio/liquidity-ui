@@ -18,7 +18,7 @@ import {
 } from '@chakra-ui/react';
 import { wei } from '@synthetixio/wei';
 import { useV2Position } from '@snx-v3/useV2Position';
-import { Network } from '@snx-v3/useBlockchain';
+import { MAINNET, Network } from '@snx-v3/useBlockchain';
 import { InfoIcon } from '@chakra-ui/icons';
 import { useMigrate } from '@snx-v3/useMigrate';
 import { StepSuccess } from './StepSuccess';
@@ -38,7 +38,7 @@ export const StepSummary = ({
   onConfirm: (accountId: string) => void;
   network: Network;
 }) => {
-  const { data: snxCollateral } = useCollateralType('SNX');
+  const { data: snxCollateral } = useCollateralType('SNX', MAINNET);
   const [isUnderstanding, setIsUnderstanding] = useState(false);
   const { data } = useV2Position(network);
   const { migrate, transaction, isLoading, isSuccess, accountId } = useMigrate();

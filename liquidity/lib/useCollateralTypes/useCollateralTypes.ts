@@ -115,9 +115,10 @@ export function useCollateralType(collateralSymbol?: string, customNetwork?: Net
   const { network } = useNetwork();
   const targetNetwork = customNetwork || network;
 
-  const { data: collateralTypes } = useCollateralTypes();
+  const { data: collateralTypes } = useCollateralTypes(true, customNetwork);
+
   return useQuery({
-    enabled: Boolean(targetNetwork?.id && targetNetwork?.preset && collateralTypes),
+    enabled: Boolean(targetNetwork?.id && targetNetwork?.preset && !!collateralTypes?.length),
     queryKey: [
       `${targetNetwork?.id}-${targetNetwork?.preset}`,
       'CollateralType',

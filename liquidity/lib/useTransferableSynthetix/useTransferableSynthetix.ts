@@ -1,14 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import { useNetwork, useProvider, useWallet } from '@snx-v3/useBlockchain';
+import { MAINNET, useProviderForChain, useWallet } from '@snx-v3/useBlockchain';
 import { Wei, wei } from '@synthetixio/wei';
 import { ethers } from 'ethers';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 
 export function useTransferableSynthetix() {
-  const { network } = useNetwork();
   const { activeWallet } = useWallet();
-  const provider = useProvider();
-  const { data: snxCollateral } = useCollateralType('SNX');
+  const provider = useProviderForChain(MAINNET);
+  const { data: snxCollateral } = useCollateralType('SNX', MAINNET);
 
   const accountAddress = activeWallet?.address;
   const snxAddress = snxCollateral?.tokenAddress;
@@ -16,7 +15,7 @@ export function useTransferableSynthetix() {
   return useQuery({
     enabled: Boolean(provider && accountAddress && snxAddress),
     queryKey: [
-      `${network?.id}-${network?.preset}`,
+      `${MAINNET?.id}-${MAINNET?.preset}`,
       'TransferableSynthetix',
       { address: activeWallet?.address },
     ],
@@ -34,14 +33,6 @@ export function useTransferableSynthetix() {
         provider
       );
       try {
-        // Cannon case
-        if (network?.name === 'cannon') {
-          const balanceOf = await contract.balanceOf(accountAddress);
-          return {
-            transferable: wei(balanceOf),
-          };
-        }
-
         // Normal case for SNX case
         const [transferableSynthetix, collateral] = await Promise.all([
           contract.transferableSynthetix(accountAddress),
