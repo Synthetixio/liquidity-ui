@@ -1,7 +1,16 @@
-import { Button, Fade, Flex, Heading, Link, Table, TableContainer, Tbody } from '@chakra-ui/react';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
+import {
+  Button,
+  Fade,
+  Flex,
+  Heading,
+  Link,
+  Table,
+  TableContainer,
+  Tbody,
+  Tr,
+} from '@chakra-ui/react';
 import { NetworkIcon, useNetwork, useWallet } from '@snx-v3/useBlockchain';
-import { LiquidityPositionType } from '@snx-v3/useLiquidityPositions';
+import { type LiquidityPositionType } from '@snx-v3/useLiquidityPosition';
 import { makeSearch, useParams } from '@snx-v3/useParams';
 import { PositionsEmpty } from './PositionEmpty';
 import { PositionsNotConnected } from './PositionNotConnected';
@@ -10,27 +19,26 @@ import { PositionsRowLoading } from './PositionsRowLoading';
 import { PositionTableHeader } from './PositionTableHeader';
 import { TableDivider } from './TableDivider';
 
-interface PositionsTableInterface {
+const poolId = '1';
+
+export function PositionsTable({
+  isLoading,
+  liquidityPositions,
+  apr,
+  systemToken,
+}: {
   isLoading: boolean;
-  positions?: LiquidityPositionType[];
+  liquidityPositions: LiquidityPositionType[];
   apr?: any[];
   systemToken?: {
     symbol?: string;
     name?: string;
     address?: string;
   };
-}
-
-export const PositionsTable = ({
-  isLoading,
-  positions,
-  apr,
-  systemToken,
-}: PositionsTableInterface) => {
+}) {
   const [params, setParams] = useParams();
   const { activeWallet } = useWallet();
   const { network } = useNetwork();
-  const isBase = isBaseAndromeda(network?.id, network?.preset);
 
   return (
     <TableContainer
@@ -48,7 +56,7 @@ export const PositionsTable = ({
     >
       {!activeWallet?.address ? (
         <PositionsNotConnected />
-      ) : positions?.length === 0 && !isLoading ? (
+      ) : liquidityPositions.length === 0 && !isLoading ? (
         <PositionsEmpty />
       ) : (
         <>
@@ -140,30 +148,30 @@ export const PositionsTable = ({
             </Fade>
           </Flex>
           <Table variant="simple">
-            <PositionTableHeader isBase={isBase} />
+            <PositionTableHeader />
             <Tbody>
               <TableDivider />
               {isLoading ? (
                 <PositionsRowLoading />
               ) : (
                 <>
-                  {positions?.map((position, index) => {
+                  {liquidityPositions?.map((liquidityPosition, i) => {
                     const positionApr = apr?.find(
                       (apr) =>
                         apr.collateralType.toLowerCase() ===
-                        position.collateralType.tokenAddress.toLowerCase()
+                        liquidityPosition.collateralType.tokenAddress.toLowerCase()
                     );
 
                     return (
-                      <PositionRow
-                        key={position.poolName.concat(index.toString())}
-                        {...position}
-                        final={index === positions.length - 1}
-                        isBase={isBase}
-                        apr={positionApr?.apr7d * 100}
-                        systemTokenSymbol={systemToken?.symbol}
-                        isStataUSDC={position.collateralType.symbol.includes('stata')}
-                      />
+                      <Tr
+                        key={`${poolId}-${liquidityPosition.collateralType.tokenAddress}`}
+                        borderBottomWidth={i === liquidityPositions.length - 1 ? 'none' : '1px'}
+                      >
+                        <PositionRow
+                          liquidityPosition={liquidityPosition}
+                          apr={positionApr?.apr7d * 100}
+                        />
+                      </Tr>
                     );
                   })}
                 </>
@@ -174,4 +182,4 @@ export const PositionsTable = ({
       )}
     </TableContainer>
   );
-};
+}

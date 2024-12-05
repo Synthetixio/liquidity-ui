@@ -48,9 +48,8 @@ export function WithdrawModal({
   const errorParser = useContractErrorParser();
 
   const { data: liquidityPosition } = useLiquidityPosition({
-    tokenAddress: collateralType?.tokenAddress,
     accountId: params.accountId,
-    poolId: params.poolId,
+    collateralType,
   });
 
   const isBase = isBaseAndromeda(network?.id, network?.preset);

@@ -54,9 +54,8 @@ export const ManageAction = ({
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
 
   const { data: liquidityPosition } = useLiquidityPosition({
-    tokenAddress: collateralType?.tokenAddress,
     accountId: params.accountId,
-    poolId: params.poolId,
+    collateralType,
   });
 
   const isBase = isBaseAndromeda(network?.id, network?.preset);
@@ -278,9 +277,7 @@ export const ManageAction = ({
             {manageAction === 'withdraw-debt' ? <Withdraw isDebtWithdrawal /> : null}
             {manageAction === 'deposit' ? <Deposit liquidityPosition={liquidityPosition} /> : null}
             {manageAction === 'repay' ? <Repay liquidityPosition={liquidityPosition} /> : null}
-            {manageAction === 'undelegate' ? (
-              <Undelegate liquidityPosition={liquidityPosition} />
-            ) : null}
+            {manageAction === 'undelegate' ? <Undelegate /> : null}
           </Flex>
         </Box>
       ) : null}

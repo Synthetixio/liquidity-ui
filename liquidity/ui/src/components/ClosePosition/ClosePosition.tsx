@@ -36,9 +36,8 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
   const { data: systemToken } = useSystemToken();
 
   const { data: liquidityPosition, isPending } = useLiquidityPosition({
-    tokenAddress: collateralType?.tokenAddress,
     accountId: params.accountId,
-    poolId: params.poolId,
+    collateralType,
   });
   liquidityPosition?.debt;
   liquidityPosition?.collateralAmount;
@@ -240,9 +239,8 @@ export const ClosePosition = ({ onClose }: { onClose: () => void }) => {
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
 
   const { data: liquidityPosition } = useLiquidityPosition({
-    tokenAddress: collateralType?.tokenAddress,
     accountId: params.accountId,
-    poolId: params.poolId,
+    collateralType,
   });
 
   React.useEffect(() => {

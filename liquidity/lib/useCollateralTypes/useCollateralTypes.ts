@@ -118,7 +118,9 @@ export function useCollateralType(collateralSymbol?: string, customNetwork?: Net
   const { data: collateralTypes } = useCollateralTypes(true, customNetwork);
 
   return useQuery({
-    enabled: Boolean(targetNetwork?.id && targetNetwork?.preset && !!collateralTypes?.length),
+    enabled: Boolean(
+      targetNetwork?.id && targetNetwork?.preset && collateralTypes && collateralTypes.length > 0
+    ),
     queryKey: [
       `${targetNetwork?.id}-${targetNetwork?.preset}`,
       'CollateralType',
@@ -126,11 +128,16 @@ export function useCollateralType(collateralSymbol?: string, customNetwork?: Net
       { collateralSymbol },
     ],
     queryFn: async () => {
-      if (!(targetNetwork?.id && targetNetwork?.preset && collateralTypes && collateralSymbol))
-        throw Error('OMFG');
-      return collateralTypes.find(
+      if (!(targetNetwork?.id && targetNetwork?.preset && collateralTypes && collateralSymbol)) {
+        throw new Error('OMFG');
+      }
+      const collateralType = collateralTypes.find(
         (collateral) => `${collateral.symbol}`.toLowerCase() === `${collateralSymbol}`.toLowerCase()
       );
+      if (!collateralType) {
+        throw new Error('Unsupported collateral');
+      }
+      return collateralType;
     },
     // one hour in ms
     staleTime: 3_600_000,
