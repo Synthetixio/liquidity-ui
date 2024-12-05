@@ -5087,7 +5087,6 @@ __metadata:
     "@snx-v3/useClearDebt": "workspace:*"
     "@snx-v3/useClosePosition": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
-    "@snx-v3/useCollateralPrices": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useContractErrorParser": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
@@ -5463,7 +5462,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/useCollateralPrices@workspace:*, @snx-v3/useCollateralPrices@workspace:liquidity/lib/useCollateralPrices":
+"@snx-v3/useCollateralPrices@workspace:liquidity/lib/useCollateralPrices":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useCollateralPrices@workspace:liquidity/lib/useCollateralPrices"
   dependencies:
@@ -5474,7 +5473,6 @@ __metadata:
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useGetUSDTokens": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
-    "@snx-v3/zod": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     ethers: "npm:^5.7.2"
@@ -5702,20 +5700,18 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useLiquidityPosition@workspace:liquidity/lib/useLiquidityPosition"
   dependencies:
+    "@snx-v3/calculations": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
-    "@snx-v3/useAccountCollateral": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useCollateralPrices": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useSystemToken": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
-    "@snx-v3/zod": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
+    debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
-    zod: "npm:^3.22.4"
   languageName: unknown
   linkType: soft
 
@@ -5726,14 +5722,14 @@ __metadata:
     "@snx-v3/calculations": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useCollateralPrices": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useLiquidityPosition": "workspace:*"
-    "@snx-v3/usePools": "workspace:*"
+    "@snx-v3/useSystemToken": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
+    debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
   languageName: unknown
   linkType: soft

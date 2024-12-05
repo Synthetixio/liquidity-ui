@@ -1,170 +1,164 @@
+import { calculateCRatio } from '@snx-v3/calculations';
 import { contractsHash } from '@snx-v3/tsHelpers';
-import { AccountCollateralType, loadAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
-import { loadPrices } from '@snx-v3/useCollateralPrices';
-import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
+import { CollateralType } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { erc7412Call } from '@snx-v3/withERC7412';
-import { ZodBigNumber } from '@snx-v3/zod';
 import Wei, { wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
+import debug from 'debug';
 import { ethers } from 'ethers';
-import { z } from 'zod';
 
-const PositionCollateralSchema = z.object({
-  value: ZodBigNumber.transform((x) => wei(x)).optional(),
-  amount: ZodBigNumber.transform((x) => wei(x)),
-});
+const log = debug('snx:useLiquidityPosition');
 
-const DebtSchema = ZodBigNumber.transform((x) => wei(x));
+// We only have 1 pool and UI does not support more than one pool
+const poolId = '1';
 
-export const loadPosition = async ({
-  CoreProxyContract,
-  accountId,
-  poolId,
-  tokenAddress,
-}: {
-  CoreProxyContract: ethers.Contract;
-  accountId: string;
-  poolId: string;
-  tokenAddress: string;
-}) => {
-  const calls = await Promise.all([
-    CoreProxyContract.populateTransaction.getPositionCollateral(accountId, poolId, tokenAddress),
-    CoreProxyContract.populateTransaction.getPositionDebt(accountId, poolId, tokenAddress),
-  ]);
-
-  const decoder = (multicallEncoded: string | string[]) => {
-    if (Array.isArray(multicallEncoded) && multicallEncoded.length === 2) {
-      const decodedCollateral = CoreProxyContract.interface.decodeFunctionResult(
-        'getPositionCollateral',
-        multicallEncoded[0]
-      );
-      const decodedDebt = CoreProxyContract.interface.decodeFunctionResult(
-        'getPositionDebt',
-        multicallEncoded[1]
-      )[0];
-      return {
-        debt: DebtSchema.parse(decodedDebt),
-        collateral: PositionCollateralSchema.parse({ ...decodedCollateral }),
-      };
-    }
-    throw Error('Expected array with two items');
-  };
-
-  return { calls, decoder };
-};
-
-export type LiquidityPosition = {
-  collateralAmount: Wei;
+export type LiquidityPositionType = {
+  collateralType: CollateralType;
   collateralPrice: Wei;
+  availableCollateral: Wei;
+  collateralAmount: Wei;
   collateralValue: Wei;
   debt: Wei;
-  accountCollateral: AccountCollateralType;
-  usdCollateral: AccountCollateralType;
-  tokenAddress: string;
-  accountId: string;
+  cRatio: Wei;
 };
 
 export const useLiquidityPosition = ({
-  tokenAddress,
   accountId,
-  poolId,
+  collateralType,
 }: {
-  tokenAddress?: string;
   accountId?: string;
-  poolId?: string;
+  collateralType?: CollateralType;
 }) => {
   const { data: CoreProxy } = useCoreProxy();
-  const { data: systemToken } = useSystemToken();
   const { network } = useNetwork();
-  const provider = useProviderForChain(network);
-  const { data: collateralTypes } = useCollateralTypes(true);
+  const provider = useProviderForChain(network!);
+  const { data: systemToken } = useSystemToken();
 
   return useQuery({
     queryKey: [
       `${network?.id}-${network?.preset}`,
       'LiquidityPosition',
       { accountId },
+      { tokenAddress: collateralType?.tokenAddress },
       {
-        pool: poolId,
-        token: tokenAddress,
+        contractsHash: contractsHash([CoreProxy]),
+        collateralTypes: contractsHash([systemToken, collateralType]),
       },
-      { contractsHash: contractsHash([CoreProxy, systemToken]) },
     ],
     enabled: Boolean(
-      CoreProxy && accountId && poolId && tokenAddress && systemToken && network && provider
+      network && provider && CoreProxy && systemToken && accountId && collateralType
     ),
-    queryFn: async () => {
-      if (
-        !(CoreProxy && accountId && poolId && tokenAddress && systemToken && network && provider)
-      ) {
-        throw Error('useLiquidityPosition not ready');
+    queryFn: async (): Promise<LiquidityPositionType> => {
+      if (!(network && provider && CoreProxy && systemToken && accountId && collateralType)) {
+        throw 'OMFG';
       }
       const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
-      const { calls: priceCalls, decoder: priceDecoder } = await loadPrices({
-        collateralAddresses: [tokenAddress],
-        CoreProxyContract,
-      });
 
-      const { calls: positionCalls, decoder: positionDecoder } = await loadPosition({
-        CoreProxyContract,
+      const getAccountAvailableSystemTokenCallPromised =
+        CoreProxyContract.populateTransaction.getAccountAvailableCollateral(
+          accountId,
+          systemToken.address
+        );
+      const getPositionCollateralCallPromised =
+        CoreProxyContract.populateTransaction.getPositionCollateral(
+          accountId,
+          poolId,
+          collateralType.tokenAddress
+        );
+      const getPositionDebtCallPromised = CoreProxyContract.populateTransaction.getPositionDebt(
         accountId,
         poolId,
-        tokenAddress,
-      });
-
-      const { calls: accountCollateralCalls, decoder: accountCollateralDecoder } =
-        await loadAccountCollateral({
+        collateralType.tokenAddress
+      );
+      const getCollateralPriceCallPromised =
+        CoreProxyContract.populateTransaction.getCollateralPrice(collateralType.tokenAddress);
+      const getAccountAvailableCollateralCallPromised =
+        CoreProxyContract.populateTransaction.getAccountAvailableCollateral(
           accountId,
-          tokenAddresses: [tokenAddress, systemToken.address],
-          provider,
-          CoreProxy,
-        });
-
-      const allCalls = priceCalls.concat(positionCalls).concat(accountCollateralCalls);
+          collateralType.tokenAddress
+        );
+      const calls = await Promise.all([
+        getAccountAvailableSystemTokenCallPromised,
+        getPositionCollateralCallPromised,
+        getPositionDebtCallPromised,
+        getCollateralPriceCallPromised,
+        getAccountAvailableCollateralCallPromised,
+      ]);
 
       return await erc7412Call(
         network,
         provider,
-        allCalls,
+        calls,
         (encoded) => {
-          if (!Array.isArray(encoded)) throw Error('Expected array');
-
-          const startOfPrice = 0;
-          const endOfPrice = priceCalls.length;
-          const startOfPosition = endOfPrice;
-          const endOfPosition = startOfPosition + positionCalls.length;
-
-          const startOfAccountCollateral = endOfPosition;
-          const collateralPrice = priceDecoder(encoded.slice(startOfPrice, endOfPrice));
-          const decodedPosition = positionDecoder(encoded.slice(startOfPosition, endOfPosition));
-          const [accountCollateral, usdCollateral] = accountCollateralDecoder(
-            encoded.slice(startOfAccountCollateral)
-          );
-
-          const collateralType = collateralTypes?.find(
-            (x) => x.tokenAddress.toLowerCase() === accountCollateral.tokenAddress.toLowerCase()
-          );
-          if (collateralType) {
-            accountCollateral.symbol = collateralType.symbol;
-            accountCollateral.displaySymbol = collateralType.displaySymbol;
-            accountCollateral.decimals = collateralType.decimals;
+          if (!Array.isArray(encoded) || calls.length !== encoded.length) {
+            throw new Error('[useLiquidityPositions] Unexpected multicall response');
           }
 
-          return {
-            collateralPrice: Array.isArray(collateralPrice) ? collateralPrice[0] : collateralPrice,
-            collateralAmount: decodedPosition.collateral.amount,
-            collateralValue: decodedPosition.collateral.amount.mul(collateralPrice),
-            debt: decodedPosition.debt,
-            tokenAddress,
-            accountCollateral,
-            usdCollateral,
-            accountId,
+          const [accountAvailableSystemToken] = CoreProxyContract.interface.decodeFunctionResult(
+            'getAccountAvailableCollateral',
+            encoded[0]
+          );
+
+          const [positionCollateral] = CoreProxyContract.interface.decodeFunctionResult(
+            'getPositionCollateral',
+            encoded[1]
+          );
+
+          const [positionDebt] = CoreProxyContract.interface.decodeFunctionResult(
+            'getPositionDebt',
+            encoded[1 + 1]
+          );
+
+          const [collateralPriceRaw] = CoreProxyContract.interface.decodeFunctionResult(
+            'getCollateralPrice',
+            encoded[1 + 2]
+          );
+
+          const [accountAvailableCollateral] = CoreProxyContract.interface.decodeFunctionResult(
+            'getAccountAvailableCollateral',
+            encoded[1 + 3]
+          );
+
+          log({
+            collateralType,
+            positionCollateral,
+            positionDebt,
+            collateralPriceRaw,
+            accountAvailableCollateral,
+          });
+
+          let availableCollateral;
+          if (network.preset === 'andromeda' && collateralType.displaySymbol === 'USDC') {
+            // On Andromeda we automatically convert SystemToken into USDC on withdrawals
+            // Adjust USDC collateral amount accordingly
+            availableCollateral = wei(accountAvailableCollateral).add(accountAvailableSystemToken);
+          } else {
+            availableCollateral = wei(accountAvailableCollateral);
+          }
+
+          const collateralPrice = wei(collateralPriceRaw);
+          const collateralAmount = wei(positionCollateral);
+          const collateralValue = collateralAmount.mul(collateralPrice);
+          const debt = wei(positionDebt);
+          const cRatio = calculateCRatio(debt, collateralValue);
+
+          const liquidityPosition = {
+            collateralType,
+            collateralPrice,
+            availableCollateral,
+            collateralAmount,
+            collateralValue,
+            debt,
+            cRatio,
           };
+
+          log(liquidityPosition);
+          return liquidityPosition;
         },
-        `useLiquidityPosition`
+        'useLiquidityPosition'
       );
     },
   });
