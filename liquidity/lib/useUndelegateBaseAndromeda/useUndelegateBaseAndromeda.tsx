@@ -107,7 +107,6 @@ export const useUndelegateBaseAndromeda = ({
 
         const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
 
-        calls[1].requireSuccess = false;
         if (priceUpdateTx) {
           calls.unshift(priceUpdateTx as any);
         }
