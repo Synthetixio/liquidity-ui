@@ -53,7 +53,7 @@ export const AllRewardsModal = ({ rewards, txnStatus, txnHash }: AllRewardsModal
         borderColor="gray.900"
         minWidth="384px"
       >
-        <ModalBody p={6}>
+        <ModalBody data-cy="claim rewards dialog" p={6}>
           <Text color="gray.50" fontSize="20px" fontWeight={700}>
             Claiming Rewards
           </Text>
@@ -93,6 +93,7 @@ export const AllRewardsModal = ({ rewards, txnStatus, txnHash }: AllRewardsModal
               alignItems="space-between"
               justifyContent="space-between"
               ml={2}
+              data-cy="claim rewards info"
             >
               {rewards.map(({ collateralSymbol, amount }) => (
                 <Text
@@ -137,6 +138,7 @@ export const AllRewardsModal = ({ rewards, txnStatus, txnHash }: AllRewardsModal
               mb={1}
               borderTop="1px solid"
               borderTopColor="gray.900"
+              data-cy="transaction hash"
             >
               <Link
                 variant="outline"

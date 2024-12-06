@@ -1,4 +1,3 @@
-import { getSubgraphUrl } from '@snx-v3/constants';
 import { useNetwork, useProvider } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
@@ -21,32 +20,10 @@ const RewardsResponseSchema = z.array(
     distributorAddress: z.string(),
     decimals: z.number(),
     claimableAmount: z.instanceof(Wei),
-    lifetimeClaimed: z.number(),
   })
 );
 
 export type RewardsResponseType = z.infer<typeof RewardsResponseSchema>;
-
-const RewardsDataDocument = `
-  query RewardsData($accountId: String!, $distributor: String!) {
-    rewardsClaimeds(where: { distributor: $distributor, account: $accountId }) {
-      id
-      amount
-    }
-  }
-`;
-
-const RewardsDistributionsDocument = `
-  query RewardsDistributions($distributor: String!) {
-    rewardsDistributions(where: { distributor: $distributor}) {
-      collateral_type
-      amount
-      duration
-      start
-      created_at
-    }
-  }
-`;
 
 export function useRewards({
   poolId,
@@ -125,32 +102,6 @@ export function useRewards({
       if (filteredDistributors.length === 0) return [];
 
       try {
-        const returnData = await Promise.all([
-          // Historical data for account id / distributor address pair
-          ...filteredDistributors.map((distributor) =>
-            fetch(getSubgraphUrl(network?.name), {
-              method: 'POST',
-              body: JSON.stringify({
-                query: RewardsDataDocument,
-                variables: { accountId, distributor: distributor.address.toLowerCase() },
-              }),
-            }).then((res) => res.json())
-          ),
-          // Metadata for each distributor
-          ...filteredDistributors.map((distributor) =>
-            fetch(getSubgraphUrl(network?.name), {
-              method: 'POST',
-              body: JSON.stringify({
-                query: RewardsDistributionsDocument,
-                variables: { distributor: distributor.address.toLowerCase() },
-              }),
-            }).then((res) => res.json())
-          ),
-        ]);
-
-        const historicalData = returnData.slice(0, filteredDistributors.length);
-        const metaData = returnData.slice(filteredDistributors.length);
-
         const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
 
         // Get claimable amount for each distributor
@@ -188,34 +139,11 @@ export function useRewards({
         const results: RewardsResponseType = filteredDistributors.map((item: any, i: number) => {
           // Amount claimable for this distributor
           const claimableAmount = amounts[i];
-          const historicalClaims = historicalData[i]?.data?.rewardsClaimeds;
-          const distributions = metaData[i]?.data?.rewardsDistributions;
           const symbol = item.payoutToken.symbol;
           const synthToken = synthTokens?.find(
             (synth) => synth?.address?.toUpperCase() === item?.payoutToken?.address?.toUpperCase()
           );
           const displaySymbol = synthToken ? synthToken?.symbol.slice(1) : symbol;
-
-          if (!distributions || !distributions.length) {
-            return {
-              address: item.address,
-              name: item.name,
-              symbol,
-              displaySymbol,
-              distributorAddress: item.address,
-              decimals: item.payoutToken.decimals,
-              payoutTokenAddress: item.payoutToken.address,
-              claimableAmount: wei(0),
-              lifetimeClaimed: historicalClaims
-                ? historicalClaims
-                    .reduce(
-                      (acc: Wei, item: { amount: string }) => acc.add(wei(item.amount, 18, true)),
-                      wei(0)
-                    )
-                    .toNumber()
-                : 0,
-            };
-          }
 
           return {
             address: item.address,
@@ -226,12 +154,6 @@ export function useRewards({
             decimals: item.payoutToken.decimals,
             payoutTokenAddress: item.payoutToken.address,
             claimableAmount,
-            lifetimeClaimed: historicalClaims
-              .reduce(
-                (acc: Wei, item: { amount: string }) => acc.add(wei(item.amount, 18, true)),
-                wei(0)
-              )
-              .toNumber(),
           };
         });
 

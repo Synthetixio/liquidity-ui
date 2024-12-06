@@ -18,7 +18,6 @@ describe('RewardsRow', () => {
             <RewardsRow
               displaySymbol="ETH"
               claimableAmount={wei(50)}
-              lifetimeClaimed={25}
               distributorAddress="0x123456789abcdef"
             />
           </Table>

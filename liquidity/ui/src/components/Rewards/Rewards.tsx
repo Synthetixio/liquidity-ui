@@ -75,6 +75,7 @@ export function Rewards() {
             opacity: 0.5,
             cursor: 'not-allowed',
           }}
+          data-cy="claim rewards submit"
           onClick={() => claimAll()}
         >
           Claim
@@ -147,7 +148,6 @@ export function Rewards() {
                     key={item.address}
                     displaySymbol={item.displaySymbol}
                     claimableAmount={item.claimableAmount}
-                    lifetimeClaimed={item.lifetimeClaimed}
                     distributorAddress={item.distributorAddress}
                   />
                 ))
