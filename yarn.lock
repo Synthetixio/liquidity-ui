@@ -4788,6 +4788,7 @@ __metadata:
     "@snx-v3/constants": "workspace:*"
     "@snx-v3/format": "workspace:*"
     "@snx-v3/isBaseAndromeda": "workspace:*"
+    "@snx-v3/useAccountAvailableCollateral": "workspace:*"
     "@snx-v3/useApprove": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
@@ -4800,7 +4801,6 @@ __metadata:
     "@snx-v3/useSpotMarketProxy": "workspace:*"
     "@snx-v3/useSystemToken": "workspace:*"
     "@snx-v3/useTokenBalance": "workspace:*"
-    "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     "@xstate/react": "npm:^3.2.2"
     react: "npm:^18.2.0"
@@ -5213,6 +5213,22 @@ __metadata:
 "@snx-v3/txnReducer@workspace:*, @snx-v3/txnReducer@workspace:liquidity/lib/txnReducer":
   version: 0.0.0-use.local
   resolution: "@snx-v3/txnReducer@workspace:liquidity/lib/txnReducer"
+  languageName: unknown
+  linkType: soft
+
+"@snx-v3/useAccountAvailableCollateral@workspace:*, @snx-v3/useAccountAvailableCollateral@workspace:liquidity/lib/useAccountAvailableCollateral":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useAccountAvailableCollateral@workspace:liquidity/lib/useAccountAvailableCollateral"
+  dependencies:
+    "@snx-v3/tsHelpers": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useCoreProxy": "workspace:*"
+    "@snx-v3/withERC7412": "workspace:*"
+    "@synthetixio/wei": "npm:^2.74.4"
+    "@tanstack/react-query": "npm:^5.8.3"
+    debug: "npm:^4.3.7"
+    ethers: "npm:^5.7.2"
+    react: "npm:^18.2.0"
   languageName: unknown
   linkType: soft
 

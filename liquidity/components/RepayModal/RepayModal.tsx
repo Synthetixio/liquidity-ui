@@ -1,5 +1,5 @@
 import { ArrowBackIcon } from '@chakra-ui/icons';
-import { Button, Divider, Flex, Link, Skeleton, Text, useToast } from '@chakra-ui/react';
+import { Button, Divider, Link, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
@@ -7,6 +7,7 @@ import { parseUnits } from '@snx-v3/format';
 import { getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
+import { useAccountAvailableCollateral } from '@snx-v3/useAccountAvailableCollateral';
 import { useApprove } from '@snx-v3/useApprove';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
@@ -19,122 +20,14 @@ import { useRepayBaseAndromeda } from '@snx-v3/useRepayBaseAndromeda';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
-import Wei from '@synthetixio/wei';
 import { useQueryClient } from '@tanstack/react-query';
 import { useMachine } from '@xstate/react';
-import { useCallback, useContext, useEffect } from 'react';
-import type { StateFrom } from 'xstate';
+import React from 'react';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
 import { Events, RepayMachine, ServiceNames, State } from './RepayMachine';
 
-export const RepayModalUi: React.FC<{
-  onClose: () => void;
-  debtChange: Wei;
-  isOpen: boolean;
-  onSubmit: () => void;
-  state: StateFrom<typeof RepayMachine>;
-  setInfiniteApproval: (x: boolean) => void;
-  symbol: string;
-}> = ({ symbol, onClose, isOpen, debtChange, state, onSubmit, setInfiniteApproval }) => {
-  const isProcessing = state.matches(State.approve) || state.matches(State.repay);
-  const { infiniteApproval, requireApproval, error } = state.context;
-
-  if (isOpen) {
-    if (state.matches(State.success)) {
-      return (
-        <LiquidityPositionUpdated
-          onClose={onSubmit}
-          title="Debt successfully Updated"
-          subline={
-            <>
-              Your <b>Debt</b> has been updated, read more about it in the{' '}
-              <Link
-                href="https://docs.synthetix.io/v/synthetix-v3-user-documentation"
-                target="_blank"
-                color="cyan.500"
-              >
-                Synthetix V3 Documentation
-              </Link>
-            </>
-          }
-          alertText={
-            <>
-              <b>Debt</b> successfully Updated
-            </>
-          }
-        />
-      );
-    }
-
-    return (
-      <div data-cy="repay multistep">
-        <Text color="gray.50" fontSize="20px" fontWeight={700}>
-          <ArrowBackIcon cursor="pointer" onClick={onClose} mr={2} />
-          Manage Debt
-        </Text>
-        <Divider my={4} />
-        <Multistep
-          step={1}
-          title={`Approve ${symbol} transfer`}
-          status={{
-            failed: error?.step === State.approve,
-            success: !requireApproval || state.matches(State.success),
-            loading: state.matches(State.approve) && !error,
-          }}
-          checkboxLabel={
-            requireApproval ? `Approve unlimited ${symbol} transfers to Synthetix.` : undefined
-          }
-          checkboxProps={{
-            isChecked: infiniteApproval,
-            onChange: (e) => setInfiniteApproval(e.target.checked),
-          }}
-        />
-        <Multistep
-          step={2}
-          title="Repay"
-          subtitle={
-            <Text>
-              Repay <Amount value={debtChange.abs()} suffix={` ${symbol}`} />
-            </Text>
-          }
-          status={{
-            failed: error?.step === State.repay,
-            success: state.matches(State.success),
-            loading: state.matches(State.repay) && !error,
-          }}
-        />
-
-        <Button
-          isDisabled={isProcessing}
-          onClick={onSubmit}
-          width="100%"
-          mt="6"
-          data-cy="repay confirm button"
-        >
-          {(() => {
-            switch (true) {
-              case Boolean(error):
-                return 'Retry';
-              case isProcessing:
-                return 'Processing...';
-              case state.matches(State.success):
-                return 'Continue';
-              default:
-                return 'Execute Transaction';
-            }
-          })()}
-        </Button>
-      </div>
-    );
-  }
-};
-
-export const RepayModal: React.FC<{
-  onClose: () => void;
-  isOpen: boolean;
-  availableCollateral?: Wei;
-}> = ({ onClose, isOpen, availableCollateral }) => {
-  const { debtChange, setDebtChange } = useContext(ManagePositionContext);
+export function RepayModal({ onClose }: { onClose: () => void }) {
+  const { debtChange, setDebtChange } = React.useContext(ManagePositionContext);
   const [params] = useParams<PositionPageSchemaType>();
 
   const { network } = useNetwork();
@@ -142,7 +35,16 @@ export const RepayModal: React.FC<{
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { data: systemToken } = useSystemToken();
-  const { data: balance } = useTokenBalance(systemToken?.address);
+  const { data: systemTokenBalance } = useTokenBalance(systemToken?.address);
+  const { data: accountAvailableSystemToken } = useAccountAvailableCollateral({
+    accountId: params.accountId,
+    tokenAddress: systemToken?.address,
+  });
+
+  const availableCollateral =
+    systemTokenBalance && accountAvailableSystemToken
+      ? systemTokenBalance.add(accountAvailableSystemToken)
+      : undefined;
 
   const { exec: execRepay, settle: settleRepay } = useRepay({
     accountId: params.accountId,
@@ -150,7 +52,7 @@ export const RepayModal: React.FC<{
     collateralTypeAddress: collateralType?.tokenAddress,
     debtChange,
     availableUSDCollateral: availableCollateral,
-    balance,
+    balance: systemTokenBalance,
   });
 
   const { exec: execRepayBaseAndromeda, settle: settleRepayBaseAndromeda } = useRepayBaseAndromeda({
@@ -171,16 +73,15 @@ export const RepayModal: React.FC<{
 
   const { data: wrapperToken } = useGetWrapperToken(getSpotMarketId(params.collateralSymbol));
 
-  const isBase = isBaseAndromeda(network?.id, network?.preset);
-  const collateralAddress = isBase ? wrapperToken : systemToken?.address;
+  const collateralAddress = network?.preset === 'andromeda' ? wrapperToken : systemToken?.address;
 
   const { approve, requireApproval } = useApprove({
     contractAddress: collateralAddress,
-    amount: isBase
-      ? //Base USDC is 6 decimals
-        parseUnits(amountToDeposit.toString(), 6)
-      : amountToDeposit.toBN(),
-    spender: isBase ? SpotMarketProxy?.address : CoreProxy?.address,
+    amount:
+      network?.preset === 'andromeda'
+        ? parseUnits(amountToDeposit.toString(), 6) // On Base we use USDC and it has 6 decimals
+        : amountToDeposit.toBN(),
+    spender: network?.preset === 'andromeda' ? SpotMarketProxy?.address : CoreProxy?.address,
   });
 
   const [state, send] = useMachine(RepayMachine, {
@@ -272,11 +173,11 @@ export const RepayModal: React.FC<{
   });
   const needToDeposit = amountToDeposit.gt(0);
 
-  useEffect(() => {
+  React.useEffect(() => {
     send(Events.SET_REQUIRE_APPROVAL, { requireApproval: requireApproval && needToDeposit });
   }, [needToDeposit, requireApproval, send]);
 
-  const onSubmit = useCallback(async () => {
+  const onSubmit = React.useCallback(async () => {
     if (state.matches(State.success)) {
       send(Events.RESET);
       onClose();
@@ -289,31 +190,103 @@ export const RepayModal: React.FC<{
     send(Events.RUN);
   }, [onClose, send, state]);
 
-  if (!(params.poolId && params.accountId && collateralType && systemToken))
+  const symbol = network?.preset === 'andromeda' ? 'USDC' : systemToken?.symbol;
+
+  if (state.matches(State.success)) {
     return (
-      <Flex gap={4} flexDirection="column">
-        <Skeleton maxW="232px" width="100%" height="20px" />
-        <Divider my={4} />
-        <Skeleton width="100%" height="20px" />
-        <Skeleton width="100%" height="20px" />
-      </Flex>
+      <LiquidityPositionUpdated
+        onClose={onSubmit}
+        title="Debt successfully Updated"
+        subline={
+          <>
+            Your <b>Debt</b> has been updated, read more about it in the{' '}
+            <Link
+              href="https://docs.synthetix.io/v/synthetix-v3-user-documentation"
+              target="_blank"
+              color="cyan.500"
+            >
+              Synthetix V3 Documentation
+            </Link>
+          </>
+        }
+        alertText={
+          <>
+            <b>Debt</b> successfully Updated
+          </>
+        }
+      />
     );
+  }
 
   return (
-    <RepayModalUi
-      state={state}
-      onSubmit={onSubmit}
-      debtChange={debtChange}
-      setInfiniteApproval={(infiniteApproval) => {
-        send(Events.SET_INFINITE_APPROVAL, { infiniteApproval });
-      }}
-      onClose={() => {
-        settleRepay();
-        settleRepayBaseAndromeda();
-        onClose();
-      }}
-      isOpen={isOpen}
-      symbol={isBase ? collateralType.displaySymbol : systemToken?.symbol}
-    />
+    <div data-cy="repay multistep">
+      <Text color="gray.50" fontSize="20px" fontWeight={700}>
+        <ArrowBackIcon
+          cursor="pointer"
+          onClick={() => {
+            settleRepay();
+            settleRepayBaseAndromeda();
+            onClose();
+          }}
+          mr={2}
+        />
+        Manage Debt
+      </Text>
+      <Divider my={4} />
+      <Multistep
+        step={1}
+        title={`Approve ${symbol} transfer`}
+        status={{
+          failed: state.context.error?.step === State.approve,
+          success: !state.context.requireApproval || state.matches(State.success),
+          loading: state.matches(State.approve) && !state.context.error,
+        }}
+        checkboxLabel={
+          state.context.requireApproval
+            ? `Approve unlimited ${symbol} transfers to Synthetix.`
+            : undefined
+        }
+        checkboxProps={{
+          isChecked: state.context.infiniteApproval,
+          onChange: (e) =>
+            send(Events.SET_INFINITE_APPROVAL, { infiniteApproval: e.target.checked }),
+        }}
+      />
+      <Multistep
+        step={2}
+        title="Repay"
+        subtitle={
+          <Text>
+            Repay <Amount value={debtChange.abs()} suffix={` ${symbol}`} />
+          </Text>
+        }
+        status={{
+          failed: state.context.error?.step === State.repay,
+          success: state.matches(State.success),
+          loading: state.matches(State.repay) && !state.context.error,
+        }}
+      />
+
+      <Button
+        isDisabled={state.matches(State.approve) || state.matches(State.repay)}
+        onClick={onSubmit}
+        width="100%"
+        mt="6"
+        data-cy="repay confirm button"
+      >
+        {(() => {
+          switch (true) {
+            case Boolean(state.context.error):
+              return 'Retry';
+            case state.matches(State.approve) || state.matches(State.repay):
+              return 'Processing...';
+            case state.matches(State.success):
+              return 'Continue';
+            default:
+              return 'Execute Transaction';
+          }
+        })()}
+      </Button>
+    </div>
   );
-};
+}

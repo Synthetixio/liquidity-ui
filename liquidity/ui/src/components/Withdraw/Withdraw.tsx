@@ -69,8 +69,8 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
                 <Amount
                   prefix={isDebtWithdrawal ? 'Available: ' : 'Unlocked: '}
                   value={maxWithdrawable}
-                  suffix=" "
                 />
+                &nbsp;
                 {maxWithdrawable.gt(0) && (
                   <Text
                     as="span"

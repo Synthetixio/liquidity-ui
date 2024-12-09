@@ -122,7 +122,8 @@ export function Undelegate() {
             {isPendingLiquidityPosition ? '~' : null}
             {!isPendingLiquidityPosition && max ? (
               <>
-                <Amount prefix="Locked: " value={max} suffix=" " />
+                <Amount prefix="Locked: " value={max} />
+                &nbsp;
                 {max.gt(0) ? (
                   <Text
                     as="span"
