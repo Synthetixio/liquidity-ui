@@ -23,7 +23,9 @@ export const Manage = () => {
   const [params, setParams] = useParams<PositionPageSchemaType>();
   const { network } = useNetwork();
 
-  const { data: collateralType, error } = useCollateralType(params.collateralSymbol);
+  const { data: collateralType, isPending: isPendingCollateralType } = useCollateralType(
+    params.collateralSymbol
+  );
   const { data: poolData } = usePoolData(params.poolId);
   const { data: liquidityPosition } = useLiquidityPosition({
     accountId: params.accountId,
@@ -50,9 +52,7 @@ export const Manage = () => {
 
   return (
     <ManagePositionProvider>
-      <UnsupportedCollateralAlert
-        isOpen={Boolean(error && error.message === 'Unsupported collateral')}
-      />
+      <UnsupportedCollateralAlert isOpen={!isPendingCollateralType && !collateralType} />
       <Box mb={12} mt={8}>
         <Flex
           flexDir={['column', 'row']}

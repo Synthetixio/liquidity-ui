@@ -44,7 +44,7 @@ export function Deposit() {
   const { network } = useNetwork();
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
-  const { data: liquidityPosition, isPending: _isPendingLiquidityPosition } = useLiquidityPosition({
+  const { data: liquidityPosition, isPending: isPendingLiquidityPosition } = useLiquidityPosition({
     accountId: params.accountId,
     collateralType,
   });
@@ -172,23 +172,22 @@ export function Deposit() {
             }
           >
             <Text fontSize="12px" data-cy="balance amount">
-              <Amount prefix="Balance: " value={maxAmount} />
-              {maxAmount?.gt(0) && (
-                <Text
-                  as="span"
-                  cursor="pointer"
-                  onClick={() => {
-                    if (!maxAmount) {
-                      return;
-                    }
-                    setCollateralChange(maxAmount);
-                  }}
-                  color="cyan.500"
-                  fontWeight={700}
-                >
-                  &nbsp;Max
-                </Text>
-              )}
+              {isPendingLiquidityPosition ? 'Balance: ~' : null}
+              {!isPendingLiquidityPosition && maxAmount ? (
+                <>
+                  <Amount prefix="Balance: " value={maxAmount} />
+                  &nbsp;
+                  <Text
+                    as="span"
+                    cursor="pointer"
+                    onClick={() => setCollateralChange(maxAmount)}
+                    color="cyan.500"
+                    fontWeight={700}
+                  >
+                    Max
+                  </Text>
+                </>
+              ) : null}
             </Text>
           </Tooltip>
         </Flex>

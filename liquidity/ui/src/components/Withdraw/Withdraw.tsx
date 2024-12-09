@@ -62,8 +62,8 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
             </Text>
           </BorderBox>
           <Text fontSize="12px" whiteSpace="nowrap" data-cy="withdraw amount">
-            {isDebtWithdrawal && isPendingSystemTokenBalance ? '~' : null}
-            {!isDebtWithdrawal && isPendingLiquidityPosition ? '~' : null}
+            {isDebtWithdrawal && isPendingSystemTokenBalance ? 'Available: ~' : null}
+            {!isDebtWithdrawal && isPendingLiquidityPosition ? 'Unlocked: ~' : null}
             {maxWithdrawable ? (
               <>
                 <Amount

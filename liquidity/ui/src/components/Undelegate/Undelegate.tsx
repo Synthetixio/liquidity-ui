@@ -116,22 +116,20 @@ export function Undelegate() {
             </Text>
           </BorderBox>
           <Text fontSize="12px" whiteSpace="nowrap" data-cy="locked amount">
-            {isPendingLiquidityPosition ? '~' : null}
+            {isPendingLiquidityPosition ? 'Locked: ~' : null}
             {!isPendingLiquidityPosition && max ? (
               <>
                 <Amount prefix="Locked: " value={max} />
                 &nbsp;
-                {max.gt(0) ? (
-                  <Text
-                    as="span"
-                    cursor="pointer"
-                    onClick={() => setCollateralChange(max.mul(-1))}
-                    color="cyan.500"
-                    fontWeight={700}
-                  >
-                    Max
-                  </Text>
-                ) : null}
+                <Text
+                  as="span"
+                  cursor="pointer"
+                  onClick={() => setCollateralChange(max.mul(-1))}
+                  color="cyan.500"
+                  fontWeight={700}
+                >
+                  Max
+                </Text>
               </>
             ) : null}
           </Text>
