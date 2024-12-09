@@ -1,19 +1,6 @@
-import {
-  Box,
-  Divider,
-  Flex,
-  Link,
-  Skeleton,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Flex, Link, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
 import { ClaimModal } from '@snx-v3/ClaimModal';
 import { DepositModal } from '@snx-v3/DepositModal';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { RepayModal } from '@snx-v3/RepayModal';
 import { UndelegateModal } from '@snx-v3/UndelegateModal';
@@ -30,10 +17,11 @@ import {
 import { validatePosition } from '@snx-v3/validatePosition';
 import { WithdrawModal } from '@snx-v3/WithdrawModal';
 import { wei } from '@synthetixio/wei';
-import { FormEvent, Suspense, useCallback, useContext } from 'react';
+import React, { FormEvent, useCallback } from 'react';
 import { Claim } from '../Claim/Claim';
 import { Deposit } from '../Deposit/Deposit';
 import { Repay } from '../Repay/Repay';
+import { RepayAndromedaDebt } from '../Repay/RepayAndromedaDebt';
 import { Undelegate } from '../Undelegate/Undelegate';
 import { Withdraw } from '../Withdraw/Withdraw';
 import { COLLATERALACTIONS, DEBTACTIONS } from './actions';
@@ -49,7 +37,7 @@ export const ManageAction = ({
   const { network } = useNetwork();
 
   const { debtChange, collateralChange, setCollateralChange, setDebtChange, setWithdrawAmount } =
-    useContext(ManagePositionContext);
+    React.useContext(ManagePositionContext);
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
 
@@ -57,8 +45,6 @@ export const ManageAction = ({
     accountId: params.accountId,
     collateralType,
   });
-
-  const isBase = isBaseAndromeda(network?.id, network?.preset);
 
   const { isValid } = validatePosition({
     issuanceRatioD18: collateralType?.issuanceRatioD18,
@@ -71,21 +57,18 @@ export const ManageAction = ({
 
   const manageActionParam = ManageActionSchema.safeParse(params.manageAction);
   const manageAction = manageActionParam.success ? manageActionParam.data : undefined;
-  const debtActions = DEBTACTIONS(isBase);
+  const debtActions = DEBTACTIONS(network?.preset === 'andromeda');
   const tab = debtActions.some((action) => action.link === manageAction) ? 'debt' : 'collateral';
-
-  const isFormValid = isBase ? true : isValid;
 
   const onSubmit = useCallback(
     (e: FormEvent) => {
       e.preventDefault();
       const form = e.target as HTMLFormElement;
-      if (!form.reportValidity() || !isFormValid) {
-        return;
+      if ((network?.preset === 'andromeda' || isValid) && form.reportValidity()) {
+        setTxnModalOpen(manageAction);
       }
-      setTxnModalOpen(manageAction);
     },
-    [isFormValid, manageAction, setTxnModalOpen]
+    [isValid, manageAction, network?.preset, setTxnModalOpen]
   );
 
   return (
@@ -156,7 +139,7 @@ export const ManageAction = ({
                 textDecoration="none"
                 _hover={{ textDecoration: 'none' }}
               >
-                {isBase ? 'Manage PnL' : 'Manage Debt'}
+                {network?.preset === 'andromeda' ? 'Manage PnL' : 'Manage Debt'}
               </Tab>
             </TabList>
 
@@ -276,89 +259,79 @@ export const ManageAction = ({
             {manageAction === 'withdraw' ? <Withdraw /> : null}
             {manageAction === 'withdraw-debt' ? <Withdraw isDebtWithdrawal /> : null}
             {manageAction === 'deposit' ? <Deposit liquidityPosition={liquidityPosition} /> : null}
-            {manageAction === 'repay' ? <Repay liquidityPosition={liquidityPosition} /> : null}
+            {manageAction === 'repay' && network?.preset === 'andromeda' ? (
+              <RepayAndromedaDebt />
+            ) : null}
+            {manageAction === 'repay' && network?.preset !== 'andromeda' ? <Repay /> : null}
             {manageAction === 'undelegate' ? <Undelegate /> : null}
           </Flex>
         </Box>
       ) : null}
 
-      <Suspense
-        fallback={
-          <Flex gap={4} flexDirection="column">
-            <Skeleton maxW="232px" width="100%" height="20px" />
-            <Divider my={4} />
-            <Skeleton width="100%" height="20px" />
-            <Skeleton width="100%" height="20px" />
-          </Flex>
-        }
-      >
-        {txnModalOpen === 'repay' ? (
-          <RepayModal
-            availableCollateral={liquidityPosition?.usdCollateral.availableCollateral}
-            onClose={() => {
-              setCollateralChange(wei(0));
-              setDebtChange(wei(0));
-              setTxnModalOpen(undefined);
-            }}
-            isOpen={txnModalOpen === 'repay'}
-          />
-        ) : null}
-        {txnModalOpen === 'claim' ? (
-          <ClaimModal
-            onClose={() => {
-              setCollateralChange(wei(0));
-              setDebtChange(wei(0));
-              setTxnModalOpen(undefined);
-            }}
-            isOpen={txnModalOpen === 'claim'}
-            liquidityPosition={liquidityPosition}
-          />
-        ) : null}
-        {txnModalOpen === 'deposit' ? (
-          <DepositModal
-            onClose={() => {
-              setCollateralChange(wei(0));
-              setDebtChange(wei(0));
-              setTxnModalOpen(undefined);
-            }}
-            isOpen={txnModalOpen === 'deposit'}
-            liquidityPosition={liquidityPosition}
-          />
-        ) : null}
-        {txnModalOpen === 'undelegate' ? (
-          <UndelegateModal
-            liquidityPosition={liquidityPosition}
-            onClose={() => {
-              setCollateralChange(wei(0));
-              setDebtChange(wei(0));
-              setTxnModalOpen(undefined);
-            }}
-            isOpen={txnModalOpen === 'undelegate'}
-          />
-        ) : null}
-        {txnModalOpen === 'withdraw' ? (
-          <WithdrawModal
-            onClose={() => {
-              setCollateralChange(wei(0));
-              setDebtChange(wei(0));
-              setWithdrawAmount(wei(0));
-              setTxnModalOpen(undefined);
-            }}
-          />
-        ) : null}
+      {txnModalOpen === 'repay' ? (
+        <RepayModal
+          onClose={() => {
+            setCollateralChange(wei(0));
+            setDebtChange(wei(0));
+            setTxnModalOpen(undefined);
+          }}
+        />
+      ) : null}
+      {txnModalOpen === 'claim' ? (
+        <ClaimModal
+          onClose={() => {
+            setCollateralChange(wei(0));
+            setDebtChange(wei(0));
+            setTxnModalOpen(undefined);
+          }}
+          isOpen={txnModalOpen === 'claim'}
+          liquidityPosition={liquidityPosition}
+        />
+      ) : null}
+      {txnModalOpen === 'deposit' ? (
+        <DepositModal
+          onClose={() => {
+            setCollateralChange(wei(0));
+            setDebtChange(wei(0));
+            setTxnModalOpen(undefined);
+          }}
+          isOpen={txnModalOpen === 'deposit'}
+          liquidityPosition={liquidityPosition}
+        />
+      ) : null}
+      {txnModalOpen === 'undelegate' ? (
+        <UndelegateModal
+          liquidityPosition={liquidityPosition}
+          onClose={() => {
+            setCollateralChange(wei(0));
+            setDebtChange(wei(0));
+            setTxnModalOpen(undefined);
+          }}
+          isOpen={txnModalOpen === 'undelegate'}
+        />
+      ) : null}
+      {txnModalOpen === 'withdraw' ? (
+        <WithdrawModal
+          onClose={() => {
+            setCollateralChange(wei(0));
+            setDebtChange(wei(0));
+            setWithdrawAmount(wei(0));
+            setTxnModalOpen(undefined);
+          }}
+        />
+      ) : null}
 
-        {txnModalOpen === 'withdraw-debt' ? (
-          <WithdrawModal
-            onClose={() => {
-              setCollateralChange(wei(0));
-              setDebtChange(wei(0));
-              setWithdrawAmount(wei(0));
-              setTxnModalOpen(undefined);
-            }}
-            isDebtWithdrawal
-          />
-        ) : null}
-      </Suspense>
+      {txnModalOpen === 'withdraw-debt' ? (
+        <WithdrawModal
+          onClose={() => {
+            setCollateralChange(wei(0));
+            setDebtChange(wei(0));
+            setWithdrawAmount(wei(0));
+            setTxnModalOpen(undefined);
+          }}
+          isDebtWithdrawal
+        />
+      ) : null}
     </>
   );
 };

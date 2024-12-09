@@ -25,16 +25,10 @@ export function PositionsTable({
   isLoading,
   liquidityPositions,
   apr,
-  systemToken,
 }: {
   isLoading: boolean;
   liquidityPositions: LiquidityPositionType[];
   apr?: any[];
-  systemToken?: {
-    symbol?: string;
-    name?: string;
-    address?: string;
-  };
 }) {
   const [params, setParams] = useParams();
   const { activeWallet } = useWallet();

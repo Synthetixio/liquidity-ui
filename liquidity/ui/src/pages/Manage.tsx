@@ -5,7 +5,7 @@ import { ManagePositionProvider } from '@snx-v3/ManagePositionContext';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import { useNetwork } from '@snx-v3/useBlockchain';
-import { useCollateralType, useCollateralTypes } from '@snx-v3/useCollateralTypes';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type ManageActionType, type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
