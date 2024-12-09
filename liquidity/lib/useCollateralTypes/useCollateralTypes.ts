@@ -139,5 +139,6 @@ export function useCollateralType(collateralSymbol?: string, customNetwork?: Net
     },
     // one hour in ms
     staleTime: 3_600_000,
+    throwOnError: false,
   });
 }
