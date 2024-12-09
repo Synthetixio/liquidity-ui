@@ -3,17 +3,14 @@ import { Button, Divider, Link, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
-import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useDefaultProvider, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
-import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
-import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useUnwrapStataUSDC } from '@snx-v3/useUnwrapStataUSDC';
 import { useWithdraw } from '@snx-v3/useWithdraw';
@@ -47,20 +44,12 @@ export function WithdrawModal({
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const errorParser = useContractErrorParser();
 
-  const { data: liquidityPosition } = useLiquidityPosition({
-    accountId: params.accountId,
-    collateralType,
-  });
-
-  const isBase = isBaseAndromeda(network?.id, network?.preset);
-
   const isStataUSDC = useIsSynthStataUSDC({
     tokenAddress: collateralType?.tokenAddress,
     customNetwork: network,
   });
 
   const { data: systemToken } = useSystemToken();
-  const { data: systemTokenBalance } = useAccountCollateral(params.accountId, systemToken?.address);
 
   const { data: StaticAaveUSDC, isPending: isPendingStaticAaveUSDC } = useStaticAaveUSDC();
 
@@ -69,18 +58,11 @@ export function WithdrawModal({
   const { mutation: withdrawMain } = useWithdraw({
     amount: withdrawAmount,
     accountId: params.accountId,
-    collateralTypeAddress: isDebtWithdrawal
-      ? systemToken?.address
-      : liquidityPosition?.accountCollateral?.tokenAddress,
+    collateralTypeAddress: isDebtWithdrawal ? systemToken?.address : collateralType?.tokenAddress,
   });
 
   const { mutation: withdrawAndromeda } = useWithdrawBaseAndromeda({
-    accountId: params.accountId,
-    availableCollateral: liquidityPosition?.accountCollateral.availableCollateral || ZEROWEI,
-    snxUSDCollateral: systemTokenBalance?.availableCollateral || ZEROWEI,
     amountToWithdraw: withdrawAmount,
-    accountCollateral: liquidityPosition?.accountCollateral,
-    collateralSymbol: params.collateralSymbol,
   });
 
   const onSubmit = async () => {
@@ -96,10 +78,10 @@ export function WithdrawModal({
           status: 'pending',
         });
 
-        if (!isBase) {
-          await withdrawMain.mutateAsync();
-        } else {
+        if (network?.preset === 'andromeda') {
           await withdrawAndromeda.mutateAsync();
+        } else {
+          await withdrawMain.mutateAsync();
         }
 
         if (isStataUSDC) {

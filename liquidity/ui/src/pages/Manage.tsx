@@ -24,9 +24,7 @@ export const Manage = () => {
   const { network } = useNetwork();
 
   const { data: collateralType, error } = useCollateralType(params.collateralSymbol);
-  // UnsupportedCollateralAlert
   const { data: poolData } = usePoolData(params.poolId);
-
   const { data: liquidityPosition } = useLiquidityPosition({
     accountId: params.accountId,
     collateralType,
@@ -99,7 +97,7 @@ export const Manage = () => {
             bg="navy.700"
             height="fit-content"
           >
-            <ManageStats liquidityPosition={liquidityPosition} />
+            <ManageStats />
             <Rewards />
           </BorderBox>
           <Flex

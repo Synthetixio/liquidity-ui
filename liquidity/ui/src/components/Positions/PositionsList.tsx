@@ -2,7 +2,6 @@ import { Flex, Heading } from '@chakra-ui/react';
 import { useApr } from '@snx-v3/useApr';
 import { useLiquidityPositions } from '@snx-v3/useLiquidityPositions';
 import { useParams } from '@snx-v3/useParams';
-import { useSystemToken } from '@snx-v3/useSystemToken';
 import React from 'react';
 import { PositionsTable } from './PositionsTable/PositionsTable';
 
@@ -11,22 +10,14 @@ export const PositionsList = () => {
 
   const { data: liquidityPositions, isPending: isPendingLiquidityPositions } =
     useLiquidityPositions({ accountId: params.accountId });
-
   const { data: apr } = useApr();
-  const { data: systemToken, isPending: isPendingSystemToken } = useSystemToken();
-
-  // const isBase = isBaseAndromeda(network?.id, network?.preset);
-  // const positions = calculatePositions(liquidityPositions, isBase);
-
-  const isPending = isPendingLiquidityPositions || isPendingSystemToken;
-
   return (
     <Flex flexDir="column">
       <Heading fontSize="1.25rem" fontFamily="heading" lineHeight="1.75rem" mt={4}>
         Positions
       </Heading>
       <PositionsTable
-        isLoading={Boolean(params.accountId && isPending)}
+        isLoading={Boolean(params.accountId && isPendingLiquidityPositions)}
         liquidityPositions={
           liquidityPositions
             ? liquidityPositions.filter(
@@ -37,7 +28,6 @@ export const PositionsList = () => {
             : []
         }
         apr={apr?.collateralAprs}
-        systemToken={systemToken}
       />
     </Flex>
   );

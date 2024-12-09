@@ -1,5 +1,4 @@
 import { Flex, Text, Tooltip } from '@chakra-ui/react';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { Network } from '@snx-v3/useBlockchain';
 import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import autoCompoundSvg from './auto-compound.svg';
@@ -14,7 +13,6 @@ export const Specifics: React.FC<{
     symbol: string;
   };
 }> = ({ network, isToros, collateralType }) => {
-  const isBase = isBaseAndromeda(network?.id, network?.preset);
   const isStataUSDC = useIsSynthStataUSDC({
     tokenAddress: collateralType?.address,
     customNetwork: network,
@@ -43,7 +41,7 @@ export const Specifics: React.FC<{
     );
   }
 
-  if (isBase) {
+  if (network?.preset === 'andromeda') {
     return (
       <Text fontFamily="heading" fontSize="14px" lineHeight="20px" fontWeight={500} color="white">
         N/A

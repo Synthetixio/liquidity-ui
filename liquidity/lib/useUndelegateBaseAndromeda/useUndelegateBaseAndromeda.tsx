@@ -4,33 +4,33 @@ import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useAccountProxy } from '@snx-v3/useAccountProxy';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
-import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { withERC7412 } from '@snx-v3/withERC7412';
-import Wei, { wei } from '@synthetixio/wei';
+import { Wei, wei } from '@synthetixio/wei';
 import { useMutation } from '@tanstack/react-query';
 import { ethers } from 'ethers';
 import React from 'react';
 
-export const useUndelegateBaseAndromeda = ({
-  accountId,
-  poolId,
-  collateralTypeAddress,
-  collateralChange,
-  currentCollateral,
-}: {
-  accountId?: string;
-  poolId?: string;
-  collateralTypeAddress?: string;
-  currentCollateral: Wei;
-  collateralChange: Wei;
-  liquidityPosition?: LiquidityPosition;
-}) => {
+export function useUndelegateBaseAndromeda({ collateralChange }: { collateralChange: Wei }) {
+  const [params] = useParams<PositionPageSchemaType>();
+
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
+  const { data: liquidityPosition } = useLiquidityPosition({
+    accountId: params.accountId,
+    collateralType,
+  });
+
+  const collateralTypeAddress = collateralType?.tokenAddress;
+  const currentCollateral = liquidityPosition?.collateralAmount || wei(0);
+
   const [txnState, dispatch] = React.useReducer(reducer, initialState);
   const { data: CoreProxy } = useCoreProxy();
   const { data: SpotMarketProxy } = useSpotMarketProxy();
@@ -52,7 +52,8 @@ export const useUndelegateBaseAndromeda = ({
           CoreProxy &&
           AccountProxy &&
           DebtRepayer &&
-          poolId &&
+          params.poolId &&
+          params.accountId &&
           collateralTypeAddress &&
           SpotMarketProxy
         )
@@ -78,15 +79,15 @@ export const useUndelegateBaseAndromeda = ({
 
         const approveAccountTx = AccountProxyContract.populateTransaction.approve(
           DebtRepayer.address,
-          accountId
+          params.accountId
         );
 
         const depositDebtToRepay = DebtRepayerContract.populateTransaction.depositDebtToRepay(
           CoreProxy.address,
           SpotMarketProxy.address,
           AccountProxy.address,
-          accountId,
-          poolId,
+          params.accountId,
+          params.poolId,
           collateralTypeAddress,
           USDC_BASE_MARKET
         );
@@ -94,8 +95,8 @@ export const useUndelegateBaseAndromeda = ({
         const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
 
         const delegateTx = CoreProxyContract.populateTransaction.delegateCollateral(
-          ethers.BigNumber.from(accountId),
-          ethers.BigNumber.from(poolId),
+          ethers.BigNumber.from(params.accountId),
+          ethers.BigNumber.from(params.poolId),
           collateralTypeAddress,
           currentCollateral.add(collateralChange).toBN(),
           wei(1).toBN()
@@ -148,4 +149,4 @@ export const useUndelegateBaseAndromeda = ({
     isLoading: mutation.isPending,
     exec: mutation.mutateAsync,
   };
-};
+}

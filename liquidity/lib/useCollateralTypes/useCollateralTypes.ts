@@ -1,5 +1,4 @@
 import { importCollateralTokens } from '@snx-v3/contracts';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { contractsHash } from '@snx-v3/tsHelpers';
 import { Network, useNetwork } from '@snx-v3/useBlockchain';
 import { useSystemToken } from '@snx-v3/useSystemToken';
@@ -54,25 +53,24 @@ async function loadCollateralTypes(chainId: number, preset: string) {
 }
 
 export function useCollateralTypes(includeDelegationOff = false, customNetwork?: Network) {
-  const { network } = useNetwork();
-  const targetNetwork = customNetwork || network;
+  const { network: currentNetwork } = useNetwork();
+  const network = customNetwork ?? currentNetwork;
   const { data: systemToken } = useSystemToken(customNetwork);
 
   return useQuery({
-    enabled: Boolean(targetNetwork?.id && targetNetwork?.preset && systemToken),
+    enabled: Boolean(network?.id && network?.preset && systemToken),
     queryKey: [
-      `${targetNetwork?.id}-${targetNetwork?.preset}`,
+      `${network?.id}-${network?.preset}`,
       'CollateralTypes',
       { systemToken: systemToken?.symbol, includeDelegationOff },
     ],
     queryFn: async () => {
-      if (!(targetNetwork?.id && targetNetwork?.preset && systemToken))
+      if (!(network?.id && network?.preset && systemToken))
         throw Error('useCollateralTypes should not be enabled when contracts missing');
 
-      const collateralTypes = (await loadCollateralTypes(targetNetwork.id, targetNetwork.preset))
+      const collateralTypes = (await loadCollateralTypes(network.id, network.preset))
         .map((collateralType) => {
-          const isBase = isBaseAndromeda(targetNetwork?.id, targetNetwork?.preset);
-          if (isBase && collateralType.symbol === 'sUSDC') {
+          if (network?.preset === 'andromeda' && collateralType.symbol === 'sUSDC') {
             return {
               ...collateralType,
               symbol: 'USDC',
@@ -80,7 +78,7 @@ export function useCollateralTypes(includeDelegationOff = false, customNetwork?:
               name: 'USD Coin',
             };
           }
-          if (isBase && collateralType.symbol === 'sStataUSDC') {
+          if (network?.preset === 'andromeda' && collateralType.symbol === 'sStataUSDC') {
             return {
               ...collateralType,
               symbol: 'stataUSDC',

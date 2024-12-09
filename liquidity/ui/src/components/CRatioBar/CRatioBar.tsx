@@ -1,23 +1,28 @@
 import { InfoIcon, TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import { Box, Flex, Progress, Text, Tooltip } from '@chakra-ui/react';
-import { FC } from 'react';
 import { CRatioAmount } from './CRatioAmount';
 import { CRatioBadge } from './CRatioBadge';
 import { getHealthVariant, getProgressSize, ratioIsMaxUInt } from './CRatioBar.utils';
 import { LineWithText } from './LineWithText';
 
-export const CRatioBarUi: FC<{
+export function CRatioBar({
+  newCRatio,
+  currentCRatio,
+  targetCratio,
+  liquidationCratio,
+  hasChanges,
+}: {
   liquidationCratio: number;
   targetCratio: number;
   currentCRatio: number;
-  newCratio?: number;
+  newCRatio: number;
   hasChanges: boolean;
-}> = ({ targetCratio, liquidationCratio, currentCRatio, newCratio, hasChanges }) => {
+}) {
   const variant = hasChanges
     ? getHealthVariant({
         targetCratio: targetCratio,
         liquidationCratio: liquidationCratio,
-        cRatio: newCratio,
+        cRatio: newCRatio,
       })
     : getHealthVariant({
         targetCratio: targetCratio,
@@ -26,7 +31,7 @@ export const CRatioBarUi: FC<{
       });
 
   const newBarSize = getProgressSize({
-    cRatio: newCratio,
+    cRatio: newCRatio,
     targetCratio: targetCratio,
     liquidationCratio: liquidationCratio,
   });
@@ -63,18 +68,18 @@ export const CRatioBarUi: FC<{
           <>
             <span>&rarr;</span>
             <Text>
-              {!newCratio || newCratio < 0
+              {!newCRatio || newCRatio < 0
                 ? 'N/A'
-                : ratioIsMaxUInt(newCratio)
+                : ratioIsMaxUInt(newCRatio)
                   ? 'Infinite'
-                  : `${newCratio.toFixed(2)} %`}
+                  : `${newCRatio.toFixed(2)} %`}
             </Text>
           </>
         ) : null}
 
-        {(hasChanges ? newCratio || 0 : currentCRatio) !== 0 ? (
+        {(hasChanges ? newCRatio || 0 : currentCRatio) !== 0 ? (
           <CRatioBadge
-            cRatio={hasChanges ? newCratio || 0 : currentCRatio}
+            cRatio={hasChanges ? newCRatio || 0 : currentCRatio}
             liquidationCratio={liquidationCratio}
             targetCratio={targetCratio}
           />
@@ -128,7 +133,7 @@ export const CRatioBarUi: FC<{
             margin="auto"
             width="100%"
             left={`${Math.min(newBarSize, currentBarSize)}%`}
-            display={newCratio === 0 ? 'none' : 'block'}
+            display={newCRatio === 0 ? 'none' : 'block'}
             value={Math.abs(newBarSize - currentBarSize)}
           />
         </Box>
@@ -141,7 +146,7 @@ export const CRatioBarUi: FC<{
           top={0}
           bottom={0}
           margin="auto"
-          display={newCratio === 0 ? 'none' : 'block'}
+          display={newCRatio === 0 ? 'none' : 'block'}
         >
           {currentCRatio > 0 ? (
             <>
@@ -165,22 +170,4 @@ export const CRatioBarUi: FC<{
       </Box>
     </Flex>
   );
-};
-
-export const CRatioBar: FC<{
-  liquidationCratio?: number;
-  targetCratio?: number;
-  currentCRatio?: number;
-  newCratio?: number;
-  hasChanges: boolean;
-}> = ({ newCratio, currentCRatio, targetCratio, liquidationCratio, hasChanges }) => {
-  return (
-    <CRatioBarUi
-      liquidationCratio={liquidationCratio || 100}
-      targetCratio={targetCratio || 100}
-      currentCRatio={currentCRatio || 0}
-      newCratio={newCratio}
-      hasChanges={hasChanges}
-    />
-  );
-};
+}

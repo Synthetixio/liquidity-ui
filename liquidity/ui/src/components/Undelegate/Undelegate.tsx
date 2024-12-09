@@ -13,7 +13,6 @@ import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { ZEROWEI } from '@snx-v3/constants';
 import { currency } from '@snx-v3/format';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
 import { useNetwork } from '@snx-v3/useBlockchain';
@@ -55,8 +54,6 @@ export function Undelegate() {
     debtChange: debtChange,
   });
 
-  const isBase = isBaseAndromeda(network?.id, network?.preset);
-
   const maxWithdrawable = liquidityPosition?.availableCollateral;
 
   // To get the max withdrawable collateral we look at the new debt and the issuance ratio.
@@ -68,7 +65,7 @@ export function Undelegate() {
     }
     const { collateralAmount, collateralValue } = liquidityPosition;
 
-    if (isBase) {
+    if (network?.preset === 'andromeda') {
       return collateralAmount;
     }
 
@@ -309,10 +306,8 @@ export function Undelegate() {
                   />
                 ),
               },
-            ].concat(
-              network?.preset === 'andromeda'
-                ? []
-                : [
+              ...(network?.preset !== 'andromeda'
+                ? [
                     {
                       label: 'C-ratio',
                       value: (
@@ -327,7 +322,8 @@ export function Undelegate() {
                       ),
                     },
                   ]
-            )}
+                : []),
+            ]}
           />
         </Collapse>
       ) : null}

@@ -4,69 +4,78 @@ import { Amount } from '@snx-v3/Amount';
 import { ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
 import { parseUnits } from '@snx-v3/format';
-import { getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
 import { useApprove } from '@snx-v3/useApprove';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useBorrow } from '@snx-v3/useBorrow';
 import { useClosePosition } from '@snx-v3/useClosePosition';
-import { CollateralType } from '@snx-v3/useCollateralTypes';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
-import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
-import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useRepay } from '@snx-v3/useRepay';
+import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useUndelegate } from '@snx-v3/useUndelegate';
 import { useUndelegateBaseAndromeda } from '@snx-v3/useUndelegateBaseAndromeda';
 import { useUSDC } from '@snx-v3/useUSDC';
+import { wei } from '@synthetixio/wei';
 import { useQueryClient } from '@tanstack/react-query';
-import { FC, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import React from 'react';
 import { LiquidityPositionUpdated } from '../Manage/LiquidityPositionUpdated';
 
-export const ClosePositionTransactions: FC<{
+export function ClosePositionTransactions({
+  onClose,
+  onBack,
+}: {
   onClose: () => void;
   onBack: () => void;
-  liquidityPosition?: LiquidityPosition;
-  collateralType: CollateralType;
-}> = ({ collateralType, liquidityPosition, onClose, onBack }) => {
+}) {
   const [params] = useParams<PositionPageSchemaType>();
-  const [steps, setSteps] = useState<
+
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
+  const { data: liquidityPosition } = useLiquidityPosition({
+    accountId: params.accountId,
+    collateralType,
+  });
+
+  const [steps, setSteps] = React.useState<
     {
-      title: ReactNode;
-      subtitle?: ReactNode;
+      title: React.ReactNode;
+      subtitle?: React.ReactNode;
       cb: () => Promise<any>;
     }[]
   >([]);
-  const { setCollateralChange, setDebtChange } = useContext(ManagePositionContext);
+  const { setCollateralChange, setDebtChange } = React.useContext(ManagePositionContext);
   const { data: systemToken } = useSystemToken();
   const { data: balance } = useTokenBalance(systemToken?.address);
   const { data: CoreProxy } = useCoreProxy();
   const { network } = useNetwork();
   const toast = useToast({ isClosable: true, duration: 9000 });
-  const isBase = isBaseAndromeda(network?.id, network?.preset);
 
-  const debtSymbol = isBase ? collateralType.symbol : systemToken?.symbol;
-  const collateralSymbol = collateralType.displaySymbol;
+  const debtSymbol = network?.preset === 'andromeda' ? collateralType?.symbol : systemToken?.symbol;
+  const collateralSymbol = collateralType?.displaySymbol;
 
-  const [txState, setTxState] = useState({
+  const [txState, setTxState] = React.useState({
     step: 0,
     status: 'idle',
   });
 
-  const { data: wrapperToken } = useGetWrapperToken(
-    getSpotMarketId(liquidityPosition?.accountCollateral.symbol)
-  );
+  const { data: synthTokens } = useSynthTokens();
+  const wrapperToken = React.useMemo(() => {
+    if (synthTokens && collateralType) {
+      return synthTokens.find((synth) => synth.address === collateralType.tokenAddress)?.token
+        ?.address;
+    }
+  }, [collateralType, synthTokens]);
 
-  const collateralAddress = isBaseAndromeda(network?.id, network?.preset)
-    ? wrapperToken
-    : systemToken?.address;
+  const collateralAddress = network?.preset === 'andromeda' ? wrapperToken : systemToken?.address;
   const queryClient = useQueryClient();
-  const availableUSDCollateral = liquidityPosition?.usdCollateral.availableCollateral || ZEROWEI;
+  const availableUSDCollateral = liquidityPosition?.availableCollateral || ZEROWEI;
   const amountToDeposit = (liquidityPosition?.debt || ZEROWEI).abs().sub(availableUSDCollateral);
   const errorParser = useContractErrorParser();
 
@@ -77,7 +86,7 @@ export const ClosePositionTransactions: FC<{
     spender: CoreProxy?.address,
   });
   const { exec: execRepay } = useRepay({
-    accountId: liquidityPosition?.accountId,
+    accountId: params.accountId,
     poolId: params.poolId,
     collateralTypeAddress: collateralType?.tokenAddress,
     debtChange: liquidityPosition?.debt.mul(-1) || ZEROWEI,
@@ -85,9 +94,9 @@ export const ClosePositionTransactions: FC<{
     balance,
   });
   const { exec: undelegate } = useUndelegate({
-    accountId: liquidityPosition?.accountId,
+    accountId: params.accountId,
     poolId: params.poolId,
-    collateralTypeAddress: liquidityPosition?.tokenAddress,
+    collateralTypeAddress: collateralType?.tokenAddress,
     collateralChange: liquidityPosition?.collateralAmount.mul(-1) || ZEROWEI,
     currentCollateral: liquidityPosition?.collateralAmount || ZEROWEI,
   });
@@ -111,26 +120,21 @@ export const ClosePositionTransactions: FC<{
   });
 
   const { exec: undelegateBaseAndromeda } = useUndelegateBaseAndromeda({
-    accountId: liquidityPosition?.accountId,
-    poolId: params.poolId,
-    collateralTypeAddress: liquidityPosition?.tokenAddress,
-    collateralChange: liquidityPosition?.collateralAmount.mul(-1) || ZEROWEI,
-    currentCollateral: liquidityPosition?.collateralAmount || ZEROWEI,
-    liquidityPosition,
+    collateralChange: liquidityPosition?.collateralAmount.mul(-1) || wei(0),
   });
 
   //claim
   const { exec: execBorrow } = useBorrow({
-    accountId: liquidityPosition?.accountId,
+    accountId: params.accountId,
     poolId: params.poolId,
     collateralTypeAddress: collateralType?.tokenAddress,
     debtChange: liquidityPosition?.debt.mul(-1) || ZEROWEI,
   });
 
-  const getSteps = useCallback(() => {
+  const getSteps = React.useCallback(() => {
     const transactions: {
-      title: ReactNode;
-      subtitle?: ReactNode;
+      title: React.ReactNode;
+      subtitle?: React.ReactNode;
       cb: () => Promise<any>;
     }[] = [];
 
@@ -139,7 +143,7 @@ export const ClosePositionTransactions: FC<{
       // console.log(`ClosePositionContract`, ClosePositionContract);
     }
 
-    if (!isBase) {
+    if (network?.preset !== 'andromeda') {
       if (liquidityPosition?.debt.gt(0)) {
         if (requireApproval) {
           transactions.push({
@@ -211,7 +215,7 @@ export const ClosePositionTransactions: FC<{
     debtSymbol,
     execBorrow,
     execRepay,
-    isBase,
+    network?.preset,
     liquidityPosition?.collateralAmount,
     liquidityPosition?.debt,
     requireApproval,
@@ -221,7 +225,7 @@ export const ClosePositionTransactions: FC<{
     undelegateBaseAndromeda,
   ]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!steps.length && !isLoading) {
       setTxState({
         step: 0,
@@ -233,7 +237,7 @@ export const ClosePositionTransactions: FC<{
 
   const isSuccess = txState.step >= steps.length;
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = React.useCallback(async () => {
     try {
       let i = txState.step > -1 ? txState.step : 0;
 
@@ -374,4 +378,4 @@ export const ClosePositionTransactions: FC<{
       </Button>
     </Flex>
   );
-};
+}

@@ -2,7 +2,6 @@ import { Button, Fade, Flex, Link, Text } from '@chakra-ui/react';
 import { ZEROWEI } from '@snx-v3/constants';
 import { formatNumber, formatNumberToUsd } from '@snx-v3/formatters';
 import { Sparkles } from '@snx-v3/icons';
-import { getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import {
@@ -14,10 +13,10 @@ import {
   useWallet,
 } from '@snx-v3/useBlockchain';
 import { CollateralType } from '@snx-v3/useCollateralTypes';
-import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { makeSearch, useParams } from '@snx-v3/useParams';
 import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
+import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useUSDC } from '@snx-v3/useUSDC';
 import { wei } from '@synthetixio/wei';
@@ -57,15 +56,19 @@ export function PoolRow({
 }) {
   const [params, setParams] = useParams();
 
-  const { data: wrapperToken } = useGetWrapperToken(
-    getSpotMarketId(collateralType.symbol),
-    network
-  );
-  const isBase = isBaseAndromeda(network?.id, network?.preset);
+  const { data: synthTokens } = useSynthTokens();
+  const wrapperToken = React.useMemo(() => {
+    if (synthTokens && collateralType) {
+      return synthTokens.find((synth) => synth.address === collateralType.tokenAddress)?.token
+        ?.address;
+    }
+  }, [collateralType, synthTokens]);
+
   const { data: stataUSDCApr } = useStataUSDCApr(network.id, network.preset);
 
   // TODO: This will need refactoring
-  const balanceAddress = isBase ? wrapperToken : collateralType?.tokenAddress;
+  const balanceAddress =
+    network?.preset === 'andromeda' ? wrapperToken : collateralType?.tokenAddress;
 
   const { data: stataUSDCRate } = useStaticAaveUSDCRate();
   const { data: tokenBalance } = useTokenBalance(balanceAddress, network);
