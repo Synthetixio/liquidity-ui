@@ -57,7 +57,6 @@
     "@snx-v3/useGasOptions": "workspace:*",
     "@snx-v3/useGasPrice": "workspace:*",
     "@snx-v3/useGasSpeed": "workspace:*",
-    "@snx-v3/useGetUSDTokens": "workspace:*",
     "@snx-v3/useIsSynthStataUSDC": "workspace:*",
     "@snx-v3/useLegacyMarket": "workspace:*",
     "@snx-v3/useLiquidityPosition": "workspace:*",

@@ -12,7 +12,6 @@ import {
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { ZEROWEI } from '@snx-v3/constants';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
 import { useNetwork, useProvider } from '@snx-v3/useBlockchain';
@@ -44,8 +43,7 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
   const collateralSymbol = collateralType?.displaySymbol;
 
   const { network } = useNetwork();
-  const isBase = isBaseAndromeda(network?.id, network?.preset);
-  const debtSymbol = isBase ? 'USDC' : systemToken?.symbol;
+  const debtSymbol = network?.preset === 'andromeda' ? 'USDC' : systemToken?.symbol;
 
   const provider = useProvider();
   const { data: positionDebt, isPending: isPendingPositionDebt } = usePositionDebt({
@@ -267,12 +265,7 @@ export const ClosePosition = ({ onClose }: { onClose: () => void }) => {
         <ClosePositionUi onClose={onClose} onSubmit={() => setTransactions(true)} />
       ) : null}
       {transactionStep && !ClosePositionDeployment ? (
-        <ClosePositionTransactions
-          onBack={() => setTransactions(false)}
-          onClose={onClose}
-          collateralType={collateralType}
-          liquidityPosition={liquidityPosition}
-        />
+        <ClosePositionTransactions onBack={() => setTransactions(false)} onClose={onClose} />
       ) : null}
       {transactionStep && ClosePositionDeployment ? (
         <ClosePositionOneStep onBack={() => setTransactions(false)} onClose={onClose} />

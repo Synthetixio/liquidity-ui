@@ -41,5 +41,9 @@ export const calculatePoolPerformanceSevenDays = (poolData?: PoolType) => {
   };
 };
 
-export const calculateCRatio = (debt: Wei, collateralValue: Wei) =>
-  debt.eq(0) || collateralValue.eq(0) ? ZEROWEI : collateralValue.div(debt);
+export function calculateCRatio(debt?: Wei, collateralValue?: Wei) {
+  if (debt && collateralValue && !debt.eq(0) && !collateralValue.eq(0)) {
+    return collateralValue.div(debt);
+  }
+  return ZEROWEI;
+}

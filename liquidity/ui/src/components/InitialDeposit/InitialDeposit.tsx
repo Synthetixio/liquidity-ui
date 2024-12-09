@@ -23,7 +23,7 @@ import { MAINNET, SEPOLIA, useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useEthBalance } from '@snx-v3/useEthBalance';
 import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
-import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
 import { useSynthTokens } from '@snx-v3/useSynthTokens';
@@ -32,44 +32,38 @@ import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { useTransferableSynthetix } from '@snx-v3/useTransferableSynthetix';
 import { useUSDC } from '@snx-v3/useUSDC';
 import { WithdrawIncrease } from '@snx-v3/WithdrawIncrease';
-import Wei from '@synthetixio/wei';
-import { FC, useContext, useMemo, useState } from 'react';
+import React from 'react';
 import { MigrationBanner } from '../Migration/MigrationBanner';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
 
-export const InitialDepositUi: FC<{
-  collateralChange: Wei;
-  ethBalance?: Wei;
-  snxBalance?: {
-    transferable: Wei;
-    collateral?: Wei;
-  };
-  tokenBalance?: Wei;
-  displaySymbol: string;
-  symbol: string;
-  setCollateralChange: (val: Wei) => void;
-  onSubmit: () => void;
-  minDelegation: Wei;
-  hasAccount: boolean;
-  availableCollateral: Wei;
-}> = ({
-  collateralChange,
-  setCollateralChange,
-  displaySymbol,
-  symbol,
-  tokenBalance,
-  ethBalance,
-  snxBalance,
-  onSubmit,
-  minDelegation,
+export function InitialDeposit({
+  submit,
   hasAccount,
-  availableCollateral,
-}) => {
+}: {
+  submit: () => void;
+  hasAccount: boolean;
+}) {
   const [params] = useParams<PositionPageSchemaType>();
+  const { collateralChange, setCollateralChange } = React.useContext(ManagePositionContext);
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
+  const { data: liquidityPosition, isPending: isPendingLiquidityPosition } = useLiquidityPosition({
+    accountId: params.accountId,
+    collateralType,
+  });
+  const { data: transferrableSnx } = useTransferableSynthetix();
+  const { data: synthTokens } = useSynthTokens();
+  const synth = synthTokens?.find(
+    (synth) =>
+      collateralType?.tokenAddress?.toLowerCase() === synth?.address?.toLowerCase() ||
+      collateralType?.tokenAddress?.toLowerCase() === synth?.token?.address.toLowerCase()
+  );
 
-  const [step, setStep] = useState(0);
-  const price = useTokenPrice(symbol);
+  const { data: tokenBalance } = useTokenBalance(synth?.token?.address);
+
+  const { data: ethBalance } = useEthBalance();
+
+  const [step, setStep] = React.useState(0);
+  const price = useTokenPrice(collateralType?.symbol);
   const { network } = useNetwork();
   const { data: stataUSDCRate } = useStaticAaveUSDCRate();
 
@@ -81,7 +75,7 @@ export const InitialDepositUi: FC<{
     customNetwork: network,
   });
 
-  const stataUSDCBalance = useMemo(() => {
+  const stataUSDCBalance = React.useMemo(() => {
     if (!isStataUSDC || !stataUSDCRate) {
       return ZEROWEI;
     }
@@ -89,25 +83,34 @@ export const InitialDepositUi: FC<{
     return usdcBalance?.div(stataUSDCRate) || ZEROWEI;
   }, [isStataUSDC, stataUSDCRate, usdcBalance]);
 
-  const combinedTokenBalance = useMemo(() => {
-    if (symbol === 'SNX') {
-      return snxBalance?.transferable || ZEROWEI;
+  const combinedTokenBalance = React.useMemo(() => {
+    if (collateralType?.symbol === 'SNX') {
+      return transferrableSnx?.transferable || ZEROWEI;
     }
     if (isStataUSDC) {
       return (tokenBalance || ZEROWEI).add(stataUSDCBalance);
     }
-    if (symbol !== 'WETH') {
+    if (collateralType?.symbol !== 'WETH') {
       return tokenBalance || ZEROWEI;
     }
     if (!tokenBalance || !ethBalance) {
       return ZEROWEI;
     }
     return tokenBalance.add(ethBalance);
-  }, [symbol, isStataUSDC, tokenBalance, ethBalance, snxBalance?.transferable, stataUSDCBalance]);
+  }, [
+    collateralType?.symbol,
+    isStataUSDC,
+    tokenBalance,
+    ethBalance,
+    transferrableSnx?.transferable,
+    stataUSDCBalance,
+  ]);
 
-  const maxAmount = useMemo(() => {
-    return combinedTokenBalance?.add(availableCollateral);
-  }, [availableCollateral, combinedTokenBalance]);
+  const maxAmount = React.useMemo(() => {
+    return combinedTokenBalance && liquidityPosition
+      ? combinedTokenBalance?.add(liquidityPosition.availableCollateral)
+      : undefined;
+  }, [liquidityPosition, combinedTokenBalance]);
 
   const overAvailableBalance = collateralChange.gt(maxAmount);
 
@@ -135,8 +138,8 @@ export const InitialDepositUi: FC<{
                   width="fit-content"
                 >
                   <Text display="flex" gap={2} alignItems="center" fontWeight="600">
-                    <TokenIcon symbol={symbol} width={16} height={16} />
-                    {displaySymbol}
+                    <TokenIcon symbol={collateralType?.symbol} width={16} height={16} />
+                    {collateralType?.displaySymbol}
                   </Text>
                 </BorderBox>
                 <Tooltip
@@ -149,13 +152,21 @@ export const InitialDepositUi: FC<{
                     >
                       <Flex gap="1">
                         <Text>Unlocked Balance:</Text>
-                        <Amount value={availableCollateral} />
+                        {isPendingLiquidityPosition ? (
+                          '~'
+                        ) : liquidityPosition ? (
+                          <Amount value={liquidityPosition.availableCollateral} />
+                        ) : null}
                       </Flex>
 
                       <Flex gap="1">
                         <Text>Wallet Balance:</Text>
                         <Amount
-                          value={symbol === 'SNX' ? snxBalance?.transferable : tokenBalance}
+                          value={
+                            collateralType?.symbol === 'SNX'
+                              ? transferrableSnx?.transferable
+                              : tokenBalance
+                          }
                         />
                       </Flex>
 
@@ -167,7 +178,7 @@ export const InitialDepositUi: FC<{
                         </Flex>
                       )}
 
-                      {symbol === 'WETH' ? (
+                      {collateralType?.symbol === 'WETH' ? (
                         <Flex gap="1">
                           <Text>ETH Balance:</Text>
                           <Amount value={ethBalance} />
@@ -216,12 +227,17 @@ export const InitialDepositUi: FC<{
               </Flex>
             </Flex>
           </BorderBox>
-          {symbol === 'SNX' && network && [MAINNET.id, SEPOLIA.id].includes(network.id) && (
-            <MigrationBanner network={network} type="alert" />
-          )}
+          {collateralType?.symbol === 'SNX' &&
+            network &&
+            [MAINNET.id, SEPOLIA.id].includes(network.id) && (
+              <MigrationBanner network={network} type="alert" />
+            )}
           <Collapse
             in={
-              collateralChange.gt(0) && !overAvailableBalance && collateralChange.gte(minDelegation)
+              collateralType &&
+              collateralChange.gt(0) &&
+              !overAvailableBalance &&
+              collateralChange.gte(collateralType.minDelegationD18)
             }
             animateOpacity
           >
@@ -235,12 +251,22 @@ export const InitialDepositUi: FC<{
               </AlertDescription>
             </Alert>
           </Collapse>
-          <Collapse in={collateralChange.lt(minDelegation) && !overAvailableBalance} animateOpacity>
+          <Collapse
+            in={
+              collateralType &&
+              collateralChange.lt(collateralType.minDelegationD18) &&
+              !overAvailableBalance
+            }
+            animateOpacity
+          >
             <Alert mb={6} status="error" borderRadius="6px">
               <AlertIcon />
               <AlertDescription>
-                Your deposit must be {formatNumber(parseFloat(minDelegation.toString()))} {symbol}{' '}
-                or higher
+                Your deposit must be{' '}
+                {collateralType
+                  ? formatNumber(parseFloat(collateralType.minDelegationD18.toString()))
+                  : ''}{' '}
+                {collateralType?.symbol} or higher
               </AlertDescription>
             </Alert>
           </Collapse>
@@ -256,15 +282,16 @@ export const InitialDepositUi: FC<{
             data-cy="deposit submit"
             onClick={() => {
               if (hasAccount) {
-                onSubmit();
+                submit();
               } else {
                 setStep(1);
               }
             }}
             isDisabled={
+              !collateralType ||
               collateralChange.lte(0) ||
               combinedTokenBalance === undefined ||
-              collateralChange.lt(minDelegation) ||
+              collateralChange.lt(collateralType.minDelegationD18) ||
               overAvailableBalance
             }
           >
@@ -296,7 +323,7 @@ export const InitialDepositUi: FC<{
           </UnorderedList>
           <Button
             onClick={() => {
-              onSubmit();
+              submit();
               setStep(0);
             }}
             mt={8}
@@ -307,41 +334,4 @@ export const InitialDepositUi: FC<{
       )}
     </Flex>
   );
-};
-
-export const InitialDeposit: FC<{
-  submit: () => void;
-  hasAccount: boolean;
-  liquidityPosition?: LiquidityPosition;
-}> = ({ submit, hasAccount, liquidityPosition }) => {
-  const [params] = useParams<PositionPageSchemaType>();
-  const { collateralChange, setCollateralChange } = useContext(ManagePositionContext);
-  const { data: collateralType } = useCollateralType(params.collateralSymbol);
-  const { data: transferrableSnx } = useTransferableSynthetix();
-  const { data: synthTokens } = useSynthTokens();
-  const synth = synthTokens?.find(
-    (synth) =>
-      collateralType?.tokenAddress?.toLowerCase() === synth?.address?.toLowerCase() ||
-      collateralType?.tokenAddress?.toLowerCase() === synth?.token?.address.toLowerCase()
-  );
-
-  const { data: tokenBalance } = useTokenBalance(synth?.token?.address);
-
-  const { data: ethBalance } = useEthBalance();
-
-  return (
-    <InitialDepositUi
-      displaySymbol={collateralType?.displaySymbol || ''}
-      tokenBalance={tokenBalance}
-      snxBalance={transferrableSnx}
-      ethBalance={ethBalance}
-      symbol={collateralType?.symbol || ''}
-      minDelegation={collateralType?.minDelegationD18 || ZEROWEI}
-      setCollateralChange={setCollateralChange}
-      collateralChange={collateralChange}
-      onSubmit={submit}
-      hasAccount={hasAccount}
-      availableCollateral={liquidityPosition?.accountCollateral.availableCollateral || ZEROWEI}
-    />
-  );
-};
+}

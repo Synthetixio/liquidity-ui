@@ -40,7 +40,6 @@ export const ManageAction = ({
     React.useContext(ManagePositionContext);
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
-
   const { data: liquidityPosition } = useLiquidityPosition({
     accountId: params.accountId,
     collateralType,
@@ -255,10 +254,10 @@ export const ManageAction = ({
           </Tabs>
 
           <Flex direction="column">
-            {manageAction === 'claim' ? <Claim liquidityPosition={liquidityPosition} /> : null}
+            {manageAction === 'claim' ? <Claim /> : null}
             {manageAction === 'withdraw' ? <Withdraw /> : null}
             {manageAction === 'withdraw-debt' ? <Withdraw isDebtWithdrawal /> : null}
-            {manageAction === 'deposit' ? <Deposit liquidityPosition={liquidityPosition} /> : null}
+            {manageAction === 'deposit' ? <Deposit /> : null}
             {manageAction === 'repay' && network?.preset === 'andromeda' ? (
               <RepayAndromedaDebt />
             ) : null}
@@ -284,8 +283,6 @@ export const ManageAction = ({
             setDebtChange(wei(0));
             setTxnModalOpen(undefined);
           }}
-          isOpen={txnModalOpen === 'claim'}
-          liquidityPosition={liquidityPosition}
         />
       ) : null}
       {txnModalOpen === 'deposit' ? (
@@ -295,19 +292,15 @@ export const ManageAction = ({
             setDebtChange(wei(0));
             setTxnModalOpen(undefined);
           }}
-          isOpen={txnModalOpen === 'deposit'}
-          liquidityPosition={liquidityPosition}
         />
       ) : null}
       {txnModalOpen === 'undelegate' ? (
         <UndelegateModal
-          liquidityPosition={liquidityPosition}
           onClose={() => {
             setCollateralChange(wei(0));
             setDebtChange(wei(0));
             setTxnModalOpen(undefined);
           }}
-          isOpen={txnModalOpen === 'undelegate'}
         />
       ) : null}
       {txnModalOpen === 'withdraw' ? (

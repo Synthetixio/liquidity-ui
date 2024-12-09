@@ -1,7 +1,7 @@
-import { FC, ReactNode } from 'react';
+import { ArrowForwardIcon } from '@chakra-ui/icons';
 import { Flex, Text } from '@chakra-ui/react';
 import Wei from '@synthetixio/wei';
-import { ArrowForwardIcon } from '@chakra-ui/icons';
+import React from 'react';
 
 const styles = {
   sm: {
@@ -20,15 +20,26 @@ const styles = {
     lineHeight: '32px',
   },
 };
-export const ChangeStat: FC<{
-  value: Wei;
+
+export function ChangeStat({
+  formatFn,
+  value,
+  newValue,
+  hasChanges,
+  'data-cy': dataCy,
+  withColor,
+  size = 'lg',
+  isPending,
+}: {
+  value?: Wei;
   newValue: Wei;
   hasChanges: boolean;
   'data-cy'?: string;
-  formatFn: (val: Wei) => ReactNode;
+  formatFn: (val: Wei) => React.ReactNode;
   withColor?: boolean;
   size?: 'sm' | 'md' | 'lg';
-}> = ({ formatFn, value, newValue, hasChanges, 'data-cy': dataCy, withColor, size = 'lg' }) => {
+  isPending?: boolean;
+}) {
   return (
     <Flex
       gap="1"
@@ -41,13 +52,20 @@ export const ChangeStat: FC<{
       <Text
         data-cy={dataCy}
         textAlign="center"
-        opacity={value.eq(0) ? '70%' : undefined}
-        color={withColor && value.gt(0) ? 'green.700' : value.lt(0) ? 'red.700' : 'gray.50'}
+        opacity={value && value.eq(0) ? '70%' : undefined}
+        color={
+          withColor && value && value.gt(0)
+            ? 'green.700'
+            : value && value.lt(0)
+              ? 'red.700'
+              : 'gray.50'
+        }
         whiteSpace="nowrap"
       >
-        {formatFn(value)}
+        {isPending ? '~' : null}
+        {!isPending && value ? formatFn(value) : null}
       </Text>
-      {hasChanges && !value.eq(newValue) ? (
+      {hasChanges && !isPending && value && !value.eq(newValue) ? (
         <>
           <ArrowForwardIcon />
           <Text
@@ -64,4 +82,4 @@ export const ChangeStat: FC<{
       ) : null}
     </Flex>
   );
-};
+}

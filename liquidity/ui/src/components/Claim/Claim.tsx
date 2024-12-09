@@ -2,12 +2,11 @@ import { Alert, AlertIcon, Box, Button, Collapse, Flex, Text } from '@chakra-ui/
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { ZEROWEI } from '@snx-v3/constants';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
-import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
@@ -23,27 +22,28 @@ const ClaimUi: FC<{
   setDebtChange: (val: Wei) => void;
 }> = ({ maxDebt, debtChange, setDebtChange, maxClaimble }) => {
   const { network } = useNetwork();
-  const isBase = isBaseAndromeda(network?.id, network?.preset);
   const { data: systemToken } = useSystemToken();
   const max = useMemo(() => maxClaimble.add(maxDebt), [maxClaimble, maxDebt]);
 
   const [params] = useParams<PositionPageSchemaType>();
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
-  const symbol = isBase ? collateralType?.symbol : systemToken?.symbol;
+  const symbol = network?.preset === 'andromeda' ? collateralType?.symbol : systemToken?.symbol;
   const price = useTokenPrice(symbol);
 
   return (
     <Flex flexDirection="column" data-cy="claim form">
       <Text color="gray./50" fontSize="sm" fontWeight="700" mb="3">
-        {isBase ? 'Claim Profit' : 'Claim/Borrow'}
+        {network?.preset === 'andromeda' ? 'Claim Profit' : 'Claim/Borrow'}
       </Text>
       <BorderBox display="flex" p={3} mb="6">
         <Flex alignItems="flex-start" flexDir="column" gap="1">
           <BorderBox display="flex" py={1.5} px={2.5}>
             <Text display="flex" gap={2} fontSize="16px" alignItems="center" fontWeight="600">
               <TokenIcon symbol={symbol} width={16} height={16} />
-              {isBase ? collateralType?.displaySymbol : systemToken?.symbol}
+              {network?.preset === 'andromeda'
+                ? collateralType?.displaySymbol
+                : systemToken?.symbol}
             </Text>
           </BorderBox>
           <Flex fontSize="12px" gap="1" data-cy="credit amount">
@@ -115,7 +115,10 @@ const ClaimUi: FC<{
           </Text>
         </Alert>
       </Collapse>
-      <Collapse in={debtChange.lte(0) && !isBase && maxDebt.gt(0)} animateOpacity>
+      <Collapse
+        in={debtChange.lte(0) && network?.preset !== 'andromeda' && maxDebt.gt(0)}
+        animateOpacity
+      >
         <Alert colorScheme="blue" mb="6" borderRadius="6px">
           <AlertIcon />
           <Text>
@@ -137,7 +140,12 @@ const ClaimUi: FC<{
         </Alert>
       </Collapse>
       <Collapse
-        in={!debtChange.gt(max) && debtChange.gt(0) && debtChange.gt(maxClaimble) && !isBase}
+        in={
+          !debtChange.gt(max) &&
+          debtChange.gt(0) &&
+          debtChange.gt(maxClaimble) &&
+          network?.preset !== 'andromeda'
+        }
         animateOpacity
       >
         <Alert colorScheme="info" mb="6" borderRadius="6px">
@@ -155,7 +163,7 @@ const ClaimUi: FC<{
       >
         {debtChange.lte(0)
           ? 'Enter Amount'
-          : debtChange.gt(maxClaimble) && !isBase
+          : debtChange.gt(maxClaimble) && network?.preset !== 'andromeda'
             ? 'Borrow'
             : 'Claim Profit'}
       </Button>
@@ -163,11 +171,16 @@ const ClaimUi: FC<{
   );
 };
 
-export const Claim = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosition }) => {
+export function Claim() {
   const { network } = useNetwork();
   const { debtChange, collateralChange, setDebtChange } = useContext(ManagePositionContext);
   const [params] = useParams<PositionPageSchemaType>();
+
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
+  const { data: liquidityPosition } = useLiquidityPosition({
+    accountId: params.accountId,
+    collateralType,
+  });
 
   const maxClaimble = useMemo(() => {
     if (!liquidityPosition || liquidityPosition?.debt.gte(0)) {
@@ -191,7 +204,7 @@ export const Claim = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosi
       setDebtChange={setDebtChange}
       debtChange={debtChange}
       maxClaimble={maxClaimble}
-      maxDebt={isBaseAndromeda(network?.id, network?.preset) ? ZEROWEI : maxDebt.mul(99).div(100)}
+      maxDebt={network?.preset === 'andromeda' ? ZEROWEI : maxDebt.mul(99).div(100)}
     />
   );
-};
+}

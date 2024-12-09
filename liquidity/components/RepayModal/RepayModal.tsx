@@ -4,7 +4,6 @@ import { Amount } from '@snx-v3/Amount';
 import { ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
 import { parseUnits } from '@snx-v3/format';
-import { getSpotMarketId, isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
 import { useAccountAvailableCollateral } from '@snx-v3/useAccountAvailableCollateral';
@@ -13,11 +12,11 @@ import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
-import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useRepay } from '@snx-v3/useRepay';
 import { useRepayBaseAndromeda } from '@snx-v3/useRepayBaseAndromeda';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
+import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useQueryClient } from '@tanstack/react-query';
@@ -71,7 +70,13 @@ export function RepayModal({ onClose }: { onClose: () => void }) {
   const errorParser = useContractErrorParser();
   const amountToDeposit = debtChange.abs().sub(availableCollateral || 0);
 
-  const { data: wrapperToken } = useGetWrapperToken(getSpotMarketId(params.collateralSymbol));
+  const { data: synthTokens } = useSynthTokens();
+  const wrapperToken = React.useMemo(() => {
+    if (synthTokens && collateralType) {
+      return synthTokens.find((synth) => synth.address === collateralType.tokenAddress)?.token
+        ?.address;
+    }
+  }, [collateralType, synthTokens]);
 
   const collateralAddress = network?.preset === 'andromeda' ? wrapperToken : systemToken?.address;
 
@@ -122,7 +127,7 @@ export function RepayModal({ onClose }: { onClose: () => void }) {
           toast.closeAll();
           toast({ title: 'Repaying...', variant: 'left-accent' });
 
-          if (isBaseAndromeda(network?.id, network?.preset)) {
+          if (network?.preset === 'andromeda') {
             await execRepayBaseAndromeda();
           } else {
             await execRepay();

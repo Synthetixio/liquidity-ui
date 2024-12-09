@@ -2,15 +2,14 @@ import { CheckIcon } from '@chakra-ui/icons';
 import { Alert, Button, Flex, Text } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { parseUnits } from '@snx-v3/format';
-import { getSpotMarketId } from '@snx-v3/isBaseAndromeda';
 import { useApprove } from '@snx-v3/useApprove';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useClearDebt } from '@snx-v3/useClearDebt';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
-import { useGetWrapperToken } from '@snx-v3/useGetUSDTokens';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
+import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useUSDC } from '@snx-v3/useUSDC';
 import { useQueryClient } from '@tanstack/react-query';
@@ -25,7 +24,15 @@ export function RepayAndromedaDebt() {
     collateralType,
   });
   const { data: USDC } = useUSDC();
-  const { data: wrapperToken } = useGetWrapperToken(getSpotMarketId(params.collateralSymbol));
+
+  const { data: synthTokens } = useSynthTokens();
+  const wrapperToken = React.useMemo(() => {
+    if (synthTokens && collateralType) {
+      return synthTokens.find((synth) => synth.address === collateralType.tokenAddress)?.token
+        ?.address;
+    }
+  }, [collateralType, synthTokens]);
+
   const { data: tokenBalance } = useTokenBalance(wrapperToken);
 
   const {
