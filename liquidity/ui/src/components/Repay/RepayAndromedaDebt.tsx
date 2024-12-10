@@ -86,6 +86,11 @@ export function RepayAndromedaDebt() {
     } catch (error) {}
   }, [approve, clearDebt, network?.id, network?.preset, queryClient, requireApproval, settleRepay]);
 
+  const hasEnoughBalance =
+    liquidityPosition &&
+    tokenBalance &&
+    liquidityPosition.availableSystemToken.add(tokenBalance).gte(liquidityPosition.debt);
+
   return (
     <Flex data-cy="repay debt form" flexDirection="column">
       <Text fontSize="md" fontWeight="700" mb="0.5">
@@ -117,7 +122,7 @@ export function RepayAndromedaDebt() {
                 collateral withdrawal.
               </Text>
               <Button
-                isDisabled={!(tokenBalance && tokenBalance.lt(liquidityPosition.debt))}
+                isDisabled={!hasEnoughBalance}
                 isLoading={isLoading || approvalLoading}
                 onClick={submit}
                 data-cy="repay debt submit"
@@ -125,11 +130,7 @@ export function RepayAndromedaDebt() {
                 <Amount
                   prefix="Repay USDC $"
                   value={liquidityPosition.debt}
-                  suffix={
-                    tokenBalance && tokenBalance.lt(liquidityPosition.debt)
-                      ? ' (Insufficient Balance)'
-                      : ''
-                  }
+                  suffix={hasEnoughBalance ? '' : ' (Insufficient Balance)'}
                 />
               </Button>
             </>
