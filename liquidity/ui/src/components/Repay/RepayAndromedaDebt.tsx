@@ -9,7 +9,6 @@ import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
-import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useUSDC } from '@snx-v3/useUSDC';
 import { useQueryClient } from '@tanstack/react-query';
@@ -23,17 +22,10 @@ export function RepayAndromedaDebt() {
     accountId: params.accountId,
     collateralType,
   });
+
+  // Andromeda users pay with USDC
   const { data: USDC } = useUSDC();
-
-  const { data: synthTokens } = useSynthTokens();
-  const wrapperToken = React.useMemo(() => {
-    if (synthTokens && collateralType) {
-      return synthTokens.find((synth) => synth.address === collateralType.tokenAddress)?.token
-        ?.address;
-    }
-  }, [collateralType, synthTokens]);
-
-  const { data: tokenBalance } = useTokenBalance(wrapperToken);
+  const { data: usdcBalance } = useTokenBalance(USDC?.address);
 
   const {
     exec: clearDebt,
@@ -88,8 +80,8 @@ export function RepayAndromedaDebt() {
 
   const hasEnoughBalance =
     liquidityPosition &&
-    tokenBalance &&
-    liquidityPosition.availableSystemToken.add(tokenBalance).gte(liquidityPosition.debt);
+    usdcBalance &&
+    liquidityPosition.availableSystemToken.add(usdcBalance).gte(liquidityPosition.debt);
 
   return (
     <Flex data-cy="repay debt form" flexDirection="column">
