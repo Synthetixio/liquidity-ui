@@ -2,23 +2,22 @@ import { InfoIcon } from '@chakra-ui/icons';
 import { Flex, Text } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { currency } from '@snx-v3/format';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { Tooltip } from '@snx-v3/Tooltip';
-import { useNetwork } from '@snx-v3/useBlockchain';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { type Wei } from '@synthetixio/wei';
 import { ChangeStat } from '../ChangeStat/ChangeStat';
 
-export function PnlStats({
-  debt,
-  newDebt,
-  hasChanges,
-}: {
-  debt: Wei;
-  newDebt: Wei;
-  hasChanges: boolean;
-}) {
-  const { network } = useNetwork();
-  const isBase = isBaseAndromeda(network?.id, network?.preset);
+export function PnlStats({ newDebt, hasChanges }: { newDebt: Wei; hasChanges: boolean }) {
+  const [params] = useParams<PositionPageSchemaType>();
+
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
+  const { data: liquidityPosition, isPending: isPendingLiquidityPosition } = useLiquidityPosition({
+    accountId: params.accountId,
+    collateralType,
+  });
+
   return (
     <BorderBox p={4} flex="1" flexDirection="row" bg="navy.700" justifyContent="space-between">
       <Flex flexDirection="column" width="100%">
@@ -27,20 +26,7 @@ export function PnlStats({
             PnL
           </Text>
           <Tooltip
-            label={
-              isBase ? (
-                "Your portion of the pool's total debt, which fluctuates based on trader performance and market conditions"
-              ) : (
-                <Text>
-                  Debt consists of:
-                  <br />
-                  - Your portion of the pool&apos;s total debt, which fluctuates based on trader
-                  performance and market conditions
-                  <br />- The amount you&apos;ve borrowed against your collateral without incurring
-                  interest
-                </Text>
-              )
-            }
+            label="Your portion of the pool's total debt, which fluctuates based on trader performance and market conditions"
             textAlign="start"
             py={2}
             px={3}
@@ -52,7 +38,8 @@ export function PnlStats({
         </Flex>
         <Flex width="100%">
           <ChangeStat
-            value={debt.mul(-1)}
+            value={liquidityPosition?.debt.mul(-1)}
+            isPending={isPendingLiquidityPosition}
             newValue={newDebt.mul(-1)}
             formatFn={(val: Wei) =>
               currency(val, {

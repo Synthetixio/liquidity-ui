@@ -2,67 +2,88 @@ import { Alert, AlertIcon, Box, Button, Collapse, Flex, Text } from '@chakra-ui/
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { ZEROWEI } from '@snx-v3/constants';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
-import { LiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { validatePosition } from '@snx-v3/validatePosition';
-import Wei, { wei } from '@synthetixio/wei';
-import { FC, useContext, useMemo } from 'react';
+import { wei } from '@synthetixio/wei';
+import { useContext, useMemo } from 'react';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
 
-const ClaimUi: FC<{
-  maxClaimble: Wei;
-  maxDebt: Wei;
-  debtChange: Wei;
-  setDebtChange: (val: Wei) => void;
-}> = ({ maxDebt, debtChange, setDebtChange, maxClaimble }) => {
+export function Claim() {
   const { network } = useNetwork();
-  const isBase = isBaseAndromeda(network?.id, network?.preset);
-  const { data: systemToken } = useSystemToken();
-  const max = useMemo(() => maxClaimble.add(maxDebt), [maxClaimble, maxDebt]);
-
+  const { debtChange, collateralChange, setDebtChange } = useContext(ManagePositionContext);
   const [params] = useParams<PositionPageSchemaType>();
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
-  const symbol = isBase ? collateralType?.symbol : systemToken?.symbol;
+  const { data: liquidityPosition, isPending: isPendingLiquidityPosition } = useLiquidityPosition({
+    accountId: params.accountId,
+    collateralType,
+  });
+
+  const maxClaimble = useMemo(() => {
+    if (!liquidityPosition || liquidityPosition?.debt.gte(0)) {
+      return ZEROWEI;
+    } else {
+      return wei(liquidityPosition.debt.abs().toBN().mul(99).div(100));
+    }
+  }, [liquidityPosition]);
+
+  const { maxDebt } = validatePosition({
+    issuanceRatioD18: collateralType?.issuanceRatioD18,
+    collateralAmount: liquidityPosition?.collateralAmount,
+    collateralPrice: liquidityPosition?.collateralPrice,
+    debt: liquidityPosition?.debt,
+    collateralChange: collateralChange,
+    debtChange: debtChange,
+  });
+
+  const maxBorrowingCapacity = network?.preset === 'andromeda' ? ZEROWEI : maxDebt.mul(99).div(100);
+  const { data: systemToken } = useSystemToken();
+  const max = useMemo(
+    () => maxClaimble.add(maxBorrowingCapacity),
+    [maxClaimble, maxBorrowingCapacity]
+  );
+
+  const symbol = network?.preset === 'andromeda' ? collateralType?.symbol : systemToken?.symbol;
   const price = useTokenPrice(symbol);
 
   return (
     <Flex flexDirection="column" data-cy="claim form">
       <Text color="gray./50" fontSize="sm" fontWeight="700" mb="3">
-        {isBase ? 'Claim Profit' : 'Claim/Borrow'}
+        {network?.preset === 'andromeda' ? 'Claim Profit' : 'Claim/Borrow'}
       </Text>
       <BorderBox display="flex" p={3} mb="6">
         <Flex alignItems="flex-start" flexDir="column" gap="1">
           <BorderBox display="flex" py={1.5} px={2.5}>
             <Text display="flex" gap={2} fontSize="16px" alignItems="center" fontWeight="600">
               <TokenIcon symbol={symbol} width={16} height={16} />
-              {isBase ? collateralType?.displaySymbol : systemToken?.symbol}
+              {network?.preset === 'andromeda'
+                ? collateralType?.displaySymbol
+                : systemToken?.symbol}
             </Text>
           </BorderBox>
           <Flex fontSize="12px" gap="1" data-cy="credit amount">
-            <Amount prefix="Credit: " value={maxClaimble} />
-            {maxClaimble?.gt(0) && (
-              <Text
-                cursor="pointer"
-                onClick={() => {
-                  if (!maxClaimble) {
-                    return;
-                  }
-                  setDebtChange(maxClaimble);
-                }}
-                color="cyan.500"
-                fontWeight={700}
-              >
-                &nbsp;Max
-              </Text>
-            )}
+            {isPendingLiquidityPosition ? 'Credit: ~' : null}
+            {!isPendingLiquidityPosition && maxClaimble ? (
+              <>
+                <Amount prefix="Credit: " value={maxClaimble} />
+                &nbsp;
+                <Text
+                  cursor="pointer"
+                  onClick={() => setDebtChange(maxClaimble)}
+                  color="cyan.500"
+                  fontWeight={700}
+                >
+                  Max
+                </Text>
+              </>
+            ) : null}
           </Flex>
         </Flex>
         <Flex flexDir="column" flexGrow={1}>
@@ -115,29 +136,37 @@ const ClaimUi: FC<{
           </Text>
         </Alert>
       </Collapse>
-      <Collapse in={debtChange.lte(0) && !isBase && maxDebt.gt(0)} animateOpacity>
+      <Collapse
+        in={debtChange.lte(0) && network?.preset !== 'andromeda' && maxBorrowingCapacity.gt(0)}
+        animateOpacity
+      >
         <Alert colorScheme="blue" mb="6" borderRadius="6px">
           <AlertIcon />
           <Text>
             You can take an interest-free loan up to &nbsp;
             <Box
               onClick={() => {
-                if (!maxDebt) {
+                if (!maxBorrowingCapacity) {
                   return;
                 }
-                setDebtChange(maxDebt.add(maxClaimble));
+                setDebtChange(maxBorrowingCapacity.add(maxClaimble));
               }}
               cursor="pointer"
               as="span"
               textDecoration="underline"
             >
-              <Amount value={maxDebt} prefix="$" />
+              <Amount value={maxBorrowingCapacity} prefix="$" />
             </Box>
           </Text>
         </Alert>
       </Collapse>
       <Collapse
-        in={!debtChange.gt(max) && debtChange.gt(0) && debtChange.gt(maxClaimble) && !isBase}
+        in={
+          !debtChange.gt(max) &&
+          debtChange.gt(0) &&
+          debtChange.gt(maxClaimble) &&
+          network?.preset !== 'andromeda'
+        }
         animateOpacity
       >
         <Alert colorScheme="info" mb="6" borderRadius="6px">
@@ -155,43 +184,10 @@ const ClaimUi: FC<{
       >
         {debtChange.lte(0)
           ? 'Enter Amount'
-          : debtChange.gt(maxClaimble) && !isBase
+          : debtChange.gt(maxClaimble) && network?.preset !== 'andromeda'
             ? 'Borrow'
             : 'Claim Profit'}
       </Button>
     </Flex>
   );
-};
-
-export const Claim = ({ liquidityPosition }: { liquidityPosition?: LiquidityPosition }) => {
-  const { network } = useNetwork();
-  const { debtChange, collateralChange, setDebtChange } = useContext(ManagePositionContext);
-  const [params] = useParams<PositionPageSchemaType>();
-  const { data: collateralType } = useCollateralType(params.collateralSymbol);
-
-  const maxClaimble = useMemo(() => {
-    if (!liquidityPosition || liquidityPosition?.debt.gte(0)) {
-      return ZEROWEI;
-    } else {
-      return wei(liquidityPosition.debt.abs().toBN().mul(99).div(100));
-    }
-  }, [liquidityPosition]);
-
-  const { maxDebt } = validatePosition({
-    issuanceRatioD18: collateralType?.issuanceRatioD18,
-    collateralAmount: liquidityPosition?.collateralAmount,
-    collateralPrice: liquidityPosition?.collateralPrice,
-    debt: liquidityPosition?.debt,
-    collateralChange: collateralChange,
-    debtChange: debtChange,
-  });
-
-  return (
-    <ClaimUi
-      setDebtChange={setDebtChange}
-      debtChange={debtChange}
-      maxClaimble={maxClaimble}
-      maxDebt={isBaseAndromeda(network?.id, network?.preset) ? ZEROWEI : maxDebt.mul(99).div(100)}
-    />
-  );
-};
+}

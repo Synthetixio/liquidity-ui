@@ -1,23 +1,22 @@
 import { InfoIcon } from '@chakra-ui/icons';
 import { Flex, Text, Tooltip } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
-import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
-import { useNetwork } from '@snx-v3/useBlockchain';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { type Wei } from '@synthetixio/wei';
 import { ChangeStat } from '../ChangeStat/ChangeStat';
 import { DebtAmount } from '../Positions/PositionsTable/DebtAmount';
 
-export function DebtStats({
-  debt,
-  newDebt,
-  hasChanges,
-}: {
-  debt: Wei;
-  newDebt: Wei;
-  hasChanges: boolean;
-}) {
-  const { network } = useNetwork();
-  const isBase = isBaseAndromeda(network?.id, network?.preset);
+export function DebtStats({ newDebt, hasChanges }: { newDebt: Wei; hasChanges: boolean }) {
+  const [params] = useParams<PositionPageSchemaType>();
+
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
+  const { data: liquidityPosition, isPending: isPendingLiquidityPosition } = useLiquidityPosition({
+    accountId: params.accountId,
+    collateralType,
+  });
+
   return (
     <BorderBox p={4} flex="1" flexDirection="row" bg="navy.700">
       <Flex flexDirection="column" width="100%">
@@ -27,18 +26,14 @@ export function DebtStats({
           </Text>
           <Tooltip
             label={
-              isBase ? (
-                "Your portion of the pool's total debt, which fluctuates based on trader performance and market conditions"
-              ) : (
-                <Text>
-                  Debt consists of:
-                  <br />
-                  - Your portion of the pool&apos;s total debt, which fluctuates based on trader
-                  performance and market conditions
-                  <br />- The amount you&apos;ve borrowed against your collateral without incurring
-                  interest
-                </Text>
-              )
+              <Text>
+                Debt consists of:
+                <br />
+                - Your portion of the pool&apos;s total debt, which fluctuates based on trader
+                performance and market conditions
+                <br />- The amount you&apos;ve borrowed against your collateral without incurring
+                interest
+              </Text>
             }
             textAlign="start"
             py={2}
@@ -51,7 +46,8 @@ export function DebtStats({
         </Flex>
         <Flex width="100%">
           <ChangeStat
-            value={debt}
+            value={liquidityPosition?.debt}
+            isPending={isPendingLiquidityPosition}
             newValue={newDebt}
             formatFn={(val: Wei) => <DebtAmount debt={val} as="span" />}
             hasChanges={hasChanges}

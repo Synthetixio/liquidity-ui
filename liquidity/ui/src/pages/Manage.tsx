@@ -5,7 +5,7 @@ import { ManagePositionProvider } from '@snx-v3/ManagePositionContext';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import { useNetwork } from '@snx-v3/useBlockchain';
-import { useCollateralType, useCollateralTypes } from '@snx-v3/useCollateralTypes';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type ManageActionType, type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
@@ -23,28 +23,15 @@ export const Manage = () => {
   const [params, setParams] = useParams<PositionPageSchemaType>();
   const { network } = useNetwork();
 
-  const { data: collateralType } = useCollateralType(params.collateralSymbol);
+  const { data: collateralType, isPending: isPendingCollateralType } = useCollateralType(
+    params.collateralSymbol
+  );
   const { data: poolData } = usePoolData(params.poolId);
-
   const { data: liquidityPosition } = useLiquidityPosition({
-    tokenAddress: collateralType?.tokenAddress,
     accountId: params.accountId,
-    poolId: params.poolId,
+    collateralType,
   });
 
-  const collateralDisplayName = collateralType?.displaySymbol;
-  const { data: collateralTypes, isPending: isPendingCollaterals } = useCollateralTypes();
-
-  const notSupported =
-    !isPendingCollaterals &&
-    poolData &&
-    collateralTypes?.length &&
-    collateralDisplayName &&
-    !collateralTypes.some((item) =>
-      [item.symbol.toUpperCase(), item.displaySymbol.toUpperCase()].includes(
-        collateralDisplayName.toUpperCase()
-      )
-    );
   const collateralSymbol = collateralType?.symbol;
 
   const { data: stataUSDCAPR } = useStataUSDCApr(network?.id, network?.preset);
@@ -65,7 +52,7 @@ export const Manage = () => {
 
   return (
     <ManagePositionProvider>
-      <UnsupportedCollateralAlert isOpen={Boolean(notSupported)} />
+      <UnsupportedCollateralAlert isOpen={!isPendingCollateralType && !collateralType} />
       <Box mb={12} mt={8}>
         <Flex
           flexDir={['column', 'row']}
@@ -110,7 +97,7 @@ export const Manage = () => {
             bg="navy.700"
             height="fit-content"
           >
-            <ManageStats liquidityPosition={liquidityPosition} />
+            <ManageStats />
             <Rewards />
           </BorderBox>
           <Flex
