@@ -112,10 +112,9 @@ export function DepositUi({
     stataUSDCBalance,
   ]);
 
-  const maxAmount =
-    combinedTokenBalance && accountCollateral?.availableCollateral
-      ? combinedTokenBalance.add(accountCollateral.availableCollateral)
-      : ZEROWEI;
+  const maxAmount = combinedTokenBalance
+    ? combinedTokenBalance.add(accountCollateral?.availableCollateral || ZEROWEI)
+    : ZEROWEI;
 
   const txSummaryItems = React.useMemo(() => {
     const items = [

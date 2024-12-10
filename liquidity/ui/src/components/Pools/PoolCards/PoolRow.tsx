@@ -27,6 +27,9 @@ import { MigrationBanner } from '../../Migration/MigrationBanner';
 import { TokenIcon } from '../../TokenIcon/TokenIcon';
 import { formatApr } from '../CollateralSection';
 import { Specifics } from './Specifics';
+import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
+import { Amount } from '@snx-v3/Amount';
+import { InfoIcon } from '@chakra-ui/icons';
 
 interface CollateralTypeWithDeposited extends CollateralType {
   collateralDeposited: string;
@@ -56,38 +59,49 @@ export function PoolRow({
   };
 }) {
   const [params, setParams] = useParams();
-
+  const { data: stataUSDC } = useStaticAaveUSDC();
+  const { data: USDCToken } = useUSDC(network);
   const { data: wrapperToken } = useGetWrapperToken(
     getSpotMarketId(collateralType.symbol),
     network
   );
-  const isBase = isBaseAndromeda(network?.id, network?.preset);
-  const { data: stataUSDCApr } = useStataUSDCApr(network.id, network.preset);
-
-  // TODO: This will need refactoring
-  const balanceAddress = isBase ? wrapperToken : collateralType?.tokenAddress;
-
-  const { data: stataUSDCRate } = useStaticAaveUSDCRate();
-  const { data: tokenBalance } = useTokenBalance(balanceAddress, network);
-
-  const { data: USDCToken } = useUSDC(network);
-  const { data: usdcBalance } = useTokenBalance(USDCToken?.address, network);
-
-  const { network: currentNetwork, setNetwork } = useNetwork();
-  const { connect } = useWallet();
 
   const isStataUSDC = useIsSynthStataUSDC({
     tokenAddress: collateralType?.tokenAddress,
     customNetwork: network,
   });
+  const isBase = isBaseAndromeda(network?.id, network?.preset);
+  const { data: stataUSDCApr } = useStataUSDCApr(network.id, network.preset);
+
+  const balanceAddress = isBase
+    ? isStataUSDC
+      ? stataUSDC?.address
+      : wrapperToken
+    : collateralType?.tokenAddress;
+
+  const { data: stataUSDCRate } = useStaticAaveUSDCRate();
+  const { data: tokenBalance } = useTokenBalance(balanceAddress, network);
+
+  const { data: usdcBalance } = useTokenBalance(USDCToken?.address, network);
+
+  const { network: currentNetwork, setNetwork } = useNetwork();
+  const { connect } = useWallet();
+
+  const stataUSDCBalance = React.useMemo(() => {
+    if (!isStataUSDC || !stataUSDCRate) {
+      return ZEROWEI;
+    }
+
+    return (usdcBalance?.div(stataUSDCRate) || ZEROWEI).mul(998).div(1000);
+  }, [isStataUSDC, stataUSDCRate, usdcBalance]);
 
   const balance = React.useMemo(() => {
     if (!isStataUSDC || !stataUSDCRate) {
       return tokenBalance || ZEROWEI;
     }
 
-    return ((usdcBalance || ZEROWEI).div(stataUSDCRate) || ZEROWEI).add(tokenBalance || ZEROWEI);
-  }, [isStataUSDC, stataUSDCRate, tokenBalance, usdcBalance]);
+    return stataUSDCBalance.add(tokenBalance || ZEROWEI);
+  }, [isStataUSDC, stataUSDCBalance, stataUSDCRate, tokenBalance]);
 
   const price = wei(
     collateralPrices?.find(
@@ -196,8 +210,40 @@ export function PoolRow({
             >
               {balance ? formatNumberToUsd(balance.mul(price).toNumber()) : '-'}
             </Text>
-            <Text color="gray.500" fontFamily="heading" fontSize="12px" lineHeight="16px">
+            <Text
+              display="flex"
+              alignItems="center"
+              gap="1"
+              color="gray.500"
+              fontFamily="heading"
+              fontSize="12px"
+              lineHeight="16px"
+            >
               {balance ? formatNumber(balance.toNumber()) : ''} {collateralType.displaySymbol}
+              {isStataUSDC && (
+                <Tooltip
+                  label={
+                    <Flex
+                      flexDirection="column"
+                      alignItems="flex-start"
+                      fontSize="xs"
+                      color="whiteAlpha.700"
+                    >
+                      <Flex gap="1">
+                        <Text>Wallet Balance:</Text>
+                        <Amount value={tokenBalance} />
+                      </Flex>
+                      <Flex gap="1">
+                        <Text>USDC Balance:</Text>
+                        <Amount value={usdcBalance} />
+                        <Amount prefix="(~" value={stataUSDCBalance} suffix=" Static aUSDC)" />
+                      </Flex>
+                    </Flex>
+                  }
+                >
+                  <InfoIcon />
+                </Tooltip>
+              )}
             </Text>
           </Flex>
           <Flex width="189px" flexDir="column" justifyContent="cetner" alignItems="flex-end">
