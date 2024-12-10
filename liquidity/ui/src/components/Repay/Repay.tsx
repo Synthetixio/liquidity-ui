@@ -9,7 +9,6 @@ import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
-import { useAccountAvailableCollateral } from '@snx-v3/useAccountAvailableCollateral';
 import { wei } from '@synthetixio/wei';
 import { useContext } from 'react';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
@@ -27,14 +26,10 @@ export function Repay() {
 
   const { data: systemToken } = useSystemToken();
   const { data: systemTokenBalance } = useTokenBalance(systemToken?.address);
-  const { data: accountAvailableSystemToken } = useAccountAvailableCollateral({
-    accountId: params.accountId,
-    tokenAddress: systemToken?.address,
-  });
 
   const availableCollateral =
-    systemTokenBalance && accountAvailableSystemToken
-      ? systemTokenBalance.add(accountAvailableSystemToken)
+    systemTokenBalance && liquidityPosition
+      ? systemTokenBalance.add(liquidityPosition.availableSystemToken)
       : undefined;
 
   const canSubmit =
@@ -42,13 +37,6 @@ export function Repay() {
     liquidityPosition.debt.gt(0) &&
     availableCollateral &&
     availableCollateral.gte(debtChange.abs());
-
-  console.log({
-    debtChange,
-    debt: liquidityPosition?.debt,
-    availableCollateral,
-    canSubmit,
-  });
 
   return (
     <Flex flexDirection="column" data-cy="repay debt form">

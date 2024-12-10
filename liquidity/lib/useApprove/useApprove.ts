@@ -5,8 +5,11 @@ import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useMutation } from '@tanstack/react-query';
+import debug from 'debug';
 import { ethers } from 'ethers';
 import { useReducer } from 'react';
+
+const log = debug('snx:useApprove');
 
 export const approveAbi = ['function approve(address spender, uint256 amount) returns (bool)'];
 
@@ -28,8 +31,7 @@ export const useApprove = (
 ) => {
   const [txnState, dispatch] = useReducer(reducer, initialState);
   const { data: allowance, refetch: refetchAllowance } = useAllowance({ contractAddress, spender });
-
-  const sufficientAllowance = Boolean(allowance?.gte(amount));
+  const sufficientAllowance = allowance && allowance.gte(amount);
 
   const signer = useSigner();
   const { gasSpeed } = useGasSpeed();
@@ -41,18 +43,23 @@ export const useApprove = (
         throw new Error('Signer, contract address or spender is not defined');
       if (sufficientAllowance) return;
 
+      log(`contractAddress`, contractAddress);
+      log(`spender`, spender);
+      log(`amount`, amount);
+
       try {
         dispatch({ type: 'prompting' });
 
         const contract = new ethers.Contract(contractAddress, approveAbi, signer);
-        const amountToAppove = infiniteApproval ? ethers.constants.MaxUint256 : amount;
+        const amountToApprove = infiniteApproval ? ethers.constants.MaxUint256 : amount;
+        log(`amountToApprove`, amountToApprove);
 
         const gasPricesPromised = getGasPrice({ provider });
-        const gasLimitPromised = contract.estimateGas.approve(spender, amountToAppove);
+        const gasLimitPromised = contract.estimateGas.approve(spender, amountToApprove);
 
         const populatedTxnPromised = contract
           .connect(signer)
-          .populateTransaction.approve(spender, amountToAppove, {
+          .populateTransaction.approve(spender, amountToApprove, {
             gasLimit: gasLimitPromised,
           });
 
@@ -69,9 +76,11 @@ export const useApprove = (
         });
 
         const txn = await signer.sendTransaction({ ...populatedTxn, ...gasOptionsForTransaction });
+        log('txn', txn);
         dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 
-        await txn.wait();
+        const receipt = await txn.wait();
+        log('receipt', receipt);
         dispatch({ type: 'success' });
         refetchAllowance();
       } catch (error: any) {

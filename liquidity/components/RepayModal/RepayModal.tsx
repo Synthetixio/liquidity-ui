@@ -6,12 +6,12 @@ import { ContractError } from '@snx-v3/ContractError';
 import { parseUnits } from '@snx-v3/format';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
-import { useAccountAvailableCollateral } from '@snx-v3/useAccountAvailableCollateral';
 import { useApprove } from '@snx-v3/useApprove';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
+import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useRepay } from '@snx-v3/useRepay';
 import { useRepayBaseAndromeda } from '@snx-v3/useRepayBaseAndromeda';
@@ -33,16 +33,18 @@ export function RepayModal({ onClose }: { onClose: () => void }) {
   const queryClient = useQueryClient();
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
-  const { data: systemToken } = useSystemToken();
-  const { data: systemTokenBalance } = useTokenBalance(systemToken?.address);
-  const { data: accountAvailableSystemToken } = useAccountAvailableCollateral({
+
+  const { data: liquidityPosition } = useLiquidityPosition({
     accountId: params.accountId,
-    tokenAddress: systemToken?.address,
+    collateralType,
   });
 
+  const { data: systemToken } = useSystemToken();
+  const { data: systemTokenBalance } = useTokenBalance(systemToken?.address);
+
   const availableCollateral =
-    systemTokenBalance && accountAvailableSystemToken
-      ? systemTokenBalance.add(accountAvailableSystemToken)
+    systemTokenBalance && liquidityPosition
+      ? systemTokenBalance.add(liquidityPosition.availableSystemToken)
       : undefined;
 
   const { exec: execRepay, settle: settleRepay } = useRepay({

@@ -1,4 +1,3 @@
-import { parseUnits } from '@snx-v3/format';
 import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { approveAbi } from '@snx-v3/useApprove';
@@ -12,14 +11,14 @@ import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useGetUSDTokens } from '@snx-v3/useGetUSDTokens';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { useSynthTokens } from '@snx-v3/useSynthTokens';
-import { tokenAbi } from '@snx-v3/useTokenBalance';
-// import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { withERC7412 } from '@snx-v3/withERC7412';
-import Wei, { wei } from '@synthetixio/wei';
+import Wei from '@synthetixio/wei';
 import { useMutation } from '@tanstack/react-query';
+import debug from 'debug';
 import { ethers } from 'ethers';
-import { formatUnits } from 'ethers/lib/utils';
 import { useReducer } from 'react';
+
+const log = debug('snx:useDepositBaseAndromeda');
 
 export const useDepositBaseAndromeda = ({
   accountId,
@@ -69,7 +68,8 @@ export const useDepositBaseAndromeda = ({
           poolId &&
           collateralTypeAddress &&
           availableCollateral &&
-          usdTokens?.sUSD
+          usdTokens?.sUSD &&
+          synth
         )
       ) {
         return;
@@ -86,6 +86,7 @@ export const useDepositBaseAndromeda = ({
         // 5. Delegate collateral
 
         dispatch({ type: 'prompting' });
+        const walletAddress = await signer.getAddress();
         const id = accountId ?? newAccountId;
 
         const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
@@ -102,63 +103,60 @@ export const useDepositBaseAndromeda = ({
               ethers.BigNumber.from(id)
             );
 
-        const collateralUpdate = wei(collateralChange.toNumber().toFixed(6));
-        let amount = collateralUpdate.sub(availableCollateral);
+        log('collateralChange', collateralChange);
+        log('availableCollateral', availableCollateral);
 
-        const TokenContract = new ethers.Contract(synth?.token.address || '', tokenAbi, signer);
-        const balance = formatUnits(await TokenContract.balanceOf(await signer.getAddress()), 6);
+        const synthAmountNeeded = collateralChange.sub(availableCollateral);
+        log('synthAmountNeeded', synthAmountNeeded);
 
-        if (amount.gt(0) && amount.gt(balance) && amount.sub(balance).div(amount).lt(0.01)) {
-          amount = wei(balance.toString());
-        }
-
-        const collateralAmount = amount.gt(0)
-          ? parseUnits(amount.toString(), 6)
-          : ethers.BigNumber.from(0);
-
-        const amountD18 = amount.gt(0)
-          ? parseUnits(collateralAmount.toString(), 12)
-          : ethers.BigNumber.from(0);
+        const tokenAmountToWrap = synthAmountNeeded
+          .mul(Math.pow(10, synth.token.decimals))
+          .div(Math.pow(10, 18))
+          // add one extra to cover precision difference
+          .add(
+            ethers.utils
+              .parseUnits('1', synth.token.decimals)
+              .div(Math.pow(10, synth.token.decimals))
+          );
+        log('tokenAmountToWrap', tokenAmountToWrap);
 
         // Wrap
-        const wrap = collateralAmount.gt(0)
+        const wrap = synthAmountNeeded.gt(0)
           ? SpotMarketProxyContract.populateTransaction.wrap(
-              synth?.synthMarketId,
-              collateralAmount,
-              amountD18
+              synth.synthMarketId,
+              tokenAmountToWrap.toBN(),
+              synthAmountNeeded.toBN()
             )
           : undefined;
 
         // Synth
-        const synthAddress = collateralType?.tokenAddress;
-        if (!synthAddress) {
-          throw 'synth not found';
-        }
-        const SynthContract = new ethers.Contract(synthAddress, approveAbi, signer);
+        const SynthTokenContract = new ethers.Contract(synth.address, approveAbi, signer);
 
-        const synthApproval = amountD18.gt(0)
-          ? SynthContract.populateTransaction.approve(CoreProxy.address, amountD18)
-          : undefined;
-
-        // optionally deposit if available collateral not enough
-        const deposit = amountD18.gt(0)
-          ? CoreProxyContract.populateTransaction.deposit(
-              ethers.BigNumber.from(id),
-              synthAddress,
-              amountD18 // only deposit what's needed
+        const synthApproval = synthAmountNeeded.gt(0)
+          ? SynthTokenContract.populateTransaction.approve(
+              CoreProxy.address,
+              synthAmountNeeded.toBN()
             )
           : undefined;
 
+        // optionally deposit if available collateral not enough
+        const deposit = synthAmountNeeded.gt(0)
+          ? CoreProxyContract.populateTransaction.deposit(
+              ethers.BigNumber.from(id),
+              synth.address,
+              synthAmountNeeded.toBN() // only deposit what's needed
+            )
+          : undefined;
+
+        log('currentCollateral', currentCollateral);
+        log('collateralChange', collateralChange);
+        log('newDelegation', currentCollateral.add(collateralChange));
         const delegate = CoreProxyContract.populateTransaction.delegateCollateral(
           ethers.BigNumber.from(id),
           ethers.BigNumber.from(poolId),
-          synthAddress,
-          currentCollateral
-            .toBN()
-            .add(amountD18)
-            .add(parseUnits(availableCollateral, 18))
-            .toString(),
-          wei(1).toBN()
+          synth.address,
+          currentCollateral.add(collateralChange).toBN(),
+          ethers.utils.parseEther('1')
         );
 
         const callsPromise = Promise.all(
@@ -170,8 +168,6 @@ export const useDepositBaseAndromeda = ({
         if (priceUpdateTx) {
           calls.unshift(priceUpdateTx as any);
         }
-
-        const walletAddress = await signer.getAddress();
 
         const { multicallTxn: erc7412Tx, gasLimit } = await withERC7412(
           network,
@@ -187,9 +183,11 @@ export const useDepositBaseAndromeda = ({
         });
 
         const txn = await signer.sendTransaction({ ...erc7412Tx, ...gasOptionsForTransaction });
+        log('txn', txn);
         dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 
-        await txn.wait();
+        const receipt = await txn.wait();
+        log('receipt', receipt);
         dispatch({ type: 'success' });
       } catch (error: any) {
         dispatch({ type: 'error', payload: { error } });

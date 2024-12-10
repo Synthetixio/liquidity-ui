@@ -26,7 +26,6 @@ import React from 'react';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
 import { ClosePositionOneStep } from './ClosePositionOneStep';
 import { ClosePositionTransactions } from './ClosePositionTransactions';
-import { useAccountAvailableCollateral } from './useAccountAvailableCollateral';
 import { usePositionDebt } from './usePositionDebt';
 
 function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit: () => void }) {
@@ -55,12 +54,6 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
   const { data: systemTokenBalance, isPending: isPendingSystemTokenBalance } = useTokenBalance(
     systemToken?.address
   );
-  const { data: accountAvailableCollateral, isPending: isPendingAccountAvailableCollateral } =
-    useAccountAvailableCollateral({
-      provider,
-      accountId: params.accountId,
-      collateralTypeTokenAddress: systemToken?.address,
-    });
 
   const debtPrice = useTokenPrice(debtSymbol);
   const collateralPrice = useTokenPrice(collateralSymbol);
@@ -187,8 +180,8 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
           ClosePositionDeployment &&
           systemTokenBalance &&
           positionDebt &&
-          accountAvailableCollateral &&
-          !systemTokenBalance.add(accountAvailableCollateral).gte(positionDebt)
+          liquidityPosition &&
+          !systemTokenBalance.add(liquidityPosition.availableSystemToken).gte(positionDebt)
         }
         animateOpacity
       >
@@ -201,8 +194,8 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
                 prefix="Available: "
                 value={
                   systemTokenBalance &&
-                  accountAvailableCollateral &&
-                  systemTokenBalance.add(accountAvailableCollateral)
+                  liquidityPosition &&
+                  systemTokenBalance.add(liquidityPosition.availableSystemToken)
                 }
                 suffix={` ${systemToken?.symbol}`}
               />
@@ -221,11 +214,11 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
           !(
             !isPendingPositionDebt &&
             !isPendingSystemTokenBalance &&
-            !isPendingAccountAvailableCollateral &&
+            !isPendingLiquidityPosition &&
             systemTokenBalance &&
-            accountAvailableCollateral &&
+            liquidityPosition &&
             positionDebt &&
-            systemTokenBalance.add(accountAvailableCollateral).gte(positionDebt)
+            systemTokenBalance.add(liquidityPosition.availableSystemToken).gte(positionDebt)
           )
         }
       >

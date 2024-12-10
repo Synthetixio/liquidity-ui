@@ -138,16 +138,12 @@ export function DepositModal({
   //Preparing stataUSDC Done
 
   //Collateral Approval
-  const amountToApprove = React.useMemo(() => {
-    if (collateralChange.sub(availableCollateral).lte(0)) {
-      return 0;
-    }
-    return parseUnits(collateralChange.sub(availableCollateral), synth?.token.decimals);
-  }, [availableCollateral, collateralChange, synth?.token.decimals]);
   const { approve, requireApproval } = useApprove({
     contractAddress:
       network?.preset === 'andromeda' ? synth?.token?.address : collateralType?.tokenAddress,
-    amount: amountToApprove,
+    amount: collateralChange.lte(availableCollateral)
+      ? wei(0).toBN()
+      : collateralChange.sub(availableCollateral).toBN(),
     spender: network?.preset === 'andromeda' ? SpotMarketProxy?.address : CoreProxy?.address,
   });
   //Collateral Approval Done
@@ -161,8 +157,7 @@ export function DepositModal({
     collateralTypeAddress: collateralType?.tokenAddress,
     collateralChange,
     currentCollateral,
-    availableCollateral: availableCollateral || ZEROWEI,
-    decimals: Number(collateralType?.decimals) || 18,
+    availableCollateral,
   });
   const { exec: depositBaseAndromeda } = useDepositBaseAndromeda({
     accountId: params.accountId,
@@ -171,7 +166,7 @@ export function DepositModal({
     collateralTypeAddress: synth?.token.address,
     collateralChange,
     currentCollateral,
-    availableCollateral: availableCollateral || ZEROWEI,
+    availableCollateral,
     collateralSymbol: params.collateralSymbol,
   });
   //Deposit done
@@ -284,7 +279,9 @@ export function DepositModal({
           }
           toast({
             title: `Approve collateral for transfer`,
-            description: `Approve ${synth?.token.symbol} transfer`,
+            description: `Approve ${
+              network?.preset === 'andromeda' ? synth?.token?.address : collateralType?.tokenAddress
+            } transfer`,
             status: 'info',
             variant: 'left-accent',
           });

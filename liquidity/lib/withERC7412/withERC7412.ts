@@ -7,6 +7,7 @@ import {
   importClosePosition,
   importCoreProxy,
   importMulticall3,
+  importSpotMarketProxy,
   importPythERC7412Wrapper,
   importPythVerfier,
   importUSDProxy,
@@ -98,6 +99,7 @@ async function logMulticall({
   label: string;
 }) {
   const CoryProxyContract = await importCoreProxy(network.id, network.preset);
+  const SpotMarketProxy = await importSpotMarketProxy(network.id, network.preset);
   const AccountProxyContract = await importAccountProxy(network.id, network.preset);
   const USDProxyContract = await importUSDProxy(network.id, network.preset);
   const ClosePositionContract = await importClosePosition(network.id, network.preset).catch(
@@ -109,6 +111,7 @@ async function logMulticall({
     Array.from(
       new Set([
         ...CoryProxyContract.abi,
+        ...SpotMarketProxy.abi,
         ...AccountProxyContract.abi,
         ...USDProxyContract.abi,
         ...(ClosePositionContract ? ClosePositionContract.abi : []),
