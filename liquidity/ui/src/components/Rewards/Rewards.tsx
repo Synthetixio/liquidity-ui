@@ -148,7 +148,6 @@ export function Rewards() {
                     key={item.address}
                     displaySymbol={item.displaySymbol}
                     claimableAmount={item.claimableAmount}
-                    lifetimeClaimed={item.lifetimeClaimed}
                     distributorAddress={item.distributorAddress}
                   />
                 ))
