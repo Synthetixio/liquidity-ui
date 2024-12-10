@@ -34,13 +34,14 @@ export function Rewards() {
   const allRewards = React.useMemo(
     () =>
       rewards
-        ?.map(({ distributorAddress, payoutTokenAddress, claimableAmount }) => ({
+        ?.map(({ distributorAddress, payoutTokenAddress, claimableAmount, isPoolReward }) => ({
           poolId: params.poolId || '',
           collateralAddress: collateralType?.tokenAddress || '',
           accountId: params.accountId,
           distributorAddress: distributorAddress,
           amount: claimableAmount,
           payoutTokenAddress,
+          isPoolReward,
         }))
         .filter(({ amount }) => amount.gt(0)) || [],
     [params.accountId, collateralType?.tokenAddress, params.poolId, rewards]

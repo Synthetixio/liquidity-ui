@@ -25,6 +25,7 @@ export function useClaimAllRewards(
     distributorAddress?: string;
     amount?: Wei;
     payoutTokenAddress?: string;
+    isPoolReward: boolean;
   }[]
 ) {
   const toast = useToast({ isClosable: true, duration: 9000 });
@@ -70,15 +71,27 @@ export function useClaimAllRewards(
             distributorAddress,
             amount,
             payoutTokenAddress,
+            isPoolReward,
           }) => {
-            transactions.push(
-              CoreProxyContract.populateTransaction.claimRewards(
-                ethers.BigNumber.from(accountId),
-                ethers.BigNumber.from(poolId),
-                collateralAddress,
-                distributorAddress
-              )
-            );
+            if (isPoolReward) {
+              transactions.push(
+                CoreProxyContract.populateTransaction.claimPoolRewards(
+                  ethers.BigNumber.from(accountId),
+                  ethers.BigNumber.from(poolId),
+                  collateralAddress,
+                  distributorAddress
+                )
+              );
+            } else {
+              transactions.push(
+                CoreProxyContract.populateTransaction.claimRewards(
+                  ethers.BigNumber.from(accountId),
+                  ethers.BigNumber.from(poolId),
+                  collateralAddress,
+                  distributorAddress
+                )
+              );
+            }
 
             const synthToken = synthTokens.find(
               (synth) => synth.address.toUpperCase() === payoutTokenAddress?.toUpperCase()
