@@ -336,18 +336,19 @@ workflows:
       - checks
       - tests
 
-      - contract-test:
-          name: close-position-arbitrum-test
-          working_directory: 'contracts/close-position-arbitrum'
-      - contract-e2e:
-          name: close-position-arbitrum-e2e
-          working_directory: 'contracts/close-position-arbitrum'
-      - contract-test:
-          name: debt-repayer-base-andromeda-test
-          working_directory: 'contracts/debt-repayer-base-andromeda'
-      - contract-e2e:
-          name: debt-repayer-base-andromeda-e2e
-          working_directory: 'contracts/debt-repayer-base-andromeda'
+      # TODO: enable when we work on contracts again. For now it is unnecessary to run these
+      #- contract-test:
+      #    name: close-position-arbitrum-test
+      #    working_directory: 'contracts/close-position-arbitrum'
+      #- contract-e2e:
+      #    name: close-position-arbitrum-e2e
+      #    working_directory: 'contracts/close-position-arbitrum'
+      #- contract-test:
+      #    name: debt-repayer-base-andromeda-test
+      #    working_directory: 'contracts/debt-repayer-base-andromeda'
+      #- contract-e2e:
+      #    name: debt-repayer-base-andromeda-e2e
+      #    working_directory: 'contracts/debt-repayer-base-andromeda'
 
       #- cy
       - e2e

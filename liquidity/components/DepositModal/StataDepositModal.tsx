@@ -1,9 +1,9 @@
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import { Button, Divider, Link, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
-import { ZEROWEI } from '@snx-v3/constants';
+import { D18, D27, D6, ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
-import { currency, parseUnits } from '@snx-v3/format';
+import { currency } from '@snx-v3/format';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
 import { useApprove } from '@snx-v3/useApprove';
@@ -24,11 +24,14 @@ import { useUSDC } from '@snx-v3/useUSDC';
 import { Wei, wei } from '@synthetixio/wei';
 import { useQueryClient } from '@tanstack/react-query';
 import { useMachine } from '@xstate/react';
+import { ethers } from 'ethers';
 import React from 'react';
 import { ChangeStat } from '../../ui/src/components/ChangeStat/ChangeStat';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
 import { TransactionSummary } from '../../ui/src/components/TransactionSummary/TransactionSummary';
 import { DepositMachine, Events, ServiceNames, State } from './DepositMachine';
+
+// const log = debug('snx:StataDepositModal');
 
 export function StataDepositModal({
   onClose,
@@ -52,6 +55,7 @@ export function StataDepositModal({
   const { data: USDC } = useUSDC();
   const { data: StaticAaveUSDC } = useStaticAaveUSDC();
   const { data: staticAaveUSDCRate } = useStaticAaveUSDCRate();
+  // log('staticAaveUSDCRate', staticAaveUSDCRate, `${staticAaveUSDCRate}`);
 
   const { data: synthTokens } = useSynthTokens();
   const synth = synthTokens?.find(
@@ -60,12 +64,16 @@ export function StataDepositModal({
       collateralType?.tokenAddress?.toLowerCase() === synth?.token?.address.toLowerCase()
   );
 
-  const { data: stataUSDCTokenBalance, refetch: refetchStataUSDCBalance } = useTokenBalance(
-    StaticAaveUSDC?.address
-  );
-
-  const currentCollateral = liquidityPosition?.collateralAmount ?? ZEROWEI;
-  const availableCollateral = liquidityPosition?.availableCollateral ?? ZEROWEI;
+  const { data: stataUSDCTokenBalanceRaw } = useTokenBalance(StaticAaveUSDC?.address);
+  // log(
+  //   'stataUSDCTokenBalanceRaw (6 decimals)',
+  //   stataUSDCTokenBalanceRaw,
+  //   `${stataUSDCTokenBalanceRaw}`
+  // );
+  const stataUSDCTokenBalance = stataUSDCTokenBalanceRaw
+    ? stataUSDCTokenBalanceRaw.toBN()
+    : ethers.BigNumber.from(0);
+  // log('stataUSDCTokenBalance (6 decimals)', stataUSDCTokenBalance, `${stataUSDCTokenBalance}`);
 
   const [txSummary, setTxSummary] = React.useState({
     currentCollateral: ZEROWEI,
@@ -73,43 +81,61 @@ export function StataDepositModal({
     currentDebt: ZEROWEI,
   });
 
-  const synthNeeded = React.useMemo(() => {
-    let amount = collateralChange.sub(availableCollateral);
-    amount = wei(amount.toNumber().toFixed(6));
-    return amount.lt(0) ? ZEROWEI : amount;
-  }, [availableCollateral, collateralChange]);
+  const synthNeeded: ethers.BigNumber = liquidityPosition
+    ? collateralChange.sub(liquidityPosition.availableCollateral).toBN()
+    : ethers.BigNumber.from(0);
+  // log('synthNeeded (18 decimals)', synthNeeded, `${synthNeeded}`);
 
-  const collateralNeeded = React.useMemo(() => {
-    const amount = synthNeeded.sub(stataUSDCTokenBalance || ZEROWEI);
-    return amount.gt(0) ? amount : ZEROWEI;
-  }, [stataUSDCTokenBalance, synthNeeded]);
+  const stataUSDCTokenBalanceD18: ethers.BigNumber = stataUSDCTokenBalance.div(D6).mul(D18);
+  // log(
+  //   'stataUSDCTokenBalanceD18 (18 decimals)',
+  //   stataUSDCTokenBalanceD18,
+  //   `${stataUSDCTokenBalanceD18}`
+  // );
+
+  const stataAmountNeeded: ethers.BigNumber =
+    stataUSDCTokenBalance && synthNeeded.gt(stataUSDCTokenBalanceD18)
+      ? synthNeeded.sub(stataUSDCTokenBalanceD18)
+      : ethers.BigNumber.from(0);
+  // log('stataAmountNeeded (18 decimals)', stataAmountNeeded, `${stataAmountNeeded}`);
 
   //Preparing stataUSDC
-  const USDCAmountForStataUSDC = React.useMemo(() => {
-    return parseUnits(collateralNeeded.mul(staticAaveUSDCRate).toNumber().toFixed(6), 6);
-  }, [collateralNeeded, staticAaveUSDCRate]);
+  const usdcBalanceNeeded: ethers.BigNumber = staticAaveUSDCRate
+    ? stataAmountNeeded.mul(staticAaveUSDCRate).div(D27)
+    : ethers.BigNumber.from(0);
+  // log('usdcBalanceNeeded (18 decimals)', usdcBalanceNeeded, `${usdcBalanceNeeded}`);
 
-  const { approve: approveUSDC, requireApproval: requireUSDCApproval } = useApprove({
+  const { approve: approveUSDC, requireApproval: requireApprovalUSDC } = useApprove({
     contractAddress: USDC?.address,
-    amount: USDCAmountForStataUSDC.mul(110).div(100).toString(),
+    amount: usdcBalanceNeeded
+      .mul(D6)
+      .div(D18)
+
+      // get extra 10%
+      .mul(110)
+      .div(100),
     spender: StaticAaveUSDC?.address,
   });
+  // log('requireApprovalUSDC', requireApprovalUSDC);
 
   const { mutateAsync: wrapUSDCToStataUSDC } = useConvertStataUSDC({
-    amount: USDCAmountForStataUSDC,
+    stataAmountNeeded,
     depositToAave: true,
   });
   //Preparing stataUSDC Done
 
-  //Collateral Approval
-  const { approve, requireApproval } = useApprove({
+  //Stata Approval
+  const stataApprovalNeeded =
+    liquidityPosition && liquidityPosition.availableCollateral.lt(collateralChange)
+      ? collateralChange.sub(liquidityPosition.availableCollateral)
+      : wei(0);
+  const { approve: approveStata, requireApproval: requireApprovalStata } = useApprove({
     contractAddress: synth?.token?.address,
-    amount: collateralChange.lte(availableCollateral)
-      ? wei(0).toBN()
-      : collateralChange.sub(availableCollateral).toBN(),
+    amount: stataApprovalNeeded.toBN(),
     spender: SpotMarketProxy?.address,
   });
-  //Collateral Approval Done
+  // log('requireApprovalStata', requireApprovalStata);
+  //Stata Approval Done
 
   //Deposit
   const newAccountId = React.useMemo(() => `${Math.floor(Math.random() * 1000000000000)}`, []);
@@ -119,17 +145,13 @@ export function StataDepositModal({
     poolId: params.poolId,
     collateralTypeAddress: synth?.token.address,
     collateralChange,
-    currentCollateral,
-    availableCollateral,
+    currentCollateral: liquidityPosition?.collateralAmount,
+    availableCollateral: liquidityPosition?.availableCollateral,
     collateralSymbol: params.collateralSymbol,
   });
   //Deposit done
 
   const toast = useToast({ isClosable: true, duration: 9000 });
-
-  // TODO: Update logic on new account id
-
-  const { data: pool } = usePool(params.poolId);
 
   const errorParser = useContractErrorParser();
 
@@ -137,8 +159,8 @@ export function StataDepositModal({
     services: {
       [ServiceNames.approveUSDCForStata]: async () => {
         try {
-          //If less than 0.0001 no need for wrapping
-          if (!requireUSDCApproval || USDCAmountForStataUSDC.lte(1000)) {
+          // If less than 0.0001 no need for wrapping
+          if (!requireApprovalUSDC) {
             return;
           }
 
@@ -171,10 +193,6 @@ export function StataDepositModal({
       },
 
       [ServiceNames.wrapUSDCToStataUSDC]: async () => {
-        //If less than 0.0001 no need for wrapping
-        if (USDCAmountForStataUSDC.lte(1000)) {
-          return;
-        }
         try {
           toast({
             title: 'Wrapping USDC to StataUSDC',
@@ -182,7 +200,6 @@ export function StataDepositModal({
             variant: 'left-accent',
           });
           await wrapUSDCToStataUSDC();
-          await refetchStataUSDCBalance();
         } catch (error) {
           const contractError = errorParser(error);
           if (contractError) {
@@ -190,7 +207,7 @@ export function StataDepositModal({
           }
           toast.closeAll();
           toast({
-            title: 'Wrap USDC to StataUSDC failed',
+            title: 'Wrap USDC to Static aUSDC failed',
             description: contractError ? (
               <ContractError contractError={contractError} />
             ) : (
@@ -205,7 +222,7 @@ export function StataDepositModal({
 
       [ServiceNames.approveCollateral]: async () => {
         try {
-          if (!requireApproval) {
+          if (!requireApprovalStata) {
             return;
           }
           toast({
@@ -215,7 +232,7 @@ export function StataDepositModal({
             variant: 'left-accent',
           });
 
-          await approve(Boolean(state.context.infiniteApproval));
+          await approveStata(Boolean(state.context.infiniteApproval));
         } catch (error: any) {
           const contractError = errorParser(error);
           if (contractError) {
@@ -239,6 +256,10 @@ export function StataDepositModal({
 
       [ServiceNames.executeDeposit]: async () => {
         try {
+          if (!liquidityPosition) {
+            throw Error('Deposit failed: not ready');
+          }
+
           toast.closeAll();
           toast({
             title: Boolean(params.accountId)
@@ -249,8 +270,8 @@ export function StataDepositModal({
           });
 
           setTxSummary({
-            currentCollateral,
-            currentDebt: liquidityPosition?.debt || ZEROWEI,
+            currentCollateral: liquidityPosition.collateralAmount,
+            currentDebt: liquidityPosition.debt,
             collateralChange,
           });
 
@@ -309,8 +330,8 @@ export function StataDepositModal({
   });
 
   React.useEffect(() => {
-    send(Events.SET_REQUIRE_APPROVAL, { requireApproval });
-  }, [requireApproval, send]);
+    send(Events.SET_REQUIRE_APPROVAL, { requireApproval: requireApprovalStata });
+  }, [requireApprovalStata, send]);
 
   const hasEnoughStataUSDCBalance = stataUSDCTokenBalance?.gte(synthNeeded);
   React.useEffect(() => {
@@ -319,9 +340,9 @@ export function StataDepositModal({
 
   React.useEffect(() => {
     send(Events.SET_REQUIRE_APPROVAL_FOR_STATAUSDC, {
-      requireStataUSDCApproval: requireUSDCApproval,
+      requireStataUSDCApproval: requireApprovalUSDC,
     });
-  }, [requireUSDCApproval, send]);
+  }, [requireApprovalUSDC, send]);
 
   React.useEffect(() => {
     send(Events.SET_IS_STATA_USDC, {
@@ -361,14 +382,12 @@ export function StataDepositModal({
     send(Events.RUN);
   }, [handleClose, send, state]);
 
-  const poolName = pool?.name || '';
-  const hasEnoughStataUSDC = hasEnoughStataUSDCBalance;
-  const requireUSDCApprovalForStata = requireUSDCApproval;
-
   const isProcessing =
     state.matches(State.approveCollateral) ||
     state.matches(State.deposit) ||
     state.matches(State.wrap);
+
+  const { data: pool } = usePool(params.poolId);
 
   if (state.matches(State.success)) {
     return (
@@ -427,10 +446,10 @@ export function StataDepositModal({
           title="Approve USDC transfer"
           status={{
             failed: state.context.error?.step === State.approveUSDCForStata,
-            success: !requireUSDCApprovalForStata || state.matches(State.success),
+            success: !requireApprovalUSDC || state.matches(State.success),
             loading: state.matches(State.approveUSDCForStata) && !state.context.error,
           }}
-          checkboxLabel={requireUSDCApprovalForStata ? `Approve unlimited USDC` : undefined}
+          checkboxLabel={requireApprovalUSDC ? `Approve unlimited USDC` : undefined}
           checkboxProps={{
             isChecked: state.context.infiniteApproval,
             onChange: (e) =>
@@ -445,7 +464,7 @@ export function StataDepositModal({
             failed: state.context.error?.step === State.wrapUSDC,
             disabled: state.matches(State.success) && state.context.requireApproval,
             success:
-              hasEnoughStataUSDC ||
+              hasEnoughStataUSDCBalance ||
               state.matches(State.approveCollateral) ||
               state.matches(State.deposit) ||
               state.matches(State.success),
@@ -470,7 +489,7 @@ export function StataDepositModal({
             <Amount
               prefix="This will deposit and lock "
               value={collateralChange}
-              suffix={` Static aUSDC into ${poolName}.`}
+              suffix={` Static aUSDC into ${pool?.name}.`}
             />
           }
           status={{

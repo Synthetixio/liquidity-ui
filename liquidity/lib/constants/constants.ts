@@ -1,4 +1,4 @@
-import { constants } from 'ethers';
+import { ethers } from 'ethers';
 import Wei from '@synthetixio/wei';
 
 export const LOCAL_STORAGE_KEYS = {
@@ -6,7 +6,11 @@ export const LOCAL_STORAGE_KEYS = {
 };
 export const ZEROWEI = new Wei(0);
 export const ONEWEI = new Wei(1);
-export const MAXUINT = new Wei(constants.MaxUint256);
+export const MAXUINT = new Wei(ethers.constants.MaxUint256);
+
+export const D6 = ethers.utils.parseUnits('1', 6);
+export const D18 = ethers.utils.parseUnits('1', 18);
+export const D27 = ethers.utils.parseUnits('1', 27);
 
 export const GWEI_DECIMALS = 9;
 export const GAS_LIMIT_MULTIPLIER = 1.5;

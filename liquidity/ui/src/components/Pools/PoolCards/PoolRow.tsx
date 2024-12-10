@@ -89,7 +89,9 @@ export function PoolRow({
       return tokenBalance || ZEROWEI;
     }
 
-    return ((usdcBalance || ZEROWEI).div(stataUSDCRate) || ZEROWEI).add(tokenBalance || ZEROWEI);
+    return ((usdcBalance || ZEROWEI).div(wei(stataUSDCRate, 27)) || ZEROWEI).add(
+      tokenBalance || ZEROWEI
+    );
   }, [isStataUSDC, stataUSDCRate, tokenBalance, usdcBalance]);
 
   const price = wei(

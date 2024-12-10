@@ -78,12 +78,12 @@ export function extractErrorData(error: Error | any) {
 
 export function parseContractError({
   error,
-  ClosePosition,
   AllErrors,
+  extraAbi,
 }: {
   error?: any;
-  ClosePosition?: { address: string; abi: string[] };
   AllErrors?: { address: string; abi: string[] };
+  extraAbi?: string[];
 }): ContractErrorType | void {
   const errorData = extractErrorData(error);
   if (!errorData) {
@@ -109,7 +109,7 @@ export function parseContractError({
       ...(AllErrors ? AllErrors.abi : []),
       ...PYTH_ERRORS,
       ...ERC721_ERRORS,
-      ...(ClosePosition ? ClosePosition.abi : []),
+      ...(extraAbi ? extraAbi : []),
     ]);
 
     const errorParsed = AllErrorsInterface.parseError(errorData);

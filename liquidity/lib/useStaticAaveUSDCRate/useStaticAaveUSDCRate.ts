@@ -1,7 +1,6 @@
 import { contractsHash } from '@snx-v3/tsHelpers';
 import { Network, useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
-import { wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
 
@@ -25,8 +24,9 @@ export function useStaticAaveUSDCRate(customNetwork?: Network) {
         provider
       );
       const rate = await StaticAaveUSDCContract.rate();
+
+      // IMPORTANT: 27 decimals!
       return rate;
     },
-    select: (rate) => wei(rate, 27), // why 27 :facepalm:
   });
 }

@@ -21,15 +21,13 @@ import { useEthBalance } from '@snx-v3/useEthBalance';
 import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
-import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
 import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
-import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { useTransferableSynthetix } from '@snx-v3/useTransferableSynthetix';
 import { useUSDC } from '@snx-v3/useUSDC';
 import { WithdrawIncrease } from '@snx-v3/WithdrawIncrease';
-import Wei from '@synthetixio/wei';
+import { Wei, wei } from '@synthetixio/wei';
 import React from 'react';
 import { ChangeStat } from '../ChangeStat/ChangeStat';
 import { CollateralAlert } from '../CollateralAlert/CollateralAlert';
@@ -70,7 +68,7 @@ export function Deposit() {
     }
     if (isStataUSDC && liquidityPosition && usdcBalance) {
       const stataAmount = liquidityPosition.availableCollateral.add(collateralBalance);
-      return stataAmount.add(usdcBalance.div(stataUSDCRate));
+      return stataAmount.add(usdcBalance.div(wei(stataUSDCRate, 27)));
     }
     if (collateralType?.symbol === 'USDC' && network?.preset === 'andromeda' && liquidityPosition) {
       return liquidityPosition.availableCollateral.add(usdcBalance);
@@ -135,7 +133,7 @@ export function Deposit() {
                     <Amount prefix="USDC Balance: " value={usdcBalance} />
                     <Amount
                       prefix="(~"
-                      value={usdcBalance.div(stataUSDCRate).mul(998).div(1000)}
+                      value={usdcBalance.div(wei(stataUSDCRate, 27)).mul(998).div(1000)}
                       suffix=" Static aUSDC)"
                     />
                   </>

@@ -1,3 +1,4 @@
+import { D18 } from '@snx-v3/constants';
 import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { approveAbi } from '@snx-v3/useApprove';
@@ -34,7 +35,7 @@ export const useDepositBaseAndromeda = ({
   newAccountId: string;
   poolId?: string;
   collateralTypeAddress?: string;
-  currentCollateral: Wei;
+  currentCollateral?: Wei;
   availableCollateral?: Wei;
   collateralChange: Wei;
   collateralSymbol?: string;
@@ -68,6 +69,7 @@ export const useDepositBaseAndromeda = ({
           poolId &&
           collateralTypeAddress &&
           availableCollateral &&
+          currentCollateral &&
           usdTokens?.sUSD &&
           synth
         )
@@ -110,13 +112,13 @@ export const useDepositBaseAndromeda = ({
         log('synthAmountNeeded', synthAmountNeeded);
 
         const tokenAmountToWrap = synthAmountNeeded
-          .mul(Math.pow(10, synth.token.decimals))
-          .div(Math.pow(10, 18))
+          .mul(ethers.utils.parseUnits('1', synth.token.decimals))
+          .div(D18)
           // add one extra to cover precision difference
           .add(
             ethers.utils
               .parseUnits('1', synth.token.decimals)
-              .div(Math.pow(10, synth.token.decimals))
+              .div(ethers.utils.parseUnits('1', synth.token.decimals))
           );
         log('tokenAmountToWrap', tokenAmountToWrap);
 
