@@ -5066,7 +5066,6 @@ __metadata:
     "@snx-v3/icons": "workspace:*"
     "@snx-v3/isBaseAndromeda": "workspace:*"
     "@snx-v3/theme": "workspace:*"
-    "@snx-v3/useAccountCollateral": "workspace:*"
     "@snx-v3/useAccountCollateralUnlockDate": "workspace:*"
     "@snx-v3/useAccountPermissions": "workspace:*"
     "@snx-v3/useAccountProxy": "workspace:*"
@@ -5218,23 +5217,6 @@ __metadata:
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     debug: "npm:^4.3.7"
-    ethers: "npm:^5.7.2"
-    react: "npm:^18.2.0"
-  languageName: unknown
-  linkType: soft
-
-"@snx-v3/useAccountCollateral@workspace:*, @snx-v3/useAccountCollateral@workspace:liquidity/lib/useAccountCollateral":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/useAccountCollateral@workspace:liquidity/lib/useAccountCollateral"
-  dependencies:
-    "@snx-v3/tsHelpers": "workspace:*"
-    "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useCollateralTypes": "workspace:*"
-    "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useSystemToken": "workspace:*"
-    "@snx-v3/withERC7412": "workspace:*"
-    "@synthetixio/wei": "npm:^2.74.4"
-    "@tanstack/react-query": "npm:^5.8.3"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6297,7 +6279,6 @@ __metadata:
     "@snx-v3/isBaseAndromeda": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
-    "@snx-v3/useAccountCollateral": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
@@ -6309,11 +6290,11 @@ __metadata:
     "@snx-v3/useLiquidityPosition": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
     "@snx-v3/useSpotMarketProxy": "workspace:*"
-    "@snx-v3/useSystemToken": "workspace:*"
     "@snx-v3/useUSDProxy": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
+    debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown

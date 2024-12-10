@@ -4,7 +4,6 @@ import { BorderBox } from '@snx-v3/BorderBox';
 import { ZEROWEI } from '@snx-v3/constants';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
-import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useAccountCollateralUnlockDate } from '@snx-v3/useAccountCollateralUnlockDate';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
@@ -27,10 +26,6 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
   });
 
   const { data: systemToken } = useSystemToken();
-  const { data: systemTokenBalance, isPending: isPendingSystemTokenBalance } = useAccountCollateral(
-    params.accountId,
-    systemToken?.address
-  );
 
   const { data: accountCollateralUnlockDate, isLoading: isLoadingDate } =
     useAccountCollateralUnlockDate({ accountId: params.accountId });
@@ -44,9 +39,12 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
   const { minutes, hours, isRunning } = useWithdrawTimer(params.accountId);
   const unlockDate = !isLoadingDate ? accountCollateralUnlockDate : null;
 
-  const maxWithdrawable = isDebtWithdrawal
-    ? systemTokenBalance?.availableCollateral
-    : liquidityPosition?.availableCollateral;
+  const maxWithdrawable =
+    network?.preset === 'andromeda' && liquidityPosition
+      ? liquidityPosition.availableSystemToken.add(liquidityPosition.availableSystemToken)
+      : isDebtWithdrawal
+        ? liquidityPosition?.availableSystemToken
+        : liquidityPosition?.availableCollateral;
 
   return (
     <Flex flexDirection="column" data-cy="withdraw form">
@@ -62,7 +60,7 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
             </Text>
           </BorderBox>
           <Text fontSize="12px" whiteSpace="nowrap" data-cy="withdraw amount">
-            {isDebtWithdrawal && isPendingSystemTokenBalance ? 'Available: ~' : null}
+            {isDebtWithdrawal && isPendingLiquidityPosition ? 'Available: ~' : null}
             {!isDebtWithdrawal && isPendingLiquidityPosition ? 'Unlocked: ~' : null}
             {maxWithdrawable ? (
               <>

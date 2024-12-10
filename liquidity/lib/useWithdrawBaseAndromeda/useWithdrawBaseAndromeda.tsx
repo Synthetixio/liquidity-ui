@@ -2,7 +2,6 @@ import { ZEROWEI } from '@snx-v3/constants';
 import { getSpotMarketId, STATA_BASE_MARKET, USDC_BASE_MARKET } from '@snx-v3/isBaseAndromeda';
 import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
-import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
@@ -14,13 +13,15 @@ import { useGetUSDTokens } from '@snx-v3/useGetUSDTokens';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
-import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useUSDProxy } from '@snx-v3/useUSDProxy';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import { Wei } from '@synthetixio/wei';
 import { useMutation } from '@tanstack/react-query';
 import { ethers } from 'ethers';
 import { useReducer } from 'react';
+import debug from 'debug';
+
+const log = debug('snx:useWithdrawBaseAndromeda');
 
 export const useWithdrawBaseAndromeda = ({ amountToWithdraw }: { amountToWithdraw: Wei }) => {
   const [params] = useParams<PositionPageSchemaType>();
@@ -30,12 +31,7 @@ export const useWithdrawBaseAndromeda = ({ amountToWithdraw }: { amountToWithdra
     collateralType,
   });
 
-  const { data: systemToken } = useSystemToken();
-  const { data: systemTokenBalance } = useAccountCollateral(params.accountId, systemToken?.address);
-
   const accountId = params.accountId;
-  const availableCollateral = liquidityPosition?.availableCollateral || ZEROWEI;
-  const snxUSDCollateral = systemTokenBalance?.availableCollateral || ZEROWEI;
 
   const [txnState, dispatch] = useReducer(reducer, initialState);
   const { data: CoreProxy } = useCoreProxy();
@@ -68,28 +64,37 @@ export const useWithdrawBaseAndromeda = ({ amountToWithdraw }: { amountToWithdra
         throw new Error('Not ready');
       }
 
-      const total = snxUSDCollateral.add(availableCollateral);
+      const total = liquidityPosition.availableSystemToken.add(
+        liquidityPosition.availableCollateral
+      );
+      log('total', total);
 
+      log('amountToWithdraw', amountToWithdraw);
       if (total.lt(amountToWithdraw)) {
         throw new Error('Exceeds balance');
       }
 
-      const wrappedCollateralAmount = amountToWithdraw.gt(availableCollateral)
-        ? availableCollateral
+      const wrappedCollateralAmount = amountToWithdraw.gt(liquidityPosition.availableCollateral)
+        ? liquidityPosition.availableCollateral
         : amountToWithdraw;
+      log('wrappedCollateralAmount', wrappedCollateralAmount);
 
       const snxUSDAmount = amountToWithdraw.sub(wrappedCollateralAmount).gt(0)
         ? amountToWithdraw.sub(wrappedCollateralAmount)
         : ZEROWEI;
 
+      log('snxUSDAmount', snxUSDAmount);
+
       let sUSDC_amount = ZEROWEI;
 
       try {
         const spotMarketId = getSpotMarketId(params.collateralSymbol);
+        log('spotMarketId', spotMarketId);
 
         if (spotMarketId === USDC_BASE_MARKET) {
           sUSDC_amount = sUSDC_amount.add(wrappedCollateralAmount);
         }
+        log('sUSDC_amount', sUSDC_amount);
 
         dispatch({ type: 'prompting' });
 
