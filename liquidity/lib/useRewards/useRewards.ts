@@ -1,4 +1,4 @@
-import { getSubgraphUrl } from '@snx-v3/constants';
+import { getSubgraphUrl, ZEROWEI } from '@snx-v3/constants';
 import { useNetwork, useProvider } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
@@ -10,6 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 import { contractsHash } from '@snx-v3/tsHelpers';
 import { ethers } from 'ethers';
+import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 
 const RewardsResponseSchema = z.array(
   z.object({
@@ -22,6 +23,7 @@ const RewardsResponseSchema = z.array(
     decimals: z.number(),
     claimableAmount: z.instanceof(Wei),
     lifetimeClaimed: z.number(),
+    isPoolReward: z.boolean(),
   })
 );
 
@@ -150,11 +152,12 @@ export function useRewards({
 
         const historicalData = returnData.slice(0, filteredDistributors.length);
         const metaData = returnData.slice(filteredDistributors.length);
+        const isBase = isBaseAndromeda(network?.id, network?.preset);
 
         const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
 
         // Get claimable amount for each distributor
-        const calls = filteredDistributors.map(({ address }: { address: string }) =>
+        const rewardsCalls = filteredDistributors.map(({ address }: { address: string }) =>
           CoreProxyContract.populateTransaction.getAvailableRewards(
             ethers.BigNumber.from(accountId),
             ethers.BigNumber.from(poolId),
@@ -162,12 +165,23 @@ export function useRewards({
             address.toLowerCase()
           )
         );
+        const poolRewardsCalls = isBase
+          ? filteredDistributors.map(({ address }: { address: string }) =>
+              CoreProxyContract.populateTransaction.getAvailablePoolRewards(
+                ethers.BigNumber.from(accountId),
+                ethers.BigNumber.from(poolId),
+                collateralAddress.toLowerCase(),
+                address.toLowerCase()
+              )
+            )
+          : [];
 
-        const txs = await Promise.all(calls);
+        const txs = await Promise.all([...rewardsCalls, ...poolRewardsCalls]);
 
         const multicallData = txs.map((tx) => ({
           target: CoreProxy.address,
           callData: tx.data,
+          allowFailure: true,
         }));
 
         const Multicall3Contract = new ethers.Contract(
@@ -175,19 +189,36 @@ export function useRewards({
           Multicall3.abi,
           provider
         );
-        const data = await Multicall3Contract.callStatic.aggregate(multicallData);
+        const data = await Multicall3Contract.callStatic.aggregate3(multicallData);
 
-        const amounts = data.returnData.map((data: string) => {
+        const rewardsResult = data.slice(0, rewardsCalls.length);
+        const poolRewardsResult = data.slice(rewardsCalls.length);
+
+        const rewardAmounts: Wei[] = rewardsResult.map((result: any) => {
+          if (!result.success) {
+            return ZEROWEI;
+          }
           const amount = CoreProxyContract.interface.decodeFunctionResult(
             'getAvailableRewards',
-            data
+            result.returnData
+          )[0];
+          return wei(amount);
+        });
+
+        const poolRewardAmounts: Wei[] = poolRewardsResult.map((result: any) => {
+          if (!result.success) {
+            return ZEROWEI;
+          }
+          const amount = CoreProxyContract.interface.decodeFunctionResult(
+            'getAvailablePoolRewards',
+            result.returnData
           )[0];
           return wei(amount);
         });
 
         const results: RewardsResponseType = filteredDistributors.map((item: any, i: number) => {
           // Amount claimable for this distributor
-          const claimableAmount = amounts[i];
+          const claimableAmount = rewardAmounts[i].add(poolRewardAmounts[i] || ZEROWEI);
           const historicalClaims = historicalData[i]?.data?.rewardsClaimeds;
           const distributions = metaData[i]?.data?.rewardsDistributions;
           const symbol = item.payoutToken.symbol;
@@ -206,6 +237,7 @@ export function useRewards({
               decimals: item.payoutToken.decimals,
               payoutTokenAddress: item.payoutToken.address,
               claimableAmount: wei(0),
+              isPoolReward: false,
               lifetimeClaimed: historicalClaims
                 ? historicalClaims
                     .reduce(
@@ -226,6 +258,7 @@ export function useRewards({
             decimals: item.payoutToken.decimals,
             payoutTokenAddress: item.payoutToken.address,
             claimableAmount,
+            isPoolReward: (poolRewardAmounts[i] || ZEROWEI).gt(0),
             lifetimeClaimed: historicalClaims
               .reduce(
                 (acc: Wei, item: { amount: string }) => acc.add(wei(item.amount, 18, true)),

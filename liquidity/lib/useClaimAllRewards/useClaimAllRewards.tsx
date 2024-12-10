@@ -1,5 +1,6 @@
 import { useToast } from '@chakra-ui/react';
 import { ContractError } from '@snx-v3/ContractError';
+import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
@@ -25,6 +26,7 @@ export function useClaimAllRewards(
     distributorAddress?: string;
     amount?: Wei;
     payoutTokenAddress?: string;
+    isPoolReward: boolean;
   }[]
 ) {
   const toast = useToast({ isClosable: true, duration: 9000 });
@@ -55,6 +57,7 @@ export function useClaimAllRewards(
 
         const transactions: (Promise<ethers.PopulatedTransaction> | undefined)[] = [];
 
+        const isBase = isBaseAndromeda(network?.id, network?.preset);
         const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
         const SpotMarketProxyContract = new ethers.Contract(
           SpotMarketProxy.address,
@@ -70,15 +73,27 @@ export function useClaimAllRewards(
             distributorAddress,
             amount,
             payoutTokenAddress,
+            isPoolReward,
           }) => {
-            transactions.push(
-              CoreProxyContract.populateTransaction.claimRewards(
-                ethers.BigNumber.from(accountId),
-                ethers.BigNumber.from(poolId),
-                collateralAddress,
-                distributorAddress
-              )
-            );
+            if (isPoolReward && isBase) {
+              transactions.push(
+                CoreProxyContract.populateTransaction.claimPoolRewards(
+                  ethers.BigNumber.from(accountId),
+                  ethers.BigNumber.from(poolId),
+                  collateralAddress,
+                  distributorAddress
+                )
+              );
+            } else {
+              transactions.push(
+                CoreProxyContract.populateTransaction.claimRewards(
+                  ethers.BigNumber.from(accountId),
+                  ethers.BigNumber.from(poolId),
+                  collateralAddress,
+                  distributorAddress
+                )
+              );
+            }
 
             const synthToken = synthTokens.find(
               (synth) => synth.address.toUpperCase() === payoutTokenAddress?.toUpperCase()
