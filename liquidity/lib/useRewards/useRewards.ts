@@ -10,6 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 import { contractsHash } from '@snx-v3/tsHelpers';
 import { ethers } from 'ethers';
+import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 
 const RewardsResponseSchema = z.array(
   z.object({
@@ -151,6 +152,7 @@ export function useRewards({
 
         const historicalData = returnData.slice(0, filteredDistributors.length);
         const metaData = returnData.slice(filteredDistributors.length);
+        const isBase = isBaseAndromeda(network?.id, network?.preset);
 
         const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
 
@@ -163,14 +165,16 @@ export function useRewards({
             address.toLowerCase()
           )
         );
-        const poolRewardsCalls = filteredDistributors.map(({ address }: { address: string }) =>
-          CoreProxyContract.populateTransaction.getAvailablePoolRewards(
-            ethers.BigNumber.from(accountId),
-            ethers.BigNumber.from(poolId),
-            collateralAddress.toLowerCase(),
-            address.toLowerCase()
-          )
-        );
+        const poolRewardsCalls = isBase
+          ? filteredDistributors.map(({ address }: { address: string }) =>
+              CoreProxyContract.populateTransaction.getAvailablePoolRewards(
+                ethers.BigNumber.from(accountId),
+                ethers.BigNumber.from(poolId),
+                collateralAddress.toLowerCase(),
+                address.toLowerCase()
+              )
+            )
+          : [];
 
         const txs = await Promise.all([...rewardsCalls, ...poolRewardsCalls]);
 
@@ -214,7 +218,7 @@ export function useRewards({
 
         const results: RewardsResponseType = filteredDistributors.map((item: any, i: number) => {
           // Amount claimable for this distributor
-          const claimableAmount = rewardAmounts[i].add(poolRewardAmounts[i]);
+          const claimableAmount = rewardAmounts[i].add(poolRewardAmounts[i] || ZEROWEI);
           const historicalClaims = historicalData[i]?.data?.rewardsClaimeds;
           const distributions = metaData[i]?.data?.rewardsDistributions;
           const symbol = item.payoutToken.symbol;
@@ -254,7 +258,7 @@ export function useRewards({
             decimals: item.payoutToken.decimals,
             payoutTokenAddress: item.payoutToken.address,
             claimableAmount,
-            isPoolReward: poolRewardAmounts[i].gt(0),
+            isPoolReward: (poolRewardAmounts[i] || ZEROWEI).gt(0),
             lifetimeClaimed: historicalClaims
               .reduce(
                 (acc: Wei, item: { amount: string }) => acc.add(wei(item.amount, 18, true)),

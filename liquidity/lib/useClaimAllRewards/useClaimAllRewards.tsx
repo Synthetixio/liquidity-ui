@@ -1,5 +1,6 @@
 import { useToast } from '@chakra-ui/react';
 import { ContractError } from '@snx-v3/ContractError';
+import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
@@ -56,6 +57,7 @@ export function useClaimAllRewards(
 
         const transactions: (Promise<ethers.PopulatedTransaction> | undefined)[] = [];
 
+        const isBase = isBaseAndromeda(network?.id, network?.preset);
         const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
         const SpotMarketProxyContract = new ethers.Contract(
           SpotMarketProxy.address,
@@ -73,7 +75,7 @@ export function useClaimAllRewards(
             payoutTokenAddress,
             isPoolReward,
           }) => {
-            if (isPoolReward) {
+            if (isPoolReward && isBase) {
               transactions.push(
                 CoreProxyContract.populateTransaction.claimPoolRewards(
                   ethers.BigNumber.from(accountId),
