@@ -44,10 +44,7 @@ export function WithdrawModal({
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const errorParser = useContractErrorParser();
 
-  const isStataUSDC = useIsSynthStataUSDC({
-    tokenAddress: collateralType?.tokenAddress,
-    customNetwork: network,
-  });
+  const isStataUSDC = useIsSynthStataUSDC({ tokenAddress: collateralType?.tokenAddress });
 
   const { data: systemToken } = useSystemToken();
 

@@ -1,6 +1,6 @@
 import { Box, Flex, Link, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
 import { ClaimModal } from '@snx-v3/ClaimModal';
-import { DepositModal } from '@snx-v3/DepositModal';
+import { DepositModal, StataDepositModal } from '@snx-v3/DepositModal';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { RepayModal } from '@snx-v3/RepayModal';
 import { UndelegateModal } from '@snx-v3/UndelegateModal';
@@ -16,6 +16,7 @@ import {
 } from '@snx-v3/useParams';
 import { validatePosition } from '@snx-v3/validatePosition';
 import { WithdrawModal } from '@snx-v3/WithdrawModal';
+import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { wei } from '@synthetixio/wei';
 import React, { FormEvent, useCallback } from 'react';
 import { Claim } from '../Claim/Claim';
@@ -44,6 +45,7 @@ export const ManageAction = ({
     accountId: params.accountId,
     collateralType,
   });
+  const isStataUSDC = useIsSynthStataUSDC({ tokenAddress: collateralType?.tokenAddress });
 
   const { isValid } = validatePosition({
     issuanceRatioD18: collateralType?.issuanceRatioD18,
@@ -285,8 +287,17 @@ export const ManageAction = ({
           }}
         />
       ) : null}
-      {txnModalOpen === 'deposit' ? (
+      {txnModalOpen === 'deposit' && !isStataUSDC ? (
         <DepositModal
+          onClose={() => {
+            setCollateralChange(wei(0));
+            setDebtChange(wei(0));
+            setTxnModalOpen(undefined);
+          }}
+        />
+      ) : null}
+      {txnModalOpen === 'deposit' && isStataUSDC ? (
+        <StataDepositModal
           onClose={() => {
             setCollateralChange(wei(0));
             setDebtChange(wei(0));

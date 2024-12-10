@@ -50,75 +50,50 @@ export function Deposit() {
   });
   const { data: transferrableSnx } = useTransferableSynthetix();
 
-  const { data: synthTokens } = useSynthTokens();
-  const wrapperToken = React.useMemo(() => {
-    if (synthTokens && collateralType) {
-      return synthTokens.find((synth) => synth.address === collateralType.tokenAddress)?.token
-        ?.address;
-    }
-  }, [collateralType, synthTokens]);
+  const isStataUSDC = useIsSynthStataUSDC({ tokenAddress: collateralType?.tokenAddress });
 
-  const { data: stataUSDC } = useStaticAaveUSDC();
-
-  const isStataUSDC = useIsSynthStataUSDC({
-    tokenAddress: collateralType?.tokenAddress,
-    customNetwork: network,
-  });
-
-  // TODO: This will need refactoring
-  const balanceAddress =
-    network?.preset === 'andromeda'
-      ? isStataUSDC
-        ? stataUSDC?.address
-        : wrapperToken
-      : collateralType?.tokenAddress;
-
-  const { data: tokenBalance } = useTokenBalance(balanceAddress);
+  const { data: collateralBalance } = useTokenBalance(collateralType?.tokenAddress);
 
   const { data: ethBalance } = useEthBalance();
 
   const price = useTokenPrice(collateralType?.symbol);
   const { data: stataUSDCRate } = useStaticAaveUSDCRate();
-  const { data: USDCToken } = useUSDC(network);
-  const { data: usdcBalance } = useTokenBalance(USDCToken?.address, network);
+  const { data: USDCToken } = useUSDC();
+  const { data: usdcBalance } = useTokenBalance(USDCToken?.address);
 
-  const stataUSDCBalance = React.useMemo(() => {
-    if (!isStataUSDC || !stataUSDCRate) {
-      return ZEROWEI;
+  const maxAmount = React.useMemo(() => {
+    if (collateralType?.symbol === 'SNX' && liquidityPosition && transferrableSnx) {
+      return liquidityPosition.availableCollateral.add(transferrableSnx.transferable);
+    }
+    if (collateralType?.symbol === 'WETH' && liquidityPosition && collateralBalance && ethBalance) {
+      return liquidityPosition.availableCollateral.add(collateralBalance).add(ethBalance);
+    }
+    if (isStataUSDC && liquidityPosition && usdcBalance) {
+      const stataAmount = liquidityPosition.availableCollateral.add(collateralBalance);
+      return stataAmount.add(usdcBalance.div(stataUSDCRate));
+    }
+    if (collateralType?.symbol === 'USDC' && network?.preset === 'andromeda' && liquidityPosition) {
+      return liquidityPosition.availableCollateral.add(usdcBalance);
     }
 
-    return (usdcBalance?.div(stataUSDCRate) || ZEROWEI).mul(998).div(1000);
-  }, [isStataUSDC, stataUSDCRate, usdcBalance]);
+    if (liquidityPosition && collateralBalance) {
+      return liquidityPosition.availableCollateral.add(collateralBalance);
+    }
 
-  const combinedTokenBalance = React.useMemo(() => {
-    if (collateralType?.symbol === 'SNX') {
-      return transferrableSnx?.transferable || ZEROWEI;
-    }
-    if (isStataUSDC) {
-      return (tokenBalance || ZEROWEI).add(stataUSDCBalance);
-    }
-    if (collateralType?.symbol !== 'WETH') {
-      return tokenBalance || ZEROWEI;
-    }
-    if (!tokenBalance || !ethBalance) {
-      return ZEROWEI;
-    }
-    return tokenBalance.add(ethBalance);
+    return ZEROWEI;
   }, [
     collateralType?.symbol,
-    isStataUSDC,
-    tokenBalance,
+    liquidityPosition,
+    transferrableSnx,
+    collateralBalance,
     ethBalance,
-    transferrableSnx?.transferable,
-    stataUSDCBalance,
+    isStataUSDC,
+    network?.preset,
+    stataUSDCRate,
+    usdcBalance,
   ]);
 
-  const maxAmount =
-    combinedTokenBalance && liquidityPosition?.availableCollateral
-      ? combinedTokenBalance.add(liquidityPosition.availableCollateral)
-      : ZEROWEI;
-
-  const overAvailableBalance = collateralChange.abs().gt(maxAmount);
+  const overAvailableBalance = collateralChange.gt(maxAmount);
 
   return (
     <Flex flexDirection="column" data-cy="deposit and lock collateral form">
@@ -141,32 +116,33 @@ export function Deposit() {
                 fontSize="xs"
                 color="whiteAlpha.700"
               >
-                <Flex gap="1">
-                  <Text>Unlocked Balance:</Text>
-                  <Amount value={liquidityPosition?.availableCollateral} />
-                </Flex>
-                <Flex gap="1">
-                  <Text>Wallet Balance:</Text>
-                  <Amount
-                    value={
-                      collateralType?.symbol === 'SNX'
-                        ? transferrableSnx?.transferable
-                        : tokenBalance
-                    }
-                  />
-                </Flex>
-                {isStataUSDC && (
-                  <Flex gap="1">
-                    <Text>USDC Balance:</Text>
-                    <Amount value={usdcBalance} />
-                    <Amount prefix="(~" value={stataUSDCBalance} suffix=" Static aUSDC)" />
-                  </Flex>
-                )}
+                <Amount
+                  prefix="Unlocked Balance: "
+                  value={liquidityPosition?.availableCollateral}
+                />
+
+                <Amount
+                  prefix="Wallet Balance: "
+                  value={
+                    collateralType?.symbol === 'SNX'
+                      ? transferrableSnx?.transferable
+                      : collateralBalance
+                  }
+                />
+
+                {isStataUSDC && usdcBalance && stataUSDCRate ? (
+                  <>
+                    <Amount prefix="USDC Balance: " value={usdcBalance} />
+                    <Amount
+                      prefix="(~"
+                      value={usdcBalance.div(stataUSDCRate).mul(998).div(1000)}
+                      suffix=" Static aUSDC)"
+                    />
+                  </>
+                ) : null}
+
                 {collateralType?.symbol === 'WETH' ? (
-                  <Flex gap="1">
-                    <Text>ETH Balance:</Text>
-                    <Amount value={ethBalance} />
-                  </Flex>
+                  <Amount prefix="ETH Balance: " value={ethBalance} />
                 ) : null}
               </Flex>
             }
@@ -315,7 +291,7 @@ export function Deposit() {
         type="submit"
         isDisabled={
           collateralChange.lte(0) ||
-          combinedTokenBalance === undefined ||
+          maxAmount.eq(0) ||
           !collateralType ||
           !liquidityPosition ||
           collateralChange

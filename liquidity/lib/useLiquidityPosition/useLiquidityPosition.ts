@@ -98,50 +98,40 @@ export const useLiquidityPosition = ({
             throw new Error('[useLiquidityPositions] Unexpected multicall response');
           }
 
+          log('collateralType', collateralType);
+
           const [accountAvailableSystemToken] = CoreProxyContract.interface.decodeFunctionResult(
             'getAccountAvailableCollateral',
             encoded[0]
           );
+          log('accountAvailableSystemToken', accountAvailableSystemToken);
 
           const [positionCollateral] = CoreProxyContract.interface.decodeFunctionResult(
             'getPositionCollateral',
             encoded[1]
           );
+          log('positionCollateral', positionCollateral);
 
           const [positionDebt] = CoreProxyContract.interface.decodeFunctionResult(
             'getPositionDebt',
             encoded[1 + 1]
           );
+          log('positionDebt', positionDebt);
 
           const [collateralPriceRaw] = CoreProxyContract.interface.decodeFunctionResult(
             'getCollateralPrice',
             encoded[1 + 2]
           );
+          log('collateralPriceRaw', collateralPriceRaw);
 
           const [accountAvailableCollateral] = CoreProxyContract.interface.decodeFunctionResult(
             'getAccountAvailableCollateral',
             encoded[1 + 3]
           );
-
-          log({
-            collateralType,
-            positionCollateral,
-            positionDebt,
-            collateralPriceRaw,
-            accountAvailableCollateral,
-          });
+          log('accountAvailableCollateral', accountAvailableCollateral);
 
           const availableCollateral = wei(accountAvailableCollateral);
           const availableSystemToken = wei(accountAvailableSystemToken);
-
-          // let availableCollateral;
-          // if (network.preset === 'andromeda' && collateralType.displaySymbol === 'USDC') {
-          //   // On Andromeda we automatically convert SystemToken into USDC on withdrawals
-          //   // Adjust USDC collateral amount accordingly
-          //   availableCollateral = wei(accountAvailableCollateral).add(accountAvailableSystemToken);
-          // } else {
-          //   availableCollateral = wei(accountAvailableCollateral);
-          // }
 
           const collateralPrice = wei(collateralPriceRaw);
           const collateralAmount = wei(positionCollateral);
@@ -160,7 +150,7 @@ export const useLiquidityPosition = ({
             cRatio,
           };
 
-          log(liquidityPosition);
+          log('liquidityPosition', liquidityPosition);
           return liquidityPosition;
         },
         'useLiquidityPosition'

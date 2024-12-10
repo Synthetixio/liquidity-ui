@@ -43,7 +43,7 @@ describe(__filename, () => {
       .and('include.text', 'Max');
 
     cy.get('[data-cy="deposit amount input"]').should('exist');
-    cy.get('[data-cy="deposit amount input"]').type('1');
+    cy.get('[data-cy="deposit amount input"]').type('5');
     cy.get('[data-cy="deposit submit"]').should('be.enabled');
     cy.get('[data-cy="deposit submit"]').click();
 
