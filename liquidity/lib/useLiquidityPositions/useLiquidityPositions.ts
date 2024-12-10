@@ -122,16 +122,8 @@ export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => 
               accountAvailableCollateral,
             });
 
-            let availableCollateral;
-            if (network.preset === 'andromeda' && collateralType.displaySymbol === 'USDC') {
-              // On Andromeda we automatically convert SystemToken into USDC on withdrawals
-              // Adjust USDC collateral amount accordingly
-              availableCollateral = wei(accountAvailableCollateral).add(
-                accountAvailableSystemToken
-              );
-            } else {
-              availableCollateral = wei(accountAvailableCollateral);
-            }
+            const availableCollateral = wei(accountAvailableCollateral);
+            const availableSystemToken = wei(accountAvailableSystemToken);
 
             const collateralPrice = wei(collateralPriceRaw);
             const collateralAmount = wei(positionCollateral);
@@ -143,6 +135,7 @@ export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => 
               collateralType,
               collateralPrice,
               availableCollateral,
+              availableSystemToken,
               collateralAmount,
               collateralValue,
               debt,
