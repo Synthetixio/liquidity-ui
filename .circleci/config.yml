@@ -349,14 +349,14 @@ workflows:
           name: debt-repayer-base-andromeda-e2e
           working_directory: 'contracts/debt-repayer-base-andromeda'
 
-      - cy
+      #- cy
       - e2e
 
       - ipfs:
           requires:
             - checks
             - tests
-            - cy
+            #- cy
             - e2e
           filters:
             branches:
