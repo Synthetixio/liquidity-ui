@@ -4,29 +4,31 @@ import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { type CollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
+import { useRewards } from '@snx-v3/useRewards';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { withERC7412 } from '@snx-v3/withERC7412';
-import Wei from '@synthetixio/wei';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ethers } from 'ethers';
 import React from 'react';
 
-export function useClaimAllRewards(
-  rewards: {
-    poolId?: string;
-    collateralAddress?: string;
-    accountId?: string;
-    distributorAddress?: string;
-    amount?: Wei;
-    payoutTokenAddress?: string;
-  }[]
-) {
+export function useClaimAllRewards({
+  accountId,
+  poolId,
+  collateralType,
+}: {
+  accountId?: string;
+  poolId?: string;
+  collateralType?: CollateralType;
+}) {
+  const { data: rewards } = useRewards({ accountId, poolId, collateralType });
+
   const toast = useToast({ isClosable: true, duration: 9000 });
 
   const { network } = useNetwork();
@@ -46,10 +48,13 @@ export function useClaimAllRewards(
     mutationFn: async function () {
       try {
         if (!signer || !network || !provider) throw new Error('No signer or network');
-        if (!rewards.filter(({ amount }) => amount?.gt(0)).length) return;
+        if (!rewards || !rewards.some(({ claimableAmount }) => claimableAmount.gt(0))) {
+          return;
+        }
         if (!CoreProxy) throw new Error('CoreProxy undefined');
         if (!SpotMarketProxy) throw new Error('SpotMarketProxy undefined');
         if (!synthTokens) throw new Error('synthTokens undefined');
+        if (!collateralType) throw new Error('collateralType undefined');
 
         dispatch({ type: 'prompting' });
 
@@ -62,38 +67,31 @@ export function useClaimAllRewards(
           signer
         );
 
-        rewards.forEach(
-          ({
-            poolId,
-            collateralAddress,
-            accountId,
-            distributorAddress,
-            amount,
-            payoutTokenAddress,
-          }) => {
+        rewards
+          .filter(({ claimableAmount }) => claimableAmount.gt(0))
+          .forEach(({ distributor, claimableAmount }) => {
             transactions.push(
               CoreProxyContract.populateTransaction.claimRewards(
                 ethers.BigNumber.from(accountId),
                 ethers.BigNumber.from(poolId),
-                collateralAddress,
-                distributorAddress
+                collateralType.address,
+                distributor.address
               )
             );
-
             const synthToken = synthTokens.find(
-              (synth) => synth.address.toUpperCase() === payoutTokenAddress?.toUpperCase()
+              (synth) =>
+                synth.address.toUpperCase() === distributor.payoutToken.address.toUpperCase()
             );
-            if (synthToken && amount && amount.gt(0)) {
+            if (synthToken && claimableAmount && claimableAmount.gt(0)) {
               transactions.push(
                 SpotMarketProxyContract.populateTransaction.unwrap(
                   synthToken.synthMarketId,
-                  amount.toBN(),
-                  amount.toBN().sub(amount?.toBN().div(100))
+                  claimableAmount.toBN(),
+                  claimableAmount.toBN().sub(claimableAmount?.toBN().div(100))
                 )
               );
             }
-          }
-        );
+          });
         const callsPromise = Promise.all(transactions.filter(notNil));
         const walletAddress = await signer.getAddress();
 

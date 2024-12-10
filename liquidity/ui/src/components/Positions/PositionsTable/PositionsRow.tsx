@@ -25,9 +25,9 @@ export function PositionRow({
 }) {
   const [params, setParams] = useParams();
   const { data: rewardsData } = useRewards({
-    poolId,
-    collateralSymbol: liquidityPosition.collateralType.symbol,
     accountId: params.accountId,
+    poolId,
+    collateralType: liquidityPosition.collateralType,
   });
   const { network } = useNetwork();
 

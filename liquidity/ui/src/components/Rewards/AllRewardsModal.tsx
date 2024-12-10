@@ -14,17 +14,29 @@ import {
 import { Amount } from '@snx-v3/Amount';
 import { etherscanLink } from '@snx-v3/etherscanLink';
 import { useNetwork } from '@snx-v3/useBlockchain';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
+import { useRewards } from '@snx-v3/useRewards';
+import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { WithdrawIncrease } from '@snx-v3/WithdrawIncrease';
-import { wei } from '@synthetixio/wei';
 import { useEffect, useState } from 'react';
 
-interface AllRewardsModalInterface {
-  rewards: { collateralSymbol?: string; amount?: number }[];
+export function AllRewardsModal({
+  txnStatus,
+  txnHash,
+}: {
   txnStatus?: string;
   txnHash: string | null;
-}
+}) {
+  const [params] = useParams<PositionPageSchemaType>();
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
+  const { data: rewards } = useRewards({
+    accountId: params.accountId,
+    poolId: params.poolId,
+    collateralType,
+  });
+  const { data: synthTokens } = useSynthTokens();
 
-export const AllRewardsModal = ({ rewards, txnStatus, txnHash }: AllRewardsModalInterface) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const { network } = useNetwork();
@@ -95,21 +107,34 @@ export const AllRewardsModal = ({ rewards, txnStatus, txnHash }: AllRewardsModal
               ml={2}
               data-cy="claim rewards info"
             >
-              {rewards.map(({ collateralSymbol, amount }) => (
-                <Text
-                  key={collateralSymbol}
-                  fontSize="14px"
-                  fontWeight={700}
-                  lineHeight="20px"
-                  color="white"
-                >
-                  <Amount
-                    value={wei(amount)}
-                    prefix="Claiming "
-                    suffix={collateralSymbol ? ` ${collateralSymbol}` : undefined}
-                  />
-                </Text>
-              ))}
+              {rewards
+                ? rewards
+                    .filter(({ claimableAmount }) => claimableAmount.gt(0))
+                    .map(({ distributor, claimableAmount }) => {
+                      const symbol = distributor.payoutToken.symbol;
+                      const synthToken = synthTokens?.find(
+                        (synth) =>
+                          synth.address.toUpperCase() ===
+                          distributor.payoutToken.address.toUpperCase()
+                      );
+                      const collateralSymbol = synthToken ? synthToken?.symbol.slice(1) : symbol;
+                      return (
+                        <Text
+                          key={distributor.address}
+                          fontSize="14px"
+                          fontWeight={700}
+                          lineHeight="20px"
+                          color="white"
+                        >
+                          <Amount
+                            value={claimableAmount}
+                            prefix="Claiming "
+                            suffix={` ${collateralSymbol}`}
+                          />
+                        </Text>
+                      );
+                    })
+                : null}
               <Text fontSize="12px" lineHeight="16px" color="gray.500">
                 Claim your rewards
               </Text>
@@ -159,4 +184,4 @@ export const AllRewardsModal = ({ rewards, txnStatus, txnHash }: AllRewardsModal
       </ModalContent>
     </Modal>
   );
-};
+}

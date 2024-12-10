@@ -4,21 +4,34 @@ import { etherscanLink } from '@snx-v3/etherscanLink';
 import { truncateAddress } from '@snx-v3/formatters';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useNetwork } from '@snx-v3/useBlockchain';
+import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import Wei from '@synthetixio/wei';
+import React from 'react';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
 
-interface RewardsRowInterface {
-  displaySymbol?: string;
-  claimableAmount: Wei; // The immediate amount claimable as read from the contracts
-  distributorAddress: string;
-}
-
-export const RewardsRow = ({
-  displaySymbol,
+export function RewardsRow({
+  distributor,
   claimableAmount,
-  distributorAddress,
-}: RewardsRowInterface) => {
+}: {
+  distributor: {
+    address: string;
+    payoutToken: {
+      address: string;
+      symbol: string;
+    };
+  };
+  claimableAmount: Wei;
+}) {
   const { network } = useNetwork();
+  const { data: synthTokens } = useSynthTokens(network);
+
+  const displaySymbol = React.useMemo(() => {
+    const symbol = distributor.payoutToken.symbol;
+    const synthToken = synthTokens?.find(
+      (synth) => synth.address.toUpperCase() === distributor.payoutToken.address.toUpperCase()
+    );
+    return synthToken ? synthToken?.symbol.slice(1) : symbol;
+  }, [distributor.payoutToken.address, distributor.payoutToken.symbol, synthTokens]);
 
   return (
     <>
@@ -32,11 +45,11 @@ export const RewardsRow = ({
               <Link
                 href={etherscanLink({
                   chain: network?.name || 'mainnet',
-                  address: distributorAddress,
+                  address: distributor.address,
                 })}
                 target="_blank"
               >
-                <Tooltip label={`Distributed by ${truncateAddress(distributorAddress)}`}>
+                <Tooltip label={`Distributed by ${truncateAddress(distributor.address)}`}>
                   <Text
                     color="gray.50"
                     fontSize="14px"
@@ -67,4 +80,4 @@ export const RewardsRow = ({
       </Tr>
     </>
   );
-};
+}

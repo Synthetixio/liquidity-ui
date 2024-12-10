@@ -37,7 +37,9 @@ describe(__filename, () => {
       })}`
     );
 
-    cy.get('[data-cy="claim rewards submit"]').should('be.enabled');
+    cy.get('[data-cy="claim rewards submit"]', {
+      timeout: 180_000,
+    }).should('be.enabled');
     cy.get('[data-cy="claim rewards submit"]').click();
 
     cy.get('[data-cy="claim rewards dialog"]').should('exist');

@@ -118,6 +118,7 @@ beforeEach(() => {
     win.sessionStorage.setItem('TERMS_CONDITIONS_ACCEPTED', 'true');
     win.localStorage.setItem('UNSAFE_IMPORT', 'true');
     win.localStorage.setItem('CONTRACT_ERROR_OPEN', 'true');
-    win.localStorage.setItem('DEBUG', 'snx:*');
+    win.localStorage.setItem('DEBUG', 'true');
+    win.localStorage.setItem('debug', 'snx:*');
   });
 });

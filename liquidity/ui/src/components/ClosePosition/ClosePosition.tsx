@@ -34,7 +34,7 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { data: systemToken } = useSystemToken();
 
-  const { data: liquidityPosition, isPending } = useLiquidityPosition({
+  const { data: liquidityPosition, isPending: isPendingLiquidityPosition } = useLiquidityPosition({
     accountId: params.accountId,
     collateralType,
   });
@@ -77,7 +77,7 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
       <Divider my={5} bg="gray.900" />
 
       <Text color="gray.50" fontSize="sm" fontWeight="700" mb={2}>
-        {!isPending && liquidityPosition ? (
+        {!isPendingLiquidityPosition && liquidityPosition ? (
           <>{liquidityPosition.debt.gt(0) ? 'Repay Debt' : 'Claim Profit'}</>
         ) : (
           <>&nbsp;</>
@@ -93,7 +93,8 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
               </Text>
             </BorderBox>
             <Text fontSize="12px" whiteSpace="nowrap" data-cy="debt amount">
-              {!isPending && liquidityPosition ? (
+              {isPendingLiquidityPosition ? '~' : null}
+              {!isPendingLiquidityPosition && liquidityPosition ? (
                 <>
                   <Amount
                     prefix={liquidityPosition.debt.gt(0) ? 'Debt: ' : 'Max Claim: '}
@@ -103,14 +104,16 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
                     Max
                   </Text>
                 </>
-              ) : (
-                '~'
-              )}
+              ) : null}
             </Text>
           </Flex>
           <Flex flexGrow={1} flexDir="column">
             <NumberInput
-              value={!isPending && liquidityPosition ? liquidityPosition.debt.abs() : ZEROWEI}
+              value={
+                !isPendingLiquidityPosition && liquidityPosition
+                  ? liquidityPosition.debt.abs()
+                  : ZEROWEI
+              }
               disabled
             />
             <Flex fontSize="xs" color="whiteAlpha.700" alignSelf="flex-end" gap="1">
@@ -118,7 +121,7 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
                 <Amount
                   prefix="$"
                   value={
-                    !isPending && liquidityPosition
+                    !isPendingLiquidityPosition && liquidityPosition
                       ? liquidityPosition.debt.abs().mul(debtPrice)
                       : ZEROWEI
                   }
@@ -142,21 +145,24 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
               </Text>
             </BorderBox>
             <Text fontSize="12px" whiteSpace="nowrap" data-cy="locked collateral amount">
-              {!isPending && liquidityPosition ? (
+              {isPendingLiquidityPosition ? 'Locked: ~' : null}
+              {!isPendingLiquidityPosition && liquidityPosition ? (
                 <>
                   <Amount prefix="Locked: " value={liquidityPosition.collateralAmount} />{' '}
                   <Text as="span" color="gray.600" fontWeight={700}>
                     Max
                   </Text>
                 </>
-              ) : (
-                '~'
-              )}
+              ) : null}
             </Text>
           </Flex>
           <Flex flexGrow={1} flexDir="column">
             <NumberInput
-              value={!isPending && liquidityPosition ? liquidityPosition.collateralAmount : ZEROWEI}
+              value={
+                !isPendingLiquidityPosition && liquidityPosition
+                  ? liquidityPosition.collateralAmount
+                  : ZEROWEI
+              }
               disabled
             />
             <Flex fontSize="xs" color="whiteAlpha.700" alignSelf="flex-end" gap="1">
@@ -164,7 +170,7 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
                 <Amount
                   prefix="$"
                   value={
-                    !isPending && liquidityPosition
+                    !isPendingLiquidityPosition && liquidityPosition
                       ? liquidityPosition.collateralAmount.abs().mul(collateralPrice)
                       : ZEROWEI
                   }

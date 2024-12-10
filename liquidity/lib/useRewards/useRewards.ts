@@ -1,40 +1,27 @@
+import { contractsHash } from '@snx-v3/tsHelpers';
+import { useAllErrors } from '@snx-v3/useAllErrors';
 import { useNetwork, useProvider } from '@snx-v3/useBlockchain';
-import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { CollateralType } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useMulticall3 } from '@snx-v3/useMulticall3';
 import { useRewardsDistributors } from '@snx-v3/useRewardsDistributors';
 import { useSynthTokens } from '@snx-v3/useSynthTokens';
-import { Wei, wei } from '@synthetixio/wei';
+import { wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
-import { z } from 'zod';
-import { contractsHash } from '@snx-v3/tsHelpers';
+import debug from 'debug';
 import { ethers } from 'ethers';
 
-const RewardsResponseSchema = z.array(
-  z.object({
-    address: z.string(),
-    name: z.string(),
-    symbol: z.string(),
-    payoutTokenAddress: z.string(),
-    displaySymbol: z.string().optional(),
-    distributorAddress: z.string(),
-    decimals: z.number(),
-    claimableAmount: z.instanceof(Wei),
-  })
-);
-
-export type RewardsResponseType = z.infer<typeof RewardsResponseSchema>;
+const log = debug('snx:useRewards');
 
 export function useRewards({
-  poolId,
-  collateralSymbol,
   accountId,
+  poolId,
+  collateralType,
 }: {
-  poolId?: string;
-  collateralSymbol?: string;
   accountId?: string;
+  poolId?: string;
+  collateralType?: CollateralType;
 }) {
-  const { data: collateralType } = useCollateralType(collateralSymbol);
   const collateralAddress = collateralType?.tokenAddress;
   const { network } = useNetwork();
   const provider = useProvider();
@@ -42,22 +29,8 @@ export function useRewards({
 
   const { data: Multicall3 } = useMulticall3(network);
   const { data: CoreProxy } = useCoreProxy(network);
+  const { data: AllErrors } = useAllErrors(network);
   const { data: rewardsDistributors } = useRewardsDistributors(network);
-
-  // We need to filter the distributors, so we only query for this particular collateral type
-  // Also include all pool level distributors
-  const filteredDistributors =
-    rewardsDistributors && collateralAddress
-      ? rewardsDistributors
-          .filter((distributor) => distributor.isRegistered)
-          .filter(
-            (distributor) =>
-              !distributor.collateralType ||
-              (distributor.collateralType &&
-                distributor.collateralType.address.toLowerCase() ===
-                  collateralAddress.toLowerCase())
-          )
-      : [];
 
   return useQuery({
     enabled: Boolean(
@@ -79,7 +52,8 @@ export function useRewards({
         contractsHash: contractsHash([
           CoreProxy,
           Multicall3,
-          ...filteredDistributors,
+          AllErrors,
+          ...(rewardsDistributors ?? []),
           ...(synthTokens ?? []),
         ]),
       },
@@ -87,85 +61,109 @@ export function useRewards({
     queryFn: async () => {
       if (
         !(
-          network &&
           CoreProxy &&
           Multicall3 &&
-          filteredDistributors &&
+          AllErrors &&
+          rewardsDistributors &&
           poolId &&
           collateralAddress &&
-          accountId
+          accountId &&
+          synthTokens
         )
       ) {
         throw new Error('OMG');
       }
+      const poolDistributors =
+        rewardsDistributors && collateralType
+          ? rewardsDistributors.filter(
+              (distributor) => distributor.isRegistered && !distributor.collateralType
+            )
+          : [];
+      log('poolDistributors', poolDistributors);
 
-      if (filteredDistributors.length === 0) return [];
+      // We need to filter the distributors, so we only query for this particular collateral type
+      const vaultDistributors =
+        rewardsDistributors && collateralType
+          ? rewardsDistributors.filter(
+              (distributor) =>
+                distributor.isRegistered &&
+                distributor.collateralType &&
+                distributor.collateralType.address.toLowerCase() ===
+                  collateralType.address.toLowerCase()
+            )
+          : [];
+      log('vaultDistributors', vaultDistributors);
 
-      try {
-        const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
-
-        // Get claimable amount for each distributor
-        const calls = filteredDistributors.map(({ address }: { address: string }) =>
-          CoreProxyContract.populateTransaction.getAvailableRewards(
-            ethers.BigNumber.from(accountId),
-            ethers.BigNumber.from(poolId),
-            collateralAddress.toLowerCase(),
-            address.toLowerCase()
-          )
-        );
-
-        const txs = await Promise.all(calls);
-
-        const multicallData = txs.map((tx) => ({
-          target: CoreProxy.address,
-          callData: tx.data,
-        }));
-
-        const Multicall3Contract = new ethers.Contract(
-          Multicall3.address,
-          Multicall3.abi,
-          provider
-        );
-        const data = await Multicall3Contract.callStatic.aggregate(multicallData);
-
-        const amounts = data.returnData.map((data: string) => {
-          const amount = CoreProxyContract.interface.decodeFunctionResult(
-            'getAvailableRewards',
-            data
-          )[0];
-          return wei(amount);
-        });
-
-        const results: RewardsResponseType = filteredDistributors.map((item: any, i: number) => {
-          // Amount claimable for this distributor
-          const claimableAmount = amounts[i];
-          const symbol = item.payoutToken.symbol;
-          const synthToken = synthTokens?.find(
-            (synth) => synth?.address?.toUpperCase() === item?.payoutToken?.address?.toUpperCase()
-          );
-          const displaySymbol = synthToken ? synthToken?.symbol.slice(1) : symbol;
-
-          return {
-            address: item.address,
-            name: item.name,
-            symbol,
-            displaySymbol,
-            distributorAddress: item.address,
-            decimals: item.payoutToken.decimals,
-            payoutTokenAddress: item.payoutToken.address,
-            claimableAmount,
-          };
-        });
-
-        const sortedBalances = results.sort(
-          (a, b) => b.claimableAmount.toNumber() - a.claimableAmount.toNumber()
-        );
-
-        return RewardsResponseSchema.parse(sortedBalances);
-      } catch (error) {
-        console.error(error);
+      if (poolDistributors.length === 0 && vaultDistributors.length === 0) {
         return [];
       }
+
+      const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
+
+      const getAvailableRewardsArgs = [...vaultDistributors, ...poolDistributors].map(
+        (distributor) => ({
+          method: 'getAvailableRewards',
+          args: [
+            ethers.BigNumber.from(accountId),
+            ethers.BigNumber.from(poolId),
+            collateralAddress,
+            distributor.address,
+          ],
+          distributor,
+        })
+      );
+      const getAvailablePoolRewardsArgs = poolDistributors.map((distributor) => ({
+        method: 'getAvailablePoolRewards',
+        args: [
+          ethers.BigNumber.from(accountId),
+          ethers.BigNumber.from(poolId),
+          collateralAddress,
+          distributor.address,
+        ],
+        distributor,
+      }));
+      const multicall = [...getAvailableRewardsArgs, ...getAvailablePoolRewardsArgs];
+      log('multicall', multicall);
+
+      const calls = await Promise.all(
+        multicall.map(async ({ method, args }) => {
+          const { to, data } = await CoreProxyContract.populateTransaction[method](...args);
+          return {
+            target: to,
+            callData: data,
+            allowFailure: true,
+          };
+        })
+      );
+      log('calls', calls);
+
+      const Multicall3Contract = new ethers.Contract(Multicall3.address, Multicall3.abi, provider);
+      const multicallResponse = await Multicall3Contract.callStatic.aggregate3(calls);
+      log('multicallResponse', multicallResponse);
+
+      const AllErrorsInterface = new ethers.utils.Interface(AllErrors.abi);
+
+      const availableRewards = multicall
+        .map(({ method, distributor }, i) => {
+          const { success, returnData } = multicallResponse[i];
+          if (!success) {
+            log(
+              `${method} call error for ${distributor.name}`,
+              AllErrorsInterface.parseError(returnData)
+            );
+            return;
+          }
+          const [amount] = CoreProxyContract.interface.decodeFunctionResult(method, returnData);
+          return {
+            distributor,
+            claimableAmount: wei(amount),
+          };
+        })
+        .filter((info) => info !== undefined);
+      log('availableRewards', availableRewards);
+      return availableRewards.sort(
+        (a, b) => b.claimableAmount.toNumber() - a.claimableAmount.toNumber()
+      );
     },
   });
 }

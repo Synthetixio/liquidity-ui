@@ -25,41 +25,20 @@ import { RewardsRow } from './RewardsRow';
 export function Rewards() {
   const [params] = useParams<PositionPageSchemaType>();
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
-  const { isPending, data: rewards } = useRewards({
-    poolId: params.poolId,
-    collateralSymbol: params.collateralSymbol,
+  const { data: rewards, isPending: isPendingRewards } = useRewards({
     accountId: params.accountId,
+    poolId: params.poolId,
+    collateralType,
   });
-
-  const allRewards = React.useMemo(
-    () =>
-      rewards
-        ?.map(({ distributorAddress, payoutTokenAddress, claimableAmount }) => ({
-          poolId: params.poolId || '',
-          collateralAddress: collateralType?.tokenAddress || '',
-          accountId: params.accountId,
-          distributorAddress: distributorAddress,
-          amount: claimableAmount,
-          payoutTokenAddress,
-        }))
-        .filter(({ amount }) => amount.gt(0)) || [],
-    [params.accountId, collateralType?.tokenAddress, params.poolId, rewards]
-  );
-
-  const { exec: claimAll, txnState } = useClaimAllRewards(allRewards);
+  const { exec: claimAll, txnState } = useClaimAllRewards({
+    accountId: params.accountId,
+    poolId: params.poolId,
+    collateralType,
+  });
 
   return (
     <BorderBox bg="navy.700" py={4} px={4} flexDir="column">
-      <AllRewardsModal
-        rewards={(rewards || [])
-          ?.filter((r) => r.claimableAmount.gt(0))
-          .map(({ claimableAmount, displaySymbol }) => ({
-            collateralSymbol: displaySymbol,
-            amount: claimableAmount.toNumber(),
-          }))}
-        txnStatus={txnState.txnStatus}
-        txnHash={txnState.txnHash}
-      />
+      <AllRewardsModal txnStatus={txnState.txnStatus} txnHash={txnState.txnHash} />
       <Flex alignItems="center" justifyContent="space-between">
         <Text color="gray.500" fontFamily="heading" lineHeight="4" fontSize="xs" mb="8px">
           Rewards
@@ -67,7 +46,7 @@ export function Rewards() {
         <Button
           size="sm"
           variant="solid"
-          isDisabled={!allRewards.length}
+          isDisabled={!(rewards && rewards.length > 0)}
           _disabled={{
             bg: 'gray.900',
             backgroundImage: 'none',
@@ -130,9 +109,9 @@ export function Rewards() {
               </Tr>
             ) : null}
 
-            {params.accountId && isPending ? <RewardsLoading /> : null}
+            {params.accountId && isPendingRewards ? <RewardsLoading /> : null}
 
-            {params.accountId && !isPending && rewards && rewards.length === 0 ? (
+            {params.accountId && !isPendingRewards && rewards && rewards.length === 0 ? (
               <Tr>
                 <Td display="flex" alignItems="left" px={4} border="none" w="100%">
                   <Text color="gray.500" fontFamily="heading" fontSize="xs">
@@ -142,13 +121,12 @@ export function Rewards() {
               </Tr>
             ) : null}
 
-            {params.accountId && !isPending && rewards && rewards.length > 0
-              ? rewards?.map((item) => (
+            {params.accountId && !isPendingRewards && rewards && rewards.length > 0
+              ? rewards.map(({ distributor, claimableAmount }) => (
                   <RewardsRow
-                    key={item.address}
-                    displaySymbol={item.displaySymbol}
-                    claimableAmount={item.claimableAmount}
-                    distributorAddress={item.distributorAddress}
+                    key={distributor.address}
+                    distributor={distributor}
+                    claimableAmount={claimableAmount}
                   />
                 ))
               : null}
