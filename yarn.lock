@@ -5557,7 +5557,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useDeposit@workspace:liquidity/lib/useDeposit"
   dependencies:
-    "@snx-v3/format": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
