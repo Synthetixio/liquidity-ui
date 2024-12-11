@@ -111,10 +111,10 @@ export function useClaimAllRewards({
         const Multicall3Contract = new ethers.Contract(Multicall3.address, Multicall3.abi, signer);
         const txn = await Multicall3Contract.aggregate3(calls);
         log('txn', txn);
+        dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 
         const receipt = await txn.wait();
         log('receipt', receipt);
-
         dispatch({ type: 'success' });
         client.invalidateQueries({
           queryKey: [`${network?.id}-${network?.preset}`, 'Rewards'],

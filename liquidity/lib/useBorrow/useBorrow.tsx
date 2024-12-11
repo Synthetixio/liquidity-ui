@@ -8,8 +8,11 @@ import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import Wei from '@synthetixio/wei';
 import { useMutation } from '@tanstack/react-query';
+import debug from 'debug';
 import { ethers } from 'ethers';
 import { useReducer } from 'react';
+
+const log = debug('snx:useBorrow');
 
 export const useBorrow = ({
   accountId,
@@ -84,10 +87,11 @@ export const useBorrow = ({
         });
 
         const txn = await signer.sendTransaction({ ...erc7412Tx, ...gasOptionsForTransaction });
-
+        log('txn', txn);
         dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 
-        await txn.wait();
+        const receipt = await txn.wait();
+        log('receipt', receipt);
         dispatch({ type: 'success' });
       } catch (error: any) {
         dispatch({ type: 'error', payload: { error } });

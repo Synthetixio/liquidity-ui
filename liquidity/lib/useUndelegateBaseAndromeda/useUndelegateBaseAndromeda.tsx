@@ -16,8 +16,11 @@ import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import { Wei, wei } from '@synthetixio/wei';
 import { useMutation } from '@tanstack/react-query';
+import debug from 'debug';
 import { ethers } from 'ethers';
 import React from 'react';
+
+const log = debug('snx:useUndelegateBaseAndromeda');
 
 export function useUndelegateBaseAndromeda({ collateralChange }: { collateralChange: Wei }) {
   const [params] = useParams<PositionPageSchemaType>();
@@ -128,9 +131,11 @@ export function useUndelegateBaseAndromeda({ collateralChange }: { collateralCha
         });
 
         const txn = await signer.sendTransaction({ ...erc7412Tx, ...gasOptionsForTransaction });
+        log('txn', txn);
         dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 
-        await txn.wait();
+        const receipt = await txn.wait();
+        log('receipt', receipt);
         dispatch({ type: 'success' });
       } catch (error: any) {
         dispatch({ type: 'error', payload: { error } });

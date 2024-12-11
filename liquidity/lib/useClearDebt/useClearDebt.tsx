@@ -11,8 +11,11 @@ import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import { useMutation } from '@tanstack/react-query';
+import debug from 'debug';
 import { ethers } from 'ethers';
 import React from 'react';
+
+const log = debug('snx:useClearDebt');
 
 export const useClearDebt = ({
   accountId,
@@ -105,9 +108,11 @@ export const useClearDebt = ({
         });
 
         const txn = await signer.sendTransaction({ ...erc7412Tx, ...gasOptionsForTransaction });
+        log('txn', txn);
         dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 
-        await txn.wait();
+        const receipt = await txn.wait();
+        log('receipt', receipt);
         dispatch({ type: 'success' });
       } catch (error: any) {
         dispatch({ type: 'error', payload: { error } });
