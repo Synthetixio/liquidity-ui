@@ -15,6 +15,7 @@ import { currency } from '@snx-v3/format';
 import { formatNumber } from '@snx-v3/formatters';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
+import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useEthBalance } from '@snx-v3/useEthBalance';
@@ -58,6 +59,8 @@ export function Deposit() {
   const { data: stataUSDCRate } = useStaticAaveUSDCRate();
   const { data: USDCToken } = useUSDC();
   const { data: usdcBalance } = useTokenBalance(USDCToken?.address);
+  const { data: StaticAaveUSDC } = useStaticAaveUSDC();
+  const { data: stataBalance } = useTokenBalance(StaticAaveUSDC?.address);
 
   const maxAmount = React.useMemo(() => {
     if (collateralType?.symbol === 'SNX' && liquidityPosition && transferrableSnx) {
@@ -66,8 +69,17 @@ export function Deposit() {
     if (collateralType?.symbol === 'WETH' && liquidityPosition && collateralBalance && ethBalance) {
       return liquidityPosition.availableCollateral.add(collateralBalance).add(ethBalance);
     }
-    if (isStataUSDC && liquidityPosition && usdcBalance && collateralBalance && stataUSDCRate) {
-      const stataAmount = liquidityPosition.availableCollateral.add(collateralBalance);
+    if (
+      isStataUSDC &&
+      liquidityPosition &&
+      usdcBalance &&
+      stataBalance &&
+      collateralBalance &&
+      stataUSDCRate
+    ) {
+      const stataAmount = liquidityPosition.availableCollateral
+        .add(stataBalance)
+        .add(collateralBalance);
       return stataAmount.add(usdcBalance.div(wei(stataUSDCRate, 27)));
     }
     if (
@@ -91,9 +103,10 @@ export function Deposit() {
     collateralBalance,
     ethBalance,
     isStataUSDC,
-    network?.preset,
-    stataUSDCRate,
     usdcBalance,
+    stataBalance,
+    stataUSDCRate,
+    network?.preset,
   ]);
 
   const overAvailableBalance = collateralChange.gt(maxAmount);
@@ -135,6 +148,7 @@ export function Deposit() {
 
                 {isStataUSDC && usdcBalance && stataUSDCRate ? (
                   <>
+                    <Amount prefix="Static aUSDC Balance: " value={stataBalance} />
                     <Amount prefix="USDC Balance: " value={usdcBalance} />
                     <Amount
                       prefix="(~"
@@ -189,11 +203,14 @@ export function Deposit() {
           </Flex>
         </Flex>
       </BorderBox>
-      {transferrableSnx?.collateral &&
-        transferrableSnx?.collateral.gt(0) &&
-        collateralType?.symbol === 'SNX' && (
-          <CollateralAlert mb="6" tokenBalance={transferrableSnx.collateral} />
-        )}
+
+      {collateralType?.symbol === 'SNX' &&
+      transferrableSnx &&
+      transferrableSnx.collateral &&
+      transferrableSnx.collateral.gt(0) ? (
+        <CollateralAlert mb="6" tokenBalance={transferrableSnx.collateral} />
+      ) : null}
+
       <Collapse in={collateralChange.gt(0) && !overAvailableBalance} animateOpacity>
         <WithdrawIncrease />
       </Collapse>
