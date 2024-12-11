@@ -38,6 +38,7 @@ commands:
           key: *yarn_cache
           paths:
             - 'node_modules'
+            - '~/.cache/Cypress'
 
       - save_cache:
           key: *yarn_state_cache
