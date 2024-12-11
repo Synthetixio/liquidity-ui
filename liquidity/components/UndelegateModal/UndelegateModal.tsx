@@ -57,15 +57,18 @@ export function UndelegateModal({ onClose }: { onClose: () => void }) {
     currentCollateral: currentCollateral,
   });
 
-  const debtExists = liquidityPosition?.debt.gt(0);
-  const currentDebt = debtExists && liquidityPosition ? liquidityPosition.debt : wei(0);
+  const currentDebt =
+    liquidityPosition && liquidityPosition.debt.gt(0) ? liquidityPosition.debt : wei(0);
   const { data: USDC } = useUSDC();
   const { data: DebtRepayer } = useDebtRepayer();
 
   const { approve, requireApproval } = useApprove({
     contractAddress: USDC?.address,
     //slippage for approval
-    amount: debtExists ? parseUnits(currentDebt.toString(), 6).mul(120).div(100) : 0,
+    amount:
+      liquidityPosition && liquidityPosition.debt.gt(0)
+        ? parseUnits(currentDebt.toString(), 6).mul(120).div(100)
+        : undefined,
     spender: DebtRepayer?.address,
   });
 

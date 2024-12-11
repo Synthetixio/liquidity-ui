@@ -20,7 +20,7 @@ export const useApprove = (
     spender,
   }: {
     contractAddress?: string;
-    amount: ethers.BigNumberish;
+    amount?: ethers.BigNumber;
     spender?: string;
   },
   eventHandlers?: {
@@ -31,7 +31,7 @@ export const useApprove = (
 ) => {
   const [txnState, dispatch] = useReducer(reducer, initialState);
   const { data: allowance, refetch: refetchAllowance } = useAllowance({ contractAddress, spender });
-  const sufficientAllowance = allowance && allowance.gte(amount);
+  const sufficientAllowance = allowance && amount && allowance.gte(amount);
 
   const signer = useSigner();
   const { gasSpeed } = useGasSpeed();
@@ -39,7 +39,7 @@ export const useApprove = (
 
   const mutation = useMutation({
     mutationFn: async (infiniteApproval: boolean) => {
-      if (!signer || !contractAddress || !spender || !provider)
+      if (!signer || !contractAddress || !spender || !provider || !amount)
         throw new Error('Signer, contract address or spender is not defined');
       if (sufficientAllowance) return;
 

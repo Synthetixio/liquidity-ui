@@ -47,7 +47,7 @@ export function RepayAndromedaDebt() {
     // slippage for approval
     amount: liquidityPosition
       ? parseUnits(liquidityPosition.debt.toString(), 6).mul(150).div(100)
-      : 0,
+      : undefined,
     spender: DebtRepayer?.address,
   });
 

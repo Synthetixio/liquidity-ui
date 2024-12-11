@@ -24,8 +24,8 @@ import { useUndelegate } from '@snx-v3/useUndelegate';
 import { useUndelegateBaseAndromeda } from '@snx-v3/useUndelegateBaseAndromeda';
 import { useUSDC } from '@snx-v3/useUSDC';
 import { wei } from '@synthetixio/wei';
-import { ethers } from 'ethers';
 import { useQueryClient } from '@tanstack/react-query';
+import { ethers } from 'ethers';
 import React from 'react';
 import { LiquidityPositionUpdated } from '../Manage/LiquidityPositionUpdated';
 
@@ -77,13 +77,15 @@ export function ClosePositionTransactions({
   const collateralAddress = network?.preset === 'andromeda' ? wrapperToken : systemToken?.address;
   const queryClient = useQueryClient();
   const availableUSDCollateral = liquidityPosition?.availableCollateral || ZEROWEI;
-  const amountToDeposit = (liquidityPosition?.debt || ZEROWEI).abs().sub(availableUSDCollateral);
   const errorParser = useContractErrorParser();
 
   //repay approval
   const { approve, requireApproval } = useApprove({
     contractAddress: collateralAddress,
-    amount: amountToDeposit.gt(0) ? amountToDeposit.toBN() : '0',
+    amount:
+      liquidityPosition && liquidityPosition.debt.abs().sub(availableUSDCollateral).gt(0)
+        ? liquidityPosition.debt.abs().sub(availableUSDCollateral).toBN()
+        : undefined,
     spender: CoreProxy?.address,
   });
   const { exec: execRepay } = useRepay({
