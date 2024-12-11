@@ -41,7 +41,7 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
 
   const maxWithdrawable =
     network?.preset === 'andromeda' && liquidityPosition
-      ? liquidityPosition.availableSystemToken.add(liquidityPosition.availableSystemToken)
+      ? liquidityPosition.availableCollateral.add(liquidityPosition.availableSystemToken)
       : isDebtWithdrawal
         ? liquidityPosition?.availableSystemToken
         : liquidityPosition?.availableCollateral;
