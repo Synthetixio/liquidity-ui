@@ -6,21 +6,17 @@
   "dependencies": {
     "@chakra-ui/react": "^2.8.2",
     "@snx-v3/ContractError": "workspace:*",
-    "@snx-v3/tsHelpers": "workspace:*",
     "@snx-v3/txnReducer": "workspace:*",
     "@snx-v3/useBlockchain": "workspace:*",
-    "@snx-v3/useCollateralPriceUpdates": "workspace:*",
     "@snx-v3/useCollateralTypes": "workspace:*",
     "@snx-v3/useContractErrorParser": "workspace:*",
     "@snx-v3/useCoreProxy": "workspace:*",
-    "@snx-v3/useGasOptions": "workspace:*",
-    "@snx-v3/useGasPrice": "workspace:*",
-    "@snx-v3/useGasSpeed": "workspace:*",
+    "@snx-v3/useMulticall3": "workspace:*",
     "@snx-v3/useRewards": "workspace:*",
     "@snx-v3/useSpotMarketProxy": "workspace:*",
     "@snx-v3/useSynthTokens": "workspace:*",
-    "@snx-v3/withERC7412": "workspace:*",
     "@tanstack/react-query": "^5.8.3",
+    "debug": "^4.3.7",
     "ethers": "^5.7.2",
     "react": "^18.2.0"
   }

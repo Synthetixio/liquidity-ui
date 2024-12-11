@@ -109,8 +109,11 @@ export function useClaimAllRewards({
         log('calls', calls);
 
         const Multicall3Contract = new ethers.Contract(Multicall3.address, Multicall3.abi, signer);
-        const multicallResponse = await Multicall3Contract.aggregate3(calls);
-        log('multicallResponse', multicallResponse);
+        const txn = await Multicall3Contract.aggregate3(calls);
+        log('txn', txn);
+
+        const receipt = await txn.wait();
+        log('receipt', receipt);
 
         dispatch({ type: 'success' });
         client.invalidateQueries({
