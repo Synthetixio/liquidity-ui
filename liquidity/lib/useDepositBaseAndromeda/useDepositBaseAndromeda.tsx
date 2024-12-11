@@ -2,7 +2,7 @@ import { D18 } from '@snx-v3/constants';
 import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { approveAbi } from '@snx-v3/useApprove';
-import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
+import { useDefaultProvider, useNetwork, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
@@ -55,7 +55,7 @@ export const useDepositBaseAndromeda = ({
 
   const { network } = useNetwork();
   const signer = useSigner();
-  const provider = useProvider();
+  const provider = useDefaultProvider();
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -189,7 +189,7 @@ export const useDepositBaseAndromeda = ({
         log('txn', txn);
         dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 
-        const receipt = await txn.wait();
+        const receipt = await provider.getTransactionReceipt(txn.hash);
         log('receipt', receipt);
         dispatch({ type: 'success' });
       } catch (error: any) {
