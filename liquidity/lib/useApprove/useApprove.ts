@@ -1,6 +1,6 @@
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useAllowance } from '@snx-v3/useAllowance';
-import { useDefaultProvider, useProvider, useSigner } from '@snx-v3/useBlockchain';
+import { useDefaultProvider, useSigner } from '@snx-v3/useBlockchain';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
@@ -82,7 +82,7 @@ export const useApprove = (
         log('txn', txn);
         dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 
-        const receipt = await provider.getTransactionReceipt(txn.hash);
+        const receipt = await provider.waitForTransaction(txn.hash);
 
         log('receipt', receipt);
         dispatch({ type: 'success' });
