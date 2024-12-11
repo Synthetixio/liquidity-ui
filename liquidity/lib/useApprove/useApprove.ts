@@ -39,9 +39,12 @@ export const useApprove = (
 
   const mutation = useMutation({
     mutationFn: async (infiniteApproval: boolean) => {
-      if (!signer || !contractAddress || !spender || !provider || !amount)
+      if (!signer || !contractAddress || !spender || !provider)
         throw new Error('Signer, contract address or spender is not defined');
-      if (sufficientAllowance) return;
+      if (sufficientAllowance || !amount) {
+        dispatch({ type: 'success' });
+        return;
+      }
 
       log(`contractAddress`, contractAddress);
       log(`spender`, spender);

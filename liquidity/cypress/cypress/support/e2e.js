@@ -18,7 +18,9 @@ import { getSystemToken } from './commands/getSystemToken';
 Cypress.Commands.add('approveCollateral', approveCollateral);
 Cypress.Commands.add('borrowUsd', borrowUsd);
 Cypress.Commands.add('clearDebt', clearDebt);
-Cypress.Commands.add('delegateCollateral', delegateCollateral);
+Cypress.Commands.add('delegateCollateral', (...args) => {
+  cy.wrap(delegateCollateral(...args), { timeout: 180_000 }).as('delegateCollateral');
+});
 Cypress.Commands.add('depositCollateral', depositCollateral);
 Cypress.Commands.add('getSNX', getSNX);
 Cypress.Commands.add('getUSDC', getUSDC);

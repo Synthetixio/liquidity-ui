@@ -38,4 +38,5 @@ export async function delegateCollateral({
   const tx = await CoreProxyContract.delegateCollateral(...args, { gasLimit: gasLimit.mul(2) });
   const result = await tx.wait();
   console.log('delegateCollateral', { txEvents: result.events.filter((e) => Boolean(e.event)) });
+  return result;
 }
