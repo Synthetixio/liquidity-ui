@@ -4,6 +4,7 @@ import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { debug } from 'debug';
 import { ethers } from 'ethers';
+import { txWait } from '@snx-v3/txWait';
 
 const log = debug('snx:useConvertStataUSDC');
 
@@ -22,7 +23,7 @@ export function useConvertStataUSDC({
 
   return useMutation({
     mutationFn: async () => {
-      if (!(StaticAaveUSDC && signer && activeWallet)) {
+      if (!(StaticAaveUSDC && signer && activeWallet && network)) {
         throw new Error('Not ready');
       }
       if (!stataAmountNeeded.gt(0)) {
@@ -64,12 +65,14 @@ export function useConvertStataUSDC({
       const gasLimit = await StaticAaveUSDCContract.estimateGas[
         'deposit(uint256,address,uint16,bool)'
       ](...args);
+
       const txn = await StaticAaveUSDCContract['deposit(uint256,address,uint16,bool)'](...args, {
         gasLimit: gasLimit.mul(2),
       });
       log('txn', txn);
 
-      const receipt = await txn.wait();
+      const receipt = await txWait(txn, network);
+
       log('receipt', receipt);
 
       return receipt;

@@ -5,6 +5,7 @@
   "version": "0.0.1",
   "dependencies": {
     "@snx-v3/format": "workspace:*",
+    "@snx-v3/txWait": "workspace:*",
     "@snx-v3/txnReducer": "workspace:*",
     "@snx-v3/useBlockchain": "workspace:*",
     "@snx-v3/useCollateralPriceUpdates": "workspace:*",

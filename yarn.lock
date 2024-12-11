@@ -5199,6 +5199,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/txWait@workspace:*, @snx-v3/txWait@workspace:liquidity/lib/txWait":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/txWait@workspace:liquidity/lib/txWait"
+  dependencies:
+    "@snx-v3/useBlockchain": "workspace:*"
+    ethers: "npm:^5.7.2"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/txnReducer@workspace:*, @snx-v3/txnReducer@workspace:liquidity/lib/txnReducer":
   version: 0.0.0-use.local
   resolution: "@snx-v3/txnReducer@workspace:liquidity/lib/txnReducer"
@@ -5262,6 +5271,7 @@ __metadata:
   resolution: "@snx-v3/useAccounts@workspace:liquidity/lib/useAccounts"
   dependencies:
     "@snx-v3/tsHelpers": "workspace:*"
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/useAccountProxy": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
@@ -5296,6 +5306,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useApprove@workspace:liquidity/lib/useApprove"
   dependencies:
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useAllowance": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
@@ -5361,6 +5372,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useBorrow@workspace:liquidity/lib/useBorrow"
   dependencies:
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
@@ -5383,6 +5395,7 @@ __metadata:
   dependencies:
     "@chakra-ui/react": "npm:^2.8.2"
     "@snx-v3/ContractError": "workspace:*"
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
@@ -5404,6 +5417,7 @@ __metadata:
   resolution: "@snx-v3/useClearDebt@workspace:liquidity/lib/useClearDebt"
   dependencies:
     "@snx-v3/isBaseAndromeda": "workspace:*"
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useAccountProxy": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
@@ -5499,6 +5513,7 @@ __metadata:
   resolution: "@snx-v3/useConvertStataUSDC@workspace:liquidity/lib/useConvertStataUSDC"
   dependencies:
     "@snx-v3/constants": "workspace:*"
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useStaticAaveUSDC": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -5535,6 +5550,7 @@ __metadata:
   resolution: "@snx-v3/useDeposit@workspace:liquidity/lib/useDeposit"
   dependencies:
     "@snx-v3/tsHelpers": "workspace:*"
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
@@ -5557,6 +5573,7 @@ __metadata:
   dependencies:
     "@snx-v3/constants": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useApprove": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
@@ -5709,6 +5726,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useManagePermissions@workspace:liquidity/lib/useManagePermissions"
   dependencies:
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useMulticall3": "workspace:*"
@@ -5724,6 +5742,7 @@ __metadata:
     "@snx-v3/constants": "workspace:*"
     "@snx-v3/parseContractError": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useGasOptions": "workspace:*"
     "@snx-v3/useGasPrice": "workspace:*"
@@ -5742,6 +5761,7 @@ __metadata:
   dependencies:
     "@snx-v3/constants": "workspace:*"
     "@snx-v3/parseContractError": "workspace:*"
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useGasOptions": "workspace:*"
     "@snx-v3/useGasPrice": "workspace:*"
@@ -5909,6 +5929,7 @@ __metadata:
   dependencies:
     "@snx-v3/constants": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
@@ -5933,6 +5954,7 @@ __metadata:
     "@snx-v3/format": "workspace:*"
     "@snx-v3/isBaseAndromeda": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useApprove": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
@@ -6078,6 +6100,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useTransferAccountId@workspace:liquidity/lib/useTransferAccountId"
   dependencies:
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/useAccountProxy": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -6122,6 +6145,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useUndelegate@workspace:liquidity/lib/useUndelegate"
   dependencies:
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
@@ -6144,6 +6168,7 @@ __metadata:
   dependencies:
     "@snx-v3/isBaseAndromeda": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useAccountProxy": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
@@ -6171,6 +6196,7 @@ __metadata:
   resolution: "@snx-v3/useUnwrapStataUSDC@workspace:liquidity/lib/useUnwrapStataUSDC"
   dependencies:
     "@snx-v3/constants": "workspace:*"
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useGasOptions": "workspace:*"
     "@snx-v3/useGasPrice": "workspace:*"
@@ -6255,6 +6281,7 @@ __metadata:
   resolution: "@snx-v3/useWithdraw@workspace:liquidity/lib/useWithdraw"
   dependencies:
     "@snx-v3/format": "workspace:*"
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
@@ -6278,6 +6305,7 @@ __metadata:
     "@snx-v3/constants": "workspace:*"
     "@snx-v3/isBaseAndromeda": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
@@ -6314,6 +6342,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useWrapEth@workspace:liquidity/lib/useWrapEth"
   dependencies:
+    "@snx-v3/txWait": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useEthBalance": "workspace:*"

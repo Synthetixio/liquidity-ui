@@ -28,6 +28,7 @@ import { CRatioChangeStat } from '../../ui/src/components/CRatioBar/CRatioChange
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
 import { TransactionSummary } from '../../ui/src/components/TransactionSummary/TransactionSummary';
 import { DepositMachine, Events, ServiceNames, State } from './DepositMachine';
+import { ethers } from 'ethers';
 
 export function DepositModal({
   onClose,
@@ -89,7 +90,12 @@ export function DepositModal({
       network?.preset === 'andromeda' ? synth?.token?.address : collateralType?.tokenAddress,
     amount: collateralChange.lte(availableCollateral)
       ? wei(0).toBN()
-      : collateralChange.sub(availableCollateral).toBN(),
+      : network?.preset === 'andromeda'
+        ? ethers.utils.parseUnits(
+            collateralChange.sub(availableCollateral).toString(),
+            synth?.token.decimals
+          )
+        : collateralChange.sub(availableCollateral).toBN(),
     spender: network?.preset === 'andromeda' ? SpotMarketProxy?.address : CoreProxy?.address,
   });
   //Collateral Approval Done

@@ -6,6 +6,7 @@
   "dependencies": {
     "@snx-v3/constants": "workspace:*",
     "@snx-v3/parseContractError": "workspace:*",
+    "@snx-v3/txWait": "workspace:*",
     "@snx-v3/useBlockchain": "workspace:*",
     "@snx-v3/useGasOptions": "workspace:*",
     "@snx-v3/useGasPrice": "workspace:*",
