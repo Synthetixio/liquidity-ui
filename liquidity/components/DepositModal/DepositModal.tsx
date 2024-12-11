@@ -83,9 +83,6 @@ export function DepositModal({
       : ZEROWEI;
   //Preparing wETH done
 
-  console.log({
-    amount: collateralChange.sub(availableCollateral).toBN().toString(),
-  });
   //Collateral Approval
   const { approve, requireApproval } = useApprove({
     contractAddress:
@@ -168,11 +165,9 @@ export function DepositModal({
             status: 'info',
             variant: 'left-accent',
           });
-          console.log('approve!');
 
           await approve(Boolean(state.context.infiniteApproval));
         } catch (error: any) {
-          console.log('approve error!', error);
           const contractError = errorParser(error);
           if (contractError) {
             console.error(new Error(contractError.name), contractError);
