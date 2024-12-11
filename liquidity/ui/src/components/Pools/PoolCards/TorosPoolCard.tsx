@@ -34,6 +34,8 @@ export function TorosPoolCard({ token }: TorosPoolCardProps) {
   const { data } = useQuery({
     queryKey: ['toros-pool', token],
     queryFn: () => fetchTorosPool(vault.pool),
+    //dhedge graphql is failing
+    enabled: false,
   });
 
   return (
