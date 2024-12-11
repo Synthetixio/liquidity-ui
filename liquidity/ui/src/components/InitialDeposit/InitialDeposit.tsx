@@ -112,7 +112,7 @@ export function InitialDeposit({
       : undefined;
   }, [liquidityPosition, combinedTokenBalance]);
 
-  const overAvailableBalance = collateralChange.gt(maxAmount);
+  const overAvailableBalance = maxAmount ? collateralChange.gt(maxAmount) : false;
 
   return (
     <Flex flexDirection="column" data-cy="open liquidity position form">

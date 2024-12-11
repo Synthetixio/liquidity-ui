@@ -124,14 +124,18 @@ export const StepSummary = ({
             </Text>
             <Text>
               {data?.collateral?.toString(2)} SNX
-              {snxPrice?.gt(0) && <>&nbsp;(${snxPrice.mul(data?.collateral).toString(2)})</>}
+              {data && snxPrice && snxPrice.gt(0) ? (
+                <>&nbsp;(${snxPrice.mul(data.collateral).toString(2)})</>
+              ) : null}
             </Text>
           </HStack>
           <HStack color="gray" justifyContent="space-between">
             <Text>Balance</Text>
             <Text>
               {data?.balance?.toString(2)} SNX
-              {snxPrice?.gt(0) && <>&nbsp;(${snxPrice.mul(data?.balance).toString(2)})</>}
+              {data && snxPrice && snxPrice.gt(0) ? (
+                <>&nbsp;(${snxPrice.mul(data.balance).toString(2)})</>
+              ) : null}
             </Text>
           </HStack>
           <HStack color="gray" justifyContent="space-between">
@@ -147,9 +151,9 @@ export const StepSummary = ({
             </Text>
             <Text>
               {data?.collateral?.sub(data?.balance)?.toString(2)} SNX
-              {snxPrice?.gt(0) && (
-                <>&nbsp;(${snxPrice.mul(data?.collateral?.sub(data?.balance)).toString(2)})</>
-              )}
+              {data && snxPrice && snxPrice.gt(0) ? (
+                <>&nbsp;(${snxPrice.mul(data.collateral.sub(data.balance)).toString(2)})</>
+              ) : null}
             </Text>
           </HStack>
           <HStack fontWeight="700" justifyContent="space-between">
@@ -215,22 +219,24 @@ export const StepSummary = ({
         </HStack>
       </Box>
 
-      <Collapse in={data?.balance.lt(snxCollateral?.minDelegationD18)} animateOpacity>
-        <Alert mb={3.5} status="error" borderRadius="6px">
-          <AlertIcon />
-          <AlertDescription fontSize="16px">
-            The minimal locked amount on V3 is <Amount value={snxCollateral?.minDelegationD18} />{' '}
-            SNX. You can manually unstake your V2 SNX on the{' '}
-            <Link
-              textDecoration="underline"
-              href="https://staking.synthetix.io/staking/burn"
-              target="_blank"
-            >
-              Staking App
-            </Link>
-          </AlertDescription>
-        </Alert>
-      </Collapse>
+      {data && snxCollateral ? (
+        <Collapse in={data.balance.lt(snxCollateral.minDelegationD18)} animateOpacity>
+          <Alert mb={3.5} status="error" borderRadius="6px">
+            <AlertIcon />
+            <AlertDescription fontSize="16px">
+              The minimal locked amount on V3 is <Amount value={snxCollateral?.minDelegationD18} />{' '}
+              SNX. You can manually unstake your V2 SNX on the{' '}
+              <Link
+                textDecoration="underline"
+                href="https://staking.synthetix.io/staking/burn"
+                target="_blank"
+              >
+                Staking App
+              </Link>
+            </AlertDescription>
+          </Alert>
+        </Collapse>
+      ) : null}
 
       {!isLoading ? (
         <>

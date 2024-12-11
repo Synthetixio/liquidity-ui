@@ -24,6 +24,7 @@ import { useUndelegate } from '@snx-v3/useUndelegate';
 import { useUndelegateBaseAndromeda } from '@snx-v3/useUndelegateBaseAndromeda';
 import { useUSDC } from '@snx-v3/useUSDC';
 import { wei } from '@synthetixio/wei';
+import { ethers } from 'ethers';
 import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { LiquidityPositionUpdated } from '../Manage/LiquidityPositionUpdated';
@@ -113,9 +114,9 @@ export function ClosePositionTransactions({
   } = useApprove({
     contractAddress: USDC?.address,
     // slippage for approval
-    amount: parseUnits(liquidityPosition?.debt.abs().toString(), 6)
-      .mul(120)
-      .div(100),
+    amount: liquidityPosition
+      ? parseUnits(liquidityPosition.debt.abs().toString(), 6).mul(120).div(100)
+      : ethers.BigNumber.from(0),
     spender: DebtRepayer?.address,
   });
 

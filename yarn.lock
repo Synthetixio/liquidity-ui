@@ -6934,6 +6934,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/big.js@npm:^6.2.2":
+  version: 6.2.2
+  resolution: "@types/big.js@npm:6.2.2"
+  checksum: 10/075cf86f454bf98fedf1957020e6c36d1f58c80694c0ad445dee45b44727f4af254c59800d96018e966348acd8499a2db301cb4a6b39e5bf5285b4a1e1982f5c
+  languageName: node
+  linkType: hard
+
 "@types/bn.js@npm:5.1.1":
   version: 5.1.1
   resolution: "@types/bn.js@npm:5.1.1"
@@ -18175,6 +18182,7 @@ __metadata:
     "@babel/preset-typescript": "npm:^7.24.6"
     "@synthetixio/deps": "workspace:*"
     "@tanstack/eslint-plugin-query": "npm:^5.8.3"
+    "@types/big.js": "npm:^6.2.2"
     "@types/jest": "npm:^29.5.8"
     "@typescript-eslint/eslint-plugin": "npm:^6.11.0"
     "@typescript-eslint/parser": "npm:^6.11.0"

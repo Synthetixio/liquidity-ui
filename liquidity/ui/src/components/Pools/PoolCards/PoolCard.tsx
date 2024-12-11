@@ -1,5 +1,5 @@
 import { Network } from '@snx-v3/useBlockchain';
-import { BigNumberish } from 'ethers';
+import { ethers } from 'ethers';
 import { CollateralType } from '@snx-v3/useCollateralTypes';
 import { PoolRow } from './PoolRow';
 
@@ -16,7 +16,7 @@ export interface PoolCardProps {
   collateralTypes?: CollateralTypeWithDeposited[];
   collateralPrices?: {
     symbol: string;
-    price: BigNumberish;
+    price: ethers.BigNumber;
   }[];
   apr: {
     combinedApr: number;

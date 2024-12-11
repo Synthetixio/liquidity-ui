@@ -26,10 +26,11 @@ export const useTokenPrice = (symbol?: string) => {
       return ZEROWEI;
     }
 
-    const collateralPrice = collateralPrices
-      .concat(omPrices ? [{ symbol: 'stataUSDC', price: omPrices.price.toString() }] : [])
-      .find((price) => `${price?.symbol}`.toUpperCase() === `${symbol}`.toUpperCase());
+    const collateralPrice = [
+      ...collateralPrices,
+      ...(omPrices ? [{ symbol: 'stataUSDC', price: omPrices.price }] : []),
+    ].find((price) => `${price?.symbol}`.toUpperCase() === `${symbol}`.toUpperCase());
 
-    return collateralPrice?.price ? wei(collateralPrice?.price) : ZEROWEI;
+    return collateralPrice && collateralPrice.price ? wei(collateralPrice.price) : ZEROWEI;
   }, [collateralPrices, collateralTypes, symbol, omPrices]);
 };

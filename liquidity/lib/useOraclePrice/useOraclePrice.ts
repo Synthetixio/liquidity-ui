@@ -1,7 +1,7 @@
 import { importOracleManagerProxy } from '@snx-v3/contracts';
 import { Network, useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { erc7412Call, getDefaultFromAddress } from '@snx-v3/withERC7412';
-import { Wei } from '@synthetixio/wei';
+import { Wei, wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
 
@@ -13,7 +13,7 @@ export async function fetchOraclePrice({
   targetNetwork: Network;
   provider: ethers.providers.BaseProvider;
   nodeId: string;
-}) {
+}): Promise<{ price: Wei; timestamp: Date }> {
   const OracleManagerProxyContract = await importOracleManagerProxy(
     targetNetwork.id,
     targetNetwork.preset
@@ -39,12 +39,12 @@ export async function fetchOraclePrice({
       );
       if (result?.node) {
         return {
-          price: new Wei(result.node.price),
+          price: wei(result.node.price),
           timestamp: new Date(Number(result.node.timestamp.mul(1000).toString())),
         };
       } else {
         return {
-          price: new Wei(result.price),
+          price: wei(result.price),
           timestamp: new Date(Number(result.timestamp.mul(1000).toString())),
         };
       }

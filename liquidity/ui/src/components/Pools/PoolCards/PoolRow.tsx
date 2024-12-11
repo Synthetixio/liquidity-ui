@@ -20,7 +20,7 @@ import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useUSDC } from '@snx-v3/useUSDC';
 import { wei } from '@synthetixio/wei';
-import { BigNumberish } from 'ethers';
+import { ethers } from 'ethers';
 import React from 'react';
 import { MigrationBanner } from '../../Migration/MigrationBanner';
 import { TokenIcon } from '../../TokenIcon/TokenIcon';
@@ -46,7 +46,7 @@ export function PoolRow({
   network: Network;
   collateralPrices?: {
     symbol: string;
-    price: BigNumberish;
+    price: ethers.BigNumber;
   }[];
   apr: {
     combinedApr: number;
@@ -97,7 +97,7 @@ export function PoolRow({
   const price = wei(
     collateralPrices?.find(
       (price) => price.symbol.toUpperCase() === collateralType.symbol.toUpperCase()
-    )?.price || ZEROWEI
+    )?.price ?? 0
   );
 
   const collateralApr = apr.collateralAprs.find(

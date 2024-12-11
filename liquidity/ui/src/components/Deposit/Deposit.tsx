@@ -66,11 +66,16 @@ export function Deposit() {
     if (collateralType?.symbol === 'WETH' && liquidityPosition && collateralBalance && ethBalance) {
       return liquidityPosition.availableCollateral.add(collateralBalance).add(ethBalance);
     }
-    if (isStataUSDC && liquidityPosition && usdcBalance) {
+    if (isStataUSDC && liquidityPosition && usdcBalance && collateralBalance && stataUSDCRate) {
       const stataAmount = liquidityPosition.availableCollateral.add(collateralBalance);
       return stataAmount.add(usdcBalance.div(wei(stataUSDCRate, 27)));
     }
-    if (collateralType?.symbol === 'USDC' && network?.preset === 'andromeda' && liquidityPosition) {
+    if (
+      collateralType?.symbol === 'USDC' &&
+      network?.preset === 'andromeda' &&
+      liquidityPosition &&
+      usdcBalance
+    ) {
       return liquidityPosition.availableCollateral.add(usdcBalance);
     }
 

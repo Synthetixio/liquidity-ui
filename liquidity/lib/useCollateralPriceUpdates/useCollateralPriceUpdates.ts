@@ -104,7 +104,7 @@ export const useOfflinePrices = (collaterals?: Collaterals[]) => {
   return useQuery({
     queryKey: ['offline-prices', collaterals?.map((collateral) => collateral.id).join('-')],
     enabled: Boolean(collaterals && collaterals.length > 0),
-    queryFn: async () => {
+    queryFn: async (): Promise<{ symbol: string; price: ethers.BigNumber }[]> => {
       if (!collaterals) {
         throw 'useOfflinePrices is missing required data';
       }
@@ -112,7 +112,7 @@ export const useOfflinePrices = (collaterals?: Collaterals[]) => {
       const stables = ['sUSDC', 'USDC'];
       const filteredCollaterals = collaterals.filter((item) => !stables.includes(item.symbol));
 
-      const returnData: { symbol: string; price: ethers.BigNumberish }[] = [
+      const returnData = [
         {
           symbol: 'sUSDC',
           price: wei(1).toBN(),

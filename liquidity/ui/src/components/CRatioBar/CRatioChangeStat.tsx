@@ -19,7 +19,7 @@ export const CRatioChangeStat: FC<{
       fontSize={size === 'lg' ? '20px' : '12px'}
       fontWeight={size === 'lg' ? '800' : '700'}
     >
-      {!currentCollateral || !currentDebt ? (
+      {!currentCollateral || !currentDebt || !collateralPrice ? (
         ' N/A'
       ) : currentCollateral.gt(0) && currentDebt.eq(0) ? (
         'Infinite'
@@ -31,7 +31,7 @@ export const CRatioChangeStat: FC<{
       )}
     </Text>
 
-    {(!collateralChange?.eq(0) || !debtChange.eq(0)) && (
+    {collateralPrice && (!collateralChange?.eq(0) || !debtChange.eq(0)) ? (
       <>
         <span>&rarr;</span>
 
@@ -54,6 +54,6 @@ export const CRatioChangeStat: FC<{
           )}
         </Text>
       </>
-    )}
+    ) : null}
   </Flex>
 );
