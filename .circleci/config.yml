@@ -142,7 +142,7 @@ jobs:
     docker:
       - image: cimg/node:<< pipeline.parameters.node-version >>
     resource_class: large
-    parallelism: 3
+    parallelism: 5
     steps:
       - checkout
       - install-foundry
