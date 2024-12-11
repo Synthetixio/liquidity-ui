@@ -9,18 +9,18 @@ commands:
   yarn-install:
     steps:
       - run: date +"%Y-%m" > /tmp/month.txt && cat /tmp/month.txt
-      #      - restore_cache:
-      #          keys:
-      #            - &yarn_cache yarn-{{ .Environment.NODE_MODULES_VERSION }}-{{ checksum "/tmp/month.txt" }}-{{ checksum "yarn.lock" }}
-      #            - yarn-{{ .Environment.NODE_MODULES_VERSION }}-{{ checksum "/tmp/month.txt" }}-
+      - restore_cache:
+          keys:
+            - &yarn_cache yarn-{{ .Environment.NODE_MODULES_VERSION }}-{{ checksum "/tmp/month.txt" }}-{{ checksum "yarn.lock" }}
+            - yarn-{{ .Environment.NODE_MODULES_VERSION }}-{{ checksum "/tmp/month.txt" }}-
       - run: yarn -v
       - run: yarn install --immutable
-  #      - save_cache:
-  #          key: *yarn_cache
-  #          paths:
-  #            - '~/.cache'
-  #            - '~/.yarn/berry'
-  #            - 'node_modules'
+      - save_cache:
+          key: *yarn_cache
+          paths:
+            - '~/.cache'
+            - '~/.yarn/berry'
+            - 'node_modules'
 
   install-foundry:
     steps:
