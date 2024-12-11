@@ -69,15 +69,26 @@ export function useClaimAllRewards({
 
         rewards
           .filter(({ claimableAmount }) => claimableAmount.gt(0))
-          .forEach(({ distributor, claimableAmount }) => {
-            transactions.push(
-              CoreProxyContract.populateTransaction.claimRewards(
-                ethers.BigNumber.from(accountId),
-                ethers.BigNumber.from(poolId),
-                collateralType.address,
-                distributor.address
-              )
-            );
+          .forEach(({ distributor, claimableAmount, isPoolReward }) => {
+            if (!isPoolReward) {
+              transactions.push(
+                CoreProxyContract.populateTransaction.claimRewards(
+                  ethers.BigNumber.from(accountId),
+                  ethers.BigNumber.from(poolId),
+                  collateralType.address,
+                  distributor.address
+                )
+              );
+            } else {
+              transactions.push(
+                CoreProxyContract.populateTransaction.claimPoolRewards(
+                  ethers.BigNumber.from(accountId),
+                  ethers.BigNumber.from(poolId),
+                  collateralType.address,
+                  distributor.address
+                )
+              );
+            }
             const synthToken = synthTokens.find(
               (synth) =>
                 synth.address.toUpperCase() === distributor.payoutToken.address.toUpperCase()

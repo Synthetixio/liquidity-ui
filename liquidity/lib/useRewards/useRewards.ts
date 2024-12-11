@@ -157,6 +157,7 @@ export function useRewards({
           return {
             distributor,
             claimableAmount: wei(amount),
+            isPoolReward: method === 'getAvailablePoolRewards',
           };
         })
         .filter((info) => info !== undefined);
