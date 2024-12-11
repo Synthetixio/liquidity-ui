@@ -10,6 +10,7 @@ import { wei } from '@synthetixio/wei';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ethers } from 'ethers';
 import { useCallback, useMemo, useState } from 'react';
+import { txWait } from '@snx-v3/txWait';
 
 export function useMigrate() {
   const [isLoading, setIsLoading] = useState(false);
@@ -80,7 +81,7 @@ export function useMigrate() {
 
   const migrate = useCallback(async () => {
     try {
-      if (!(LegacyMarket && signer && transaction)) throw 'OMFG';
+      if (!(LegacyMarket && signer && transaction && provider && network)) throw 'OMFG';
       setIsLoading(true);
       setIsSuccess(false);
       const gasPrices = await getGasPrice({ provider: signer.provider });
@@ -107,7 +108,7 @@ export function useMigrate() {
       const txn = await LegacyMarketContract.migrate(accountId, {
         ...gasOptionsForTransaction,
       });
-      await txn.wait();
+      await txWait(txn, network);
 
       setIsLoading(false);
       setIsSuccess(true);
@@ -119,17 +120,7 @@ export function useMigrate() {
       setIsLoading(false);
       throw error;
     }
-  }, [
-    accountId,
-    gasSpeed,
-    LegacyMarket,
-    network?.id,
-    network?.preset,
-    provider,
-    queryClient,
-    signer,
-    transaction,
-  ]);
+  }, [LegacyMarket, signer, transaction, provider, accountId, gasSpeed, network, queryClient]);
 
   return {
     migrate,

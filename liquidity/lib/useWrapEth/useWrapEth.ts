@@ -1,4 +1,4 @@
-import { useSigner } from '@snx-v3/useBlockchain';
+import { useNetwork, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useEthBalance } from '@snx-v3/useEthBalance';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
@@ -6,11 +6,13 @@ import { Contract } from 'ethers';
 import { useMutation } from '@tanstack/react-query';
 import Wei from '@synthetixio/wei';
 import { useCallback } from 'react';
+import { txWait } from '@snx-v3/txWait';
 
 const minimalWETHABI = ['function deposit() payable', 'function withdraw(uint256 wad)'];
 
 export const useWrapEth = () => {
   const signer = useSigner();
+  const { network } = useNetwork();
 
   const { data: ethCollateral } = useCollateralType('WETH');
   const { data: ethBalance, refetch: refetchETHBalance } = useEthBalance();
@@ -20,10 +22,10 @@ export const useWrapEth = () => {
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: async (amount: Wei) => {
-      if (!ethCollateral || !signer) return;
+      if (!ethCollateral || !signer || !network) return;
       const contract = new Contract(ethCollateral?.tokenAddress, minimalWETHABI, signer);
       const txn = await contract.deposit({ value: amount.toBN() });
-      await txn.wait();
+      await txWait(txn, network);
     },
   });
 
@@ -50,6 +52,7 @@ export const useWrapEth = () => {
 
 export const useUnWrapEth = () => {
   const signer = useSigner();
+  const { network } = useNetwork();
 
   const { data: ethCollateral } = useCollateralType('WETH');
   const { data: ethBalance, refetch: refetchETHBalance } = useEthBalance();
@@ -59,10 +62,10 @@ export const useUnWrapEth = () => {
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: async (amount: Wei) => {
-      if (!ethCollateral || !signer) return;
+      if (!ethCollateral || !signer || !network) return;
       const contract = new Contract(ethCollateral?.tokenAddress, minimalWETHABI, signer);
       const txn = await contract.withdraw(amount.toBN());
-      await txn.wait();
+      await txWait(txn, network);
     },
   });
 

@@ -7,6 +7,7 @@ import { BigNumber } from 'ethers';
 import { useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { contractsHash } from '@snx-v3/tsHelpers';
 import { ethers } from 'ethers';
+import { txWait } from '@snx-v3/txWait';
 
 export function useAccounts() {
   const { activeWallet } = useWallet();
@@ -72,11 +73,11 @@ export function useCreateAccount() {
     mutation: useMutation({
       mutationFn: async function () {
         try {
-          if (!(CoreProxy && signer)) throw 'OMFG';
+          if (!(CoreProxy && signer && network)) throw 'OMFG';
 
           const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
           const tx = await CoreProxyContract['createAccount()']();
-          const res = await tx.wait();
+          const res = await txWait(tx, network);
 
           await client.invalidateQueries({
             queryKey: [`${network?.id}-${network?.preset}`, 'Accounts'],

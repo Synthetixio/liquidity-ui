@@ -32,6 +32,7 @@ import { fetchPositionDebtWithPriceUpdate } from './fetchPositionDebtWithPriceUp
 import { fetchPriceUpdateTxn } from './fetchPriceUpdateTxn';
 import { useAccountCollateral } from './useAccountCollateral';
 import { usePositionDebt } from './usePositionDebt';
+import { txWait } from '../../../../lib/txWait';
 
 const log = debug('snx:ClosePositionOneStep');
 
@@ -196,7 +197,8 @@ export function ClosePositionOneStep({
       const txn = await signer.sendTransaction({ ...erc7412Tx, ...gasOptionsForTransaction });
       console.log('[closePosition] txn hash', txn.hash); // eslint-disable-line no-console
       log('txn %O', txn);
-      const receipt = await txn.wait();
+      const receipt = await txWait(txn, network);
+
       log('receipt %O', receipt);
     },
 

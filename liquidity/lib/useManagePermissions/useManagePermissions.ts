@@ -1,8 +1,9 @@
-import { useSigner } from '@snx-v3/useBlockchain';
+import { useNetwork, useSigner } from '@snx-v3/useBlockchain';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useMulticall3 } from '@snx-v3/useMulticall3';
 import { useMutation } from '@tanstack/react-query';
 import { ethers } from 'ethers';
+import { txWait } from '@snx-v3/txWait';
 
 type Permissions = Array<string>;
 const getPermissionDiff = (
@@ -39,10 +40,11 @@ export const useManagePermissions = ({
   const { data: CoreProxy } = useCoreProxy();
   const { data: Multicall3 } = useMulticall3();
   const signer = useSigner();
+  const { network } = useNetwork();
 
   return useMutation({
     mutationFn: async () => {
-      if (!(CoreProxy && Multicall3 && signer)) {
+      if (!(CoreProxy && Multicall3 && signer && network)) {
         throw 'OMFG';
       }
 
@@ -74,8 +76,9 @@ export const useManagePermissions = ({
         }));
 
         const Multicall3Contract = new ethers.Contract(Multicall3.address, Multicall3.abi, signer);
-        const tx = await Multicall3Contract.aggregate3([...grantCalls, ...revokeCalls]);
-        await tx.wait();
+        const txn = await Multicall3Contract.aggregate3([...grantCalls, ...revokeCalls]);
+
+        await txWait(txn, network);
       } catch (error: any) {
         throw error;
       }

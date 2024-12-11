@@ -5,6 +5,7 @@
   "version": "0.0.1",
   "dependencies": {
     "@snx-v3/constants": "workspace:*",
+    "@snx-v3/txWait": "workspace:*",
     "@snx-v3/useBlockchain": "workspace:*",
     "@snx-v3/useStaticAaveUSDC": "workspace:*",
     "@tanstack/react-query": "^5.8.3",

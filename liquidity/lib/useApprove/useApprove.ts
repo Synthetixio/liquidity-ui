@@ -1,6 +1,6 @@
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useAllowance } from '@snx-v3/useAllowance';
-import { useProvider, useSigner } from '@snx-v3/useBlockchain';
+import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
@@ -8,6 +8,7 @@ import { useMutation } from '@tanstack/react-query';
 import debug from 'debug';
 import { ethers } from 'ethers';
 import { useReducer } from 'react';
+import { txWait } from '@snx-v3/txWait';
 
 const log = debug('snx:useApprove');
 
@@ -36,10 +37,11 @@ export const useApprove = (
   const signer = useSigner();
   const { gasSpeed } = useGasSpeed();
   const provider = useProvider();
+  const { network } = useNetwork();
 
   const mutation = useMutation({
     mutationFn: async (infiniteApproval: boolean) => {
-      if (!signer || !contractAddress || !spender || !provider)
+      if (!signer || !contractAddress || !spender || !provider || !network)
         throw new Error('Signer, contract address or spender is not defined');
       if (sufficientAllowance || !amount) {
         dispatch({ type: 'success' });
@@ -82,7 +84,7 @@ export const useApprove = (
         log('txn', txn);
         dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 
-        const receipt = await txn.wait();
+        const receipt = await txWait(txn, network);
         log('receipt', receipt);
         dispatch({ type: 'success' });
         refetchAllowance();

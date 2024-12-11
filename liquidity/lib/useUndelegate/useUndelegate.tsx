@@ -11,6 +11,7 @@ import { useMutation } from '@tanstack/react-query';
 import debug from 'debug';
 import { ethers } from 'ethers';
 import { useReducer } from 'react';
+import { txWait } from '@snx-v3/txWait';
 
 const log = debug('snx:useUndelegate');
 
@@ -78,7 +79,7 @@ export const useUndelegate = ({
         log('txn', txn);
         dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 
-        const receipt = await txn.wait();
+        const receipt = await txWait(txn, network);
         log('receipt', receipt);
         dispatch({ type: 'success' });
       } catch (error: any) {

@@ -19,6 +19,7 @@ import { useMutation } from '@tanstack/react-query';
 import debug from 'debug';
 import { ethers } from 'ethers';
 import React from 'react';
+import { txWait } from '@snx-v3/txWait';
 
 const log = debug('snx:useUndelegateBaseAndromeda');
 
@@ -134,7 +135,7 @@ export function useUndelegateBaseAndromeda({ collateralChange }: { collateralCha
         log('txn', txn);
         dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 
-        const receipt = await txn.wait();
+        const receipt = await txWait(txn, network);
         log('receipt', receipt);
         dispatch({ type: 'success' });
       } catch (error: any) {

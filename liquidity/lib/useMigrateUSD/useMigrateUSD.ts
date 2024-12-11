@@ -9,6 +9,7 @@ import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { extractErrorData } from '@snx-v3/parseContractError';
 import { useQueryClient } from '@tanstack/react-query';
 import { ethers } from 'ethers';
+import { txWait } from '@snx-v3/txWait';
 
 export function useMigrateUSD({ amount }: { amount: Wei }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,7 +23,7 @@ export function useMigrateUSD({ amount }: { amount: Wei }) {
 
   const migrate = useCallback(async () => {
     try {
-      if (!(LegacyMarket && signer)) {
+      if (!(LegacyMarket && signer && provider && network)) {
         throw 'OMFG';
       }
       setIsLoading(true);
@@ -46,7 +47,7 @@ export function useMigrateUSD({ amount }: { amount: Wei }) {
 
       const txn = await signer.sendTransaction({ ...transaction, ...gasOptionsForTransaction });
 
-      await txn.wait();
+      await txWait(txn, network);
 
       setIsLoading(false);
       setIsSuccess(true);
@@ -68,7 +69,7 @@ export function useMigrateUSD({ amount }: { amount: Wei }) {
       setIsLoading(false);
       throw error;
     }
-  }, [amount, gasSpeed, LegacyMarket, network?.id, network?.preset, provider, queryClient, signer]);
+  }, [LegacyMarket, signer, provider, network, amount, gasSpeed, queryClient]);
 
   return {
     migrate,

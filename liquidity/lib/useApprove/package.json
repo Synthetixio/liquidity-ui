@@ -4,6 +4,7 @@
   "main": "index.ts",
   "version": "0.0.2",
   "dependencies": {
+    "@snx-v3/txWait": "workspace:*",
     "@snx-v3/txnReducer": "workspace:*",
     "@snx-v3/useAllowance": "workspace:*",
     "@snx-v3/useBlockchain": "workspace:*",
