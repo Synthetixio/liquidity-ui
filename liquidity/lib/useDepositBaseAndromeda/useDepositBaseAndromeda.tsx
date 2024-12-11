@@ -108,18 +108,19 @@ export const useDepositBaseAndromeda = ({
         log('collateralChange', collateralChange);
         log('availableCollateral', availableCollateral);
 
-        const synthAmountNeeded = collateralChange.sub(availableCollateral);
+        const synthAmountNeeded = collateralChange
+          .sub(availableCollateral)
+          // Reduce precision to avoid rounding issues
+          .mul(ethers.utils.parseUnits('1', synth.token.decimals))
+          .div(D18)
+          // revert back to 18
+          .mul(D18)
+          .div(ethers.utils.parseUnits('1', synth.token.decimals));
         log('synthAmountNeeded', synthAmountNeeded);
 
         const tokenAmountToWrap = synthAmountNeeded
           .mul(ethers.utils.parseUnits('1', synth.token.decimals))
-          .div(D18)
-          // add one extra to cover precision difference
-          .add(
-            ethers.utils
-              .parseUnits('1', synth.token.decimals)
-              .div(ethers.utils.parseUnits('1', synth.token.decimals))
-          );
+          .div(D18);
         log('tokenAmountToWrap', tokenAmountToWrap);
 
         // Wrap
