@@ -50,11 +50,17 @@ function parseError(
     };
   }
 
+  let flatErrorsData = errorData;
+  // let's cleanup nested Errors[]
+  if (`${errorData}`.startsWith('0x0b42fd17')) {
+    const [lastChunk] = errorData.split('0b42fd17').slice(-1);
+    flatErrorsData = `0x0b42fd17${lastChunk}`;
+  }
   try {
     const AllErrorsInterface = new ethers.utils.Interface(
       Array.from(new Set([...AllErrors.abi, ...PYTH_ERRORS]))
     );
-    return AllErrorsInterface.parseError(errorData);
+    return AllErrorsInterface.parseError(flatErrorsData);
   } catch (error) {
     console.error(`Error parsing failure: ${error}`);
     return {
