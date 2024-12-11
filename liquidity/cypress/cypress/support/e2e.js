@@ -19,7 +19,10 @@ Cypress.Commands.add('approveCollateral', approveCollateral);
 Cypress.Commands.add('borrowUsd', borrowUsd);
 Cypress.Commands.add('clearDebt', clearDebt);
 Cypress.Commands.add('delegateCollateral', (...args) => {
-  cy.wrap(delegateCollateral(...args), { timeout: 180_000 }).as('delegateCollateral');
+  cy.wrap(delegateCollateral(...args), { timeout: 180_000 })
+    .should('be.an', 'object')
+    .and('include.keys', ['transactionHash', 'logs', 'events'])
+    .as('delegateCollateral');
 });
 Cypress.Commands.add('depositCollateral', depositCollateral);
 Cypress.Commands.add('getSNX', getSNX);
