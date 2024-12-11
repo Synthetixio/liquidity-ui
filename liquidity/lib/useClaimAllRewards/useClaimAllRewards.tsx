@@ -120,7 +120,7 @@ export function useClaimAllRewards({
         toast.closeAll();
         toast({
           title: 'Success',
-          description: 'Your rewards has been claimed.',
+          description: 'Your rewards have been claimed',
           status: 'success',
           duration: 5000,
           variant: 'left-accent',

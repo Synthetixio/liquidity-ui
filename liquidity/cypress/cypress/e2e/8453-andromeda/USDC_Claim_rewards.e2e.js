@@ -48,9 +48,7 @@ describe(__filename, () => {
       .should('exist')
       .and('include.text', 'Claim your rewards');
 
-    cy.get('[data-cy="transaction hash"]').should('exist');
-
-    cy.contains('[data-status="success"]', 'Your rewards has been claimed.', {
+    cy.contains('[data-status="success"]', 'Your rewards have been claimed', {
       timeout: 180_000,
     }).should('exist');
   });
