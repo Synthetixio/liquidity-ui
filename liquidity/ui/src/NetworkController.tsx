@@ -53,12 +53,15 @@ export function NetworkController() {
   useEffect(() => {
     if (
       accounts &&
-      accounts.length > 0 &&
       (!('accountId' in params) ||
         ('accountId' in params && params.accountId && !accounts.includes(params.accountId)))
     ) {
       const [accountId] = accounts;
-      setParams({ ...params, accountId });
+      if (!accountId) {
+        delete params.accountId;
+      }
+      setParams(params);
+      return;
     }
   }, [accounts, params, setParams]);
 
