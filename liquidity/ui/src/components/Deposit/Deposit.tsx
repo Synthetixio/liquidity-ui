@@ -143,7 +143,12 @@ export function Deposit() {
                     value={
                       collateralType?.symbol === 'SNX'
                         ? transferrableSnx?.transferable
-                        : collateralBalance
+                        : collateralType?.symbol === 'USDC' &&
+                            network?.preset === 'andromeda' &&
+                            collateralBalance &&
+                            usdcBalance
+                          ? collateralBalance.add(usdcBalance)
+                          : collateralBalance
                     }
                   />
                 ) : null}
