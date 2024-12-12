@@ -17,6 +17,7 @@ import { useClaimAllRewards } from '@snx-v3/useClaimAllRewards';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useRewards } from '@snx-v3/useRewards';
+import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import React from 'react';
 import { AllRewardsModal } from './AllRewardsModal';
 import { RewardsLoading } from './RewardsLoading';
@@ -35,6 +36,35 @@ export function Rewards() {
     poolId: params.poolId,
     collateralType,
   });
+
+  const { data: synthTokens } = useSynthTokens();
+  const groupedRewards = React.useMemo(() => {
+    if (!rewards || !rewards.length) {
+      return;
+    }
+    const map = new Map();
+    rewards.forEach(({ distributor, claimableAmount }) => {
+      const symbol = distributor.payoutToken.symbol;
+      const synthToken = synthTokens?.find(
+        (synth) => synth.address.toUpperCase() === distributor.payoutToken.address.toUpperCase()
+      );
+      const displaySymbol = synthToken ? synthToken?.symbol.slice(1) : symbol;
+      if (map.has(displaySymbol)) {
+        map.set(displaySymbol, map.get(displaySymbol).add(claimableAmount));
+      } else {
+        map.set(displaySymbol, claimableAmount);
+      }
+    });
+    return map
+      .entries()
+      .toArray()
+      .map(([displaySymbol, claimableAmount]) => ({
+        displaySymbol,
+        claimableAmount,
+      }))
+      .sort((a, b) => a.displaySymbol.localeCompare(b.displaySymbol))
+      .sort((a, b) => b.claimableAmount.toNumber() - a.claimableAmount.toNumber());
+  }, [rewards, synthTokens]);
 
   return (
     <BorderBox bg="navy.700" py={4} px={4} flexDir="column">
@@ -121,11 +151,11 @@ export function Rewards() {
               </Tr>
             ) : null}
 
-            {params.accountId && !isPendingRewards && rewards && rewards.length > 0
-              ? rewards.map(({ distributor, claimableAmount }) => (
+            {groupedRewards
+              ? groupedRewards.map(({ displaySymbol, claimableAmount }) => (
                   <RewardsRow
-                    key={distributor.address}
-                    distributor={distributor}
+                    key={displaySymbol}
+                    displaySymbol={displaySymbol}
                     claimableAmount={claimableAmount}
                   />
                 ))

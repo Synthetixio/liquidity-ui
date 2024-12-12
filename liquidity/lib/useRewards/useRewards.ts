@@ -161,9 +161,7 @@ export function useRewards({
         })
         .filter((info) => info !== undefined);
       log('availableRewards', availableRewards);
-      return availableRewards.sort(
-        (a, b) => b.claimableAmount.toNumber() - a.claimableAmount.toNumber()
-      );
+      return availableRewards;
     },
   });
 }
