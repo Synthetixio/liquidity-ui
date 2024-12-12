@@ -108,6 +108,7 @@ export const useDeposit = ({
         }
 
         const { multicallTxn: erc7412Tx, gasLimit } = await withERC7412(
+          provider,
           network,
           calls,
           'useDeposit',

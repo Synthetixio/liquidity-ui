@@ -118,6 +118,7 @@ export function useUndelegateBaseAndromeda({ collateralChange }: { collateralCha
         const walletAddress = await signer.getAddress();
 
         const { multicallTxn: erc7412Tx, gasLimit } = await withERC7412(
+          provider,
           network,
           calls,
           'useUndelegateBase',

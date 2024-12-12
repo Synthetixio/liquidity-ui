@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { useNetwork, useProvider } from '@snx-v3/useBlockchain';
 import { feeSuggestion } from '@snx-v3/feeSuggestion';
 
-const getGasPriceFromProvider = async (provider: ethers.providers.JsonRpcProvider) => {
+const getGasPriceFromProvider = async (provider: ethers.providers.BaseProvider) => {
   try {
     const gasPrice = await provider.getGasPrice();
     return {

@@ -74,6 +74,7 @@ export const useBorrow = ({
 
         const walletAddress = await signer.getAddress();
         const { multicallTxn: erc7412Tx, gasLimit } = await withERC7412(
+          provider,
           network,
           calls,
           'useBorrow',

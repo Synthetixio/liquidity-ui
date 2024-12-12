@@ -23,7 +23,7 @@ export const chains: ChainWithDecimalId[] = Object.values(
         id: network.id,
         token: network.token,
         label: network.label,
-        rpcUrl: network.rpcUrl(),
+        rpcUrl: network.rpcUrl,
         publicRpcUrl: network.publicRpcUrl,
       },
     });

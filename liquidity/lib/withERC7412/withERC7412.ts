@@ -7,14 +7,14 @@ import {
   importClosePosition,
   importCoreProxy,
   importMulticall3,
-  importSpotMarketProxy,
   importPythERC7412Wrapper,
   importPythVerfier,
+  importSpotMarketProxy,
   importUSDProxy,
 } from '@snx-v3/contracts';
 import { extractErrorData, PYTH_ERRORS } from '@snx-v3/parseContractError';
 import { notNil } from '@snx-v3/tsHelpers';
-import { deploymentHasERC7412, getMagicProvider, Network } from '@snx-v3/useBlockchain';
+import { deploymentHasERC7412, Network } from '@snx-v3/useBlockchain';
 import { ethers } from 'ethers';
 
 const IS_DEBUG =
@@ -167,7 +167,7 @@ async function getMulticallTransaction(
   network: Network,
   calls: (ethers.PopulatedTransaction & { requireSuccess?: boolean })[],
   from: string,
-  provider: ethers.providers.JsonRpcProvider
+  provider: ethers.providers.BaseProvider
 ) {
   const Multicall3Contract = await importMulticall3(network.id, network.preset);
   const Multicall3Interface = new ethers.utils.Interface(Multicall3Contract.abi);
@@ -196,17 +196,14 @@ async function getMulticallTransaction(
  * If a tx requires ERC7412 pattern, wrap your tx with this function.
  */
 export const withERC7412 = async (
+  provider: ethers.providers.BaseProvider,
   network: Network,
   calls: (ethers.PopulatedTransaction & { requireSuccess?: boolean })[],
   label: string,
   from: string
 ) => {
-  // Make sure we're always using JSONRpcProvider, the web3 provider coming from the signer might have bugs causing errors to miss revert data
-  const jsonRpcProvider =
-    getMagicProvider() ?? new ethers.providers.JsonRpcProvider(network.rpcUrl());
-
   if (!(await deploymentHasERC7412(network.id, network.preset))) {
-    return await getMulticallTransaction(network, calls, from, jsonRpcProvider);
+    return await getMulticallTransaction(network, calls, from, provider);
   }
 
   const AllErrorsContract = await importAllErrors(network.id, network.preset);
@@ -223,7 +220,7 @@ export const withERC7412 = async (
       if (IS_DEBUG) {
         await logMulticall({ network, calls, label });
       }
-      return await getMulticallTransaction(network, calls, from, jsonRpcProvider);
+      return await getMulticallTransaction(network, calls, from, provider);
     } catch (error: Error | any) {
       console.error(error);
       let errorData = extractErrorData(error);
@@ -234,7 +231,7 @@ export const withERC7412 = async (
           );
           // Some wallets swallows the revert reason when calling estimate gas,try to get the error by using provider.call
           // provider.call wont actually revert, instead the error data is just returned
-          const lookedUpError = await jsonRpcProvider.call(error.transaction);
+          const lookedUpError = await provider.call(error.transaction);
           errorData = lookedUpError;
         } catch (newError: any) {
           console.error(newError);
@@ -306,7 +303,7 @@ export const withERC7412 = async (
  */
 export async function erc7412Call<T>(
   network: Network,
-  provider: ethers.providers.Provider,
+  provider: ethers.providers.BaseProvider,
   calls: ethers.PopulatedTransaction[],
   decode: (x: string[] | string) => T,
   label: string
@@ -320,6 +317,7 @@ export async function erc7412Call<T>(
     multicallTxn,
     gasLimit,
   } = await withERC7412(
+    provider,
     network,
     calls.filter(notNil).map((call) => (call.from ? call : { ...call, from })), // fill missing "from"
     label,

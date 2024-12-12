@@ -1,5 +1,5 @@
 import { IconProps } from '@chakra-ui/react';
-import { INFURA_KEY as DEFAULT_INFURA_KEY } from '@snx-v3/constants';
+import { INFURA_KEY } from '@snx-v3/constants';
 import { importPythERC7412Wrapper } from '@snx-v3/contracts';
 import {
   ArbitrumIcon,
@@ -30,7 +30,7 @@ export type Network = {
   hexId: string;
   token: string;
   name: string;
-  rpcUrl: () => string;
+  rpcUrl: string;
   label: string;
   isSupported: boolean;
   publicRpcUrl: string;
@@ -43,7 +43,7 @@ export const UNSUPPORTED_NETWORK: Network = {
   hexId: `0x${Number(0).toString(16)}`,
   token: 'ETH',
   name: 'unsupported',
-  rpcUrl: () => '',
+  rpcUrl: '',
   publicRpcUrl: '',
   label: 'Unsupported',
   isSupported: false,
@@ -93,8 +93,7 @@ export const BASE_ANDROMEDA: Network = {
   hexId: `0x${Number(8453).toString(16)}`,
   token: 'ETH',
   name: 'base',
-  rpcUrl: (INFURA_KEY?: string) =>
-    `https://base-mainnet.infura.io/v3/${INFURA_KEY ?? DEFAULT_INFURA_KEY}`,
+  rpcUrl: `https://base-mainnet.infura.io/v3/${INFURA_KEY}`,
   label: 'Base',
   isSupported: true,
   publicRpcUrl: 'https://base.publicnode.com',
@@ -107,8 +106,7 @@ export const MAINNET: Network = {
   hexId: `0x${Number(1).toString(16)}`,
   token: 'ETH',
   name: 'mainnet',
-  rpcUrl: (INFURA_KEY?: string) =>
-    `https://mainnet.infura.io/v3/${INFURA_KEY ?? DEFAULT_INFURA_KEY}`,
+  rpcUrl: `https://mainnet.infura.io/v3/${INFURA_KEY}`,
   label: 'Ethereum',
   isSupported: true,
   publicRpcUrl: 'https://ethereum.publicnode.com',
@@ -121,8 +119,7 @@ export const OPTIMISM: Network = {
   hexId: `0x${Number(10).toString(16)}`,
   token: 'ETH',
   name: 'optimism-mainnet',
-  rpcUrl: (INFURA_KEY?: string) =>
-    `https://optimism-mainnet.infura.io/v3/${INFURA_KEY ?? DEFAULT_INFURA_KEY}`,
+  rpcUrl: `https://optimism-mainnet.infura.io/v3/${INFURA_KEY}`,
   label: 'Optimism',
   isSupported: true,
   publicRpcUrl: 'https://mainnet.optimism.io',
@@ -135,8 +132,7 @@ export const SEPOLIA: Network = {
   hexId: `0x${Number(11155111).toString(16)}`,
   token: 'ETH',
   name: 'sepolia',
-  rpcUrl: (INFURA_KEY?: string) =>
-    `https://sepolia.infura.io/v3/${INFURA_KEY ?? DEFAULT_INFURA_KEY}`,
+  rpcUrl: `https://sepolia.infura.io/v3/${INFURA_KEY}`,
   label: 'Sepolia Testnet',
   isSupported: true,
   publicRpcUrl: 'https://ethereum-sepolia.publicnode.com',
@@ -149,8 +145,7 @@ export const BASE_SEPOLIA: Network = {
   hexId: `0x${Number(84532).toString(16)}`,
   token: 'ETH',
   name: 'base-sepolia',
-  rpcUrl: (INFURA_KEY?: string) =>
-    `https://base-sepolia.infura.io/v3/${INFURA_KEY ?? DEFAULT_INFURA_KEY}`,
+  rpcUrl: `https://base-sepolia.infura.io/v3/${INFURA_KEY}`,
   label: 'Base Sepolia',
   isSupported: true,
   publicRpcUrl: 'https://sepolia.base.org',
@@ -163,7 +158,7 @@ export const CANNON: Network = {
   hexId: `0x${Number(13370).toString(16)}`,
   token: 'ETH',
   name: 'cannon',
-  rpcUrl: () => `http://127.0.0.1:8545`,
+  rpcUrl: `http://127.0.0.1:8545`,
   label: 'Cannon',
   isSupported: false, // hidden by default but if wallet switched to Cannon it will be visible
   publicRpcUrl: 'http://127.0.0.1:8545',
@@ -176,8 +171,7 @@ export const OPTIMISM_SEPOLIA: Network = {
   hexId: `0x${Number(11155420).toString(16)}`,
   token: 'ETH',
   name: 'optimism-sepolia',
-  rpcUrl: (INFURA_KEY?: string) =>
-    `https://optimism-sepolia.infura.io/v3/${INFURA_KEY ?? DEFAULT_INFURA_KEY}`,
+  rpcUrl: `https://optimism-sepolia.infura.io/v3/${INFURA_KEY}`,
   label: 'Optimism Sepolia',
   isSupported: false,
   publicRpcUrl: 'https://sepolia.optimism.io/',
@@ -190,8 +184,7 @@ export const ARBITRUM_SEPOLIA: Network = {
   hexId: `0x${Number(421614).toString(16)}`,
   token: 'ETH',
   name: 'arbitrum-sepolia',
-  rpcUrl: (INFURA_KEY?: string) =>
-    `https://arbitrum-sepolia.infura.io/v3/${INFURA_KEY ?? DEFAULT_INFURA_KEY}`,
+  rpcUrl: `https://arbitrum-sepolia.infura.io/v3/${INFURA_KEY}`,
   label: 'Arbitrum Sepolia',
   isSupported: true,
   publicRpcUrl: 'https://sepolia-rollup.arbitrum.io/rpc',
@@ -204,8 +197,7 @@ export const ARBITRUM: Network = {
   hexId: `0x${Number(42161).toString(16)}`,
   token: 'ETH',
   name: 'arbitrum',
-  rpcUrl: (INFURA_KEY?: string) =>
-    `https://arbitrum-mainnet.infura.io/v3/${INFURA_KEY ?? DEFAULT_INFURA_KEY}`,
+  rpcUrl: `https://arbitrum-mainnet.infura.io/v3/${INFURA_KEY}`,
   label: 'Arbitrum',
   isSupported: true,
   publicRpcUrl: 'https://arb1.arbitrum.io/rpc',
@@ -218,7 +210,7 @@ export const SNAX: Network = {
   hexId: `0x${Number(2192).toString(16)}`,
   token: 'ETH',
   name: 'SNAX',
-  rpcUrl: () => 'https://mainnet.snaxchain.io/',
+  rpcUrl: 'https://mainnet.snaxchain.io/',
   label: 'Snaxchain',
   isSupported: true,
   publicRpcUrl: 'https://mainnet.snaxchain.io/',
@@ -231,7 +223,7 @@ export const SNAXTESTNET: Network = {
   hexId: `0x${Number(13001).toString(16)}`,
   token: 'ETH',
   name: 'SNAX',
-  rpcUrl: () => 'https://testnet.snaxchain.io/',
+  rpcUrl: 'https://testnet.snaxchain.io/',
   label: 'Snaxchain',
   isSupported: true,
   publicRpcUrl: 'https://testnet.snaxchain.io/',
@@ -294,7 +286,7 @@ export function useProviderForChain(customNetwork?: Network) {
           return provider;
         }
       }
-      return network ? new ethers.providers.JsonRpcProvider(network.rpcUrl()) : null;
+      return new ethers.providers.JsonRpcProvider(network.rpcUrl);
     },
   });
 
@@ -356,36 +348,12 @@ export function useNetwork() {
   };
 }
 
-export function useIsConnected(): boolean {
-  const [{ wallet }] = useConnectWallet();
-  return Boolean(wallet);
-}
-
 export function useSigner() {
   const provider = useProvider();
-  const { activeWallet } = useWallet();
-  const { data: signer } = useQuery({
-    queryKey: ['Wallet signer', activeWallet?.address],
-    enabled: Boolean(provider && activeWallet),
-    queryFn: () => {
-      if (!(provider && activeWallet)) throw 'OMFG';
-      return provider.getSigner(activeWallet.address);
-    },
-  });
-  return signer;
+  return provider ? provider.getSigner(0) : undefined;
 }
 
 export function useProvider() {
-  const [{ wallet }] = useConnectWallet();
-
-  const { data: provider } = useQuery({
-    queryKey: ['Wallet provider', wallet?.accounts.map((a) => a.address)],
-    enabled: Boolean(wallet),
-    queryFn: () => {
-      if (!wallet) throw 'OMFG';
-      return getMagicProvider() ?? new ethers.providers.Web3Provider(wallet.provider, 'any');
-    },
-  });
-
-  return provider;
+  const { network } = useNetwork();
+  return useProviderForChain(network);
 }
