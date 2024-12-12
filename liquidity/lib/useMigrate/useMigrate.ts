@@ -83,7 +83,7 @@ export function useMigrate() {
 
   const migrate = useCallback(async () => {
     try {
-      if (!(LegacyMarket && signer && transaction)) throw 'OMFG';
+      if (!(LegacyMarket && signer && provider && transaction)) throw 'OMFG';
       setIsLoading(true);
       setIsSuccess(false);
       const gasPrices = await getGasPrice({ provider: signer.provider });

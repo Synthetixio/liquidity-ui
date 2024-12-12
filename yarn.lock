@@ -5713,6 +5713,7 @@ __metadata:
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useMulticall3": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
+    debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
   languageName: unknown
   linkType: soft
@@ -5731,6 +5732,7 @@ __metadata:
     "@snx-v3/useLegacyMarket": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
+    debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -5749,6 +5751,7 @@ __metadata:
     "@snx-v3/useLegacyMarket": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
+    debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6081,6 +6084,7 @@ __metadata:
     "@snx-v3/useAccountProxy": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
+    debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
   languageName: unknown
   linkType: soft
@@ -6178,6 +6182,7 @@ __metadata:
     "@snx-v3/useStaticAaveUSDC": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
+    debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6320,6 +6325,7 @@ __metadata:
     "@snx-v3/useTokenBalance": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
+    debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
