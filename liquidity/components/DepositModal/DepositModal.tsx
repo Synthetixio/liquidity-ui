@@ -1,7 +1,7 @@
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import { Button, Divider, Link, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
-import { ZEROWEI } from '@snx-v3/constants';
+import { D18, ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
 import { currency } from '@snx-v3/format';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
@@ -22,6 +22,7 @@ import { useWrapEth } from '@snx-v3/useWrapEth';
 import { Wei, wei } from '@synthetixio/wei';
 import { useQueryClient } from '@tanstack/react-query';
 import { useMachine } from '@xstate/react';
+import { ethers } from 'ethers';
 import React from 'react';
 import { ChangeStat } from '../../ui/src/components/ChangeStat/ChangeStat';
 import { CRatioChangeStat } from '../../ui/src/components/CRatioBar/CRatioChangeStat';
@@ -87,9 +88,17 @@ export function DepositModal({
   const { approve, requireApproval } = useApprove({
     contractAddress:
       network?.preset === 'andromeda' ? synth?.token?.address : collateralType?.tokenAddress,
+
     amount: collateralChange.lte(availableCollateral)
       ? wei(0).toBN()
-      : collateralChange.sub(availableCollateral).toBN(),
+      : network?.preset === 'andromeda' && synth
+        ? collateralChange
+            .sub(availableCollateral)
+            .toBN()
+            // Reduce precision for approval of USDC on Andromeda
+            .mul(ethers.utils.parseUnits('1', synth.token.decimals))
+            .div(D18)
+        : collateralChange.sub(availableCollateral).toBN(),
     spender: network?.preset === 'andromeda' ? SpotMarketProxy?.address : CoreProxy?.address,
   });
   //Collateral Approval Done
