@@ -66,17 +66,19 @@ export function useCreateAccount() {
   const { data: CoreProxy } = useCoreProxy();
   const signer = useSigner();
   const { network } = useNetwork();
+  const provider = useProvider();
+
   const client = useQueryClient();
   return {
     enabled: Boolean(network && CoreProxy),
     mutation: useMutation({
       mutationFn: async function () {
         try {
-          if (!(CoreProxy && signer)) throw 'OMFG';
+          if (!(CoreProxy && signer && provider)) throw 'OMFG';
 
           const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
           const tx = await CoreProxyContract['createAccount()']();
-          const res = await tx.wait();
+          const receipt = await provider.waitForTransaction(tx.hash);
 
           await client.invalidateQueries({
             queryKey: [`${network?.id}-${network?.preset}`, 'Accounts'],
@@ -84,7 +86,7 @@ export function useCreateAccount() {
 
           let newAccountId: string | undefined;
 
-          res.logs.forEach((log: any) => {
+          receipt.logs.forEach((log: any) => {
             if (log.topics[0] === CoreProxyContract.interface.getEventTopic('AccountCreated')) {
               const accountId = CoreProxyContract.interface.decodeEventLog(
                 'AccountCreated',

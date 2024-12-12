@@ -1,10 +1,5 @@
 import { contractsHash, stringToHash } from '@snx-v3/tsHelpers';
-import {
-  Network,
-  useDefaultProvider,
-  useNetwork,
-  useProviderForChain,
-} from '@snx-v3/useBlockchain';
+import { Network, useProvider, useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useGetUSDTokens } from '@snx-v3/useGetUSDTokens';
@@ -58,7 +53,7 @@ export const useCollateralPrices = (customNetwork?: Network) => {
       ? collateralData?.map((x) => x.tokenAddress).concat(usdTokens.sUSD)
       : collateralData?.map((x) => x.tokenAddress);
 
-  const connectedProvider = useDefaultProvider();
+  const connectedProvider = useProvider();
   const offlineProvider = useProviderForChain(customNetwork);
 
   const provider = customNetwork ? offlineProvider : connectedProvider;

@@ -77,10 +77,10 @@ export function Deposit() {
       collateralBalance &&
       stataUSDCRate
     ) {
-      const stataAmount = liquidityPosition.availableCollateral
-        .add(stataBalance)
-        .add(collateralBalance);
-      return stataAmount.add(usdcBalance.div(wei(stataUSDCRate, 27)));
+      const stataAmount = liquidityPosition.availableCollateral // synth stata deposited
+        .add(stataBalance) // stata in wallet
+        .add(collateralBalance); // synth stata in wallet
+      return stataAmount.add(usdcBalance.div(wei(stataUSDCRate, 27)).mul(97).div(100)); // Add 97% of wallet USDC
     }
     if (
       collateralType?.symbol === 'USDC' &&
@@ -137,22 +137,36 @@ export function Deposit() {
                   value={liquidityPosition?.availableCollateral}
                 />
 
-                <Amount
-                  prefix="Wallet Balance: "
-                  value={
-                    collateralType?.symbol === 'SNX'
-                      ? transferrableSnx?.transferable
-                      : collateralBalance
-                  }
-                />
+                {!isStataUSDC ? (
+                  <Amount
+                    prefix="Wallet Balance: "
+                    value={
+                      collateralType?.symbol === 'SNX'
+                        ? transferrableSnx?.transferable
+                        : collateralBalance
+                    }
+                  />
+                ) : null}
 
-                {isStataUSDC && usdcBalance && stataUSDCRate ? (
+                {isStataUSDC &&
+                liquidityPosition &&
+                usdcBalance &&
+                stataBalance &&
+                collateralBalance &&
+                stataUSDCRate ? (
                   <>
-                    <Amount prefix="Static aUSDC Balance: " value={stataBalance} />
+                    <Amount
+                      prefix="Static aUSDC Balance: "
+                      value={
+                        // synth stata deposited is shown above in Unlocked Balance
+                        stataBalance // stata in wallet
+                          .add(collateralBalance) // synth stata in wallet
+                      }
+                    />
                     <Amount prefix="USDC Balance: " value={usdcBalance} />
                     <Amount
                       prefix="(~"
-                      value={usdcBalance.div(wei(stataUSDCRate, 27)).mul(998).div(1000)}
+                      value={usdcBalance.div(wei(stataUSDCRate, 27)).mul(97).div(100)} // Add 97% of wallet USDC
                       suffix=" Static aUSDC)"
                     />
                   </>

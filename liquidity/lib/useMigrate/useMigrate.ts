@@ -1,21 +1,24 @@
 import { ZEROWEI } from '@snx-v3/constants';
 import { extractErrorData } from '@snx-v3/parseContractError';
 import { contractsHash } from '@snx-v3/tsHelpers';
-import { useDefaultProvider, useNetwork, useSigner } from '@snx-v3/useBlockchain';
+import { useProvider, useNetwork, useSigner } from '@snx-v3/useBlockchain';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useLegacyMarket } from '@snx-v3/useLegacyMarket';
 import { wei } from '@synthetixio/wei';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import debug from 'debug';
 import { ethers } from 'ethers';
 import { useCallback, useMemo, useState } from 'react';
+
+const log = debug('snx:useMigrate');
 
 export function useMigrate() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const { network } = useNetwork();
-  const provider = useDefaultProvider();
+  const provider = useProvider();
   const signer = useSigner();
   const { data: LegacyMarket } = useLegacyMarket();
   const { gasSpeed } = useGasSpeed();
@@ -31,7 +34,7 @@ export function useMigrate() {
     ],
     enabled: Boolean(signer && LegacyMarket),
     queryFn: async function () {
-      if (!(LegacyMarket && signer)) throw 'OMFG';
+      if (!(LegacyMarket && signer && provider)) throw 'OMFG';
 
       const LegacyMarketContract = new ethers.Contract(
         LegacyMarket.address,
@@ -107,7 +110,10 @@ export function useMigrate() {
       const txn = await LegacyMarketContract.migrate(accountId, {
         ...gasOptionsForTransaction,
       });
-      await txn.wait();
+
+      log('txn', txn);
+      const receipt = await provider.waitForTransaction(txn.hash);
+      log('receipt', receipt);
 
       setIsLoading(false);
       setIsSuccess(true);

@@ -8,7 +8,7 @@ import {
   importPythVerfier,
 } from '@snx-v3/contracts';
 import { parseUnits } from '@snx-v3/format';
-import { Network, useDefaultProvider, useNetwork, useWallet } from '@snx-v3/useBlockchain';
+import { Network, useProvider, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { networksOffline } from '@snx-v3/usePoolsList';
 import { wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
@@ -154,7 +154,7 @@ export const useOfflinePrices = (collaterals?: Collaterals[]) => {
 export const useCollateralPriceUpdates = (customNetwork?: Network) => {
   const { network: currentNetwork } = useNetwork();
   const network = customNetwork || currentNetwork;
-  const provider = useDefaultProvider();
+  const provider = useProvider();
   const { activeWallet } = useWallet();
   const walletAddress = activeWallet?.address;
 

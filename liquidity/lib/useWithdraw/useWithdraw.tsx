@@ -92,7 +92,7 @@ export const useWithdraw = ({
         log('txn', txn);
         dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 
-        const receipt = await txn.wait();
+        const receipt = await provider.waitForTransaction(txn.hash);
         log('receipt', receipt);
         dispatch({ type: 'success' });
       } catch (error: any) {

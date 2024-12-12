@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useWallet, useNetwork, useDefaultProvider } from '@snx-v3/useBlockchain';
+import { useWallet, useNetwork, useProvider } from '@snx-v3/useBlockchain';
 import { BigNumber, Contract } from 'ethers';
 
 const abi = ['function allowance(address, address) view returns (uint256)'];
@@ -13,7 +13,7 @@ export const useAllowance = ({
 }) => {
   const { activeWallet } = useWallet();
   const { network } = useNetwork();
-  const provider = useDefaultProvider();
+  const provider = useProvider();
 
   return useQuery({
     queryKey: [

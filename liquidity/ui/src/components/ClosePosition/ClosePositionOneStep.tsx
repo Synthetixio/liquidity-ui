@@ -84,10 +84,10 @@ export function ClosePositionOneStep({
 
   const { mutate: execClosePosition } = useMutation({
     mutationFn: async function () {
-      log('params: %O', params);
-      log('collateralType: %O', collateralType);
-      log('accountCollateral: %O', accountCollateral);
-      log('positionDebt: %O', positionDebt);
+      log('params', params);
+      log('collateralType', collateralType);
+      log('accountCollateral', accountCollateral);
+      log('positionDebt', positionDebt);
 
       setTxState({ step: 1, status: 'pending' });
       if (
@@ -128,7 +128,7 @@ export function ClosePositionOneStep({
       );
 
       const freshPriceUpdateTxn = await fetchPriceUpdateTxn({ PythVerfier, pythFeeds });
-      log('freshPriceUpdateTxn: %O', freshPriceUpdateTxn);
+      log('freshPriceUpdateTxn', freshPriceUpdateTxn);
 
       const freshPositionDebt = freshPriceUpdateTxn.value
         ? await fetchPositionDebtWithPriceUpdate({
@@ -147,14 +147,14 @@ export function ClosePositionOneStep({
             poolId: params.poolId,
             collateralTypeTokenAddress: collateralType.tokenAddress,
           });
-      log('freshPositionDebt: %O', freshPositionDebt);
+      log('freshPositionDebt', freshPositionDebt);
 
       const adjustedAllowance = freshPositionDebt.lt(1)
         ? // For the case when debt fluctuates from negative/zero to slightly positive
           ethers.utils.parseEther('1.00')
         : // Add extra buffer for debt fluctuations
           freshPositionDebt.mul(120).div(100);
-      log('adjustedAllowance: %O', adjustedAllowance);
+      log('adjustedAllowance', adjustedAllowance);
 
       // "function approve(address to, uint256 tokenId)",
 
@@ -195,10 +195,10 @@ export function ClosePositionOneStep({
       });
 
       const txn = await signer.sendTransaction({ ...erc7412Tx, ...gasOptionsForTransaction });
-      console.log('[closePosition] txn hash', txn.hash); // eslint-disable-line no-console
-      log('txn %O', txn);
-      const receipt = await txn.wait();
-      log('receipt %O', receipt);
+      log('txn', txn);
+      const receipt = await provider.waitForTransaction(txn.hash);
+      log('receipt', receipt);
+      return receipt;
     },
 
     onSuccess: async () => {

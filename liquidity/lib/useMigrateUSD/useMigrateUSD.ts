@@ -1,4 +1,4 @@
-import { useDefaultProvider, useNetwork, useSigner } from '@snx-v3/useBlockchain';
+import { useProvider, useNetwork, useSigner } from '@snx-v3/useBlockchain';
 import { useLegacyMarket } from '@snx-v3/useLegacyMarket';
 import { useCallback, useState } from 'react';
 import { getGasPrice } from '@snx-v3/useGasPrice';
@@ -9,6 +9,9 @@ import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { extractErrorData } from '@snx-v3/parseContractError';
 import { useQueryClient } from '@tanstack/react-query';
 import { ethers } from 'ethers';
+import debug from 'debug';
+
+const log = debug('snx:useMigrateUSD');
 
 export function useMigrateUSD({ amount }: { amount: Wei }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,13 +19,13 @@ export function useMigrateUSD({ amount }: { amount: Wei }) {
   const signer = useSigner();
   const { data: LegacyMarket } = useLegacyMarket();
   const { gasSpeed } = useGasSpeed();
-  const provider = useDefaultProvider();
+  const provider = useProvider();
   const queryClient = useQueryClient();
   const { network } = useNetwork();
 
   const migrate = useCallback(async () => {
     try {
-      if (!(LegacyMarket && signer)) {
+      if (!(LegacyMarket && signer && provider)) {
         throw 'OMFG';
       }
       setIsLoading(true);
@@ -45,8 +48,9 @@ export function useMigrateUSD({ amount }: { amount: Wei }) {
       });
 
       const txn = await signer.sendTransaction({ ...transaction, ...gasOptionsForTransaction });
-
-      await txn.wait();
+      log('txn', txn);
+      const receipt = await provider.waitForTransaction(txn.hash);
+      log('receipt', receipt);
 
       setIsLoading(false);
       setIsSuccess(true);

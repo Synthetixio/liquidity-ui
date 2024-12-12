@@ -1,16 +1,18 @@
-import { useSigner } from '@snx-v3/useBlockchain';
+import { useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useEthBalance } from '@snx-v3/useEthBalance';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
-import { Contract } from 'ethers';
-import { useMutation } from '@tanstack/react-query';
 import Wei from '@synthetixio/wei';
+import { useMutation } from '@tanstack/react-query';
+import debug from 'debug';
+import { Contract } from 'ethers';
 import { useCallback } from 'react';
 
-const minimalWETHABI = ['function deposit() payable', 'function withdraw(uint256 wad)'];
+const log = debug('snx:useWrapEth');
 
 export const useWrapEth = () => {
   const signer = useSigner();
+  const provider = useProvider();
 
   const { data: ethCollateral } = useCollateralType('WETH');
   const { data: ethBalance, refetch: refetchETHBalance } = useEthBalance();
@@ -20,10 +22,17 @@ export const useWrapEth = () => {
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: async (amount: Wei) => {
-      if (!ethCollateral || !signer) return;
-      const contract = new Contract(ethCollateral?.tokenAddress, minimalWETHABI, signer);
+      if (!ethCollateral || !signer || !provider) return;
+      const contract = new Contract(
+        ethCollateral?.tokenAddress,
+        ['function deposit() payable'],
+        signer
+      );
       const txn = await contract.deposit({ value: amount.toBN() });
-      await txn.wait();
+      log('txn', txn);
+      const receipt = await provider.waitForTransaction(txn.hash);
+      log('receipt', receipt);
+      return receipt;
     },
   });
 
@@ -50,6 +59,7 @@ export const useWrapEth = () => {
 
 export const useUnWrapEth = () => {
   const signer = useSigner();
+  const provider = useProvider();
 
   const { data: ethCollateral } = useCollateralType('WETH');
   const { data: ethBalance, refetch: refetchETHBalance } = useEthBalance();
@@ -59,10 +69,17 @@ export const useUnWrapEth = () => {
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: async (amount: Wei) => {
-      if (!ethCollateral || !signer) return;
-      const contract = new Contract(ethCollateral?.tokenAddress, minimalWETHABI, signer);
+      if (!ethCollateral || !signer || !provider) return;
+      const contract = new Contract(
+        ethCollateral?.tokenAddress,
+        ['function withdraw(uint256 wad)'],
+        signer
+      );
       const txn = await contract.withdraw(amount.toBN());
-      await txn.wait();
+      log('txn', txn);
+      const receipt = await provider.waitForTransaction(txn.hash);
+      log('receipt', receipt);
+      return receipt;
     },
   });
 

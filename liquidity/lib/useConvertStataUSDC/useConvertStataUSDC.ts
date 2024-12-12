@@ -1,5 +1,5 @@
 import { D18, D27, D6 } from '@snx-v3/constants';
-import { useNetwork, useSigner, useWallet } from '@snx-v3/useBlockchain';
+import { useNetwork, useProvider, useSigner, useWallet } from '@snx-v3/useBlockchain';
 import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { debug } from 'debug';
@@ -16,13 +16,14 @@ export function useConvertStataUSDC({
 }) {
   const { network } = useNetwork();
   const signer = useSigner();
+  const provider = useProvider();
   const { data: StaticAaveUSDC } = useStaticAaveUSDC();
   const queryClient = useQueryClient();
   const { activeWallet } = useWallet();
 
   return useMutation({
     mutationFn: async () => {
-      if (!(StaticAaveUSDC && signer && activeWallet)) {
+      if (!(StaticAaveUSDC && signer && provider && activeWallet)) {
         throw new Error('Not ready');
       }
       if (!stataAmountNeeded.gt(0)) {
@@ -69,7 +70,7 @@ export function useConvertStataUSDC({
       });
       log('txn', txn);
 
-      const receipt = await txn.wait();
+      const receipt = await provider.waitForTransaction(txn.hash);
       log('receipt', receipt);
 
       return receipt;

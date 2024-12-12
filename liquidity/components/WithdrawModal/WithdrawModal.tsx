@@ -5,7 +5,7 @@ import { ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
-import { useDefaultProvider, useNetwork, useWallet } from '@snx-v3/useBlockchain';
+import { useProvider, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
@@ -32,7 +32,7 @@ export function WithdrawModal({
     status: 'idle',
   });
 
-  const provider = useDefaultProvider();
+  const provider = useProvider();
   const { activeWallet } = useWallet();
   const [params] = useParams<PositionPageSchemaType>();
   const toast = useToast({ isClosable: true, duration: 9000 });

@@ -293,11 +293,6 @@ export function useProviderForChain(customNetwork?: Network) {
   return provider;
 }
 
-export function useDefaultProvider() {
-  const { network } = useNetwork();
-  return useProviderForChain(network);
-}
-
 export function useWallet() {
   const [{ wallet }, connect, disconnect] = useConnectWallet();
 
@@ -350,7 +345,16 @@ export function useNetwork() {
 
 export function useSigner() {
   const provider = useProvider();
-  return provider ? provider.getSigner(0) : undefined;
+  const { activeWallet } = useWallet();
+  const { data: signer } = useQuery({
+    queryKey: ['Wallet signer', activeWallet?.address],
+    enabled: Boolean(provider && activeWallet),
+    queryFn: () => {
+      if (!(provider && activeWallet)) throw 'OMFG';
+      return provider.getSigner(activeWallet.address);
+    },
+  });
+  return signer;
 }
 
 export function useProvider() {

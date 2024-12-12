@@ -132,7 +132,14 @@ export function StataDepositModal({
   const { approve: approveStata, requireApproval: requireApprovalStata } = useApprove({
     contractAddress: synth?.token?.address,
     amount: synth
-      ? stataApprovalNeeded.toBN().mul(ethers.utils.parseUnits('1', synth.token.decimals)).div(D18)
+      ? stataApprovalNeeded
+          .toBN()
+          .mul(ethers.utils.parseUnits('1', synth.token.decimals))
+          .div(D18)
+
+          // extra 1% approval
+          .mul(101)
+          .div(100)
       : undefined,
     spender: SpotMarketProxy?.address,
   });
