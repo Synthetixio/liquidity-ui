@@ -46,24 +46,27 @@ export function NetworkController() {
   const [toolTipLabel, setTooltipLabel] = useState('Copy');
   const { activeWallet, walletsInfo, connect, disconnect } = useWallet();
   const { network: activeNetwork, setNetwork } = useNetwork();
-  const { data: accounts } = useAccounts();
+  const { data: accounts, isPending: isPendingAccounts } = useAccounts();
   const createAccount = useCreateAccount();
   const [showTestnets, setShowTestnets] = useLocalStorage(LOCAL_STORAGE_KEYS.SHOW_TESTNETS, false);
 
   useEffect(() => {
-    if (
-      accounts &&
-      (!('accountId' in params) ||
-        ('accountId' in params && params.accountId && !accounts.includes(params.accountId)))
-    ) {
-      const [accountId] = accounts;
-      if (!accountId) {
-        delete params.accountId;
+    if (!isPendingAccounts && accounts) {
+      if (accounts.length > 0 && !('accountId' in params)) {
+        setParams({ ...params, accountId: accounts[0] });
+        return;
       }
-      setParams(params);
-      return;
+      if (accounts.length > 0 && !accounts.includes(`${params.accountId}`)) {
+        setParams({ ...params, accountId: accounts[0] });
+        return;
+      }
+      if (!accounts.length) {
+        const { accountId: _x, ...newParams } = params;
+        setParams(newParams);
+        return;
+      }
     }
-  }, [accounts, params, setParams]);
+  }, [accounts, isPendingAccounts, params, setParams]);
 
   useEffect(() => {
     if (window.$magicWallet) {

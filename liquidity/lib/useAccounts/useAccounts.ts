@@ -58,7 +58,6 @@ export function useAccounts() {
 
       return accounts.map((accountId) => accountId.toString());
     },
-    placeholderData: [],
   });
 }
 
