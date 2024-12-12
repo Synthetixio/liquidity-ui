@@ -344,13 +344,16 @@ export function useNetwork() {
 }
 
 export function useSigner() {
-  const provider = useProvider();
-  const { activeWallet } = useWallet();
+  const { network } = useNetwork();
+  const [{ wallet }] = useConnectWallet();
+  const activeWallet = wallet?.accounts?.[0];
   const { data: signer } = useQuery({
-    queryKey: ['Wallet signer', activeWallet?.address],
-    enabled: Boolean(provider && activeWallet),
+    queryKey: [`${network?.id}-${network?.preset}`, 'Signer', activeWallet?.address],
+    enabled: Boolean(wallet && activeWallet),
     queryFn: () => {
-      if (!(provider && activeWallet)) throw 'OMFG';
+      if (!(wallet && activeWallet)) throw 'OMFG';
+      const provider =
+        getMagicProvider() ?? new ethers.providers.Web3Provider(wallet.provider, 'any');
       return provider.getSigner(activeWallet.address);
     },
   });
