@@ -1,5 +1,5 @@
-import { ethers } from 'ethers';
 import Wei from '@synthetixio/wei';
+import { ethers } from 'ethers';
 
 export const LOCAL_STORAGE_KEYS = {
   SHOW_TESTNETS: 'SHOW_TESTNETS',
@@ -64,3 +64,17 @@ export const offchainMainnetEndpoint =
 export const offchainTestnetEndpoint =
   process.env.PYTH_TESTNET_ENDPOINT ||
   'https://hermes-mainnet.rpc.extrnode.com/9b85d7db-f562-48e2-ab56-79c01f212582';
+
+export const tokenOverrides: {
+  [key: string]:
+    | {
+        symbol: string;
+        name: string;
+      }
+    | undefined;
+} = {
+  '0x4EA71A20e655794051D1eE8b6e4A3269B13ccaCc': {
+    symbol: 'stataUSDC',
+    name: 'Static aUSDC',
+  },
+};
