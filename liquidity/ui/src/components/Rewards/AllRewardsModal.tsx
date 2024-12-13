@@ -12,6 +12,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
+import { tokenOverrides } from '@snx-v3/constants';
 import { etherscanLink } from '@snx-v3/etherscanLink';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
@@ -19,7 +20,8 @@ import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useRewards } from '@snx-v3/useRewards';
 import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { WithdrawIncrease } from '@snx-v3/WithdrawIncrease';
-import { useEffect, useState } from 'react';
+import { Wei } from '@synthetixio/wei';
+import React from 'react';
 
 export function AllRewardsModal({
   txnStatus,
@@ -37,23 +39,63 @@ export function AllRewardsModal({
   });
   const { data: synthTokens } = useSynthTokens();
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = React.useState(false);
 
   const { network } = useNetwork();
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (txnStatus === 'prompting') {
       setIsOpen(true);
     }
     if (txnStatus === 'error') {
       setIsOpen(false);
     }
-    if (txnStatus === 'success') {
-      setTimeout(() => {
-        setIsOpen(false);
-      }, 1200);
-    }
+    // Disable auto-close
+    // if (txnStatus === 'success') {
+    //   setTimeout(() => {
+    //     setIsOpen(false);
+    //   }, 1200);
+    // }
   }, [txnStatus]);
+
+  const groupedRewards = React.useMemo(() => {
+    if (!rewards || !rewards.length) {
+      return;
+    }
+    const map = new Map();
+    rewards.forEach(({ distributor, claimableAmount }) => {
+      const synthToken = synthTokens?.find(
+        (synth) => synth.address.toUpperCase() === distributor.payoutToken.address.toUpperCase()
+      );
+      const token = synthToken ? synthToken.token : distributor.payoutToken;
+      const displaySymbol = tokenOverrides[token.address] ?? token.symbol;
+      if (map.has(displaySymbol)) {
+        map.set(displaySymbol, map.get(displaySymbol).add(claimableAmount));
+      } else {
+        map.set(displaySymbol, claimableAmount);
+      }
+    });
+    return map
+      .entries()
+      .toArray()
+      .map(([displaySymbol, claimableAmount]) => ({
+        displaySymbol,
+        claimableAmount,
+      }))
+      .filter(({ claimableAmount }) => claimableAmount.gt(0))
+      .sort((a, b) => a.displaySymbol.localeCompare(b.displaySymbol))
+      .sort((a, b) => b.claimableAmount.toNumber() - a.claimableAmount.toNumber());
+  }, [rewards, synthTokens]);
+
+  // This caching is necessary to keep initial values after success and not reset them to zeroes
+  const [cachedRewards, setCachedRewards] = React.useState<
+    { displaySymbol: string; claimableAmount: Wei }[] | undefined
+  >();
+  React.useEffect(() => {
+    if (groupedRewards && !cachedRewards) {
+      setCachedRewards(groupedRewards);
+    }
+  }, [groupedRewards, cachedRewards]);
 
   return (
     <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
@@ -107,33 +149,22 @@ export function AllRewardsModal({
               ml={2}
               data-cy="claim rewards info"
             >
-              {rewards
-                ? rewards
-                    .filter(({ claimableAmount }) => claimableAmount.gt(0))
-                    .map(({ distributor, claimableAmount }) => {
-                      const symbol = distributor.payoutToken.symbol;
-                      const synthToken = synthTokens?.find(
-                        (synth) =>
-                          synth.address.toUpperCase() ===
-                          distributor.payoutToken.address.toUpperCase()
-                      );
-                      const collateralSymbol = synthToken ? synthToken?.symbol.slice(1) : symbol;
-                      return (
-                        <Text
-                          key={distributor.address}
-                          fontSize="14px"
-                          fontWeight={700}
-                          lineHeight="20px"
-                          color="white"
-                        >
-                          <Amount
-                            value={claimableAmount}
-                            prefix="Claiming "
-                            suffix={` ${collateralSymbol}`}
-                          />
-                        </Text>
-                      );
-                    })
+              {cachedRewards
+                ? cachedRewards.map(({ displaySymbol, claimableAmount }) => (
+                    <Text
+                      key={displaySymbol}
+                      fontSize="14px"
+                      fontWeight={700}
+                      lineHeight="20px"
+                      color="white"
+                    >
+                      <Amount
+                        value={claimableAmount}
+                        prefix="Claiming "
+                        suffix={` ${displaySymbol}`}
+                      />
+                    </Text>
+                  ))
                 : null}
               <Text fontSize="12px" lineHeight="16px" color="gray.500">
                 Claim your rewards
