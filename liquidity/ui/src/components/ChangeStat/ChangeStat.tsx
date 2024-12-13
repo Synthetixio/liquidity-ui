@@ -17,7 +17,7 @@ const styles = {
   lg: {
     fontSize: '18px',
     fontWeight: '800',
-    lineHeight: '32px',
+    lineHeight: '24px',
   },
 };
 
@@ -48,6 +48,7 @@ export function ChangeStat({
       fontSize={styles[size].fontSize}
       fontWeight={styles[size].fontWeight}
       lineHeight={styles[size].lineHeight}
+      flexWrap="wrap"
     >
       <Text
         data-cy={dataCy}
@@ -66,7 +67,7 @@ export function ChangeStat({
         {!isPending && value ? formatFn(value) : null}
       </Text>
       {hasChanges && !isPending && value && !value.eq(newValue) ? (
-        <>
+        <Flex gap="1" alignItems="center" isTruncated>
           <ArrowForwardIcon />
           <Text
             textAlign="center"
@@ -78,7 +79,7 @@ export function ChangeStat({
           >
             {formatFn(newValue)}
           </Text>
-        </>
+        </Flex>
       ) : null}
     </Flex>
   );

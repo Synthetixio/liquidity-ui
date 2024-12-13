@@ -22,7 +22,7 @@ export function CollateralStats({
   });
 
   return (
-    <BorderBox p={4} flex="1" flexDirection="row" bg="navy.700">
+    <BorderBox maxW={['100%', '50%']} p={4} flex="1" flexDirection="row" bg="navy.700">
       <Flex
         opacity={!liquidityPosition && !hasChanges ? '40%' : '100%'}
         flexDirection="column"
@@ -33,9 +33,9 @@ export function CollateralStats({
             Collateral
           </Text>
         </Flex>
-        <Flex width="100%">
+        <Flex width="100%" isTruncated>
           {!isPendingLiquidityPosition && liquidityPosition && collateralType ? (
-            <Flex direction="column">
+            <Flex width="100%" direction="column" gap="1">
               <ChangeStat
                 value={liquidityPosition.collateralAmount}
                 newValue={newCollateralAmount}
