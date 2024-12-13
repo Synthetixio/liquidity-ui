@@ -6,6 +6,7 @@ import { type CollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useMulticall3 } from '@snx-v3/useMulticall3';
+import { logMulticall } from '@snx-v3/withERC7412';
 import { useRewards } from '@snx-v3/useRewards';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { useSynthTokens } from '@snx-v3/useSynthTokens';
@@ -88,18 +89,21 @@ export function useClaimAllRewards({
               (synth) =>
                 synth.address.toUpperCase() === distributor.payoutToken.address.toUpperCase()
             );
+            log('synthToken', synthToken);
+            log('claimableAmount', claimableAmount);
             if (synthToken && claimableAmount && claimableAmount.gt(0)) {
               transactions.push(
                 SpotMarketProxyContract.populateTransaction.unwrap(
                   synthToken.synthMarketId,
                   claimableAmount.toBN(),
-                  claimableAmount.toBN().sub(claimableAmount?.toBN().div(100))
+                  claimableAmount.toBN().sub(claimableAmount.toBN().div(100))
                 )
               );
             }
           });
 
         const multicall = await Promise.all(transactions);
+        await logMulticall({ network, calls: multicall, label: 'useClaimAllRewards' });
 
         const calls = multicall.map(({ to, data }) => ({
           target: to,

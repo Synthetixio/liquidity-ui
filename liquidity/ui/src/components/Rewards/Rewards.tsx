@@ -48,7 +48,7 @@ export function Rewards() {
       const synthToken = synthTokens?.find(
         (synth) => synth.address.toUpperCase() === distributor.payoutToken.address.toUpperCase()
       );
-      const displaySymbol = synthToken ? synthToken?.symbol.slice(1) : symbol;
+      const displaySymbol = synthToken ? synthToken.token.symbol : symbol;
       if (map.has(displaySymbol)) {
         map.set(displaySymbol, map.get(displaySymbol).add(claimableAmount));
       } else {

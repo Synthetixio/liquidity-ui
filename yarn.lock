@@ -5392,6 +5392,7 @@ __metadata:
     "@snx-v3/useRewards": "workspace:*"
     "@snx-v3/useSpotMarketProxy": "workspace:*"
     "@snx-v3/useSynthTokens": "workspace:*"
+    "@snx-v3/withERC7412": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
     debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
@@ -6350,6 +6351,7 @@ __metadata:
     "@snx-v3/parseContractError": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
+    debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
   languageName: unknown
   linkType: soft

@@ -10,6 +10,7 @@
     "@snx-v3/parseContractError": "workspace:*",
     "@snx-v3/tsHelpers": "workspace:*",
     "@snx-v3/useBlockchain": "workspace:*",
+    "debug": "^4.3.7",
     "ethers": "^5.7.2"
   }
 }

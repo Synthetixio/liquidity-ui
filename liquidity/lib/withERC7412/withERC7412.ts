@@ -15,11 +15,8 @@ import {
 import { extractErrorData, PYTH_ERRORS } from '@snx-v3/parseContractError';
 import { notNil } from '@snx-v3/tsHelpers';
 import { deploymentHasERC7412, Network } from '@snx-v3/useBlockchain';
+import debug from 'debug';
 import { ethers } from 'ethers';
-
-const IS_DEBUG =
-  window.localStorage.getItem('DEBUG') === 'true' ||
-  window.localStorage.DEBUG?.slice(0, 3) === 'snx';
 
 async function fetchOffchainData({
   priceIds,
@@ -95,7 +92,23 @@ export const getDefaultFromAddress = (chainName: string) => {
   }
 };
 
-async function logMulticall({
+function dedupedAbi(abi: string[]) {
+  const deduped = new Set();
+  const readableAbi: string[] = [];
+  abi.forEach((line: string) => {
+    const fragment = ethers.utils.Fragment.from(line);
+    if (fragment && (fragment.type === 'error' || fragment.type === 'function')) {
+      const minimal = fragment.format(ethers.utils.FormatTypes.sighash);
+      if (!deduped.has(minimal)) {
+        readableAbi.push(fragment.format(ethers.utils.FormatTypes.full));
+        deduped.add(minimal);
+      }
+    }
+  });
+  return readableAbi;
+}
+
+export async function logMulticall({
   network,
   calls,
   label,
@@ -104,6 +117,10 @@ async function logMulticall({
   calls: (ethers.PopulatedTransaction & { requireSuccess?: boolean })[];
   label: string;
 }) {
+  const log = debug(`snx:withERC7412:${label}`);
+  if (!log.enabled) {
+    return;
+  }
   const CoryProxyContract = await importCoreProxy(network.id, network.preset);
   const SpotMarketProxy = await importSpotMarketProxy(network.id, network.preset);
   const AccountProxyContract = await importAccountProxy(network.id, network.preset);
@@ -114,20 +131,18 @@ async function logMulticall({
   const PythERC7412Wrapper = await importPythERC7412Wrapper(network.id, network.preset);
   const PythVerfier = await importPythVerfier(network.id, network.preset);
   const AllInterface = new ethers.utils.Interface(
-    Array.from(
-      new Set([
-        ...CoryProxyContract.abi,
-        ...SpotMarketProxy.abi,
-        ...AccountProxyContract.abi,
-        ...USDProxyContract.abi,
-        ...(ClosePositionContract ? ClosePositionContract.abi : []),
-        ...PythERC7412Wrapper.abi,
-        ...PythVerfier.abi,
-      ])
-    )
+    dedupedAbi([
+      ...CoryProxyContract.abi,
+      ...SpotMarketProxy.abi,
+      ...AccountProxyContract.abi,
+      ...USDProxyContract.abi,
+      ...(ClosePositionContract ? ClosePositionContract.abi : []),
+      ...PythERC7412Wrapper.abi,
+      ...PythVerfier.abi,
+    ])
   );
-  console.log(
-    `[${label}] calls`,
+  log(
+    'multicall calls',
     calls.map(({ data, value, ...rest }) => {
       try {
         // @ts-ignore
@@ -202,6 +217,8 @@ export const withERC7412 = async (
   label: string,
   from: string
 ) => {
+  const log = debug(`snx:withERC7412:${label}`);
+
   if (!(await deploymentHasERC7412(network.id, network.preset))) {
     return await getMulticallTransaction(network, calls, from, provider);
   }
@@ -217,38 +234,34 @@ export const withERC7412 = async (
 
   while (true) {
     try {
-      if (IS_DEBUG) {
-        await logMulticall({ network, calls, label });
-      }
+      await logMulticall({ network, calls, label });
       return await getMulticallTransaction(network, calls, from, provider);
     } catch (error: Error | any) {
       console.error(error);
       let errorData = extractErrorData(error);
       if (!errorData && error.transaction) {
         try {
-          console.log(
-            'Error is missing revert data, trying provider.call, instead of estimate gas...'
-          );
+          log('Error is missing revert data, trying provider.call, instead of estimate gas...');
           // Some wallets swallows the revert reason when calling estimate gas,try to get the error by using provider.call
           // provider.call wont actually revert, instead the error data is just returned
           const lookedUpError = await provider.call(error.transaction);
           errorData = lookedUpError;
         } catch (newError: any) {
-          console.error(newError);
-          console.log('provider.call(error.transaction) failed, trying to extract error');
+          // console.error(newError);
+          log('provider.call(error.transaction) failed, trying to extract error', newError);
           errorData = extractErrorData(error);
         }
       }
       if (!errorData) {
         throw error;
       }
-      console.log(`[${label}]`, { errorData });
+      log('errorData', errorData);
 
       const parsedError = parseError(errorData, AllErrorsContract);
       if (!parsedError) {
         throw error;
       }
-      console.log(`[${label}]`, { parsedError });
+      log('parsedError', parsedError);
 
       // Collect all the price IDs that require updates
       const missingPriceUpdates = [];
@@ -268,7 +281,7 @@ export const withERC7412 = async (
         }
       }
       const missingPriceUpdatesUnique = Array.from(new Set(missingPriceUpdates));
-      console.log(`[${label}]`, { missingPriceUpdates: missingPriceUpdatesUnique });
+      log('missingPriceUpdates', missingPriceUpdatesUnique);
       if (missingPriceUpdatesUnique.length < 1) {
         // some other kind of error that's not related to price
         throw error;
@@ -288,8 +301,7 @@ export const withERC7412 = async (
         value: ethers.BigNumber.from(missingPriceUpdatesUnique.length),
         requireSuccess: false,
       };
-      // return [extraPriceUpdateTxn, ...calls.map()];
-      console.log(`[${label}]`, { extraPriceUpdateTxn });
+      log('extraPriceUpdateTxn', extraPriceUpdateTxn);
 
       // Update calls to include price update txn
       // And carry on with our while(true)
@@ -308,6 +320,8 @@ export async function erc7412Call<T>(
   decode: (x: string[] | string) => T,
   label: string
 ) {
+  const log = debug(`snx:withERC7412:${label}`);
+
   const Multicall3Contract = await importMulticall3(network.id, network.preset);
 
   const from = getDefaultFromAddress(network.name);
@@ -334,10 +348,7 @@ export async function erc7412Call<T>(
     const decodedMultiCall: { returnData: string }[] = new ethers.utils.Interface(
       Multicall3Contract.abi
     ).decodeFunctionResult('aggregate3Value', res)[0];
-
-    if (IS_DEBUG) {
-      console.log(`[${label}] multicall`, decodedMultiCall);
-    }
+    log('multicall response', decodedMultiCall);
 
     // Remove the price updates
     const responseWithoutPriceUpdates: string[] = [];
@@ -349,15 +360,11 @@ export async function erc7412Call<T>(
     });
 
     const decoded = decode(responseWithoutPriceUpdates);
-    if (IS_DEBUG) {
-      console.log(`[${label}] result`, decoded);
-    }
+    log(`multicall decoded`, decoded);
     return decoded;
   }
 
   const decoded = decode(res);
-  if (IS_DEBUG) {
-    console.log(`[${label}] result`, decoded);
-  }
+  log(`decoded`, decoded);
   return decoded;
 }
