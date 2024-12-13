@@ -40,7 +40,7 @@ export const calculateVaultTotals = (vaultsData: VaultsDataType) => {
 };
 
 export function formatApr(apr?: number, networkId?: number) {
-  if (!networkId || !apr || apr <= 0) return '-';
+  if (!networkId || !apr) return '-';
 
   return `${apr.toFixed(2)}%`;
 }
