@@ -110,6 +110,7 @@ export function useRewards({
             distributor.address,
           ],
           distributor,
+          isPoolDistributor: false,
         })
       );
       const getAvailablePoolRewardsArgs = poolDistributors.map((distributor) => ({
@@ -121,6 +122,7 @@ export function useRewards({
           distributor.address,
         ],
         distributor,
+        isPoolDistributor: true,
       }));
       const multicall = [...getAvailableRewardsArgs, ...getAvailablePoolRewardsArgs];
       log('multicall', multicall);
@@ -142,9 +144,8 @@ export function useRewards({
       log('multicallResponse', multicallResponse);
 
       const AllErrorsInterface = new ethers.utils.Interface(AllErrors.abi);
-
       const availableRewards = multicall
-        .map(({ method, distributor }, i) => {
+        .map(({ method, distributor, isPoolDistributor }, i) => {
           const { success, returnData } = multicallResponse[i];
           if (!success) {
             log(
@@ -157,6 +158,7 @@ export function useRewards({
           return {
             distributor,
             claimableAmount: wei(amount),
+            isPoolDistributor,
           };
         })
         .filter((info) => info !== undefined);
