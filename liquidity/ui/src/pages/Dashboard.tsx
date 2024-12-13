@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet';
 import { MigrationBanner } from '../components/Migration/MigrationBanner';
 import { PositionsList } from '../components/Positions/PositionsList';
 import { StatsList } from '../components/Stats/StatsList';
+import { Synths } from '../components/Synths/Synths';
 
 export function Dashboard() {
   const { network } = useNetwork();
@@ -22,6 +23,13 @@ export function Dashboard() {
         </Heading>
         <StatsList />
         <PositionsList />
+
+        <Flex flexDir="column">
+          <Heading fontSize="1.25rem" fontFamily="heading" lineHeight="1.75rem" mt={4}>
+            Synths
+          </Heading>
+          <Synths />
+        </Flex>
       </Flex>
     </>
   );

@@ -5107,6 +5107,7 @@ __metadata:
     "@snx-v3/useRewardsDistributors": "workspace:*"
     "@snx-v3/useStaticAaveUSDC": "workspace:*"
     "@snx-v3/useStaticAaveUSDCRate": "workspace:*"
+    "@snx-v3/useSynthBalances": "workspace:*"
     "@snx-v3/useSynthTokens": "workspace:*"
     "@snx-v3/useSystemToken": "workspace:*"
     "@snx-v3/useTokenBalance": "workspace:*"
@@ -5117,6 +5118,7 @@ __metadata:
     "@snx-v3/useUSDProxy": "workspace:*"
     "@snx-v3/useUndelegate": "workspace:*"
     "@snx-v3/useUndelegateBaseAndromeda": "workspace:*"
+    "@snx-v3/useUnwrapAllSynths": "workspace:*"
     "@snx-v3/useV2Position": "workspace:*"
     "@snx-v3/useV2sUSD": "workspace:*"
     "@snx-v3/useVaultsData": "workspace:*"
@@ -6036,6 +6038,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/useSynthBalances@workspace:*, @snx-v3/useSynthBalances@workspace:liquidity/lib/useSynthBalances":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useSynthBalances@workspace:liquidity/lib/useSynthBalances"
+  dependencies:
+    "@snx-v3/tsHelpers": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useMulticall3": "workspace:*"
+    "@snx-v3/useSynthTokens": "workspace:*"
+    "@synthetixio/wei": "npm:^2.74.4"
+    "@tanstack/react-query": "npm:^5.8.3"
+    debug: "npm:^4.3.7"
+    ethers: "npm:^5.7.2"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/useSynthTokens@workspace:*, @snx-v3/useSynthTokens@workspace:liquidity/lib/contracts/useSynthTokens":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useSynthTokens@workspace:liquidity/lib/contracts/useSynthTokens"
@@ -6167,6 +6185,26 @@ __metadata:
     "@snx-v3/useSpotMarketProxy": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
+    "@tanstack/react-query": "npm:^5.8.3"
+    debug: "npm:^4.3.7"
+    ethers: "npm:^5.7.2"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
+"@snx-v3/useUnwrapAllSynths@workspace:*, @snx-v3/useUnwrapAllSynths@workspace:liquidity/lib/useUnwrapAllSynths":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useUnwrapAllSynths@workspace:liquidity/lib/useUnwrapAllSynths"
+  dependencies:
+    "@chakra-ui/react": "npm:^2.8.2"
+    "@snx-v3/ContractError": "workspace:*"
+    "@snx-v3/txnReducer": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useContractErrorParser": "workspace:*"
+    "@snx-v3/useMulticall3": "workspace:*"
+    "@snx-v3/useSpotMarketProxy": "workspace:*"
+    "@snx-v3/useSynthBalances": "workspace:*"
+    "@snx-v3/withERC7412": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
     debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
