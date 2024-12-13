@@ -96,9 +96,6 @@ export function Synths() {
               py={3}
             >
               Token
-              <Tooltip label="Total synth balance in your wallet">
-                <InfoIcon ml={1} mb="1px" />
-              </Tooltip>
             </Th>
             <Th
               textTransform="unset"
@@ -113,6 +110,9 @@ export function Synths() {
               py={3}
             >
               Synth balance
+              <Tooltip label="Total synth balance in your wallet">
+                <InfoIcon ml={1} mb="1px" />
+              </Tooltip>
             </Th>
             <Th
               textTransform="unset"
