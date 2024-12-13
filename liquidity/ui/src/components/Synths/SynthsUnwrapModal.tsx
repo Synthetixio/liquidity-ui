@@ -81,7 +81,7 @@ export function SynthsUnwrapModal({
         borderColor="gray.900"
         minWidth="384px"
       >
-        <ModalBody data-cy="claim rewards dialog" p={6}>
+        <ModalBody data-cy="unwrap synths dialog" p={6}>
           <Text color="gray.50" fontSize="20px" fontWeight={700}>
             Unwrapping Synths
           </Text>
@@ -121,7 +121,7 @@ export function SynthsUnwrapModal({
               alignItems="space-between"
               justifyContent="space-between"
               ml={2}
-              data-cy="claim rewards info"
+              data-cy="unwrap synths info"
             >
               {cachedSynths ? (
                 cachedSynths.map(({ symbol, synthBalance }) => {
