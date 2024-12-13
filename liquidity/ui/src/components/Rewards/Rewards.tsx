@@ -62,6 +62,7 @@ export function Rewards() {
         displaySymbol,
         claimableAmount,
       }))
+      .filter(({ claimableAmount }) => claimableAmount.gt(0))
       .sort((a, b) => a.displaySymbol.localeCompare(b.displaySymbol))
       .sort((a, b) => b.claimableAmount.toNumber() - a.claimableAmount.toNumber());
   }, [rewards, synthTokens]);
