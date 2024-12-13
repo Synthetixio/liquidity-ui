@@ -68,17 +68,10 @@ export function useClaimAllRewards({
 
         rewards
           .filter(({ claimableAmount }) => claimableAmount.gt(0))
-          .forEach(({ distributor, claimableAmount }) => {
+          .forEach(({ distributor, claimableAmount, isPoolDistributor }) => {
+            const method = isPoolDistributor ? 'claimPoolRewards' : 'claimRewards';
             transactions.push(
-              CoreProxyContract.populateTransaction.claimRewards(
-                ethers.BigNumber.from(accountId),
-                ethers.BigNumber.from(poolId),
-                collateralType.address,
-                distributor.address
-              )
-            );
-            transactions.push(
-              CoreProxyContract.populateTransaction.claimPoolRewards(
+              CoreProxyContract.populateTransaction[method](
                 ethers.BigNumber.from(accountId),
                 ethers.BigNumber.from(poolId),
                 collateralType.address,
@@ -108,7 +101,7 @@ export function useClaimAllRewards({
         const calls = multicall.map(({ to, data }) => ({
           target: to,
           callData: data,
-          requireSuccess: false,
+          requireSuccess: true, // We must not fail any txns so all unwrapping and claiming works together
         }));
         log('calls', calls);
 
