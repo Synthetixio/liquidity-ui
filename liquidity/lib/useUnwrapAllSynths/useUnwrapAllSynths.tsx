@@ -26,11 +26,11 @@ export function useUnwrapAllSynths() {
   const provider = useProvider();
   const signer = useSigner();
 
-  const { gasSpeed } = useGasSpeed();
-
   const { data: SpotMarketProxy } = useSpotMarketProxy();
   const [txnState, dispatch] = React.useReducer(reducer, initialState);
+
   const { data: priceUpdateTx } = useCollateralPriceUpdates();
+  const { gasSpeed } = useGasSpeed();
 
   const errorParser = useContractErrorParser();
 
@@ -96,6 +96,7 @@ export function useUnwrapAllSynths() {
       dispatch({ type: 'success' });
       return receipt;
     },
+
     onError(error) {
       const contractError = errorParser(error);
       if (contractError) {
@@ -117,6 +118,7 @@ export function useUnwrapAllSynths() {
         duration: 3_600_000,
       });
     },
+
     onSuccess() {
       client.invalidateQueries({
         queryKey: [`${network?.id}-${network?.preset}`, 'PriceUpdates'],
@@ -125,7 +127,7 @@ export function useUnwrapAllSynths() {
         queryKey: [`${network?.id}-${network?.preset}`, 'SynthBalances'],
       });
       client.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'SynthBalances'],
+        queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
       });
       toast.closeAll();
       toast({

@@ -16,7 +16,8 @@ import { tokenOverrides } from '@snx-v3/constants';
 import { etherscanLink } from '@snx-v3/etherscanLink';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useSynthBalances } from '@snx-v3/useSynthBalances';
-import React, { useEffect, useState } from 'react';
+import { Wei } from '@synthetixio/wei';
+import React from 'react';
 
 export function SynthsUnwrapModal({
   txnStatus,
@@ -27,19 +28,20 @@ export function SynthsUnwrapModal({
 }) {
   const { network } = useNetwork();
 
-  const [isOpen, setIsOpen] = useState(false);
-  useEffect(() => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  React.useEffect(() => {
     if (txnStatus === 'prompting') {
       setIsOpen(true);
     }
     if (txnStatus === 'error') {
       setIsOpen(false);
     }
-    if (txnStatus === 'success') {
-      setTimeout(() => {
-        setIsOpen(false);
-      }, 10_000);
-    }
+    // Disable auto-close
+    // if (txnStatus === 'success') {
+    //   setTimeout(() => {
+    //     setIsOpen(false);
+    //   }, 10_000);
+    // }
   }, [txnStatus]);
 
   const { data: synthBalances } = useSynthBalances();
@@ -48,18 +50,26 @@ export function SynthsUnwrapModal({
       return;
     }
     return synthBalances
-      .map(({ synth, synthBalance, tokenBalance }) => ({
+      .map(({ synth, synthBalance }) => ({
         synthBalance,
-        tokenBalance,
         symbol: synth.token.symbol,
         name: synth.token.name,
         ...tokenOverrides[synth.token.address],
       }))
-      .filter(({ synthBalance, tokenBalance }) => synthBalance.gt(0) || tokenBalance.gt(0))
+      .filter(({ synthBalance }) => synthBalance.gt(0))
       .sort((a, b) => a.symbol.localeCompare(b.symbol))
-      .sort((a, b) => b.tokenBalance.toNumber() - a.tokenBalance.toNumber())
       .sort((a, b) => b.synthBalance.toNumber() - a.synthBalance.toNumber());
   }, [synthBalances]);
+
+  // This caching is necessary to keep initial values after success and not reset them to zeroes
+  const [cachedSynths, setCachedSynths] = React.useState<
+    { symbol: string; name: string; synthBalance: Wei }[] | undefined
+  >();
+  React.useEffect(() => {
+    if (filteredSynths && !cachedSynths) {
+      setCachedSynths(filteredSynths);
+    }
+  }, [filteredSynths, cachedSynths]);
 
   return (
     <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
@@ -113,8 +123,8 @@ export function SynthsUnwrapModal({
               ml={2}
               data-cy="claim rewards info"
             >
-              {filteredSynths ? (
-                filteredSynths.map(({ symbol, synthBalance }) => {
+              {cachedSynths ? (
+                cachedSynths.map(({ symbol, synthBalance }) => {
                   return (
                     <Text
                       key={symbol}
@@ -123,7 +133,11 @@ export function SynthsUnwrapModal({
                       lineHeight="20px"
                       color="white"
                     >
-                      <Amount value={synthBalance} prefix="Unwrapping " suffix={` ${symbol}`} />
+                      <Amount
+                        prefix={txnStatus === 'success' ? 'Unwrapped ' : 'Unwrapping '}
+                        value={synthBalance}
+                        suffix={` ${symbol}`}
+                      />
                     </Text>
                   );
                 })
@@ -134,7 +148,7 @@ export function SynthsUnwrapModal({
               )}
             </Flex>
           </Flex>
-          {txnStatus === 'success' && (
+          {txnStatus === 'success' ? (
             <Button
               mt={5}
               variant="solid"
@@ -143,10 +157,11 @@ export function SynthsUnwrapModal({
               py={3}
               width="100%"
               textAlign="center"
+              onClick={() => setIsOpen(false)}
             >
               Done
             </Button>
-          )}
+          ) : null}
           {txnHash && (
             <Flex
               justifyContent="center"
