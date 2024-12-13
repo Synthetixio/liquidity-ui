@@ -12,14 +12,11 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
+import { tokenOverrides } from '@snx-v3/constants';
 import { etherscanLink } from '@snx-v3/etherscanLink';
 import { useNetwork } from '@snx-v3/useBlockchain';
-import { useCollateralType } from '@snx-v3/useCollateralTypes';
-import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
-import { useRewards } from '@snx-v3/useRewards';
-import { useSynthTokens } from '@snx-v3/useSynthTokens';
-import { WithdrawIncrease } from '@snx-v3/WithdrawIncrease';
-import { useEffect, useState } from 'react';
+import { useSynthBalances } from '@snx-v3/useSynthBalances';
+import React, { useEffect, useState } from 'react';
 
 export function SynthsUnwrapModal({
   txnStatus,
@@ -28,19 +25,9 @@ export function SynthsUnwrapModal({
   txnStatus?: string;
   txnHash: string | null;
 }) {
-  const [params] = useParams<PositionPageSchemaType>();
-  const { data: collateralType } = useCollateralType(params.collateralSymbol);
-  const { data: rewards } = useRewards({
-    accountId: params.accountId,
-    poolId: params.poolId,
-    collateralType,
-  });
-  const { data: synthTokens } = useSynthTokens();
-
-  const [isOpen, setIsOpen] = useState(false);
-
   const { network } = useNetwork();
 
+  const [isOpen, setIsOpen] = useState(false);
   useEffect(() => {
     if (txnStatus === 'prompting') {
       setIsOpen(true);
@@ -51,9 +38,28 @@ export function SynthsUnwrapModal({
     if (txnStatus === 'success') {
       setTimeout(() => {
         setIsOpen(false);
-      }, 1200);
+      }, 10_000);
     }
   }, [txnStatus]);
+
+  const { data: synthBalances } = useSynthBalances();
+  const filteredSynths = React.useMemo(() => {
+    if (!synthBalances || !synthBalances.length) {
+      return;
+    }
+    return synthBalances
+      .map(({ synth, synthBalance, tokenBalance }) => ({
+        synthBalance,
+        tokenBalance,
+        symbol: synth.token.symbol,
+        name: synth.token.name,
+        ...tokenOverrides[synth.token.address],
+      }))
+      .filter(({ synthBalance, tokenBalance }) => synthBalance.gt(0) || tokenBalance.gt(0))
+      .sort((a, b) => a.symbol.localeCompare(b.symbol))
+      .sort((a, b) => b.tokenBalance.toNumber() - a.tokenBalance.toNumber())
+      .sort((a, b) => b.synthBalance.toNumber() - a.synthBalance.toNumber());
+  }, [synthBalances]);
 
   return (
     <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
@@ -67,7 +73,7 @@ export function SynthsUnwrapModal({
       >
         <ModalBody data-cy="claim rewards dialog" p={6}>
           <Text color="gray.50" fontSize="20px" fontWeight={700}>
-            Claiming Rewards
+            Unwrapping Synths
           </Text>
 
           <Divider my={4} />
@@ -107,40 +113,27 @@ export function SynthsUnwrapModal({
               ml={2}
               data-cy="claim rewards info"
             >
-              {rewards
-                ? rewards
-                    .filter(({ claimableAmount }) => claimableAmount.gt(0))
-                    .map(({ distributor, claimableAmount }) => {
-                      const symbol = distributor.payoutToken.symbol;
-                      const synthToken = synthTokens?.find(
-                        (synth) =>
-                          synth.address.toUpperCase() ===
-                          distributor.payoutToken.address.toUpperCase()
-                      );
-                      const collateralSymbol = synthToken ? synthToken?.symbol.slice(1) : symbol;
-                      return (
-                        <Text
-                          key={distributor.address}
-                          fontSize="14px"
-                          fontWeight={700}
-                          lineHeight="20px"
-                          color="white"
-                        >
-                          <Amount
-                            value={claimableAmount}
-                            prefix="Claiming "
-                            suffix={` ${collateralSymbol}`}
-                          />
-                        </Text>
-                      );
-                    })
-                : null}
-              <Text fontSize="12px" lineHeight="16px" color="gray.500">
-                Claim your rewards
-              </Text>
+              {filteredSynths ? (
+                filteredSynths.map(({ symbol, synthBalance }) => {
+                  return (
+                    <Text
+                      key={symbol}
+                      fontSize="14px"
+                      fontWeight={700}
+                      lineHeight="20px"
+                      color="white"
+                    >
+                      <Amount value={synthBalance} prefix="Unwrapping " suffix={` ${symbol}`} />
+                    </Text>
+                  );
+                })
+              ) : (
+                <Text fontSize="12px" lineHeight="16px" color="gray.500">
+                  Unwrapping your synths
+                </Text>
+              )}
             </Flex>
           </Flex>
-          <WithdrawIncrease />
           {txnStatus === 'success' && (
             <Button
               mt={5}

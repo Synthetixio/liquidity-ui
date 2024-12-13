@@ -79,16 +79,24 @@ export function useSynthBalances() {
           };
         })
         .filter((info) => info !== undefined);
+      log('balances', balances);
       const map = new Map();
       balances.forEach(({ synth, balance, isSynth }) => {
-        map.set(synth.address, {
-          synth,
-          synthBalance: isSynth ? balance : wei(0),
-          tokenBalance: isSynth ? wei(0) : balance,
-        });
+        if (map.has(synth.address)) {
+          map.set(synth.address, {
+            synth,
+            synthBalance: isSynth ? balance : map.get(synth.address).synthBalance,
+            tokenBalance: isSynth ? map.get(synth.address).tokenBalance : balance,
+          });
+        } else {
+          map.set(synth.address, {
+            synth,
+            synthBalance: isSynth ? balance : wei(0, synth.token.decimals),
+            tokenBalance: isSynth ? wei(0, synth.decimals) : balance,
+          });
+        }
       });
       const combinedBalances = map.values().toArray();
-
       log('combinedBalances', combinedBalances);
       return combinedBalances;
     },
