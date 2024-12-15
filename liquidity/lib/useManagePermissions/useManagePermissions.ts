@@ -34,7 +34,7 @@ export const useManagePermissions = ({
   existing = [],
   selected = [],
 }: {
-  accountId: string;
+  accountId: ethers.BigNumber;
   target: string;
   existing: Permissions;
   selected: Permissions;

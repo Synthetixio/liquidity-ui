@@ -24,7 +24,6 @@ import { useUndelegate } from '@snx-v3/useUndelegate';
 import { useUndelegateBaseAndromeda } from '@snx-v3/useUndelegateBaseAndromeda';
 import { useUSDC } from '@snx-v3/useUSDC';
 import { wei } from '@synthetixio/wei';
-import { useQueryClient } from '@tanstack/react-query';
 import { ethers } from 'ethers';
 import React from 'react';
 import { LiquidityPositionUpdated } from '../Manage/LiquidityPositionUpdated';
@@ -75,7 +74,6 @@ export function ClosePositionTransactions({
   }, [collateralType, synthTokens]);
 
   const collateralAddress = network?.preset === 'andromeda' ? wrapperToken : systemToken?.address;
-  const queryClient = useQueryClient();
   const availableUSDCollateral = liquidityPosition?.availableCollateral || ZEROWEI;
   const errorParser = useContractErrorParser();
 
@@ -258,25 +256,6 @@ export function ClosePositionTransactions({
         status: 'success',
       });
 
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPosition'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPositions'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'Allowance'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'AccountSpecificCollateral'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'AccountCollateralUnlockDate'],
-      });
-
       setCollateralChange(ZEROWEI);
       setDebtChange(ZEROWEI);
     } catch (error) {
@@ -304,17 +283,7 @@ export function ClosePositionTransactions({
       });
       throw Error('Transaction failed', { cause: error });
     }
-  }, [
-    txState.step,
-    steps,
-    queryClient,
-    network?.id,
-    network?.preset,
-    setCollateralChange,
-    setDebtChange,
-    errorParser,
-    toast,
-  ]);
+  }, [txState.step, steps, setCollateralChange, setDebtChange, errorParser, toast]);
 
   if (isSuccess) {
     return (

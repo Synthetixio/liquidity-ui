@@ -15,22 +15,23 @@ import {
   Tr,
   useDisclosure,
 } from '@chakra-ui/react';
-import { prettyString } from '@snx-v3/format';
+import { renderAccountId } from '@snx-v3/format';
 import { useAccountOwner, useAccountPermissions } from '@snx-v3/useAccountPermissions';
 import { useWallet } from '@snx-v3/useBlockchain';
 import { useMemo } from 'react';
 import { Address } from '../Address/Address';
 import { PermissionModal } from './PermissionModal';
 import { PermissionRow } from './PermissionRow';
-import PermissionsInfo from './PermissionsInfo';
+import { PermissionsInfo } from './PermissionsInfo';
 import { PermissionTableLoading } from './PermissionTableLoading';
 import { TransferOwnershipModal } from './TransferOwnershipModal';
+import { ethers } from 'ethers';
 
-export default function PermissionTable({
+export function PermissionTable({
   accountId,
   refetchAccounts,
 }: {
-  accountId: string;
+  accountId: ethers.BigNumber;
   refetchAccounts: () => void;
 }) {
   const {
@@ -72,7 +73,7 @@ export default function PermissionTable({
       >
         <Flex mb="2" w="100%" justifyContent="space-between">
           <Heading size="md" mb="1">
-            Account #{prettyString(accountId, 4, 4)}
+            Account {renderAccountId(accountId)}
           </Heading>
           {isOwner && (
             <Button
@@ -188,7 +189,7 @@ export default function PermissionTable({
         accountId={accountId}
         refetch={refetch}
       />
-      {accountOwner && (
+      {accountOwner ? (
         <TransferOwnershipModal
           isOpen={isTransferOpen}
           onClose={onTransferClose}
@@ -200,7 +201,7 @@ export default function PermissionTable({
             refetchAccounts();
           }}
         />
-      )}
+      ) : null}
     </>
   );
 }

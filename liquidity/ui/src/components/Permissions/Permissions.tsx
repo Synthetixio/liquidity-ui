@@ -1,16 +1,20 @@
 import { Button, Flex, Heading, Link, Text } from '@chakra-ui/react';
 import { useAccounts } from '@snx-v3/useAccounts';
-import PermissionTable from './PermissionTable';
+import { PermissionTable } from './PermissionTable';
 import { DelegationIcon } from './DelegationIcon';
 
-export default function Permissions() {
+export function Permissions() {
   const { data: accounts, refetch: refetchAccounts } = useAccounts();
 
   return (
     <Flex flexDir="column" gap="7">
       <Flex flexDir="column" gap={7}>
-        {accounts?.map((account) => (
-          <PermissionTable key={account} accountId={account} refetchAccounts={refetchAccounts} />
+        {accounts?.map((accountId) => (
+          <PermissionTable
+            key={accountId.toString()}
+            accountId={accountId}
+            refetchAccounts={refetchAccounts}
+          />
         ))}
       </Flex>
       <Flex

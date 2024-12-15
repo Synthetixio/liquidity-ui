@@ -16,9 +16,9 @@ import {
   Spinner,
   Text,
 } from '@chakra-ui/react';
-import { prettyString } from '@snx-v3/format';
+import { renderAccountId } from '@snx-v3/format';
 import { useTransferAccountId } from '@snx-v3/useTransferAccountId';
-import { utils } from 'ethers';
+import { ethers } from 'ethers';
 import { useMemo, useState } from 'react';
 
 export function TransferOwnershipModal({
@@ -30,7 +30,7 @@ export function TransferOwnershipModal({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  accountId: string;
+  accountId: ethers.BigNumber;
   owner: string;
   refetch: () => void;
 }) {
@@ -38,7 +38,7 @@ export function TransferOwnershipModal({
   const { isPending, mutateAsync: submit } = useTransferAccountId(to, accountId);
 
   const isTargetValid = useMemo(
-    () => !!utils.isAddress(to) && to.toLowerCase() !== owner.toLowerCase(),
+    () => ethers.utils.isAddress(to) && to.toLowerCase() !== owner.toLowerCase(),
     [owner, to]
   );
   return (
@@ -50,14 +50,14 @@ export function TransferOwnershipModal({
         <ModalBody>
           <Divider />
           <Text fontSize="18px" fontWeight={700} mt="4">
-            Account #{prettyString(accountId, 4, 4)}
+            Account {renderAccountId(accountId)}
           </Text>
           <Text fontSize="14px" color="white" mt="2">
-            Will be transfered from:
+            Will be transferred from:
           </Text>
           <Input mt="2" bg="navy.900" disabled value={owner} />
           <Text fontSize="14px" color="white" mt="2">
-            Will be transfered to:
+            Will be transferred to:
           </Text>
           <Input
             mt="2"

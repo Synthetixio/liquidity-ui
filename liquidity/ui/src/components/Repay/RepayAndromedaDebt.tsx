@@ -3,7 +3,6 @@ import { Alert, Button, Flex, Text } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { parseUnits } from '@snx-v3/format';
 import { useApprove } from '@snx-v3/useApprove';
-import { useNetwork } from '@snx-v3/useBlockchain';
 import { useClearDebt } from '@snx-v3/useClearDebt';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
@@ -11,12 +10,10 @@ import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useUSDC } from '@snx-v3/useUSDC';
-import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 
 export function RepayAndromedaDebt() {
   const [params] = useParams<PositionPageSchemaType>();
-  const { network } = useNetwork();
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { data: liquidityPosition } = useLiquidityPosition({
     accountId: params.accountId,
@@ -51,7 +48,6 @@ export function RepayAndromedaDebt() {
     spender: DebtRepayer?.address,
   });
 
-  const queryClient = useQueryClient();
   const submit = React.useCallback(async () => {
     try {
       if (requireApproval) {
@@ -59,24 +55,9 @@ export function RepayAndromedaDebt() {
       }
       await clearDebt();
 
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: [`${network?.id}-${network?.preset}`, 'Allowance'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPosition'],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: [`${network?.id}-${network?.preset}`, 'AccountCollateralUnlockDate'],
-        }),
-      ]);
-
       settleRepay();
     } catch (error) {}
-  }, [approve, clearDebt, network?.id, network?.preset, queryClient, requireApproval, settleRepay]);
+  }, [approve, clearDebt, requireApproval, settleRepay]);
 
   const hasEnoughBalance =
     liquidityPosition &&

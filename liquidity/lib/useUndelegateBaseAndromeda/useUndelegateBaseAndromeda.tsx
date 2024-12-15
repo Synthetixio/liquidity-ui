@@ -141,10 +141,13 @@ export function useUndelegateBaseAndromeda({ collateralChange }: { collateralCha
         [
           //
           'PriceUpdates',
+          'LiquidityPosition',
           'LiquidityPositions',
           'TokenBalance',
+          'SynthBalances',
           'EthBalance',
           'Allowance',
+          'AccountCollateralUnlockDate',
         ].map((key) => queryClient.invalidateQueries({ queryKey: [deployment, key] }))
       );
       dispatch({ type: 'success' });

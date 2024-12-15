@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet';
 import { Flex, Heading } from '@chakra-ui/react';
-import Permissions from '../../components/Permissions/Permissions';
+import { Permissions } from '../../components/Permissions/Permissions';
 export function Settings() {
   return (
     <>

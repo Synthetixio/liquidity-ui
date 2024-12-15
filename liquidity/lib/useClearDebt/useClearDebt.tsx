@@ -120,8 +120,10 @@ export const useClearDebt = ({
         [
           //
           'PriceUpdates',
+          'LiquidityPosition',
           'LiquidityPositions',
           'TokenBalance',
+          'SynthBalances',
           'EthBalance',
           'Allowance',
           'TransferableSynthetix',

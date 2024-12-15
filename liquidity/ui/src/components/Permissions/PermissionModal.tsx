@@ -14,12 +14,12 @@ import {
   Spinner,
   Text,
 } from '@chakra-ui/react';
+import { useAccountOwner, useAccountPermissions } from '@snx-v3/useAccountPermissions';
+import { useManagePermissions } from '@snx-v3/useManagePermissions';
+import { ethers, utils } from 'ethers';
 import { useEffect, useMemo, useState } from 'react';
 import { permissionsList } from './AccountPermissions';
-import { utils } from 'ethers';
-import { useManagePermissions } from '@snx-v3/useManagePermissions';
-import { useAccountOwner, useAccountPermissions } from '@snx-v3/useAccountPermissions';
-import PermissionsInfo from './PermissionsInfo';
+import { PermissionsInfo } from './PermissionsInfo';
 
 export function PermissionModal({
   accountId,
@@ -29,7 +29,7 @@ export function PermissionModal({
   existingPermissions,
   target,
 }: {
-  accountId: string;
+  accountId: ethers.BigNumber;
   target?: string;
   existingPermissions?: string[];
   isOpen: boolean;

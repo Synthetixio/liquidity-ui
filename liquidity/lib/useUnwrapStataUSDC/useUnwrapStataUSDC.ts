@@ -54,11 +54,16 @@ export function useUnwrapStataUSDC() {
       log('receipt', receipt);
       return receipt;
     },
-    mutationKey: ['unwrapStataUSDC'],
+
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
-      });
+      const deployment = `${network?.id}-${network?.preset}`;
+      await Promise.all(
+        [
+          //
+          'TokenBalance',
+          'EthBalance',
+        ].map((key) => queryClient.invalidateQueries({ queryKey: [deployment, key] }))
+      );
     },
   });
 }

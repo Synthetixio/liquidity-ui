@@ -2,7 +2,7 @@
 import { Text, Tooltip } from '@chakra-ui/react';
 import { InfoIcon } from '@chakra-ui/icons';
 
-export default function PermissionsInfo() {
+export function PermissionsInfo() {
   return (
     <Tooltip
       label={

@@ -12,7 +12,7 @@ export function useCreateAccount() {
   const { network } = useNetwork();
   const provider = useProvider();
 
-  const client = useQueryClient();
+  const queryClient = useQueryClient();
   return {
     enabled: Boolean(network && CoreProxy),
     mutation: useMutation({
@@ -39,15 +39,21 @@ export function useCreateAccount() {
         });
         log('newAccountId', newAccountId);
 
-        await client.invalidateQueries({
-          queryKey: [`${network?.id}-${network?.preset}`, 'Accounts'],
-        });
-
         if (newAccountId) {
           return newAccountId;
         } else {
           throw new Error('Could not find new account id');
         }
+      },
+
+      onSuccess: async () => {
+        const deployment = `${network?.id}-${network?.preset}`;
+        await Promise.all(
+          [
+            //
+            'Accounts',
+          ].map((key) => queryClient.invalidateQueries({ queryKey: [deployment, key] }))
+        );
       },
     }),
   };

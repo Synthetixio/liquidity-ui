@@ -78,7 +78,7 @@ export function Rewards() {
         <Button
           size="sm"
           variant="solid"
-          isDisabled={!(rewards && rewards.length > 0)}
+          isDisabled={!(groupedRewards && groupedRewards.length > 0)}
           _disabled={{
             bg: 'gray.900',
             backgroundImage: 'none',
@@ -94,7 +94,7 @@ export function Rewards() {
       </Flex>
 
       <TableContainer width="100%" mb="8px">
-        <Table>
+        <Table data-cy="rewards table">
           <Thead>
             <Tr borderBottom="1px solid #2D2D38">
               <Th
@@ -143,7 +143,7 @@ export function Rewards() {
 
             {params.accountId && isPendingRewards ? <RewardsLoading /> : null}
 
-            {params.accountId && !isPendingRewards && rewards && rewards.length === 0 ? (
+            {groupedRewards && groupedRewards.length === 0 ? (
               <Tr>
                 <Td display="flex" alignItems="left" px={4} border="none" w="100%">
                   <Text color="gray.500" fontFamily="heading" fontSize="xs">
@@ -153,7 +153,7 @@ export function Rewards() {
               </Tr>
             ) : null}
 
-            {groupedRewards
+            {groupedRewards && groupedRewards.length
               ? groupedRewards.map(({ displaySymbol, claimableAmount }) => (
                   <RewardsRow
                     key={displaySymbol}

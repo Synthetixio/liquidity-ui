@@ -24,7 +24,7 @@ export function useAccounts() {
       { contractsHash: contractsHash([AccountProxy, Multicall3]) },
     ],
     enabled: Boolean(provider && walletAddress && AccountProxy && Multicall3),
-    queryFn: async function () {
+    queryFn: async function (): Promise<ethers.BigNumber[]> {
       if (!(provider && walletAddress && AccountProxy && Multicall3)) throw 'OMFG';
 
       const AccountProxyContract = new ethers.Contract(

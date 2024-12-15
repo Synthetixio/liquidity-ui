@@ -171,8 +171,10 @@ export const useRepayBaseAndromeda = ({
         [
           //
           'PriceUpdates',
+          'LiquidityPosition',
           'LiquidityPositions',
           'TokenBalance',
+          'SynthBalances',
           'EthBalance',
           'Allowance',
         ].map((key) => queryClient.invalidateQueries({ queryKey: [deployment, key] }))

@@ -17,7 +17,6 @@ import { useUndelegate } from '@snx-v3/useUndelegate';
 import { useUndelegateBaseAndromeda } from '@snx-v3/useUndelegateBaseAndromeda';
 import { useUSDC } from '@snx-v3/useUSDC';
 import { Wei, wei } from '@synthetixio/wei';
-import { useQueryClient } from '@tanstack/react-query';
 import { useMachine } from '@xstate/react';
 import React from 'react';
 import { ChangeStat } from '../../ui/src/components/ChangeStat/ChangeStat';
@@ -30,9 +29,6 @@ export function UndelegateModal({ onClose }: { onClose: () => void }) {
   const [params] = useParams<PositionPageSchemaType>();
   const { collateralChange, setCollateralChange } = React.useContext(ManagePositionContext);
   const { network } = useNetwork();
-
-  const queryClient = useQueryClient();
-
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { data: liquidityPosition } = useLiquidityPosition({
     accountId: params.accountId,
@@ -97,21 +93,6 @@ export function UndelegateModal({ onClose }: { onClose: () => void }) {
           } else {
             await execUndelegate();
           }
-
-          queryClient.invalidateQueries({
-            queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPosition'],
-            exact: false,
-          });
-          queryClient.invalidateQueries({
-            queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPositions'],
-          });
-          queryClient.invalidateQueries({
-            queryKey: [
-              `${network?.id}-${network?.preset}`,
-              'AccountCollateralUnlockDate',
-              { accountId: params.accountId },
-            ],
-          });
 
           setCollateralChange(ZEROWEI);
 

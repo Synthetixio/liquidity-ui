@@ -34,7 +34,7 @@ export function useUnwrapAllSynths() {
 
   const errorParser = useContractErrorParser();
 
-  const client = useQueryClient();
+  const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: async function () {
@@ -93,7 +93,6 @@ export function useUnwrapAllSynths() {
       dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
       const receipt = await provider.waitForTransaction(txn.hash);
       log('receipt', receipt);
-      dispatch({ type: 'success' });
       return receipt;
     },
 
@@ -119,16 +118,20 @@ export function useUnwrapAllSynths() {
       });
     },
 
-    onSuccess() {
-      client.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'PriceUpdates'],
-      });
-      client.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'SynthBalances'],
-      });
-      client.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
-      });
+    onSuccess: async () => {
+      const deployment = `${network?.id}-${network?.preset}`;
+      await Promise.all(
+        [
+          //
+          'PriceUpdates',
+          'TokenBalance',
+          'SynthBalances',
+          'EthBalance',
+        ].map((key) => queryClient.invalidateQueries({ queryKey: [deployment, key] }))
+      );
+
+      dispatch({ type: 'success' });
+
       toast.closeAll();
       toast({
         title: 'Success',

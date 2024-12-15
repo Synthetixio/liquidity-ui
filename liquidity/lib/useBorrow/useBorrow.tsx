@@ -100,12 +100,16 @@ export const useBorrow = ({
       const deployment = `${network?.id}-${network?.preset}`;
       await Promise.all(
         [
+          //
           'PriceUpdates',
+          'LiquidityPosition',
           'LiquidityPositions',
           'TokenBalance',
+          'SynthBalances',
           'EthBalance',
           'Allowance',
           'TransferableSynthetix',
+          'AccountCollateralUnlockDate',
         ].map((key) => queryClient.invalidateQueries({ queryKey: [deployment, key] }))
       );
       dispatch({ type: 'success' });

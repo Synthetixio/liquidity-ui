@@ -225,6 +225,7 @@ export const useWithdrawBaseAndromeda = ({ amountToWithdraw }: { amountToWithdra
         [
           //
           'PriceUpdates',
+          'LiquidityPosition',
           'LiquidityPositions',
           'TokenBalance',
           'SynthBalances',

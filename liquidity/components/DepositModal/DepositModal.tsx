@@ -20,7 +20,6 @@ import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { useSynthToken } from '@snx-v3/useSynthToken';
 import { useWrapEth } from '@snx-v3/useWrapEth';
 import { Wei, wei } from '@synthetixio/wei';
-import { useQueryClient } from '@tanstack/react-query';
 import { useMachine } from '@xstate/react';
 import { ethers } from 'ethers';
 import React from 'react';
@@ -38,7 +37,6 @@ export function DepositModal({
   title?: string;
 }) {
   const [params, setParams] = useParams<PositionPageSchemaType>();
-  const queryClient = useQueryClient();
   const { network } = useNetwork();
   const { collateralChange, setCollateralChange } = React.useContext(ManagePositionContext);
   const { data: CoreProxy } = useCoreProxy();
@@ -217,27 +215,6 @@ export function DepositModal({
             await execDeposit();
           }
 
-          queryClient.invalidateQueries({
-            queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
-          });
-          queryClient.invalidateQueries({
-            queryKey: [`${network?.id}-${network?.preset}`, 'EthBalance'],
-          });
-          queryClient.invalidateQueries({
-            queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPosition'],
-          });
-          queryClient.invalidateQueries({
-            queryKey: [`${network?.id}-${network?.preset}`, 'TransferableSynthetix'],
-          });
-          queryClient.invalidateQueries({
-            queryKey: [`${network?.id}-${network?.preset}`, 'Allowance'],
-          });
-          queryClient.invalidateQueries({
-            queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPositions'],
-          });
-          queryClient.invalidateQueries({
-            queryKey: [`${network?.id}-${network?.preset}`, 'Accounts'],
-          });
           setCollateralChange(ZEROWEI);
 
           toast.closeAll();
@@ -253,7 +230,6 @@ export function DepositModal({
           if (contractError) {
             console.error(new Error(contractError.name), contractError);
           }
-
           toast.closeAll();
           toast({
             title: 'Could not complete locking collateral',

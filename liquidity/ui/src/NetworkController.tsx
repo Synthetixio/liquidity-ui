@@ -15,7 +15,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { LOCAL_STORAGE_KEYS } from '@snx-v3/constants';
-import { prettyString } from '@snx-v3/format';
+import { prettyString, renderAccountId } from '@snx-v3/format';
 import { WalletIcon } from '@snx-v3/icons';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useAccounts } from '@snx-v3/useAccounts';
@@ -24,52 +24,54 @@ import { useCreateAccount } from '@snx-v3/useCreateAccount';
 import { useLocalStorage } from '@snx-v3/useLocalStorage';
 import { makeSearch, useParams } from '@snx-v3/useParams';
 import { ethers } from 'ethers';
-import { useEffect, useState } from 'react';
+import React from 'react';
 
 const mainnets = NETWORKS.filter(({ isSupported, isTestnet }) => isSupported && !isTestnet);
 const testnets = NETWORKS.filter(({ isSupported, isTestnet }) => isSupported && isTestnet);
 
-export function renderAccountId(accountId?: ethers.BigNumber) {
-  if (!accountId) {
-    return '---';
-  }
-  const hex = accountId.toHexString();
-  // auto-generated 0x80000000000000000000000000000008 value
-  if (hex.length === 34) {
-    return `${hex.slice(0, 5)}...${hex.slice(-6)}`;
-  }
-  return `#${accountId}`;
-}
-
 export function NetworkController() {
   const [params, setParams] = useParams();
 
-  const [toolTipLabel, setTooltipLabel] = useState('Copy');
+  const [toolTipLabel, setTooltipLabel] = React.useState('Copy');
   const { activeWallet, walletsInfo, connect, disconnect } = useWallet();
   const { network: activeNetwork, setNetwork } = useNetwork();
   const { data: accounts, isPending: isPendingAccounts } = useAccounts();
   const createAccount = useCreateAccount();
   const [showTestnets, setShowTestnets] = useLocalStorage(LOCAL_STORAGE_KEYS.SHOW_TESTNETS, false);
 
-  useEffect(() => {
+  const paramsAccountId = React.useMemo(() => {
+    try {
+      if (params.accountId && params.accountId.length > 0) {
+        return ethers.BigNumber.from(params.accountId);
+      }
+    } catch {
+      // malformed account id in url
+    }
+  }, [params.accountId]);
+
+  React.useEffect(() => {
     if (!isPendingAccounts && accounts) {
-      if (accounts.length > 0 && !('accountId' in params)) {
-        setParams({ ...params, accountId: accounts[0] });
+      if (accounts.length > 0 && !params.accountId) {
+        setParams({ ...params, accountId: accounts[0].toString() });
         return;
       }
-      if (accounts.length > 0 && !accounts.includes(`${params.accountId}`)) {
-        setParams({ ...params, accountId: accounts[0] });
+      if (
+        accounts.length > 0 &&
+        paramsAccountId &&
+        !accounts.some((account) => account.eq(paramsAccountId))
+      ) {
+        setParams({ ...params, accountId: accounts[0].toString() });
         return;
       }
       if (!accounts.length) {
-        const { accountId: _x, ...newParams } = params;
+        const { accountId: _, ...newParams } = params;
         setParams(newParams);
         return;
       }
     }
-  }, [accounts, isPendingAccounts, params, setParams]);
+  }, [accounts, isPendingAccounts, params, paramsAccountId, setParams]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (window.$magicWallet) {
       connect({ autoSelect: { disableModals: true, label: 'MetaMask' } });
     }
@@ -242,7 +244,7 @@ export function NetworkController() {
                   <Flex data-cy="accounts list" flexDir="column">
                     {accounts?.map((accountId) => (
                       <Text
-                        key={accountId}
+                        key={accountId.toString()}
                         display="flex"
                         alignItems="center"
                         color="white"
@@ -255,15 +257,15 @@ export function NetworkController() {
                         _hover={{ bg: 'whiteAlpha.300' }}
                         onClick={(e) => {
                           e.stopPropagation();
-                          setParams({ ...params, accountId });
+                          setParams({ ...params, accountId: accountId.toString() });
                         }}
                       >
-                        {renderAccountId(ethers.BigNumber.from(accountId))}
-                        {params.accountId === accountId && (
+                        {renderAccountId(accountId)}
+                        {paramsAccountId && accountId.eq(paramsAccountId) ? (
                           <Badge ml={2} colorScheme="cyan" variant="outline">
                             Connected
                           </Badge>
-                        )}
+                        ) : null}
                       </Text>
                     ))}
                   </Flex>

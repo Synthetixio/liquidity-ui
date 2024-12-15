@@ -5,7 +5,7 @@ import { ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
-import { useProvider, useNetwork, useWallet } from '@snx-v3/useBlockchain';
+import { useNetwork, useProvider, useWallet } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
@@ -15,7 +15,6 @@ import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useUnwrapStataUSDC } from '@snx-v3/useUnwrapStataUSDC';
 import { useWithdraw } from '@snx-v3/useWithdraw';
 import { useWithdrawBaseAndromeda } from '@snx-v3/useWithdrawBaseAndromeda';
-import { useQueryClient } from '@tanstack/react-query';
 import { ethers } from 'ethers';
 import React, { useContext, useState } from 'react';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
@@ -37,7 +36,6 @@ export function WithdrawModal({
   const [params] = useParams<PositionPageSchemaType>();
   const toast = useToast({ isClosable: true, duration: 9000 });
   const { network } = useNetwork();
-  const queryClient = useQueryClient();
 
   const { withdrawAmount, setWithdrawAmount } = useContext(ManagePositionContext);
 
@@ -118,22 +116,6 @@ export function WithdrawModal({
           status: 'success',
         });
       }
-
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPosition'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'AccountSpecificCollateral'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPositions'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'AccountCollateralUnlockDate'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
-      });
 
       setWithdrawAmount(ZEROWEI);
     } catch (error) {

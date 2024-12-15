@@ -10,11 +10,6 @@ export const SynthsLoading = () => (
           height={30}
           width={30}
         />
-        <Skeleton startColor="whiteAlpha.500" endColor="whiteAlpha.200" height="30px">
-          <Text fontFamily="heading" fontSize="0.75rem" lineHeight="1rem">
-            &nbsp;
-          </Text>
-        </Skeleton>
       </Td>
       <Td pl="16px" border="none">
         <Skeleton startColor="whiteAlpha.500" endColor="whiteAlpha.200" height="30px">

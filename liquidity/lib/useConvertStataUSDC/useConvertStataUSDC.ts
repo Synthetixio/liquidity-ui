@@ -75,13 +75,17 @@ export function useConvertStataUSDC({
 
       return receipt;
     },
+
     onSuccess: async () => {
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'Allowance'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
-      });
+      const deployment = `${network?.id}-${network?.preset}`;
+      await Promise.all(
+        [
+          //
+          'TokenBalance',
+          'EthBalance',
+          'Allowance',
+        ].map((key) => queryClient.invalidateQueries({ queryKey: [deployment, key] }))
+      );
     },
   });
 }

@@ -13,14 +13,12 @@ import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { wei } from '@synthetixio/wei';
-import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useContext, useMemo } from 'react';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
 
 export function ClaimModal({ onClose }: { onClose: () => void }) {
   const [params] = useParams<PositionPageSchemaType>();
   const { debtChange, setDebtChange } = useContext(ManagePositionContext);
-  const queryClient = useQueryClient();
   const { network } = useNetwork();
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { data: liquidityPosition } = useLiquidityPosition({
@@ -58,25 +56,12 @@ export function ClaimModal({ onClose }: { onClose: () => void }) {
   const execBorrowWithErrorParser = useCallback(async () => {
     try {
       await execBorrow();
-
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPosition'],
-        exact: false,
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'AccountCollateralUnlockDate'],
-      });
-
       setDebtChange(ZEROWEI);
     } catch (error: any) {
       const contractError = errorParser(error);
       if (contractError) {
         console.error(new Error(contractError.name), contractError);
       }
-
       toast.closeAll();
       toast({
         title: isBorrow ? 'Borrow' : 'Claim' + ' failed',
@@ -91,16 +76,7 @@ export function ClaimModal({ onClose }: { onClose: () => void }) {
       });
       throw Error(isBorrow ? 'Borrow' : 'Claim' + ' failed', { cause: error });
     }
-  }, [
-    execBorrow,
-    queryClient,
-    network?.id,
-    network?.preset,
-    setDebtChange,
-    errorParser,
-    toast,
-    isBorrow,
-  ]);
+  }, [execBorrow, setDebtChange, errorParser, toast, isBorrow]);
 
   const symbol =
     network?.preset === 'andromeda' ? collateralType?.displaySymbol : systemToken?.symbol;

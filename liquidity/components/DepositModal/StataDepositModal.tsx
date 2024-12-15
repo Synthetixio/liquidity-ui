@@ -7,7 +7,6 @@ import { currency } from '@snx-v3/format';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
 import { useApprove } from '@snx-v3/useApprove';
-import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useConvertStataUSDC } from '@snx-v3/useConvertStataUSDC';
@@ -22,7 +21,6 @@ import { useSynthToken } from '@snx-v3/useSynthToken';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useUSDC } from '@snx-v3/useUSDC';
 import { Wei, wei } from '@synthetixio/wei';
-import { useQueryClient } from '@tanstack/react-query';
 import { useMachine } from '@xstate/react';
 import { ethers } from 'ethers';
 import React from 'react';
@@ -41,8 +39,6 @@ export function StataDepositModal({
   title?: string;
 }) {
   const [params, setParams] = useParams<PositionPageSchemaType>();
-  const queryClient = useQueryClient();
-  const { network } = useNetwork();
   const { collateralChange, setCollateralChange } = React.useContext(ManagePositionContext);
   const { data: SpotMarketProxy } = useSpotMarketProxy();
 
@@ -192,6 +188,7 @@ export function StataDepositModal({
             ),
             status: 'error',
             variant: 'left-accent',
+            duration: 3_600_000,
           });
           throw Error('Approve failed', { cause: error });
         }
@@ -220,6 +217,7 @@ export function StataDepositModal({
             ),
             status: 'error',
             variant: 'left-accent',
+            duration: 3_600_000,
           });
           throw Error('Wrap USDC failed', { cause: error });
         }
@@ -282,24 +280,6 @@ export function StataDepositModal({
 
           await depositBaseAndromeda();
 
-          queryClient.invalidateQueries({
-            queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
-          });
-          queryClient.invalidateQueries({
-            queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPosition'],
-          });
-          queryClient.invalidateQueries({
-            queryKey: [`${network?.id}-${network?.preset}`, 'TransferableSynthetix'],
-          });
-          queryClient.invalidateQueries({
-            queryKey: [`${network?.id}-${network?.preset}`, 'Allowance'],
-          });
-          queryClient.invalidateQueries({
-            queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPositions'],
-          });
-          queryClient.invalidateQueries({
-            queryKey: [`${network?.id}-${network?.preset}`, 'Accounts'],
-          });
           setCollateralChange(ZEROWEI);
 
           toast.closeAll();

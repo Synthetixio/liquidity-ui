@@ -38,6 +38,10 @@ export class MagicProvider extends ethers.providers.JsonRpcProvider {
       return [this.magicWallet];
     }
     try {
+      // if (method === 'eth_getTransactionReceipt') {
+      //   // mine extra block before getting receipt
+      //   await super.send('evm_mine', []);
+      // }
       const result = await super.send(method, params);
       // eslint-disable-next-line no-console
       console.log('MAGIC.send', { method, params, result });

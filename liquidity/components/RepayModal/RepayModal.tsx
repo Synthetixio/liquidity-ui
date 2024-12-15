@@ -19,7 +19,6 @@ import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
-import { useQueryClient } from '@tanstack/react-query';
 import { useMachine } from '@xstate/react';
 import React from 'react';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
@@ -30,7 +29,6 @@ export function RepayModal({ onClose }: { onClose: () => void }) {
   const [params] = useParams<PositionPageSchemaType>();
 
   const { network } = useNetwork();
-  const queryClient = useQueryClient();
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
 
@@ -134,18 +132,6 @@ export function RepayModal({ onClose }: { onClose: () => void }) {
           } else {
             await execRepay();
           }
-
-          await Promise.all([
-            queryClient.invalidateQueries({
-              queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
-            }),
-            queryClient.invalidateQueries({
-              queryKey: [`${network?.id}-${network?.preset}`, 'Allowance'],
-            }),
-            queryClient.invalidateQueries({
-              queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPosition'],
-            }),
-          ]);
 
           setDebtChange(ZEROWEI);
 

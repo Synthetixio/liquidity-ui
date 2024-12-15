@@ -1,26 +1,25 @@
 import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { Badge, Flex, IconButton, Td, Text, Tr, useDisclosure } from '@chakra-ui/react';
 import { useManagePermissions } from '@snx-v3/useManagePermissions';
-import { FC, useEffect } from 'react';
+import { ethers } from 'ethers';
+import { useEffect } from 'react';
 import { Address } from '../Address/Address';
 import { permissionsList } from './AccountPermissions';
 import { PermissionModal } from './PermissionModal';
 
-interface Props {
-  address: string;
-  currentPermissions: Array<string>;
-  accountId: string;
-  refetch: () => void;
-  isOwner: boolean;
-}
-
-export const PermissionRow: FC<Props> = ({
+export function PermissionRow({
   address,
   currentPermissions,
   accountId,
   refetch,
   isOwner,
-}) => {
+}: {
+  address: string;
+  currentPermissions: string[];
+  accountId: ethers.BigNumber;
+  refetch: () => void;
+  isOwner: boolean;
+}) {
   const {
     isOpen: isPermissionOpen,
     onClose: onPermissionClose,
@@ -109,4 +108,4 @@ export const PermissionRow: FC<Props> = ({
       </Td>
     </Tr>
   );
-};
+}

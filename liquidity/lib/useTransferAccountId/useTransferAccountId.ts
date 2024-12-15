@@ -6,7 +6,7 @@ import { ethers } from 'ethers';
 
 const log = debug('snx:useTransferAccountId');
 
-export function useTransferAccountId(to: string, accountId: string) {
+export function useTransferAccountId(to: string, accountId: ethers.BigNumber) {
   const { data: AccountProxy } = useAccountProxy();
   const { activeWallet } = useWallet();
   const signer = useSigner();

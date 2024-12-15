@@ -202,52 +202,40 @@ export function ClosePositionOneStep({
     },
 
     onSuccess: async () => {
-      setTxState({ step: 1, status: 'success' });
+      const deployment = `${network?.id}-${network?.preset}`;
+      await Promise.all([
+        ...[
+          //
+          'PriceUpdates',
+          'LiquidityPosition',
+          'LiquidityPositions',
+          'TokenBalance',
+          'SynthBalances',
+          'EthBalance',
+          'Allowance',
+          'TransferableSynthetix',
+          'AccountCollateralUnlockDate',
+        ].map((key) => queryClient.invalidateQueries({ queryKey: [deployment, key] })),
+        ...[
+          // these are special temporary local hooks.
+          // TODO: replace with project ones ASAP
+          'PriceUpdateTxn',
+          'PositionDebt',
+          'AccountCollateral',
+          'AccountAvailableCollateral',
+        ].map((key) =>
+          queryClient.invalidateQueries({ queryKey: [network?.id, network?.preset, key] })
+        ),
+      ]);
+
       setCollateralChange(ZEROWEI);
       setDebtChange(ZEROWEI);
-
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPosition'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'LiquidityPositions'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'Allowance'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'AccountSpecificCollateral'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'AccountCollateralUnlockDate'],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: [network?.id, network?.preset, 'PriceUpdateTxn'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [network?.id, network?.preset, 'PositionDebt'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [network?.id, network?.preset, 'AccountCollateral'],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [network?.id, network?.preset, 'AccountAvailableCollateral'],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'PriceUpdates'],
-      });
+      setTxState({ step: 1, status: 'success' });
     },
 
     onError: (error) => {
       setTxState({ step: 1, status: 'error' });
-
       const contractError = errorParser(error);
-
       if (contractError) {
         console.error(new Error(contractError.name), contractError);
       }

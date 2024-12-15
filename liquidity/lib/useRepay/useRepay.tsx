@@ -113,8 +113,10 @@ export const useRepay = ({
         [
           //
           'PriceUpdates',
+          'LiquidityPosition',
           'LiquidityPositions',
           'TokenBalance',
+          'SynthBalances',
           'EthBalance',
           'Allowance',
           'TransferableSynthetix',

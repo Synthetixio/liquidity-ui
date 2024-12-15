@@ -5,7 +5,7 @@ import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
 
-export function useAccountPermissions(accountId: string | undefined) {
+export function useAccountPermissions(accountId?: ethers.BigNumber) {
   const { data: CoreProxy } = useCoreProxy();
   const { network } = useNetwork();
   const provider = useProvider();
@@ -36,7 +36,7 @@ export function useAccountPermissions(accountId: string | undefined) {
   });
 }
 
-export function useAccountOwner(accountId: string | undefined) {
+export function useAccountOwner(accountId?: ethers.BigNumber) {
   const { data: AccountProxy } = useAccountProxy();
   const { network } = useNetwork();
   const provider = useProvider();

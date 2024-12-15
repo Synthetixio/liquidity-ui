@@ -1,8 +1,8 @@
-import { BigNumberish, utils } from 'ethers';
+import { ethers } from 'ethers';
 import { wei, WeiSource } from '@synthetixio/wei';
 
-export const formatValue = (value: BigNumberish, decimals = 18) =>
-  parseFloat(utils.formatUnits(value, decimals));
+export const formatValue = (value: ethers.BigNumberish, decimals = 18) =>
+  parseFloat(ethers.utils.formatUnits(value, decimals));
 
 export const parseUnits = (value: WeiSource, decimals = 18) => wei(value, decimals).toBN();
 
@@ -15,3 +15,15 @@ export const prettyString = (text: string, startLength = 6, endLength = 4) => {
   }
   return `${text.substring(0, startLength)}...${text.substring(text.length - endLength)}`;
 };
+
+export function renderAccountId(accountId?: ethers.BigNumber) {
+  if (!accountId) {
+    return '---';
+  }
+  const hex = accountId.toHexString();
+  // auto-generated 0x80000000000000000000000000000008 value
+  if (hex.length === 34) {
+    return `${hex.slice(0, 5)}...${hex.slice(-6)}`;
+  }
+  return `#${accountId}`;
+}

@@ -38,7 +38,7 @@ export function useClaimAllRewards({
   const signer = useSigner();
   const { data: CoreProxy } = useCoreProxy();
   const [txnState, dispatch] = React.useReducer(reducer, initialState);
-  const client = useQueryClient();
+  const queryClient = useQueryClient();
   const provider = useProvider();
   const { data: synthTokens } = useSynthTokens();
 
@@ -132,7 +132,6 @@ export function useClaimAllRewards({
       dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
       const receipt = await provider.waitForTransaction(txn.hash);
       log('receipt', receipt);
-      dispatch({ type: 'success' });
       return receipt;
     },
 
@@ -158,13 +157,20 @@ export function useClaimAllRewards({
       });
     },
 
-    onSuccess() {
-      client.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'Rewards'],
-      });
-      client.invalidateQueries({
-        queryKey: [`${network?.id}-${network?.preset}`, 'TokenBalance'],
-      });
+    onSuccess: async () => {
+      const deployment = `${network?.id}-${network?.preset}`;
+      await Promise.all(
+        [
+          //
+          'PriceUpdates',
+          'Rewards',
+          'TokenBalance',
+          'SynthBalances',
+          'EthBalance',
+        ].map((key) => queryClient.invalidateQueries({ queryKey: [deployment, key] }))
+      );
+      dispatch({ type: 'success' });
+
       toast.closeAll();
       toast({
         title: 'Success',

@@ -50,12 +50,6 @@ export function AllRewardsModal({
     if (txnStatus === 'error') {
       setIsOpen(false);
     }
-    // Disable auto-close
-    // if (txnStatus === 'success') {
-    //   setTimeout(() => {
-    //     setIsOpen(false);
-    //   }, 1200);
-    // }
   }, [txnStatus]);
 
   const groupedRewards = React.useMemo(() => {
@@ -149,30 +143,31 @@ export function AllRewardsModal({
               ml={2}
               data-cy="claim rewards info"
             >
-              {cachedRewards
-                ? cachedRewards.map(({ displaySymbol, claimableAmount }) => (
-                    <Text
-                      key={displaySymbol}
-                      fontSize="14px"
-                      fontWeight={700}
-                      lineHeight="20px"
-                      color="white"
-                    >
-                      <Amount
-                        value={claimableAmount}
-                        prefix="Claiming "
-                        suffix={` ${displaySymbol}`}
-                      />
-                    </Text>
-                  ))
-                : null}
-              <Text fontSize="12px" lineHeight="16px" color="gray.500">
-                Claim your rewards
-              </Text>
+              {cachedRewards ? (
+                cachedRewards.map(({ displaySymbol, claimableAmount }) => (
+                  <Text
+                    key={displaySymbol}
+                    fontSize="14px"
+                    fontWeight={700}
+                    lineHeight="20px"
+                    color="white"
+                  >
+                    <Amount
+                      prefix={txnStatus === 'success' ? 'Claimed ' : 'Claiming '}
+                      value={claimableAmount}
+                      suffix={` ${displaySymbol}`}
+                    />
+                  </Text>
+                ))
+              ) : (
+                <Text fontSize="12px" lineHeight="16px" color="gray.500">
+                  Claim your rewards
+                </Text>
+              )}
             </Flex>
           </Flex>
           <WithdrawIncrease />
-          {txnStatus === 'success' && (
+          {txnStatus === 'success' ? (
             <Button
               mt={5}
               variant="solid"
@@ -181,10 +176,11 @@ export function AllRewardsModal({
               py={3}
               width="100%"
               textAlign="center"
+              onClick={() => setIsOpen(false)}
             >
               Done
             </Button>
-          )}
+          ) : null}
           {txnHash && (
             <Flex
               justifyContent="center"

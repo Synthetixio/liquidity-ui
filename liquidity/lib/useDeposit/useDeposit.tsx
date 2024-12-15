@@ -135,9 +135,12 @@ export const useDeposit = ({
       await Promise.all(
         [
           //
+          'Accounts',
           'PriceUpdates',
+          'LiquidityPosition',
           'LiquidityPositions',
           'TokenBalance',
+          'SynthBalances',
           'EthBalance',
           'Allowance',
           'TransferableSynthetix',

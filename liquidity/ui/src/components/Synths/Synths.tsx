@@ -76,7 +76,7 @@ export function Synths() {
           Unwrap
         </Button>
       </Flex>
-      <Table variant="simple">
+      <Table variant="simple" data-cy="synths table">
         <Thead>
           <Tr borderBottom="1px solid #2D2D38">
             <Th
