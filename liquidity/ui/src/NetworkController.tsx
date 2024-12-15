@@ -18,8 +18,9 @@ import { LOCAL_STORAGE_KEYS } from '@snx-v3/constants';
 import { prettyString } from '@snx-v3/format';
 import { WalletIcon } from '@snx-v3/icons';
 import { Tooltip } from '@snx-v3/Tooltip';
-import { useAccounts, useCreateAccount } from '@snx-v3/useAccounts';
+import { useAccounts } from '@snx-v3/useAccounts';
 import { NetworkIcon, NETWORKS, useNetwork, useWallet } from '@snx-v3/useBlockchain';
+import { useCreateAccount } from '@snx-v3/useCreateAccount';
 import { useLocalStorage } from '@snx-v3/useLocalStorage';
 import { makeSearch, useParams } from '@snx-v3/useParams';
 import { ethers } from 'ethers';
@@ -35,7 +36,7 @@ export function renderAccountId(accountId?: ethers.BigNumber) {
   const hex = accountId.toHexString();
   // auto-generated 0x80000000000000000000000000000008 value
   if (hex.length === 34) {
-    return `0x...${hex.slice(-4)}`;
+    return `${hex.slice(0, 5)}...${hex.slice(-6)}`;
   }
   return `#${accountId}`;
 }

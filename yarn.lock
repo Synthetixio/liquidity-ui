@@ -5525,6 +5525,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/useCreateAccount@workspace:liquidity/lib/useCreateAccount":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useCreateAccount@workspace:liquidity/lib/useCreateAccount"
+  dependencies:
+    "@snx-v3/tsHelpers": "workspace:*"
+    "@snx-v3/useAccountProxy": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useCoreProxy": "workspace:*"
+    "@snx-v3/useMulticall3": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    ethers: "npm:^5.7.2"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/useDebtRepayer@workspace:*, @snx-v3/useDebtRepayer@workspace:liquidity/lib/contracts/useDebtRepayer":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useDebtRepayer@workspace:liquidity/lib/contracts/useDebtRepayer"
