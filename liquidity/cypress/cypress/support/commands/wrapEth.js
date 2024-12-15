@@ -23,13 +23,13 @@ export async function wrapEth({ address = Cypress.env('walletAddress'), amount }
     return oldBalance;
   }
 
-  const tx = await WETHContract.deposit({
+  const txn = await WETHContract.deposit({
     value: ethers.utils.hexValue(ethers.utils.parseEther(`${amount}`).toHexString()),
   });
-  const result = await tx.wait();
-  console.log('wrapEth', { txEvents: result.events.filter((e) => Boolean(e.event)) });
+  const receipt = await txn.wait();
+  console.log('wrapEth', { txEvents: receipt.events.filter((e) => Boolean(e.event)) });
 
   const newBalance = parseFloat(ethers.utils.formatUnits(await WETHContract.balanceOf(address)));
   console.log('wrapEth', { address, newBalance });
-  return newBalance;
+  return receipt;
 }

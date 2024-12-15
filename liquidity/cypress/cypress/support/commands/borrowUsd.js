@@ -31,9 +31,9 @@ export async function borrowUsd({
     console.log('borrowUsd ERROR', parseContractError({ error, AllErrors }));
     return ethers.BigNumber.from(10_000_000);
   });
-  const tx = await CoreProxyContract.mintUsd(...args, { gasLimit: gasLimit.mul(2) });
-  const result = await tx.wait();
-  console.log('borrowUsd', { txEvents: result.events.filter((e) => Boolean(e.event)) });
+  const txn = await CoreProxyContract.mintUsd(...args, { gasLimit: gasLimit.mul(2) });
+  const receipt = await txn.wait();
+  console.log('borrowUsd', { txEvents: receipt.events.filter((e) => Boolean(e.event)) });
 
   const debt = await CoreProxyContract.callStatic.getPositionDebt(
     accountId,
@@ -41,5 +41,5 @@ export async function borrowUsd({
     config.tokenAddress
   );
   console.log('borrowUsd', { debt });
-  return debt;
+  return receipt;
 }

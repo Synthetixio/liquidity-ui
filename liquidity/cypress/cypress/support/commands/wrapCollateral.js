@@ -31,9 +31,9 @@ export async function wrapCollateral({ address = Cypress.env('walletAddress'), s
     console.log('wrapCollateral ERROR', parseContractError({ error, AllErrors }));
     return ethers.BigNumber.from(10_000_000);
   });
-  const tx = await SpotMarketProxyContract.wrap(...args, { gasLimit: gasLimit.mul(2) });
-  const result = await tx.wait();
-  console.log('wrapCollateral', { txEvents: result.events.filter((e) => Boolean(e.event)) });
+  const txn = await SpotMarketProxyContract.wrap(...args, { gasLimit: gasLimit.mul(2) });
+  const receipt = await txn.wait();
+  console.log('wrapCollateral', { txEvents: receipt.events.filter((e) => Boolean(e.event)) });
 
   const CollateralContract = new ethers.Contract(
     synthConfig.address,
@@ -45,4 +45,6 @@ export async function wrapCollateral({ address = Cypress.env('walletAddress'), s
     symbol,
     synthBalance: ethers.utils.formatUnits(await CollateralContract.balanceOf(address), 18),
   });
+
+  return receipt;
 }

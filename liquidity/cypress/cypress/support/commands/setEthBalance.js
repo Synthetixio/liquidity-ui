@@ -11,4 +11,5 @@ export async function setEthBalance({ address = Cypress.env('walletAddress'), ba
   ]);
   const newBalance = parseFloat(ethers.utils.formatUnits(await provider.getBalance(address)));
   console.log('setEthBalance', { address, newBalance });
+  return newBalance;
 }

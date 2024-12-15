@@ -37,13 +37,14 @@ export async function getUSDC({ address = Cypress.env('walletAddress'), amount }
   console.log('getUSDC', { whale, token: collateralConfig.address, whaleBalance });
 
   const signer = provider.getSigner(whale);
-  const tx = await USDCContract.connect(signer).transfer(
+  const txn = await USDCContract.connect(signer).transfer(
     address,
     ethers.utils.parseUnits(`${amount}`, 6)
   );
-  const result = await tx.wait();
-  console.log('getUSDC', { txEvents: result.events.filter((e) => Boolean(e.event)) });
+  const receipt = await txn.wait();
+  console.log('getUSDC', { txEvents: receipt.events.filter((e) => Boolean(e.event)) });
 
   const newBalance = parseFloat(ethers.utils.formatUnits(await USDCContract.balanceOf(address), 6));
   console.log('getUSDC', { address, token: collateralConfig.address, newBalance });
+  return receipt;
 }

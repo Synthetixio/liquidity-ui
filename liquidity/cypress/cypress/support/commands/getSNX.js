@@ -44,13 +44,14 @@ export async function getSNX({ address = Cypress.env('walletAddress'), amount })
   console.log('getSNX', { whale, whaleBalance });
 
   const signer = provider.getSigner(whale);
-  const tx = await SNXContract.connect(signer).transfer(
+  const txn = await SNXContract.connect(signer).transfer(
     address,
     ethers.utils.parseEther(`${amount}`)
   );
-  const result = await tx.wait();
-  console.log('getSNX', { txEvents: result.events.filter((e) => Boolean(e.event)) });
+  const receipt = await txn.wait();
+  console.log('getSNX', { txEvents: receipt.events.filter((e) => Boolean(e.event)) });
 
   const newBalance = parseFloat(ethers.utils.formatUnits(await SNXContract.balanceOf(address)));
   console.log('getSNX', { address, newBalance });
+  return receipt;
 }

@@ -12,11 +12,11 @@ export async function setWithdrawTimeout(timeout) {
   const owner = await CoreProxyContract.owner();
   const signer = provider.getSigner(owner);
 
-  const tx = await CoreProxyContract.connect(signer).setConfig(
+  const txn = await CoreProxyContract.connect(signer).setConfig(
     ethers.utils.formatBytes32String('accountTimeoutWithdraw'),
     ethers.utils.formatBytes32String(timeout)
   );
-  await tx.wait();
+  const receipt = await txn.wait();
 
   const accountTimeoutWithdraw = await CoreProxyContract.getConfig(
     ethers.utils.formatBytes32String('accountTimeoutWithdraw')
@@ -25,4 +25,6 @@ export async function setWithdrawTimeout(timeout) {
   console.log('accountTimeoutWithdraw', {
     accountTimeoutWithdraw: accountTimeoutWithdraw.toString(),
   });
+
+  return receipt;
 }

@@ -15,29 +15,35 @@ import { setWithdrawTimeout } from './commands/setWithdrawTimeout';
 import { getSUSD } from './commands/getSUSD';
 import { getSystemToken } from './commands/getSystemToken';
 
-Cypress.Commands.add('approveCollateral', approveCollateral);
-Cypress.Commands.add('borrowUsd', borrowUsd);
-Cypress.Commands.add('clearDebt', clearDebt);
-Cypress.Commands.add('delegateCollateral', (...args) => {
-  cy.wrap(delegateCollateral(...args), { timeout: 180_000 })
-    .should('be.an', 'object')
-    .and('include.keys', ['transactionHash', 'logs', 'events'])
-    .as('delegateCollateral');
-});
-Cypress.Commands.add('depositCollateral', depositCollateral);
-Cypress.Commands.add('getSNX', getSNX);
-Cypress.Commands.add('getUSDC', getUSDC);
-Cypress.Commands.add('setEthBalance', setEthBalance);
-Cypress.Commands.add('wrapCollateral', wrapCollateral);
-Cypress.Commands.add('wrapEth', wrapEth);
-Cypress.Commands.add('setWithdrawTimeout', setWithdrawTimeout);
-Cypress.Commands.add('getSUSD', getSUSD);
-Cypress.Commands.add('getSystemToken', getSystemToken);
-
 installLogsCollector({
   enableExtendedCollector: true,
   enableContinuousLogging: true,
 });
+
+function addTxnCommand(name, command, options) {
+  Cypress.Commands.add(name, (...args) => {
+    cy.wrap(
+      command(...args).then(
+        () => `${name} ok`,
+        (e) => `${name} error ${e.message}`
+      ),
+      options
+    ).should('be.eq', `${name} ok`);
+  });
+}
+addTxnCommand('approveCollateral', approveCollateral, { timeout: 30_000 });
+addTxnCommand('borrowUsd', borrowUsd, { timeout: 180_000 });
+addTxnCommand('clearDebt', clearDebt, { timeout: 180_000 });
+addTxnCommand('delegateCollateral', delegateCollateral, { timeout: 180_000 });
+addTxnCommand('depositCollateral', depositCollateral, { timeout: 60_000 });
+addTxnCommand('getSNX', getSNX, { timeout: 60_000 });
+addTxnCommand('getSUSD', getSUSD, { timeout: 60_000 });
+addTxnCommand('getSystemToken', getSystemToken, { timeout: 60_000 });
+addTxnCommand('getUSDC', getUSDC, { timeout: 60_000 });
+addTxnCommand('setEthBalance', setEthBalance, { timeout: 30_000 });
+addTxnCommand('setWithdrawTimeout', setWithdrawTimeout, { timeout: 60_000 });
+addTxnCommand('wrapCollateral', wrapCollateral, { timeout: 120_000 });
+addTxnCommand('wrapEth', wrapEth, { timeout: 60_000 });
 
 function subgraph(req) {
   const body = JSON.parse(req.body);

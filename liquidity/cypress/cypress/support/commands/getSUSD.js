@@ -45,12 +45,13 @@ export async function getSUSD({ address = Cypress.env('walletAddress'), amount }
   console.log('getSUSD', { whale, whaleBalance });
 
   const signer = provider.getSigner(whale);
-  const tx = await sUSDContract
+  const txn = await sUSDContract
     .connect(signer)
     .transfer(address, ethers.utils.parseEther(`${amount}`));
-  const result = await tx.wait();
-  console.log('getSUSD', { txEvents: result.events.filter((e) => Boolean(e.event)) });
+  const receipt = await txn.wait();
+  console.log('getSUSD', { txEvents: receipt.events.filter((e) => Boolean(e.event)) });
 
   const newBalance = parseFloat(ethers.utils.formatUnits(await sUSDContract.balanceOf(address)));
   console.log('getSUSD', { address, newBalance });
+  return receipt;
 }

@@ -53,13 +53,14 @@ export async function getSystemToken({ address = Cypress.env('walletAddress'), a
   console.log('getSystemToken', { whale, whaleBalance });
 
   const signer = provider.getSigner(whale);
-  const tx = await TokenContract.connect(signer).transfer(
+  const txn = await TokenContract.connect(signer).transfer(
     address,
     ethers.utils.parseEther(`${amount}`)
   );
-  const result = await tx.wait();
-  console.log('getSystemToken', { txEvents: result.events.filter((e) => Boolean(e.event)) });
+  const receipt = await txn.wait();
+  console.log('getSystemToken', { txEvents: receipt.events.filter((e) => Boolean(e.event)) });
 
   const newBalance = parseFloat(ethers.utils.formatUnits(await TokenContract.balanceOf(address)));
   console.log('getSystemToken', { address, newBalance });
+  return receipt;
 }

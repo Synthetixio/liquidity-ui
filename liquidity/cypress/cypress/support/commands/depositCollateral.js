@@ -29,7 +29,8 @@ export async function depositCollateral({
     console.log('delegateCollateral ERROR', parseContractError({ error, AllErrors }));
     return ethers.BigNumber.from(10_000_000);
   });
-  const tx = await CoreProxyContract.deposit(...args, { gasLimit: gasLimit.mul(2) });
-  const result = await tx.wait();
-  console.log('depositCollateral', { txEvents: result.events.filter((e) => Boolean(e.event)) });
+  const txn = await CoreProxyContract.deposit(...args, { gasLimit: gasLimit.mul(2) });
+  const receipt = await txn.wait();
+  console.log('depositCollateral', { txEvents: receipt.events.filter((e) => Boolean(e.event)) });
+  return receipt;
 }
