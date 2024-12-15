@@ -55,6 +55,7 @@ describe(__filename, () => {
     cy.get('[data-cy="transaction hash"]').should('exist');
 
     cy.contains('[data-cy="claim rewards dialog"] button', 'Done').click();
-    cy.get('[data-cy="synths table"]').should('include.text', 'You do not have any synths');
+    cy.get('[data-cy="rewards table"]').should('include.text', 'No Rewards Available');
+    cy.get('[data-cy="claim rewards submit"]').should('be.disabled');
   });
 });
