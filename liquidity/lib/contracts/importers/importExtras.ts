@@ -1,4 +1,9 @@
-export async function importExtras(chainId, preset) {
+export async function importExtras(
+  chainId?: number,
+  preset?: string
+): Promise<{
+  [key: string]: string;
+}> {
   if (!preset) {
     throw new Error(`Missing preset`);
   }

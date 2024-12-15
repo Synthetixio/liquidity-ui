@@ -1,4 +1,18 @@
-export async function importMeta(chainId, preset) {
+export async function importMeta(
+  chainId?: number,
+  preset?: string
+): Promise<{
+  chainId: number;
+  name: string;
+  preset: string;
+  version: string;
+  generator: string;
+  timestamp: number;
+  miscUrl: string;
+  contracts: {
+    [key: string]: string;
+  };
+}> {
   if (!preset) {
     throw new Error(`Missing preset`);
   }

@@ -17,7 +17,10 @@ const abi = [
   'function aggregate3Value(tuple(address target, bool allowFailure, uint256 value, bytes callData)[] calls) payable returns (tuple(bool success, bytes returnData)[] returnData)',
 ];
 
-export async function importMulticall3(chainId, preset) {
+export async function importMulticall3(
+  chainId?: number,
+  preset?: string
+): Promise<{ address: string; abi: string[] }> {
   const deployment = `${Number(chainId).toFixed(0)}-${preset}`;
   switch (deployment) {
     case '1-main': {

@@ -65,7 +65,10 @@ const abi = [
   'function withdraw(uint256 assets, address receiver, address owner) returns (uint256)',
 ];
 
-export async function importStaticAaveUSDC(chainId, preset) {
+export async function importStaticAaveUSDC(
+  chainId?: number,
+  preset?: string
+): Promise<{ address: string; abi: string[] }> {
   if (!preset) {
     throw new Error(`Missing preset`);
   }

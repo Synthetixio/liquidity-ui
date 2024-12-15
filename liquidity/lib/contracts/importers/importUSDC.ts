@@ -16,7 +16,10 @@ const abi = [
   'function transferFrom(address from, address to, uint256 amount) returns (bool)',
 ];
 
-export async function importUSDC(chainId, preset) {
+export async function importUSDC(
+  chainId?: number,
+  preset?: string
+): Promise<{ address: string; abi: string[] }> {
   const deployment = `${Number(chainId).toFixed(0)}-${preset}`;
   switch (deployment) {
     case '1-main': {

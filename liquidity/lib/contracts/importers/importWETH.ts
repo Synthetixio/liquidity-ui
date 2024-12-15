@@ -16,7 +16,10 @@ const abi = [
   'event Withdrawal(address indexed src, uint256 wad)',
 ];
 
-export async function importWETH(chainId, preset) {
+export async function importWETH(
+  chainId?: number,
+  preset?: string
+): Promise<{ address: string; abi: string[] }> {
   const deployment = `${Number(chainId).toFixed(0)}-${preset}`;
   switch (deployment) {
     case '1-main': {

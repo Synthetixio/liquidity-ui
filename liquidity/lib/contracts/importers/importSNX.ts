@@ -2,7 +2,11 @@ const extraAbi = [
   'function transferableSynthetix(address account) view returns (uint256 transferable)',
   'function collateral(address account) view returns (uint256 collateral)',
 ];
-export async function importSNX(chainId, preset) {
+
+export async function importSNX(
+  chainId?: number,
+  preset?: string
+): Promise<{ address: string; abi: string[] }> {
   const deployment = `${Number(chainId).toFixed(0)}-${preset}`;
   switch (deployment) {
     case '1-main': {

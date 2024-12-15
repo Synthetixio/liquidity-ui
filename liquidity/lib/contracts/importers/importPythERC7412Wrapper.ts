@@ -1,4 +1,7 @@
-export async function importPythERC7412Wrapper(chainId, preset) {
+export async function importPythERC7412Wrapper(
+  chainId?: number,
+  preset?: string
+): Promise<{ address: string; abi: string[] }> {
   if (!preset) {
     throw new Error(`Missing preset`);
   }

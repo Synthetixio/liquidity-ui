@@ -1,4 +1,7 @@
-export async function importAllErrors(chainId, preset) {
+export async function importAllErrors(
+  chainId?: number,
+  preset?: string
+): Promise<{ address: undefined; abi: string[] }> {
   if (!preset) {
     throw new Error(`Missing preset`);
   }

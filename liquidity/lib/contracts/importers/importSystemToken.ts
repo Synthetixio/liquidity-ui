@@ -1,4 +1,12 @@
-export async function importSystemToken(chainId, preset) {
+export async function importSystemToken(
+  chainId?: number,
+  preset?: string
+): Promise<{
+  address: string;
+  symbol: string;
+  name: string;
+  decimals: number;
+}> {
   if (!preset) {
     throw new Error(`Missing preset`);
   }

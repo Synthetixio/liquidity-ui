@@ -1,4 +1,7 @@
-export async function importUSDProxy(chainId, preset) {
+export async function importAccountProxy(
+  chainId?: number,
+  preset?: string
+): Promise<{ address: string; abi: string[] }> {
   if (!preset) {
     throw new Error(`Missing preset`);
   }
@@ -7,54 +10,54 @@ export async function importUSDProxy(chainId, preset) {
     case '1-main': {
       const [{ default: meta }, { default: abi }] = await Promise.all([
         import('@synthetixio/v3-contracts/1-main/meta.json'),
-        import('@synthetixio/v3-contracts/1-main/USDProxy.readable.json'),
+        import('@synthetixio/v3-contracts/1-main/AccountProxy.readable.json'),
       ]);
-      return { address: meta.contracts.USDProxy, abi };
+      return { address: meta.contracts.AccountProxy, abi };
     }
     case '11155111-main': {
       const [{ default: meta }, { default: abi }] = await Promise.all([
         import('@synthetixio/v3-contracts/11155111-main/meta.json'),
-        import('@synthetixio/v3-contracts/11155111-main/USDProxy.readable.json'),
+        import('@synthetixio/v3-contracts/11155111-main/AccountProxy.readable.json'),
       ]);
-      return { address: meta.contracts.USDProxy, abi };
+      return { address: meta.contracts.AccountProxy, abi };
     }
     case '10-main': {
       const [{ default: meta }, { default: abi }] = await Promise.all([
         import('@synthetixio/v3-contracts/10-main/meta.json'),
-        import('@synthetixio/v3-contracts/10-main/USDProxy.readable.json'),
+        import('@synthetixio/v3-contracts/10-main/AccountProxy.readable.json'),
       ]);
-      return { address: meta.contracts.USDProxy, abi };
+      return { address: meta.contracts.AccountProxy, abi };
     }
     case '8453-andromeda': {
       const [{ default: meta }, { default: abi }] = await Promise.all([
         import('@synthetixio/v3-contracts/8453-andromeda/meta.json'),
-        import('@synthetixio/v3-contracts/8453-andromeda/USDProxy.readable.json'),
+        import('@synthetixio/v3-contracts/8453-andromeda/AccountProxy.readable.json'),
       ]);
-      return { address: meta.contracts.USDProxy, abi };
+      return { address: meta.contracts.AccountProxy, abi };
     }
     case '84532-andromeda': {
       const [{ default: meta }, { default: abi }] = await Promise.all([
         import('@synthetixio/v3-contracts/84532-andromeda/meta.json'),
-        import('@synthetixio/v3-contracts/84532-andromeda/USDProxy.readable.json'),
+        import('@synthetixio/v3-contracts/84532-andromeda/AccountProxy.readable.json'),
       ]);
-      return { address: meta.contracts.USDProxy, abi };
+      return { address: meta.contracts.AccountProxy, abi };
     }
     case '42161-main': {
       const [{ default: meta }, { default: abi }] = await Promise.all([
         import('@synthetixio/v3-contracts/42161-main/meta.json'),
-        import('@synthetixio/v3-contracts/42161-main/USDProxy.readable.json'),
+        import('@synthetixio/v3-contracts/42161-main/AccountProxy.readable.json'),
       ]);
-      return { address: meta.contracts.USDProxy, abi };
+      return { address: meta.contracts.AccountProxy, abi };
     }
     case '421614-main': {
       const [{ default: meta }, { default: abi }] = await Promise.all([
         import('@synthetixio/v3-contracts/421614-main/meta.json'),
-        import('@synthetixio/v3-contracts/421614-main/USDProxy.readable.json'),
+        import('@synthetixio/v3-contracts/421614-main/AccountProxy.readable.json'),
       ]);
-      return { address: meta.contracts.USDProxy, abi };
+      return { address: meta.contracts.AccountProxy, abi };
     }
     default: {
-      throw new Error(`Unsupported deployment ${deployment} for USDProxy`);
+      throw new Error(`Unsupported deployment ${deployment} for AccountProxy`);
     }
   }
 }

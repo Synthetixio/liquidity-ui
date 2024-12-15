@@ -1,4 +1,30 @@
-export async function importRewardsDistributors(chainId, preset) {
+export async function importRewardsDistributors(
+  chainId?: number,
+  preset?: string
+): Promise<
+  {
+    address: string;
+    name: string;
+    poolId: string;
+
+    // undefined for Pool-level distributors
+    collateralType?: {
+      address: string;
+      symbol: string;
+      name: string;
+      decimals: number;
+    };
+
+    payoutToken: {
+      address: string;
+      symbol: string;
+      name: string;
+      decimals: number;
+    };
+    rewardManager: string;
+    isRegistered: boolean;
+  }[]
+> {
   if (!preset) {
     throw new Error(`Missing preset`);
   }

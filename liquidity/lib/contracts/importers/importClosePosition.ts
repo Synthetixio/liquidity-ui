@@ -10,7 +10,10 @@ const abi = [
   'function closePosition(address coreProxyAddress, address accountProxyAddress, uint128 accountId, uint128 poolId, address collateralType)',
 ];
 
-export async function importClosePosition(chainId, preset) {
+export async function importClosePosition(
+  chainId?: number,
+  preset?: string
+): Promise<{ address: string; abi: string[] }> {
   const deployment = `${Number(chainId).toFixed(0)}-${preset}`;
   switch (deployment) {
     case '1-main': {

@@ -1,4 +1,7 @@
-export async function importV2x(chainId, preset) {
+export async function importLegacyMarket(
+  chainId?: number,
+  preset?: string
+): Promise<{ address: string; abi: string[] }> {
   if (!preset) {
     throw new Error(`Missing preset`);
   }
@@ -7,26 +10,26 @@ export async function importV2x(chainId, preset) {
     case '1-main': {
       const [{ default: meta }, { default: abi }] = await Promise.all([
         import('@synthetixio/v3-contracts/1-main/meta.json'),
-        import('@synthetixio/v3-contracts/1-main/V2x.readable.json'),
+        import('@synthetixio/v3-contracts/1-main/LegacyMarketProxy.readable.json'),
       ]);
-      return { address: meta.contracts.V2x, abi };
+      return { address: meta.contracts.LegacyMarketProxy, abi };
     }
     case '11155111-main': {
       const [{ default: meta }, { default: abi }] = await Promise.all([
         import('@synthetixio/v3-contracts/11155111-main/meta.json'),
-        import('@synthetixio/v3-contracts/11155111-main/V2x.readable.json'),
+        import('@synthetixio/v3-contracts/11155111-main/LegacyMarketProxy.readable.json'),
       ]);
-      return { address: meta.contracts.V2x, abi };
+      return { address: meta.contracts.LegacyMarketProxy, abi };
     }
     /*case '10-main': {
       const [{ default: meta }, { default: abi }] = await Promise.all([
         import('@synthetixio/v3-contracts/10-main/meta.json'),
-        import('@synthetixio/v3-contracts/10-main/V2x.readable.json'),
+        import('@synthetixio/v3-contracts/10-main/LegacyMarketProxy.readable.json'),
       ]);
-      return { address: meta.contracts.V2x, abi };
+      return { address: meta.contracts.LegacyMarketProxy, abi };
 		}*/
     default: {
-      throw new Error(`Unsupported deployment ${deployment} for V2x`);
+      throw new Error(`Unsupported deployment ${deployment} for Extras`);
     }
   }
 }

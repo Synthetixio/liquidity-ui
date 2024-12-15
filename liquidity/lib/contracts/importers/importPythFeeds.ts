@@ -1,4 +1,4 @@
-export async function importPythFeeds(chainId, preset) {
+export async function importPythFeeds(chainId?: number, preset?: string): Promise<string[]> {
   if (!preset) {
     throw new Error(`Missing preset`);
   }

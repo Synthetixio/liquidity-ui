@@ -1,4 +1,7 @@
-export async function importOracleManagerProxy(chainId, preset) {
+export async function importOracleManagerProxy(
+  chainId?: number,
+  preset?: string
+): Promise<{ address: string; abi: string[] }> {
   if (!preset) {
     throw new Error(`Missing preset`);
   }

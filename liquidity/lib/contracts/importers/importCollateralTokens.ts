@@ -1,4 +1,27 @@
-export async function importCollateralTokens(chainId, preset) {
+export async function importCollateralTokens(
+  chainId?: number,
+  preset?: string
+): Promise<
+  {
+    address: string;
+    symbol: string;
+    name: string;
+    decimals: number;
+    depositingEnabled: boolean;
+    issuanceRatioD18: string;
+    liquidationRatioD18: string;
+    liquidationRewardD18: string;
+    oracleNodeId: string;
+    tokenAddress: string;
+    minDelegationD18: string;
+    oracle: {
+      constPrice?: string;
+      externalContract?: string;
+      stalenessTolerance?: string;
+      pythFeedId?: string;
+    };
+  }[]
+> {
   if (!preset) {
     throw new Error(`Missing preset`);
   }

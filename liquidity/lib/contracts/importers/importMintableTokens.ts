@@ -1,4 +1,14 @@
-export async function importMintableTokens(chainId, preset) {
+export async function importMintableTokens(
+  chainId?: number,
+  preset?: string
+): Promise<
+  {
+    address: string;
+    symbol: string;
+    name: string;
+    decimals: number;
+  }[]
+> {
   if (!preset) {
     throw new Error(`Missing preset`);
   }

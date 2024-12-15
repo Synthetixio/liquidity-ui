@@ -75,7 +75,10 @@
 // ]
 const abi = ['function updatePriceFeeds(bytes[] updateData) payable'];
 
-export async function importPythVerfier(chainId, preset) {
+export async function importPythVerfier(
+  chainId?: number,
+  preset?: string
+): Promise<{ address: string; abi: string[] }> {
   if (!preset) {
     throw new Error(`Missing preset`);
   }

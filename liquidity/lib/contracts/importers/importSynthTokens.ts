@@ -1,4 +1,23 @@
-export async function importSynthTokens(chainId, preset) {
+export async function importSynthTokens(
+  chainId?: number,
+  preset?: string
+): Promise<
+  {
+    synthMarketId: string;
+    address: string;
+    symbol: string;
+    name: string;
+    decimals: number;
+
+    // undefined for some synths (like Synthetic USDe on Mainnet)
+    token?: {
+      address: string;
+      symbol: string;
+      name: string;
+      decimals: number;
+    };
+  }[]
+> {
   if (!preset) {
     throw new Error(`Missing preset`);
   }

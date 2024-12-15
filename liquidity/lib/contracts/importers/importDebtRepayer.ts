@@ -2,7 +2,10 @@ const abi = [
   'function depositDebtToRepay(address synthetixCore, address spotMarket, address accountProxy, uint128 accountId, uint128 poolId, address collateralType, uint128 spotMarketId)',
 ];
 
-export async function importDebtRepayer(chainId, preset) {
+export async function importDebtRepayer(
+  chainId?: number,
+  preset?: string
+): Promise<{ address: string; abi: string[] }> {
   const deployment = `${Number(chainId).toFixed(0)}-${preset}`;
   switch (deployment) {
     case '8453-andromeda': {
