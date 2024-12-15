@@ -12,6 +12,7 @@ import {
   Tr,
 } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
+import { tokenOverrides } from '@snx-v3/constants';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useClaimAllRewards } from '@snx-v3/useClaimAllRewards';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
@@ -22,7 +23,6 @@ import React from 'react';
 import { AllRewardsModal } from './AllRewardsModal';
 import { RewardsLoading } from './RewardsLoading';
 import { RewardsRow } from './RewardsRow';
-import { tokenOverrides } from '@snx-v3/constants';
 
 export function Rewards() {
   const [params] = useParams<PositionPageSchemaType>();
@@ -46,9 +46,9 @@ export function Rewards() {
     const map = new Map();
     rewards.forEach(({ distributor, claimableAmount }) => {
       const synthToken = synthTokens?.find(
-        (synth) => synth.address.toUpperCase() === distributor.payoutToken.address.toUpperCase()
+        (synth) => synth.address.toLowerCase() === distributor.payoutToken.address.toLowerCase()
       );
-      const token = synthToken ? synthToken.token : distributor.payoutToken;
+      const token = synthToken && synthToken.token ? synthToken.token : distributor.payoutToken;
       const displaySymbol = tokenOverrides[token.address] ?? token.symbol;
       if (map.has(displaySymbol)) {
         map.set(displaySymbol, map.get(displaySymbol).add(claimableAmount));

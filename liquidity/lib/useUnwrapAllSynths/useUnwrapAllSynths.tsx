@@ -52,13 +52,13 @@ export function useUnwrapAllSynths() {
         signer
       );
       synthBalances
-        .filter(({ synthBalance }) => synthBalance.gt(0))
-        .forEach(({ synth, synthBalance }) => {
+        .filter(({ balance }) => balance.gt(0))
+        .forEach(({ synth, balance }) => {
           transactions.push(
             SpotMarketProxyContract.populateTransaction.unwrap(
               synth.synthMarketId,
-              synthBalance.toBN(),
-              synthBalance.toBN().sub(synthBalance.toBN().div(100))
+              balance.toBN(),
+              balance.toBN().sub(balance.toBN().div(100))
             )
           );
         });

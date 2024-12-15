@@ -65,9 +65,9 @@ export function AllRewardsModal({
     const map = new Map();
     rewards.forEach(({ distributor, claimableAmount }) => {
       const synthToken = synthTokens?.find(
-        (synth) => synth.address.toUpperCase() === distributor.payoutToken.address.toUpperCase()
+        (synth) => synth.address.toLowerCase() === distributor.payoutToken.address.toLowerCase()
       );
-      const token = synthToken ? synthToken.token : distributor.payoutToken;
+      const token = synthToken && synthToken.token ? synthToken.token : distributor.payoutToken;
       const displaySymbol = tokenOverrides[token.address] ?? token.symbol;
       if (map.has(displaySymbol)) {
         map.set(displaySymbol, map.get(displaySymbol).add(claimableAmount));

@@ -82,7 +82,7 @@ export function parseContractError({
   extraAbi,
 }: {
   error?: any;
-  AllErrors?: { address: string; abi: string[] };
+  AllErrors?: { abi: string[] };
   extraAbi?: string[];
 }): ContractErrorType | void {
   const errorData = extractErrorData(error);

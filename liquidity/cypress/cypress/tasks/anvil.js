@@ -6,7 +6,7 @@ let anvilProcess;
 const execPromised = promisify(exec);
 
 export async function startAnvil({ chainId, forkUrl, block }) {
-  console.log('pkill anvil');
+  console.log('pkill -9 anvil');
   await execPromised('pkill -9 anvil').catch(() => console.log('No other anvil processes to kill'));
   const cmd = 'anvil';
   const args = [

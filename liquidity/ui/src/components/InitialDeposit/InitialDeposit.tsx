@@ -26,7 +26,7 @@ import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
-import { useSynthTokens } from '@snx-v3/useSynthTokens';
+import { useSynthToken } from '@snx-v3/useSynthToken';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { useTransferableSynthetix } from '@snx-v3/useTransferableSynthetix';
@@ -51,14 +51,8 @@ export function InitialDeposit({
     collateralType,
   });
   const { data: transferrableSnx } = useTransferableSynthetix();
-  const { data: synthTokens } = useSynthTokens();
-  const synth = synthTokens?.find(
-    (synth) =>
-      collateralType?.tokenAddress?.toLowerCase() === synth?.address?.toLowerCase() ||
-      collateralType?.tokenAddress?.toLowerCase() === synth?.token?.address.toLowerCase()
-  );
-
-  const { data: tokenBalance } = useTokenBalance(synth?.token?.address);
+  const { data: synthToken } = useSynthToken(collateralType);
+  const { data: tokenBalance } = useTokenBalance(synthToken?.token?.address);
 
   const { data: ethBalance } = useEthBalance();
 

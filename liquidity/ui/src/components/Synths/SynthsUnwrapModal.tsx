@@ -36,12 +36,6 @@ export function SynthsUnwrapModal({
     if (txnStatus === 'error') {
       setIsOpen(false);
     }
-    // Disable auto-close
-    // if (txnStatus === 'success') {
-    //   setTimeout(() => {
-    //     setIsOpen(false);
-    //   }, 10_000);
-    // }
   }, [txnStatus]);
 
   const { data: synthBalances } = useSynthBalances();
@@ -50,20 +44,20 @@ export function SynthsUnwrapModal({
       return;
     }
     return synthBalances
-      .map(({ synth, synthBalance }) => ({
-        synthBalance,
-        symbol: synth.token.symbol,
-        name: synth.token.name,
-        ...tokenOverrides[synth.token.address],
+      .map(({ synth, balance }) => ({
+        balance,
+        symbol: synth.token ? synth.token.symbol : synth.symbol,
+        name: synth.token ? synth.token.name : synth.name,
+        ...tokenOverrides[synth.token ? synth.token.address : synth.address],
       }))
-      .filter(({ synthBalance }) => synthBalance.gt(0))
+      .filter(({ balance }) => balance.gt(0))
       .sort((a, b) => a.symbol.localeCompare(b.symbol))
-      .sort((a, b) => b.synthBalance.toNumber() - a.synthBalance.toNumber());
+      .sort((a, b) => b.balance.toNumber() - a.balance.toNumber());
   }, [synthBalances]);
 
   // This caching is necessary to keep initial values after success and not reset them to zeroes
   const [cachedSynths, setCachedSynths] = React.useState<
-    { symbol: string; name: string; synthBalance: Wei }[] | undefined
+    { symbol: string; name: string; balance: Wei }[] | undefined
   >();
   React.useEffect(() => {
     if (filteredSynths && !cachedSynths) {
@@ -124,7 +118,7 @@ export function SynthsUnwrapModal({
               data-cy="unwrap synths info"
             >
               {cachedSynths ? (
-                cachedSynths.map(({ symbol, synthBalance }) => {
+                cachedSynths.map(({ symbol, balance }) => {
                   return (
                     <Text
                       key={symbol}
@@ -135,7 +129,7 @@ export function SynthsUnwrapModal({
                     >
                       <Amount
                         prefix={txnStatus === 'success' ? 'Unwrapped ' : 'Unwrapping '}
-                        value={synthBalance}
+                        value={balance}
                         suffix={` ${symbol}`}
                       />
                     </Text>

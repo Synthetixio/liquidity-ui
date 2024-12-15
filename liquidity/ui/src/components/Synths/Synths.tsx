@@ -29,17 +29,15 @@ export function Synths() {
       return;
     }
     return synthBalances
-      .map(({ synth, synthBalance, tokenBalance }) => ({
-        synthBalance,
-        tokenBalance,
-        symbol: synth.token.symbol,
-        name: synth.token.name,
-        ...tokenOverrides[synth.token.address],
+      .map(({ synth, balance }) => ({
+        balance,
+        symbol: synth.token ? synth.token.symbol : synth.symbol,
+        name: synth.token ? synth.token.name : synth.name,
+        ...tokenOverrides[synth.token ? synth.token.address : synth.address],
       }))
-      .filter(({ synthBalance, tokenBalance }) => synthBalance.gt(0) || tokenBalance.gt(0))
+      .filter(({ balance }) => balance.gt(0))
       .sort((a, b) => a.symbol.localeCompare(b.symbol))
-      .sort((a, b) => b.tokenBalance.toNumber() - a.tokenBalance.toNumber())
-      .sort((a, b) => b.synthBalance.toNumber() - a.synthBalance.toNumber());
+      .sort((a, b) => b.balance.toNumber() - a.balance.toNumber());
   }, [synthBalances]);
 
   return (
@@ -64,9 +62,7 @@ export function Synths() {
         <Button
           size="sm"
           variant="solid"
-          isDisabled={
-            !(synthBalances && synthBalances.some(({ synthBalance }) => synthBalance.gt(0)))
-          }
+          isDisabled={!(synthBalances && synthBalances.some(({ balance }) => balance.gt(0)))}
           _disabled={{
             bg: 'gray.900',
             backgroundImage: 'none',
@@ -114,20 +110,6 @@ export function Synths() {
                 <InfoIcon ml={1} mb="1px" />
               </Tooltip>
             </Th>
-            <Th
-              textTransform="unset"
-              color="gray.600"
-              border="none"
-              fontFamily="heading"
-              fontSize="12px"
-              lineHeight="16px"
-              letterSpacing={0.6}
-              fontWeight={700}
-              px={4}
-              py={3}
-            >
-              Wallet balance
-            </Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -136,24 +118,19 @@ export function Synths() {
             <Tr>
               <Td display="flex" alignItems="left" px={4} border="none" w="100%">
                 <Text color="gray.500" fontFamily="heading" fontSize="xs">
-                  No Synths Available
+                  You do not have any synths
                 </Text>
               </Td>
             </Tr>
           ) : null}
 
           {filteredSynths
-            ? filteredSynths.map(({ symbol, name, synthBalance, tokenBalance }, i) => (
+            ? filteredSynths.map(({ symbol, name, balance }, i) => (
                 <Tr
                   key={symbol}
                   borderBottomWidth={i === filteredSynths.length - 1 ? 'none' : '1px'}
                 >
-                  <SynthRow
-                    symbol={symbol}
-                    name={name}
-                    synthBalance={synthBalance}
-                    tokenBalance={tokenBalance}
-                  />
+                  <SynthRow symbol={symbol} name={name} balance={balance} />
                 </Tr>
               ))
             : null}

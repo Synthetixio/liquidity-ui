@@ -62,7 +62,7 @@ export function ClosePositionOneStep({
   const { data: pythFeeds } = usePythFeeds();
   const { data: systemToken } = useSystemToken();
 
-  const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
+  const { data: priceUpdateTx } = useCollateralPriceUpdates();
 
   const { gasSpeed } = useGasSpeed();
   const { network } = useNetwork();
@@ -238,8 +238,9 @@ export function ClosePositionOneStep({
         queryKey: [network?.id, network?.preset, 'AccountAvailableCollateral'],
       });
 
-      // After mutation withERC7412, we guaranteed to have updated all the prices, dont care about await
-      refetchPriceUpdateTx();
+      queryClient.invalidateQueries({
+        queryKey: [`${network?.id}-${network?.preset}`, 'PriceUpdates'],
+      });
     },
 
     onError: (error) => {

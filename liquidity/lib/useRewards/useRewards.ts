@@ -52,7 +52,6 @@ export function useRewards({
         contractsHash: contractsHash([
           CoreProxy,
           Multicall3,
-          AllErrors,
           ...(rewardsDistributors ?? []),
           ...(synthTokens ?? []),
         ]),

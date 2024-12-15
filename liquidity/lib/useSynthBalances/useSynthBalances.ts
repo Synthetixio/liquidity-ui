@@ -37,35 +37,28 @@ export function useSynthBalances() {
       const TokenInterface = new ethers.utils.Interface([
         'function balanceOf(address) view returns (uint256)',
       ]);
-      const multicall = [
-        ...synthTokens.map((synth) => ({
-          method: 'balanceOf',
-          args: [walletAddress],
-          synth,
-          isSynth: true,
-        })),
-        ...synthTokens.map((synth) => ({
-          method: 'balanceOf',
-          args: [walletAddress],
-          synth,
-          isSynth: false,
-        })),
-      ];
-      log('multicall', multicall);
-
-      const calls = multicall.map(({ method, args, synth, isSynth }) => ({
-        target: isSynth ? synth.address : synth.token.address,
-        callData: TokenInterface.encodeFunctionData(method, args),
+      const multicall = synthTokens.map((synth) => ({
+        synth,
+        method: 'balanceOf',
+        args: [walletAddress],
+        target: synth.address,
+        callData: TokenInterface.encodeFunctionData('balanceOf', [walletAddress]),
         allowFailure: true,
       }));
-      log('calls', calls);
+      log('multicall', multicall);
 
       const Multicall3Contract = new ethers.Contract(Multicall3.address, Multicall3.abi, provider);
-      const multicallResponse = await Multicall3Contract.callStatic.aggregate3(calls);
+      const multicallResponse = await Multicall3Contract.callStatic.aggregate3(
+        multicall.map(({ target, callData, allowFailure }) => ({
+          target,
+          callData,
+          allowFailure,
+        }))
+      );
       log('multicallResponse', multicallResponse);
 
       const balances = multicall
-        .map(({ method, synth, isSynth }, i) => {
+        .map(({ method, synth }, i) => {
           const { success, returnData } = multicallResponse[i];
           if (!success) {
             log(`${method} call error for ${synth.symbol}`);
@@ -74,31 +67,13 @@ export function useSynthBalances() {
           const [balance] = TokenInterface.decodeFunctionResult(method, returnData);
           return {
             synth,
-            balance: wei(balance, isSynth ? synth.decimals : synth.token.decimals),
-            isSynth,
+            balance: wei(balance, synth.decimals),
           };
         })
         .filter((info) => info !== undefined);
       log('balances', balances);
-      const map = new Map();
-      balances.forEach(({ synth, balance, isSynth }) => {
-        if (map.has(synth.address)) {
-          map.set(synth.address, {
-            synth,
-            synthBalance: isSynth ? balance : map.get(synth.address).synthBalance,
-            tokenBalance: isSynth ? map.get(synth.address).tokenBalance : balance,
-          });
-        } else {
-          map.set(synth.address, {
-            synth,
-            synthBalance: isSynth ? balance : wei(0, synth.token.decimals),
-            tokenBalance: isSynth ? wei(0, synth.decimals) : balance,
-          });
-        }
-      });
-      const combinedBalances = map.values().toArray();
-      log('combinedBalances', combinedBalances);
-      return combinedBalances;
+
+      return balances;
     },
   });
 }

@@ -9,15 +9,14 @@ import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
-import { useGetUSDTokens } from '@snx-v3/useGetUSDTokens';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
-import { useSynthTokens } from '@snx-v3/useSynthTokens';
+import { useSynthToken } from '@snx-v3/useSynthToken';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import Wei from '@synthetixio/wei';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import debug from 'debug';
 import { ethers } from 'ethers';
-import { useReducer } from 'react';
+import React from 'react';
 
 const log = debug('snx:useDepositBaseAndromeda');
 
@@ -40,16 +39,12 @@ export const useDepositBaseAndromeda = ({
   collateralChange: Wei;
   collateralSymbol?: string;
 }) => {
-  const [txnState, dispatch] = useReducer(reducer, initialState);
+  const [txnState, dispatch] = React.useReducer(reducer, initialState);
   const { data: CoreProxy } = useCoreProxy();
   const { data: SpotMarketProxy } = useSpotMarketProxy();
-  const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
-  const { data: usdTokens } = useGetUSDTokens();
+  const { data: priceUpdateTx } = useCollateralPriceUpdates();
   const { data: collateralType } = useCollateralType(collateralSymbol);
-  const { data: synthTokens } = useSynthTokens();
-  const synth = synthTokens?.find(
-    (synth) => synth?.address?.toLowerCase() === collateralType?.tokenAddress?.toLowerCase()
-  );
+  const { data: synthToken } = useSynthToken(collateralType);
 
   const { gasSpeed } = useGasSpeed();
 
@@ -57,6 +52,7 @@ export const useDepositBaseAndromeda = ({
   const signer = useSigner();
   const provider = useProvider();
 
+  const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: async () => {
       if (
@@ -70,8 +66,8 @@ export const useDepositBaseAndromeda = ({
           collateralTypeAddress &&
           availableCollateral &&
           currentCollateral &&
-          usdTokens?.sUSD &&
-          synth
+          synthToken &&
+          synthToken.token
         )
       ) {
         return;
@@ -111,29 +107,29 @@ export const useDepositBaseAndromeda = ({
         const synthAmountNeeded = collateralChange
           .sub(availableCollateral)
           // Reduce precision to avoid rounding issues
-          .mul(ethers.utils.parseUnits('1', synth.token.decimals))
+          .mul(ethers.utils.parseUnits('1', synthToken.token.decimals))
           .div(D18)
           // revert back to 18
           .mul(D18)
-          .div(ethers.utils.parseUnits('1', synth.token.decimals));
+          .div(ethers.utils.parseUnits('1', synthToken.token.decimals));
         log('synthAmountNeeded', synthAmountNeeded);
 
         const tokenAmountToWrap = synthAmountNeeded
-          .mul(ethers.utils.parseUnits('1', synth.token.decimals))
+          .mul(ethers.utils.parseUnits('1', synthToken.token.decimals))
           .div(D18);
         log('tokenAmountToWrap', tokenAmountToWrap);
 
         // Wrap
         const wrap = synthAmountNeeded.gt(0)
           ? SpotMarketProxyContract.populateTransaction.wrap(
-              synth.synthMarketId,
+              synthToken.synthMarketId,
               tokenAmountToWrap.toBN(),
               synthAmountNeeded.toBN()
             )
           : undefined;
 
         // Synth
-        const SynthTokenContract = new ethers.Contract(synth.address, approveAbi, signer);
+        const SynthTokenContract = new ethers.Contract(synthToken.address, approveAbi, signer);
 
         const synthApproval = synthAmountNeeded.gt(0)
           ? SynthTokenContract.populateTransaction.approve(
@@ -146,7 +142,7 @@ export const useDepositBaseAndromeda = ({
         const deposit = synthAmountNeeded.gt(0)
           ? CoreProxyContract.populateTransaction.deposit(
               ethers.BigNumber.from(id),
-              synth.address,
+              synthToken.address,
               synthAmountNeeded.toBN() // only deposit what's needed
             )
           : undefined;
@@ -157,7 +153,7 @@ export const useDepositBaseAndromeda = ({
         const delegate = CoreProxyContract.populateTransaction.delegateCollateral(
           ethers.BigNumber.from(id),
           ethers.BigNumber.from(poolId),
-          synth.address,
+          synthToken.address,
           currentCollateral.add(collateralChange).toBN(),
           ethers.utils.parseEther('1')
         );
@@ -199,8 +195,9 @@ export const useDepositBaseAndromeda = ({
       }
     },
     onSuccess: () => {
-      // After mutation withERC7412, we guaranteed to have updated all the prices, dont care about await
-      refetchPriceUpdateTx();
+      queryClient.invalidateQueries({
+        queryKey: [`${network?.id}-${network?.preset}`, 'PriceUpdates'],
+      });
     },
   });
   return {

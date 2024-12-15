@@ -88,7 +88,7 @@ export function useClaimAllRewards({
             )
           );
           const synthToken = synthTokens.find(
-            (synth) => synth.address.toUpperCase() === distributor.payoutToken.address.toUpperCase()
+            (synth) => synth.address.toLowerCase() === distributor.payoutToken.address.toLowerCase()
           );
           log('synthToken', synthToken);
           log('claimableAmount', claimableAmount);

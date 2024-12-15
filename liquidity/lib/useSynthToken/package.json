@@ -1,13 +1,15 @@
 {
-  "name": "@snx-v3/useCreateAccount",
+  "name": "@snx-v3/useSynthToken",
   "private": true,
   "main": "index.ts",
   "version": "0.0.2",
   "dependencies": {
+    "@snx-v3/tsHelpers": "workspace:*",
     "@snx-v3/useBlockchain": "workspace:*",
-    "@snx-v3/useCoreProxy": "workspace:*",
+    "@snx-v3/useCollateralTypes": "workspace:*",
+    "@snx-v3/useSynthTokens": "workspace:*",
     "@tanstack/react-query": "^5.8.3",
     "debug": "^4.3.7",
-    "ethers": "^5.7.2"
+    "react": "^18.2.0"
   }
 }

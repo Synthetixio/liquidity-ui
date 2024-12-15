@@ -49,9 +49,10 @@ export function ChangeStat({
       fontWeight={styles[size].fontWeight}
       lineHeight={styles[size].lineHeight}
       flexWrap="wrap"
+      data-cy={dataCy}
     >
       <Text
-        data-cy={dataCy}
+        data-cy="change stats current"
         textAlign="center"
         opacity={value && value.eq(0) ? '70%' : undefined}
         color={
@@ -70,6 +71,7 @@ export function ChangeStat({
         <Flex gap="1" alignItems="center" isTruncated>
           <ArrowForwardIcon />
           <Text
+            data-cy="change stats new"
             textAlign="center"
             opacity={newValue.eq(0) ? '70%' : undefined}
             color={

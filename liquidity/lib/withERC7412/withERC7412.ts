@@ -34,7 +34,7 @@ async function fetchOffchainData({
 
 function parseError(
   errorData: any,
-  AllErrors: { address: string; abi: string[] }
+  AllErrors: { abi: string[] }
 ): { name: string; args: any } | undefined {
   if (`${errorData}`.startsWith('0x08c379a0')) {
     const content = `0x${errorData.substring(10)}`;

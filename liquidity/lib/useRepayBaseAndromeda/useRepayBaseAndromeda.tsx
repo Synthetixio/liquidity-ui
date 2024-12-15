@@ -14,7 +14,7 @@ import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import Wei from '@synthetixio/wei';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import debug from 'debug';
 import { BigNumber, ethers } from 'ethers';
 import { useReducer } from 'react';
@@ -40,7 +40,7 @@ export const useRepayBaseAndromeda = ({
   const { data: CoreProxy } = useCoreProxy();
   const { data: systemToken } = useSystemToken();
   const { data: SpotMarketProxy } = useSpotMarketProxy();
-  const { data: priceUpdateTx, refetch: refetchPriceUpdateTx } = useCollateralPriceUpdates();
+  const { data: priceUpdateTx } = useCollateralPriceUpdates();
   const { data: usdTokens } = useGetUSDTokens();
 
   const signer = useSigner();
@@ -48,6 +48,7 @@ export const useRepayBaseAndromeda = ({
   const { gasSpeed } = useGasSpeed();
   const provider = useProvider();
 
+  const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: async () => {
       if (!signer || !network || !provider) throw new Error('No signer or network');
@@ -74,106 +75,114 @@ export const useRepayBaseAndromeda = ({
         ? parseUnits(amountToDeposit.toString(), 6)
         : BigNumber.from(0);
 
-      try {
-        dispatch({ type: 'prompting' });
+      dispatch({ type: 'prompting' });
 
-        const spotMarketId = getSpotMarketId(collateralSymbol);
+      const spotMarketId = getSpotMarketId(collateralSymbol);
 
-        const SpotMarketProxyContract = new ethers.Contract(
-          SpotMarketProxy.address,
-          SpotMarketProxy.abi,
-          signer
-        );
+      const SpotMarketProxyContract = new ethers.Contract(
+        SpotMarketProxy.address,
+        SpotMarketProxy.abi,
+        signer
+      );
 
-        // USDC or stataUSDC to sUSDC or sStataUSDC
-        const wrap = collateralAmount.gt(0)
-          ? SpotMarketProxyContract.populateTransaction.wrap(spotMarketId, collateralAmount, 0)
-          : undefined;
+      // USDC or stataUSDC to sUSDC or sStataUSDC
+      const wrap = collateralAmount.gt(0)
+        ? SpotMarketProxyContract.populateTransaction.wrap(spotMarketId, collateralAmount, 0)
+        : undefined;
 
-        const Synth_Contract = new ethers.Contract(collateralTypeAddress, approveAbi, signer);
-        const synth_approval = amountToDeposit.gt(0)
-          ? Synth_Contract.populateTransaction.approve(
-              SpotMarketProxy.address,
-              amountToDeposit.toBN()
-            )
-          : undefined;
+      const Synth_Contract = new ethers.Contract(collateralTypeAddress, approveAbi, signer);
+      const synth_approval = amountToDeposit.gt(0)
+        ? Synth_Contract.populateTransaction.approve(
+            SpotMarketProxy.address,
+            amountToDeposit.toBN()
+          )
+        : undefined;
 
-        // sUSDC or sStataUSDC => snxUSD
-        const sell_synth = amountToDeposit.gt(0)
-          ? SpotMarketProxyContract.populateTransaction.sell(
-              spotMarketId,
-              amountToDeposit.toBN(),
-              0,
-              ethers.constants.AddressZero
-            )
-          : undefined;
+      // sUSDC or sStataUSDC => snxUSD
+      const sell_synth = amountToDeposit.gt(0)
+        ? SpotMarketProxyContract.populateTransaction.sell(
+            spotMarketId,
+            amountToDeposit.toBN(),
+            0,
+            ethers.constants.AddressZero
+          )
+        : undefined;
 
-        // approve sUSD to Core
-        const SystemTokenContract = new ethers.Contract(systemToken.address, approveAbi, signer);
-        const sUSD_Approval = amountToDeposit.gt(0)
-          ? SystemTokenContract.populateTransaction.approve(
-              CoreProxy.address,
-              amountToDeposit.toBN()
-            )
-          : undefined;
+      // approve sUSD to Core
+      const SystemTokenContract = new ethers.Contract(systemToken.address, approveAbi, signer);
+      const sUSD_Approval = amountToDeposit.gt(0)
+        ? SystemTokenContract.populateTransaction.approve(CoreProxy.address, amountToDeposit.toBN())
+        : undefined;
 
-        const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
+      const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
 
-        // Only deposit if user doesn't have enough sUSD collateral
-        const deposit = amountToDeposit.lte(0)
-          ? undefined
-          : CoreProxyContract.populateTransaction.deposit(
-              BigNumber.from(accountId),
-              systemToken.address,
-              amountToDeposit.toBN() // only deposit what's needed
-            );
+      // Only deposit if user doesn't have enough sUSD collateral
+      const deposit = amountToDeposit.lte(0)
+        ? undefined
+        : CoreProxyContract.populateTransaction.deposit(
+            BigNumber.from(accountId),
+            systemToken.address,
+            amountToDeposit.toBN() // only deposit what's needed
+          );
 
-        const burn = CoreProxyContract.populateTransaction.burnUsd(
-          BigNumber.from(accountId),
-          BigNumber.from(poolId),
-          collateralTypeAddress,
-          debtChangeAbs.toBN()
-        );
+      const burn = CoreProxyContract.populateTransaction.burnUsd(
+        BigNumber.from(accountId),
+        BigNumber.from(poolId),
+        collateralTypeAddress,
+        debtChangeAbs.toBN()
+      );
 
-        const callsPromise = Promise.all(
-          [wrap, synth_approval, sell_synth, sUSD_Approval, deposit, burn].filter(notNil)
-        );
+      const callsPromise = Promise.all(
+        [wrap, synth_approval, sell_synth, sUSD_Approval, deposit, burn].filter(notNil)
+      );
 
-        const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
-        if (priceUpdateTx) {
-          calls.unshift(priceUpdateTx as any);
-        }
-
-        const walletAddress = await signer.getAddress();
-        const { multicallTxn: erc7412Tx, gasLimit } = await withERC7412(
-          provider,
-          network,
-          calls,
-          'useRepay',
-          walletAddress
-        );
-
-        const gasOptionsForTransaction = formatGasPriceForTransaction({
-          gasLimit,
-          gasPrices,
-          gasSpeed,
-        });
-
-        const txn = await signer.sendTransaction({ ...erc7412Tx, ...gasOptionsForTransaction });
-        log('txn', txn);
-        dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
-
-        const receipt = await provider.waitForTransaction(txn.hash);
-        log('receipt', receipt);
-        dispatch({ type: 'success' });
-      } catch (error: any) {
-        dispatch({ type: 'error', payload: { error } });
-        throw error;
+      const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
+      if (priceUpdateTx) {
+        calls.unshift(priceUpdateTx as any);
       }
+
+      const walletAddress = await signer.getAddress();
+      const { multicallTxn: erc7412Tx, gasLimit } = await withERC7412(
+        provider,
+        network,
+        calls,
+        'useRepay',
+        walletAddress
+      );
+
+      const gasOptionsForTransaction = formatGasPriceForTransaction({
+        gasLimit,
+        gasPrices,
+        gasSpeed,
+      });
+
+      const txn = await signer.sendTransaction({ ...erc7412Tx, ...gasOptionsForTransaction });
+      log('txn', txn);
+      dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
+
+      const receipt = await provider.waitForTransaction(txn.hash);
+      log('receipt', receipt);
+      return receipt;
     },
-    onSuccess: () => {
-      // After mutation withERC7412, we guaranteed to have updated all the prices, dont care about await
-      refetchPriceUpdateTx();
+
+    onSuccess: async () => {
+      const deployment = `${network?.id}-${network?.preset}`;
+      await Promise.all(
+        [
+          //
+          'PriceUpdates',
+          'LiquidityPositions',
+          'TokenBalance',
+          'EthBalance',
+          'Allowance',
+        ].map((key) => queryClient.invalidateQueries({ queryKey: [deployment, key] }))
+      );
+      dispatch({ type: 'success' });
+    },
+
+    onError: (error) => {
+      dispatch({ type: 'error', payload: { error } });
+      throw error;
     },
   });
   return {

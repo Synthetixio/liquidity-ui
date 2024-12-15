@@ -7,13 +7,11 @@ import { TokenIcon } from '../TokenIcon/TokenIcon';
 export function SynthRow({
   symbol,
   name,
-  synthBalance,
-  tokenBalance,
+  balance,
 }: {
   symbol: string;
   name: string;
-  synthBalance: Wei;
-  tokenBalance: Wei;
+  balance: Wei;
 }) {
   return (
     <>
@@ -41,26 +39,13 @@ export function SynthRow({
       <Td border="none">
         <Fade in>
           <Text
-            color={synthBalance.gt(0) ? 'green.500' : 'gray.50'}
+            color={balance.gt(0) ? 'green.500' : 'gray.50'}
             fontSize="14px"
             fontFamily="heading"
             fontWeight={500}
             lineHeight="20px"
           >
-            <Amount value={synthBalance} showTooltip />
-          </Text>
-        </Fade>
-      </Td>
-      <Td border="none">
-        <Fade in>
-          <Text
-            color="gray.50"
-            fontSize="14px"
-            fontFamily="heading"
-            fontWeight={500}
-            lineHeight="20px"
-          >
-            <Amount value={tokenBalance} showTooltip />
+            <Amount value={balance} showTooltip />
           </Text>
         </Fade>
       </Td>
