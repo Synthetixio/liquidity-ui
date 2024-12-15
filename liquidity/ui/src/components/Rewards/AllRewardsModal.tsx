@@ -69,9 +69,7 @@ export function AllRewardsModal({
         map.set(displaySymbol, claimableAmount);
       }
     });
-    return map
-      .entries()
-      .toArray()
+    return Array.from(map.entries())
       .map(([displaySymbol, claimableAmount]) => ({
         displaySymbol,
         claimableAmount,
