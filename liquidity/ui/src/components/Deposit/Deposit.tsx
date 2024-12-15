@@ -132,10 +132,14 @@ export function Deposit() {
                 fontSize="xs"
                 color="whiteAlpha.700"
               >
-                <Amount
-                  prefix="Unlocked Balance: "
-                  value={liquidityPosition?.availableCollateral}
-                />
+                {isPendingLiquidityPosition ? (
+                  'Unlocked Balance: ~'
+                ) : (
+                  <Amount
+                    prefix="Unlocked Balance: "
+                    value={liquidityPosition?.availableCollateral}
+                  />
+                )}
 
                 {!isStataUSDC ? (
                   <Amount
