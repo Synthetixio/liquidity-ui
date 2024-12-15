@@ -14,7 +14,7 @@ import { BorderBox } from '@snx-v3/BorderBox';
 import { ZEROWEI } from '@snx-v3/constants';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
-import { useNetwork, useProvider } from '@snx-v3/useBlockchain';
+import { useNetwork } from '@snx-v3/useBlockchain';
 import { useClosePosition } from '@snx-v3/useClosePosition';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
@@ -26,7 +26,6 @@ import React from 'react';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
 import { ClosePositionOneStep } from './ClosePositionOneStep';
 import { ClosePositionTransactions } from './ClosePositionTransactions';
-import { usePositionDebt } from './usePositionDebt';
 
 function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit: () => void }) {
   const [params] = useParams<PositionPageSchemaType>();
@@ -44,13 +43,6 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
   const { network } = useNetwork();
   const debtSymbol = network?.preset === 'andromeda' ? 'USDC' : systemToken?.symbol;
 
-  const provider = useProvider();
-  const { data: positionDebt, isPending: isPendingPositionDebt } = usePositionDebt({
-    provider,
-    accountId: params.accountId,
-    poolId: params.poolId,
-    collateralTypeTokenAddress: collateralType?.tokenAddress,
-  });
   const { data: systemTokenBalance, isPending: isPendingSystemTokenBalance } = useTokenBalance(
     systemToken?.address
   );
@@ -179,9 +171,10 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
           // Deployments that do not have ClosePosition contract available should skip this check
           ClosePositionDeployment &&
           systemTokenBalance &&
-          positionDebt &&
           liquidityPosition &&
-          !systemTokenBalance.add(liquidityPosition.availableSystemToken).gte(positionDebt)
+          !systemTokenBalance
+            .add(liquidityPosition.availableSystemToken)
+            .gte(liquidityPosition.debt)
         }
         animateOpacity
       >
@@ -212,13 +205,13 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
           // Deployments that do not have ClosePosition contract available should skip this check
           ClosePositionDeployment &&
           !(
-            !isPendingPositionDebt &&
             !isPendingSystemTokenBalance &&
-            !isPendingLiquidityPosition &&
             systemTokenBalance &&
+            !isPendingLiquidityPosition &&
             liquidityPosition &&
-            positionDebt &&
-            systemTokenBalance.add(liquidityPosition.availableSystemToken).gte(positionDebt)
+            systemTokenBalance
+              .add(liquidityPosition.availableSystemToken)
+              .gte(liquidityPosition.debt)
           )
         }
       >

@@ -23,10 +23,7 @@ export function usePositionDebt({
       `${network?.id}-${network?.preset}`,
       'PositionDebt',
       { accountId },
-      {
-        pool: poolId,
-        token: tokenAddress,
-      },
+      { pool: poolId, token: tokenAddress },
       { contractsHash: contractsHash([CoreProxy]) },
     ],
     enabled: Boolean(network && provider && CoreProxy && accountId && poolId && tokenAddress),

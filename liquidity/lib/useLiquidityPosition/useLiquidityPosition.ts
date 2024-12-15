@@ -44,10 +44,7 @@ export const useLiquidityPosition = ({
       'LiquidityPosition',
       { accountId },
       { tokenAddress: collateralType?.tokenAddress },
-      {
-        contractsHash: contractsHash([CoreProxy]),
-        collateralTypes: contractsHash([systemToken, collateralType]),
-      },
+      { contractsHash: contractsHash([CoreProxy, systemToken]) },
     ],
     enabled: Boolean(
       network && provider && CoreProxy && systemToken && accountId && collateralType

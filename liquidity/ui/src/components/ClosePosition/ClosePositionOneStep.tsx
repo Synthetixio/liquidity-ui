@@ -15,23 +15,18 @@ import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
+import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { useMulticall3 } from '@snx-v3/useMulticall3';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { usePythFeeds } from '@snx-v3/usePythFeeds';
 import { usePythVerifier } from '@snx-v3/usePythVerifier';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { withERC7412 } from '@snx-v3/withERC7412';
-import { wei } from '@synthetixio/wei';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import debug from 'debug';
 import { ethers } from 'ethers';
 import React from 'react';
 import { LiquidityPositionUpdated } from '../Manage/LiquidityPositionUpdated';
-import { fetchPositionDebt } from './fetchPositionDebt';
-import { fetchPositionDebtWithPriceUpdate } from './fetchPositionDebtWithPriceUpdate';
-import { fetchPriceUpdateTxn } from './fetchPriceUpdateTxn';
-import { useAccountCollateral } from './useAccountCollateral';
-import { usePositionDebt } from './usePositionDebt';
 
 const log = debug('snx:ClosePositionOneStep');
 
@@ -45,6 +40,10 @@ export function ClosePositionOneStep({
   const [params] = useParams<PositionPageSchemaType>();
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
+  const { data: liquidityPosition, refetch: refetchLiquidityPosition } = useLiquidityPosition({
+    accountId: params.accountId,
+    collateralType,
+  });
 
   const { setCollateralChange, setDebtChange } = React.useContext(ManagePositionContext);
   const toast = useToast({ isClosable: true, duration: 9000 });
@@ -69,25 +68,13 @@ export function ClosePositionOneStep({
   const signer = useSigner();
   const provider = useProvider();
 
-  const { data: positionDebt } = usePositionDebt({
-    provider,
-    accountId: params.accountId,
-    poolId: params.poolId,
-    collateralTypeTokenAddress: collateralType?.tokenAddress,
-  });
-
-  const { data: accountCollateral } = useAccountCollateral({
-    provider,
-    accountId: params.accountId,
-    collateralTypeTokenAddress: collateralType?.tokenAddress,
-  });
+  // const queryClient = useQueryClient();
+  // queryClient.invalidateQueries();
 
   const { mutate: execClosePosition } = useMutation({
     mutationFn: async function () {
       log('params', params);
       log('collateralType', collateralType);
-      log('accountCollateral', accountCollateral);
-      log('positionDebt', positionDebt);
 
       setTxState({ step: 1, status: 'pending' });
       if (
@@ -104,8 +91,7 @@ export function ClosePositionOneStep({
           params.poolId &&
           params.accountId &&
           systemToken?.address &&
-          collateralType?.tokenAddress &&
-          positionDebt
+          collateralType?.tokenAddress
         )
       ) {
         throw new Error('Not ready');
@@ -127,36 +113,18 @@ export function ClosePositionOneStep({
         signer
       );
 
-      const freshPriceUpdateTxn = await fetchPriceUpdateTxn({ PythVerfier, pythFeeds });
-      log('freshPriceUpdateTxn', freshPriceUpdateTxn);
-
-      const freshPositionDebt = freshPriceUpdateTxn.value
-        ? await fetchPositionDebtWithPriceUpdate({
-            provider,
-            CoreProxy,
-            Multicall3,
-            accountId: params.accountId,
-            poolId: params.poolId,
-            collateralTypeTokenAddress: collateralType.tokenAddress,
-            priceUpdateTxn: freshPriceUpdateTxn,
-          })
-        : await fetchPositionDebt({
-            provider,
-            CoreProxy,
-            accountId: params.accountId,
-            poolId: params.poolId,
-            collateralTypeTokenAddress: collateralType.tokenAddress,
-          });
-      log('freshPositionDebt', freshPositionDebt);
-
-      const adjustedAllowance = freshPositionDebt.lt(1)
+      const { data: freshLiquidityPosition } = await refetchLiquidityPosition({
+        throwOnError: true,
+      });
+      if (!freshLiquidityPosition) {
+        throw new Error('Could not fetch fresh liquidity position');
+      }
+      const adjustedAllowance = freshLiquidityPosition.debt.lt(1)
         ? // For the case when debt fluctuates from negative/zero to slightly positive
-          ethers.utils.parseEther('1.00')
+          ethers.utils.parseEther('1')
         : // Add extra buffer for debt fluctuations
-          freshPositionDebt.mul(120).div(100);
+          freshLiquidityPosition.debt.mul(120).div(100).toBN();
       log('adjustedAllowance', adjustedAllowance);
-
-      // "function approve(address to, uint256 tokenId)",
 
       const approveAccountTx = AccountProxyContract.populateTransaction.approve(
         ClosePosition.address,
@@ -203,8 +171,8 @@ export function ClosePositionOneStep({
 
     onSuccess: async () => {
       const deployment = `${network?.id}-${network?.preset}`;
-      await Promise.all([
-        ...[
+      await Promise.all(
+        [
           //
           'PriceUpdates',
           'LiquidityPosition',
@@ -215,18 +183,8 @@ export function ClosePositionOneStep({
           'Allowance',
           'TransferableSynthetix',
           'AccountCollateralUnlockDate',
-        ].map((key) => queryClient.invalidateQueries({ queryKey: [deployment, key] })),
-        ...[
-          // these are special temporary local hooks.
-          // TODO: replace with project ones ASAP
-          'PriceUpdateTxn',
-          'PositionDebt',
-          'AccountCollateral',
-          'AccountAvailableCollateral',
-        ].map((key) =>
-          queryClient.invalidateQueries({ queryKey: [network?.id, network?.preset, key] })
-        ),
-      ]);
+        ].map((key) => queryClient.invalidateQueries({ queryKey: [deployment, key] }))
+      );
 
       setCollateralChange(ZEROWEI);
       setDebtChange(ZEROWEI);
@@ -290,29 +248,31 @@ export function ClosePositionOneStep({
         subtitle={
           <>
             <Text>Approve close position on behalf</Text>
-            {positionDebt && positionDebt.gt(0) ? (
+            {liquidityPosition && liquidityPosition.debt && liquidityPosition.debt.gt(0) ? (
               <Text>
                 <Amount
                   prefix="Repay "
-                  value={wei(positionDebt)}
+                  value={liquidityPosition.debt}
                   suffix={` ${systemToken ? systemToken.symbol : ''} of debt`}
                 />
               </Text>
             ) : null}
-            {positionDebt && positionDebt.lt(0) ? (
+            {liquidityPosition && liquidityPosition.debt && liquidityPosition.debt.lt(0) ? (
               <Text>
                 <Amount
                   prefix="Claim "
-                  value={wei(positionDebt.abs())}
+                  value={liquidityPosition.debt.abs()}
                   suffix={` ${systemToken ? systemToken.symbol : ''}`}
                 />
               </Text>
             ) : null}
-            <Amount
-              prefix="Unlock "
-              value={accountCollateral ? wei(accountCollateral.totalAssigned) : ZEROWEI}
-              suffix={` ${collateralType ? collateralType.symbol : ''} from the pool`}
-            />
+            {liquidityPosition ? (
+              <Amount
+                prefix="Unlock "
+                value={liquidityPosition.collateralAmount}
+                suffix={` ${collateralType ? collateralType.symbol : ''} from the pool`}
+              />
+            ) : null}
           </>
         }
         status={{
@@ -324,7 +284,7 @@ export function ClosePositionOneStep({
       <Button
         data-cy="close position confirm button"
         isLoading={txState.status === 'pending'}
-        isDisabled={!(accountCollateral && accountCollateral.totalAssigned.gt(0))}
+        isDisabled={!(liquidityPosition && liquidityPosition.collateralAmount.gt(0))}
         onClick={() => execClosePosition()}
         mt="6"
       >

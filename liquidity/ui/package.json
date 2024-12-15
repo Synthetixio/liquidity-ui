@@ -11,7 +11,6 @@
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-    "@pythnetwork/pyth-evm-js": "^1.42.0",
     "@safe-global/safe-apps-provider": "^0.18.3",
     "@safe-global/safe-apps-sdk": "^9.1.0",
     "@snx-v3/Amount": "workspace:*",
