@@ -50,6 +50,7 @@ export function PnlStats({ newDebt, hasChanges }: { newDebt: Wei; hasChanges: bo
             }
             withColor
             hasChanges={hasChanges}
+            data-cy="stats pnl"
           />
         </Flex>
       </Flex>

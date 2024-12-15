@@ -41,7 +41,7 @@ export function CollateralStats({
                 newValue={newCollateralAmount}
                 formatFn={(val: Wei) => `${currency(val)} ${collateralType.displaySymbol}`}
                 hasChanges={hasChanges}
-                data-cy="manage stats collateral"
+                data-cy="stats collateral"
               />
               <ChangeStat
                 value={liquidityPosition.collateralAmount.mul(liquidityPosition.collateralPrice)}
@@ -49,7 +49,7 @@ export function CollateralStats({
                 formatFn={(val: Wei) => currency(val, { currency: 'USD', style: 'currency' })}
                 size="md"
                 hasChanges={hasChanges}
-                data-cy="manage stats collateral value"
+                data-cy="stats collateral value"
               />
             </Flex>
           ) : null}

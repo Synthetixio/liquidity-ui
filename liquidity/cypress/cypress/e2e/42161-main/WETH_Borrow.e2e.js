@@ -45,7 +45,19 @@ describe(__filename, () => {
     cy.get('[data-cy="claim form"]', { timeout: 180_000 }).should('exist');
     cy.contains('[data-status="info"]', 'You can take an interest-free loan up to').should('exist');
 
+    cy.get('[data-cy="stats collateral"] [data-cy="change stats current"]')
+      .should('exist')
+      .and('include.text', '10 WETH');
+    cy.get('[data-cy="stats debt"] [data-cy="change stats new"]').should('not.exist');
+    cy.get('[data-cy="stats debt"] [data-cy="change stats current"]')
+      .should('exist')
+      .and('include.text', '-$0.0000098');
+
     cy.get('[data-cy="claim amount input"]').type('100');
+
+    cy.get('[data-cy="stats debt"] [data-cy="change stats new"]')
+      .should('exist')
+      .and('include.text', '$100');
 
     cy.contains(
       '[data-status="warning"]',
@@ -67,5 +79,10 @@ describe(__filename, () => {
     cy.contains('[data-status="success"]', 'Debt successfully Updated', {
       timeout: 180_000,
     }).should('exist');
+
+    cy.get('[data-cy="stats debt"] [data-cy="change stats new"]').should('not.exist');
+    cy.get('[data-cy="stats debt"] [data-cy="change stats current"]')
+      .should('exist')
+      .and('include.text', '$100');
   });
 });
