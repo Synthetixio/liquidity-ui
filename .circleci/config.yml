@@ -22,17 +22,19 @@ commands:
             - &yarn_state_cache yarn-install-state-{{ .Environment.NODE_MODULES_VERSION }}-{{ checksum "/tmp/month.txt" }}-{{ checksum "yarn.lock" }}
             - yarn-install-state-{{ .Environment.NODE_MODULES_VERSION }}-{{ checksum "/tmp/month.txt" }}-
 
-      - run:
-          name: Fallback to installing node modules in case of cache corruption
-          command: |-
-            # Check if we restored cache and have node_modules already
-            if [ -f "node_modules/.yarn-state.yml" ] && [ -f ".yarn/install-state.gz" ]; then
-              echo "node_modules restored from cache"
-              exit 0
-            else
-              echo "node_modules could not be restored from cache, activating fallback installation"
-              yarn install --immutable
-            fi
+      - run: yarn install --immutable
+
+      #      - run:
+      #          name: Fallback to installing node modules in case of cache corruption
+      #          command: |-
+      #            # Check if we restored cache and have node_modules already
+      #            if [ -f "node_modules/.yarn-state.yml" ] && [ -f ".yarn/instalUSDC_l-state.gz" ]; then
+      #              echo "node_modules restored from cache"
+      #              exit 0
+      #            else
+      #              echo "node_modules could not be restored from cache, activating fallback installation"
+      #              yarn install --immutable
+      #            fi
 
       - save_cache:
           key: *yarn_cache
