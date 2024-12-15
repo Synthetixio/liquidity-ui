@@ -36,19 +36,28 @@ describe(__filename, () => {
       })}`
     );
 
-    cy.get('[data-cy="claim rewards submit"]').should('be.enabled');
+    cy.get('[data-cy="claim rewards submit"]', { timeout: 180_000 }).should('be.enabled');
     cy.get('[data-cy="claim rewards submit"]').click();
-
-    cy.get('[data-cy="claim rewards dialog"]').should('exist');
 
     cy.get('[data-cy="claim rewards info"]')
       .should('exist')
-      .and('include.text', 'Claim your rewards');
+      .and('include.text', 'Claiming 53.87 ARB')
+      .and('include.text', 'Claiming 0.55 USDe')
+      .and('include.text', 'Claiming 0.0078 WETH')
+      .and('include.text', 'Claiming 0.0000004 tBTC');
 
+    cy.get('[data-cy="claim rewards info"]', { timeout: 180_000 })
+      .should('exist')
+      .and('include.text', 'Claimed 53.87 ARB')
+      .and('include.text', 'Claimed 0.55 USDe')
+      .and('include.text', 'Claimed 0.0078 WETH')
+      .and('include.text', 'Claimed 0.0000004 tBTC');
+
+    cy.contains('[data-status="success"]', 'Your rewards have been claimed').should('exist');
     cy.get('[data-cy="transaction hash"]').should('exist');
 
-    cy.contains('[data-status="success"]', 'Your rewards have been claimed', {
-      timeout: 180_000,
-    }).should('exist');
+    cy.contains('[data-cy="claim rewards dialog"] button', 'Done').click();
+    cy.get('[data-cy="rewards table"]').should('include.text', 'No Rewards Available');
+    cy.get('[data-cy="claim rewards submit"]').should('be.disabled');
   });
 });

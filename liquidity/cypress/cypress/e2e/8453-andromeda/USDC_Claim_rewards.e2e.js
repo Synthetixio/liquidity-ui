@@ -25,7 +25,6 @@ describe(__filename, () => {
 
   it(__filename, () => {
     cy.setEthBalance({ balance: 100 });
-    cy.getUSDC({ amount: 500 });
 
     cy.visit(
       `?${makeSearch({
@@ -37,19 +36,25 @@ describe(__filename, () => {
       })}`
     );
 
-    cy.get('[data-cy="claim rewards submit"]', {
-      timeout: 180_000,
-    }).should('be.enabled');
+    cy.get('[data-cy="claim rewards submit"]', { timeout: 180_000 }).should('be.enabled');
     cy.get('[data-cy="claim rewards submit"]').click();
 
     cy.get('[data-cy="claim rewards dialog"]').should('exist');
 
     cy.get('[data-cy="claim rewards info"]')
       .should('exist')
-      .and('include.text', 'Claim your rewards');
+      .and('include.text', 'Claiming 640.24 USDC')
+      .and('include.text', 'Claiming 449.22 SNX');
 
-    cy.contains('[data-status="success"]', 'Your rewards have been claimed', {
-      timeout: 180_000,
-    }).should('exist');
+    cy.get('[data-cy="claim rewards info"]', { timeout: 180_000 })
+      .should('include.text', 'Claimed 640.24 USDC')
+      .and('include.text', 'Claimed 449.22 SNX');
+
+    cy.contains('[data-status="success"]', 'Your rewards have been claimed').should('exist');
+    cy.get('[data-cy="transaction hash"]').should('exist');
+
+    cy.contains('[data-cy="claim rewards dialog"] button', 'Done').click();
+    cy.get('[data-cy="rewards table"]').should('include.text', 'No Rewards Available');
+    cy.get('[data-cy="claim rewards submit"]').should('be.disabled');
   });
 });
