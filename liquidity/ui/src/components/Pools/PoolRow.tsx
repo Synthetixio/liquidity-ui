@@ -15,7 +15,7 @@ import { useUSDC } from '@snx-v3/useUSDC';
 import { wei } from '@synthetixio/wei';
 import { ethers } from 'ethers';
 import React from 'react';
-import { TokenIcon } from '../../TokenIcon/TokenIcon';
+import { TokenIcon } from '../TokenIcon/TokenIcon';
 import { Specifics } from './Specifics';
 
 interface CollateralTypeWithDeposited extends CollateralType {

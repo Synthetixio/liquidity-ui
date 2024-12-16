@@ -9,8 +9,8 @@ import { useMemo, useReducer } from 'react';
 import { Balloon } from './Balloon';
 import { ChainFilter } from './ChainFilter';
 import { CollateralFilter } from './CollateralFilter';
-import { PoolCardsLoading } from './PoolCards/PoolCardsLoading';
-import { PoolRow } from './PoolCards/PoolRow';
+import { PoolCardsLoading } from './PoolCardsLoading';
+import { PoolRow } from './PoolRow';
 
 export const PoolsList = () => {
   const [state, dispatch] = useReducer(poolsReducer, { collaterals: [], chains: [] });
