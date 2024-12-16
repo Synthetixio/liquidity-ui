@@ -29,3 +29,9 @@ export const formatPercent = (value: number, options?: Intl.NumberFormatOptions)
     ...options,
   }).format(Number(value));
 };
+
+export function formatApr(apr?: number) {
+  if (!apr) return '-';
+
+  return `${apr.toFixed(2)}%`;
+}

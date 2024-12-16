@@ -2,24 +2,13 @@ import { Flex, Heading, Link, Text } from '@chakra-ui/react';
 import { NetworkIcon, useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { makeSearch, type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
-import { usePool } from '@snx-v3/usePoolsList';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
 
-export function PositionTitle({
-  collateralSymbol,
-  isOpen,
-}: {
-  collateralSymbol?: string;
-  isOpen: boolean;
-}) {
-  const [params, setParams] = useParams<PositionPageSchemaType>();
-
+export function PositionTitle() {
   const { network } = useNetwork();
-  const { data: pool } = usePool(network?.id);
 
-  const poolName = pool?.poolInfo?.[0]?.pool?.name ?? '';
-
-  const { data: collateral } = useCollateralType(collateralSymbol);
+  const [params, setParams] = useParams<PositionPageSchemaType>();
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
 
   return (
     <Flex alignItems="center">
@@ -31,7 +20,7 @@ export function PositionTitle({
         display="flex"
       >
         <TokenIcon
-          symbol={collateral?.symbol || ''}
+          symbol={collateralType?.symbol ?? params.collateralSymbol}
           height={42}
           width={42}
           fill="#0B0B22"
@@ -47,7 +36,7 @@ export function PositionTitle({
           display="flex"
           alignItems="center"
         >
-          {isOpen ? 'Open ' : ''} {collateral?.displaySymbol} Liquidity Position
+          {collateralType?.displaySymbol ?? params.collateralSymbol} Liquidity Position
         </Heading>
         <Heading
           as={Link}
@@ -81,7 +70,6 @@ export function PositionTitle({
           textDecoration="none"
           _hover={{ textDecoration: 'none' }}
         >
-          <Text mr={2}>{poolName}</Text>
           <Flex
             mt={0.25}
             alignItems="center"

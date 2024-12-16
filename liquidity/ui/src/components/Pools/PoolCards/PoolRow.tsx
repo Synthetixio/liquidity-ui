@@ -1,6 +1,6 @@
 import { Button, Fade, Flex, Link, Text } from '@chakra-ui/react';
 import { ZEROWEI } from '@snx-v3/constants';
-import { formatNumber, formatNumberToUsd } from '@snx-v3/formatters';
+import { formatNumber, formatNumberToUsd, formatApr } from '@snx-v3/formatters';
 import { Sparkles } from '@snx-v3/icons';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
@@ -28,12 +28,6 @@ import { Specifics } from './Specifics';
 
 interface CollateralTypeWithDeposited extends CollateralType {
   collateralDeposited: string;
-}
-
-export function formatApr(apr?: number, networkId?: number) {
-  if (!networkId || !apr) return '-';
-
-  return `${apr.toFixed(2)}%`;
 }
 
 export function PoolRow({
@@ -249,8 +243,8 @@ export function PoolRow({
               color="white"
             >
               {isStataUSDC && stataUSDCApr
-                ? formatApr(apr7d * 100 + stataUSDCApr, network?.id)
-                : formatApr(apr7d * 100, network?.id)}
+                ? formatApr(apr7d * 100 + stataUSDCApr)
+                : formatApr(apr7d * 100)}
               <Tooltip
                 label={
                   <Flex direction="column">
@@ -258,15 +252,15 @@ export function PoolRow({
                       <Text fontWeight={700} mr={2}>
                         Total APR:
                       </Text>
-                      <Text fontWeight={700}>{formatApr(apr7d * 100, network?.id)}</Text>
+                      <Text fontWeight={700}>{formatApr(apr7d * 100)}</Text>
                     </Flex>
                     <Flex justifyContent="space-between">
                       <Text mr={2}>Performance:</Text>
-                      <Text>{formatApr(apr7dPnl * 100, network?.id)}</Text>
+                      <Text>{formatApr(apr7dPnl * 100)}</Text>
                     </Flex>
                     <Flex justifyContent="space-between">
                       <Text mr={2}>Rewards: </Text>
-                      <Text>{formatApr(apr7dRewards * 100, network?.id)}</Text>
+                      <Text>{formatApr(apr7dRewards * 100)}</Text>
                     </Flex>
                   </Flex>
                 }

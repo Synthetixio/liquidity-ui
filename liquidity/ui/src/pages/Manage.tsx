@@ -1,6 +1,7 @@
 import { InfoIcon } from '@chakra-ui/icons';
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
+import { formatApr } from '@snx-v3/formatters';
 import { ManagePositionProvider } from '@snx-v3/ManagePositionContext';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
@@ -9,7 +10,6 @@ import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type ManageActionType, type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
-import { usePoolData } from '@snx-v3/usePoolData';
 import { usePool } from '@snx-v3/usePoolsList';
 import React from 'react';
 import { ClosePosition } from '../components/ClosePosition/ClosePosition';
@@ -25,13 +25,10 @@ export const Manage = () => {
   const { data: collateralType, isPending: isPendingCollateralType } = useCollateralType(
     params.collateralSymbol
   );
-  const { data: poolData } = usePoolData();
   const { data: liquidityPosition } = useLiquidityPosition({
     accountId: params.accountId,
     collateralType,
   });
-
-  const collateralSymbol = collateralType?.symbol;
 
   const { data: stataUSDCAPR } = useStataUSDCApr(network?.id, network?.preset);
   const stataUSDCAPRParsed = stataUSDCAPR || 0;
@@ -43,7 +40,7 @@ export const Manage = () => {
 
   const [txnModalOpen, setTxnModalOpen] = React.useState<ManageActionType | undefined>(undefined);
 
-  const { data: pool } = usePool(Number(network?.id));
+  const { data: pool, isPending: isPendingPool } = usePool(Number(network?.id));
 
   const positionApr = pool?.apr?.collateralAprs?.find(
     (item: any) => item.collateralType.toLowerCase() === collateralType?.tokenAddress.toLowerCase()
@@ -62,30 +59,30 @@ export const Manage = () => {
           mb="8px"
           gap={4}
         >
-          <PositionTitle collateralSymbol={collateralSymbol} isOpen={false} />
-          {poolData && (
-            <Flex alignItems={['center', 'flex-end']} direction="column">
-              <Tooltip label="APR is averaged over the trailing 7 days and is comprised of both performance and rewards">
-                <Text
-                  fontFamily="heading"
-                  fontSize="sm"
-                  lineHeight={5}
-                  fontWeight="medium"
-                  color="gray.500"
-                >
-                  Estimated APR
-                  <InfoIcon ml={1} mb="2px" w="10px" h="10px" />
-                </Text>
-              </Tooltip>
-              <Text fontWeight="bold" fontSize="20px" color="white" lineHeight="36px">
-                {poolData && positionApr?.apr7d > 0
-                  ? `${(positionApr.apr7d * 100 + (isStataUSDC ? stataUSDCAPRParsed : 0))
-                      .toFixed(2)
-                      ?.concat('%')}`
-                  : '-'}
+          <PositionTitle />
+          <Flex alignItems={['center', 'flex-end']} direction="column">
+            <Tooltip label="APR is averaged over the trailing 7 days and is comprised of both performance and rewards">
+              <Text
+                fontFamily="heading"
+                fontSize="sm"
+                lineHeight={5}
+                fontWeight="medium"
+                color="gray.500"
+              >
+                Estimated APR
+                <InfoIcon ml={1} mb="2px" w="10px" h="10px" />
               </Text>
-            </Flex>
-          )}
+            </Tooltip>
+            <Text fontWeight="bold" fontSize="20px" color="white" lineHeight="36px">
+              {isPendingPool
+                ? '~'
+                : formatApr(
+                    positionApr?.apr7d > 0
+                      ? positionApr.apr7d * 100 + (isStataUSDC ? stataUSDCAPRParsed : 0)
+                      : undefined
+                  )}
+            </Text>
+          </Flex>
         </Flex>
         <Flex mt={6} flexDirection={['column', 'column', 'row']} gap={4}>
           <BorderBox
