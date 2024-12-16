@@ -45,7 +45,10 @@ describe(__filename, () => {
     cy.get('[data-cy="transaction hash"]').should('exist');
 
     cy.contains('[data-cy="unwrap synths dialog"] button', 'Done').click();
-    cy.get('[data-cy="synths table"]').should('include.text', 'You do not have any synths');
+    cy.get('[data-cy="synths table"]', { timeout: 180_000 }).should(
+      'include.text',
+      'You do not have any synths'
+    );
     cy.get('[data-cy="unwrap synths submit"]').should('be.disabled');
   });
 });

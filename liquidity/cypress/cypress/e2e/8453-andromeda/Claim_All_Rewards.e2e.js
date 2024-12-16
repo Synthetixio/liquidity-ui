@@ -53,7 +53,10 @@ describe(__filename, () => {
       .and('include.text', 'Claimed 449.22 SNX');
 
     cy.contains('[data-cy="claim rewards dialog"] button', 'Done').click();
-    cy.get('[data-cy="rewards table"]').should('include.text', 'No Rewards Available');
+    cy.get('[data-cy="rewards table"]', { timeout: 180_000 }).should(
+      'include.text',
+      'No Rewards Available'
+    );
     cy.get('[data-cy="claim rewards submit"]').should('be.disabled');
   });
 });

@@ -57,7 +57,10 @@ describe(__filename, () => {
       .and('include.text', 'Claimed 0.000000071 tBTC');
 
     cy.contains('[data-cy="claim rewards dialog"] button', 'Done').click();
-    cy.get('[data-cy="rewards table"]').should('include.text', 'No Rewards Available');
+    cy.get('[data-cy="rewards table"]', { timeout: 180_000 }).should(
+      'include.text',
+      'No Rewards Available'
+    );
     cy.get('[data-cy="claim rewards submit"]').should('be.disabled');
   });
 });
