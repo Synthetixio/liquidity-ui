@@ -139,6 +139,7 @@ export function useRewards({ accountId }: { accountId?: string }) {
 
       const poolDistributors = rewardsDistributors
         .filter((distributor) => !distributor.collateralType)
+        .filter((distributor) => !distributor.name.includes('Liquidation Rewards'))
         .flatMap((distributor) => ({
           method: 'getAvailablePoolRewards',
           claimMethod: 'claimPoolRewards',
@@ -155,6 +156,7 @@ export function useRewards({ accountId }: { accountId?: string }) {
 
       const poolDistributorsPerCollateral = rewardsDistributors
         .filter((distributor) => !distributor.collateralType)
+        .filter((distributor) => !distributor.name.includes('Liquidation Rewards'))
         .flatMap((distributor) =>
           collateralTypes.map((collateralType) => ({
             method: 'getAvailablePoolRewards',
