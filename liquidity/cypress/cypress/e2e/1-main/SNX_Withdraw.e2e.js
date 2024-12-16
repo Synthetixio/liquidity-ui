@@ -56,7 +56,9 @@ describe(__filename, () => {
     cy.get('[data-cy="withdraw confirm button"]').should('include.text', 'Execute Transaction');
     cy.get('[data-cy="withdraw confirm button"]').click();
 
-    cy.contains('[data-status="error"]', 'Withdraw failed').should('exist');
+    cy.contains('[data-status="error"]', 'Withdraw failed', {
+      timeout: 120_000,
+    }).should('exist');
     cy.contains('[data-status="error"]', 'AccountActivityTimeoutPending').should('exist');
     cy.get('[data-status="error"] [aria-label="Close"]').click();
 
@@ -66,7 +68,7 @@ describe(__filename, () => {
     cy.get('[data-cy="withdraw confirm button"]').click();
 
     cy.contains('[data-status="success"]', 'Collateral successfully Withdrawn', {
-      timeout: 180_000,
+      timeout: 120_000,
     }).should('exist');
   });
 });
