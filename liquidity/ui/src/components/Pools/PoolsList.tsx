@@ -172,9 +172,6 @@ export const PoolsList = () => {
 
   return (
     <Flex mt={6} flexDirection="column">
-      <Heading fontWeight={700} fontSize={24}>
-        Pools
-      </Heading>
       <Flex flexWrap="wrap" gap={4} justifyContent="space-between" my={6}>
         <ChainFilter activeChains={state.chains} dispatch={dispatch} />
         <CollateralFilter activeCollaterals={state.collaterals} dispatch={dispatch} />
