@@ -37,16 +37,10 @@ export default function Header() {
           </Link>
           <Link
             ml={{ base: 2, md: 6 }}
-            href={`?${makeSearch({
-              page: 'dashboard',
-              accountId: params.accountId,
-            })}`}
+            href={`?${makeSearch({ page: 'dashboard', accountId: params.accountId })}`}
             onClick={(e) => {
               e.preventDefault();
-              setParams({
-                page: 'dashboard',
-                accountId: params.accountId,
-              });
+              setParams({ page: 'dashboard', accountId: params.accountId });
             }}
             fontWeight={700}
             fontSize="14px"
@@ -61,10 +55,10 @@ export default function Header() {
           </Link>
           <Link
             ml={{ base: 2, md: 2.5 }}
-            href={`?${makeSearch({ page: 'pools', accountId: params.accountId })}`}
+            href={`?${makeSearch({ accountId: params.accountId })}`}
             onClick={(e) => {
               e.preventDefault();
-              setParams({ page: 'pools', accountId: params.accountId });
+              setParams({ accountId: params.accountId });
             }}
             fontWeight={700}
             fontSize="14px"
@@ -75,7 +69,7 @@ export default function Header() {
             _hover={{ textDecoration: 'none' }}
             _activeLink={{ color: 'white' }}
           >
-            Pools
+            Vaults
           </Link>
         </Flex>
         <Flex gap={3} flexWrap="wrap-reverse" justifyContent="center" alignItems="center">
