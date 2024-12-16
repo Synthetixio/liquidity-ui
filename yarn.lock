@@ -4932,9 +4932,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/close-position-arbitrum@workspace:contracts/close-position-arbitrum":
+"@snx-v3/close-position-arbitrum@workspace:contracts/position-manager":
   version: 0.0.0-use.local
-  resolution: "@snx-v3/close-position-arbitrum@workspace:contracts/close-position-arbitrum"
+  resolution: "@snx-v3/close-position-arbitrum@workspace:contracts/position-manager"
   dependencies:
     forge-std: "github:foundry-rs/forge-std"
   languageName: unknown

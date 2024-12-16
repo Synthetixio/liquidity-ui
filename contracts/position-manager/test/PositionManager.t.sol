@@ -6,7 +6,7 @@ import {Test} from "forge-std/src/Test.sol";
 import {console} from "forge-std/src/console.sol";
 import {MintableToken} from "./MintableToken.sol";
 import {MintableNFT} from "./MintableNFT.sol";
-import {ClosePosition} from "src/ClosePosition.sol";
+import {PositionManager} from "src/PositionManager.sol";
 import {ISynthetixCore} from "src/lib/ISynthetixCore.sol";
 
 contract CoreProxyMock {
@@ -100,13 +100,13 @@ contract CoreProxyMock {
     }
 }
 
-contract ClosePositionTest is Test {
+contract PositionManagerTest is Test {
     address internal ALICE;
     uint128 internal accountId = 420;
     uint128 internal poolId = 1;
     MintableToken internal USDx;
     MintableToken internal ARB;
-    ClosePosition internal closePosition;
+    PositionManager internal closePosition;
     CoreProxyMock internal coreProxy;
     MintableNFT internal accountProxy;
 
@@ -121,7 +121,7 @@ contract ClosePositionTest is Test {
         coreProxy = new CoreProxyMock();
         coreProxy.setUsdToken(address(USDx));
 
-        closePosition = new ClosePosition();
+        closePosition = new PositionManager();
         accountProxy = new MintableNFT("ACC");
     }
 
@@ -132,7 +132,9 @@ contract ClosePositionTest is Test {
         accountProxy.mint(ALICE, accountId);
         accountProxy.approve(address(closePosition), accountId);
 
-        vm.expectRevert(abi.encodeWithSelector(ClosePosition.NotEnoughAllowance.selector, ALICE, address(USDx), 31, 0));
+        vm.expectRevert(
+            abi.encodeWithSelector(PositionManager.NotEnoughAllowance.selector, ALICE, address(USDx), 31, 0)
+        );
 
         closePosition.closePosition(address(coreProxy), address(accountProxy), accountId, poolId, address(ARB));
 
@@ -143,12 +145,12 @@ contract ClosePositionTest is Test {
         coreProxy.setPositionDebt(100);
         coreProxy.setAccountAvailableCollateral(69);
 
-        USDx.approve(address(closePosition), 31); // allow ClosePosition to spend extra 31 USDx for deposit
+        USDx.approve(address(closePosition), 31); // allow PositionManager to spend extra 31 USDx for deposit
 
         accountProxy.mint(ALICE, accountId);
         accountProxy.approve(address(closePosition), accountId);
 
-        vm.expectRevert(abi.encodeWithSelector(ClosePosition.NotEnoughBalance.selector, ALICE, address(USDx), 31, 0));
+        vm.expectRevert(abi.encodeWithSelector(PositionManager.NotEnoughBalance.selector, ALICE, address(USDx), 31, 0));
 
         closePosition.closePosition(address(coreProxy), address(accountProxy), accountId, poolId, address(ARB));
 
@@ -160,7 +162,7 @@ contract ClosePositionTest is Test {
         coreProxy.setAccountAvailableCollateral(69);
 
         USDx.mint(ALICE, 1_000);
-        USDx.approve(address(closePosition), 31); // allow ClosePosition to spend extra 31 USDx for deposit
+        USDx.approve(address(closePosition), 31); // allow PositionManager to spend extra 31 USDx for deposit
 
         accountProxy.mint(ALICE, accountId);
         accountProxy.approve(address(closePosition), accountId);

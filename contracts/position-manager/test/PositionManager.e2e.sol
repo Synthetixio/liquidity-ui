@@ -1,13 +1,13 @@
 pragma solidity ^0.8.21;
 
-import {ClosePosition} from "src/ClosePosition.sol";
+import {PositionManager} from "src/PositionManager.sol";
 import {IAccountProxy} from "src/lib/IAccountProxy.sol";
 import {ISynthetixCore} from "src/lib/ISynthetixCore.sol";
 import {IUSDToken} from "src/lib/IUSDToken.sol";
 import {Test} from "forge-std/src/Test.sol";
 import {console} from "forge-std/src/console.sol";
 
-contract ClosePositionTest is Test {
+contract PositionManagerTest is Test {
     address private USDProxy;
     address private CoreProxy;
     address private AccountProxy;
@@ -74,7 +74,7 @@ contract ClosePositionTest is Test {
         assertLt(userDebt, 0, "Debt value should be negative");
         assertEq(collateralizationRatio, MAX_INT, "No Debt Collateral Ratio");
 
-        ClosePosition closePosition = new ClosePosition();
+        PositionManager closePosition = new PositionManager();
 
         IAccountProxy(AccountProxy).approve(address(closePosition), negativeDebtSnxUserAccountId);
 
@@ -119,7 +119,7 @@ contract ClosePositionTest is Test {
         assertGt(userDebtBefore, 0, "Debt value should be positive");
         assertLt(collateralizationRatio, MAX_INT, "Collateral Ratio is not infinite");
 
-        ClosePosition closePosition = new ClosePosition();
+        PositionManager closePosition = new PositionManager();
 
         IAccountProxy(AccountProxy).approve(address(closePosition), positiveDebtSnxUserAccountId);
         IUSDToken(USDProxy).approve(address(closePosition), startingUSDProxyAmount);
