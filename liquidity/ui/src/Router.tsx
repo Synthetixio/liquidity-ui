@@ -7,12 +7,22 @@ import { Settings } from './pages/Account/Settings';
 import { Dashboard } from './pages/Dashboard';
 import { Home } from './pages/Home';
 import { Manage } from './pages/Manage';
-import { Pool } from './pages/Pool';
-import { Pools } from './pages/Pools';
+
+function Content() {
+  const [params] = useParams();
+  if (params.page === 'settings') {
+    return <Settings />;
+  }
+  if (params.page === 'position') {
+    return <Manage />;
+  }
+  if (params.page === 'dashboard') {
+    return <Dashboard />;
+  }
+  return <Home />;
+}
 
 export function Router() {
-  const [params] = useParams();
-
   return (
     <Suspense fallback={<Spinner />}>
       <Box
@@ -26,12 +36,7 @@ export function Router() {
         <Flex flex="1" flexDirection="column">
           <Header />
           <Container display="flex" flexDir="column" maxW="1236px" flex="1">
-            {params.page === 'settings' ? <Settings /> : null}
-            {params.page === 'position' ? <Manage /> : null}
-            {params.page === 'pool' ? <Pool /> : null}
-            {params.page === 'pools' ? <Pools /> : null}
-            {params.page === 'dashboard' ? <Dashboard /> : null}
-            {params.page === 'home' || !params.page ? <Home /> : null}
+            <Content />
           </Container>
           <Footer />
         </Flex>

@@ -24,11 +24,16 @@ import { ethers } from 'ethers';
 import React from 'react';
 import { MigrationBanner } from '../../Migration/MigrationBanner';
 import { TokenIcon } from '../../TokenIcon/TokenIcon';
-import { formatApr } from '../CollateralSection';
 import { Specifics } from './Specifics';
 
 interface CollateralTypeWithDeposited extends CollateralType {
   collateralDeposited: string;
+}
+
+export function formatApr(apr?: number, networkId?: number) {
+  if (!networkId || !apr) return '-';
+
+  return `${apr.toFixed(2)}%`;
 }
 
 export function PoolRow({

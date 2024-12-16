@@ -5117,7 +5117,6 @@ __metadata:
     "@snx-v3/useUnwrapAllSynths": "workspace:*"
     "@snx-v3/useV2Position": "workspace:*"
     "@snx-v3/useV2sUSD": "workspace:*"
-    "@snx-v3/useVaultsData": "workspace:*"
     "@snx-v3/useWithdrawTimer": "workspace:*"
     "@snx-v3/validatePosition": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
@@ -6303,7 +6302,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/useVaultsData@workspace:*, @snx-v3/useVaultsData@workspace:liquidity/lib/useVaultsData":
+"@snx-v3/useVaultsData@workspace:liquidity/lib/useVaultsData":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useVaultsData@workspace:liquidity/lib/useVaultsData"
   dependencies:
