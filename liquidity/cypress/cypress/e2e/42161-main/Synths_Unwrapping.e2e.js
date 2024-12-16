@@ -10,7 +10,7 @@ describe(__filename, () => {
     cy.task('startAnvil', {
       chainId: Cypress.env('chainId'),
       forkUrl: `https://arbitrum-mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '284040698',
+      block: '285379110',
     }).then(() => cy.log('Anvil started'));
 
     cy.on('window:before:load', (win) => {
