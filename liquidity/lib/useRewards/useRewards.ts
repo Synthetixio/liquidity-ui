@@ -1,6 +1,6 @@
 import { POOL_ID } from '@snx-v3/constants';
 import { contractsHash } from '@snx-v3/tsHelpers';
-import { useAllErrors } from '@snx-v3/useAllErrors';
+// import { useAllErrors } from '@snx-v3/useAllErrors';
 import { useNetwork, useProvider } from '@snx-v3/useBlockchain';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
@@ -74,7 +74,7 @@ export function useRewards({ accountId }: { accountId?: string }) {
   const { data: collateralTypes } = useCollateralTypes();
   const { data: Multicall3 } = useMulticall3(network);
   const { data: CoreProxy } = useCoreProxy(network);
-  const { data: AllErrors } = useAllErrors(network);
+  // const { data: AllErrors } = useAllErrors(network);
   const { data: rewardsDistributors } = useRewardsDistributors(network);
 
   return useQuery({
@@ -82,6 +82,7 @@ export function useRewards({ accountId }: { accountId?: string }) {
       network &&
         CoreProxy &&
         Multicall3 &&
+        // AllErrors &&
         rewardsDistributors &&
         accountId &&
         collateralTypes &&
@@ -106,7 +107,7 @@ export function useRewards({ accountId }: { accountId?: string }) {
         !(
           CoreProxy &&
           Multicall3 &&
-          AllErrors &&
+          // AllErrors &&
           rewardsDistributors &&
           accountId &&
           collateralTypes &&
@@ -195,15 +196,15 @@ export function useRewards({ accountId }: { accountId?: string }) {
       const multicallResponse = await Multicall3Contract.callStatic.aggregate3(calls);
       log('multicallResponse', multicallResponse);
 
-      const AllErrorsInterface = new ethers.utils.Interface(AllErrors.abi);
+      // const AllErrorsInterface = new ethers.utils.Interface(AllErrors.abi);
       const availableRewards = multicall
         .map(({ method, claimMethod, args, distributor, collateralType }, i) => {
           const { success, returnData } = multicallResponse[i];
           if (!success) {
-            log(
-              `${method} call error for ${distributor.name}`,
-              AllErrorsInterface.parseError(returnData)
-            );
+            // log(
+            //   `${method} call error for ${distributor.name}`,
+            //   AllErrorsInterface.parseError(returnData)
+            // );
             return;
           }
           const [amount] = CoreProxyContract.interface.decodeFunctionResult(method, returnData);

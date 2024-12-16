@@ -5983,7 +5983,6 @@ __metadata:
   dependencies:
     "@snx-v3/constants": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
-    "@snx-v3/useAllErrors": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
