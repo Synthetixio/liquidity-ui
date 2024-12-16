@@ -3,14 +3,18 @@ import { makeSearch } from '@snx-v3/useParams';
 describe(__filename, () => {
   Cypress.env('chainId', '8453');
   Cypress.env('preset', 'andromeda');
-  Cypress.env('walletAddress', '0x1a245Fa866932731631E1ec8EDcDbB0C6A402559');
-  Cypress.env('accountId', '1640332659');
+  Cypress.env('walletAddress', '0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345');
+  Cypress.env('accountId', '522433293696');
+
+  // Account with old vault rewards
+  //  Cypress.env('walletAddress', '0x1a245Fa866932731631E1ec8EDcDbB0C6A402559');
+  //  Cypress.env('accountId', '1640332659');
 
   beforeEach(() => {
     cy.task('startAnvil', {
       chainId: Cypress.env('chainId'),
       forkUrl: `https://base-mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '22544990',
+      block: '23771246',
     }).then(() => cy.log('Anvil started'));
 
     cy.on('window:before:load', (win) => {
@@ -40,8 +44,8 @@ describe(__filename, () => {
 
     cy.get('[data-cy="claim rewards info"]')
       .should('exist')
-      .and('include.text', 'Claiming 640.24 USDC')
-      .and('include.text', 'Claiming 449.22 SNX');
+      .and('include.text', 'Claiming 2.37 USDC')
+      .and('include.text', 'Claiming 1.9 SNX');
 
     cy.contains('[data-status="success"]', 'Your rewards have been claimed', {
       timeout: 180_000,
@@ -49,8 +53,8 @@ describe(__filename, () => {
     cy.get('[data-cy="transaction hash"]').should('exist');
 
     cy.get('[data-cy="claim rewards info"]')
-      .should('include.text', 'Claimed 640.24 USDC')
-      .and('include.text', 'Claimed 449.22 SNX');
+      .should('include.text', 'Claimed 2.37 USDC')
+      .and('include.text', 'Claimed 1.9 SNX');
 
     cy.contains('[data-cy="claim rewards dialog"] button', 'Done').click();
     cy.get('[data-cy="rewards table"]', { timeout: 180_000 }).should(
