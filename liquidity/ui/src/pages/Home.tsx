@@ -1,8 +1,12 @@
 import { Flex, Heading, Text } from '@chakra-ui/react';
+import { MAINNET, SEPOLIA, useNetwork } from '@snx-v3/useBlockchain';
 import { Helmet } from 'react-helmet';
+import { MigrationBanner } from '../components/Migration/MigrationBanner';
 import { PoolsList } from '../components/Pools/PoolsList';
 
 export function Home() {
+  const { network } = useNetwork();
+
   return (
     <>
       <Helmet>
@@ -23,6 +27,10 @@ export function Home() {
           Provide liquidity for the next generation of permissionless protocols
         </Text>
         <PoolsList />
+
+        {network && [MAINNET.id, SEPOLIA.id].includes(network.id) ? (
+          <MigrationBanner network={network} type="banner" />
+        ) : null}
       </Flex>
     </>
   );

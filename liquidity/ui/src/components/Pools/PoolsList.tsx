@@ -5,46 +5,36 @@ import { useOfflinePrices } from '@snx-v3/useCollateralPriceUpdates';
 import { CollateralType, useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useOraclePrice } from '@snx-v3/useOraclePrice';
 import { usePoolsList } from '@snx-v3/usePoolsList';
-import { useRewardsDistributors } from '@snx-v3/useRewardsDistributors';
 import { useMemo, useReducer } from 'react';
 import { Balloon } from './Balloon';
 import { ChainFilter } from './ChainFilter';
 import { CollateralFilter } from './CollateralFilter';
-import { PoolCard } from './PoolCards/PoolCard';
 import { PoolCardsLoading } from './PoolCards/PoolCardsLoading';
+import { PoolRow } from './PoolCards/PoolRow';
 
 export const PoolsList = () => {
   const [state, dispatch] = useReducer(poolsReducer, { collaterals: [], chains: [] });
-  const { data, isLoading: isPoolsListLoading } = usePoolsList();
+  const { data: poolsList, isPending: isPendingPoolsList } = usePoolsList();
 
-  const { data: BaseCollateralTypes, isLoading: isBaseCollateralLoading } = useCollateralTypes(
+  const { data: baseCollateralTypes, isPending: isPendingBaseCollateralTypes } = useCollateralTypes(
     false,
     BASE_ANDROMEDA
   );
-
-  const { data: ArbitrumCollateralTypes, isLoading: isArbCollateralLoading } = useCollateralTypes(
-    false,
-    ARBITRUM
-  );
-
-  const { data: MainnetCollateralTypes, isLoading: isMainCollateralLoading } = useCollateralTypes(
-    false,
-    MAINNET
-  );
+  const { data: arbitrumCollateralTypes, isPending: isPendingArbitrumCollateralTypes } =
+    useCollateralTypes(false, ARBITRUM);
+  const { data: mainnetCollateralTypes, isPending: isPendingMainnetCollateralTypes } =
+    useCollateralTypes(false, MAINNET);
 
   const allCollaterals: CollateralType[] = useMemo(() => {
-    if (!BaseCollateralTypes || !ArbitrumCollateralTypes || !MainnetCollateralTypes) {
-      return [];
-    }
-
     // We want to filter out assets that don't have a pyth price feed
+    return [
+      ...(baseCollateralTypes ?? []),
+      ...(arbitrumCollateralTypes ?? []),
+      ...(mainnetCollateralTypes ?? []),
+    ].filter((item) => item.symbol !== 'stataUSDC');
+  }, [arbitrumCollateralTypes, baseCollateralTypes, mainnetCollateralTypes]);
 
-    return BaseCollateralTypes.concat(ArbitrumCollateralTypes)
-      .concat(MainnetCollateralTypes)
-      .filter((item) => item.symbol !== 'stataUSDC');
-  }, [ArbitrumCollateralTypes, BaseCollateralTypes, MainnetCollateralTypes]);
-
-  const { data: collateralPrices, isLoading: isLoadingCollateralPrices } = useOfflinePrices(
+  const { data: collateralPrices, isPending: isPendingCollateralPrices } = useOfflinePrices(
     allCollaterals.map((item) => ({
       id: item.tokenAddress,
       oracleId: item.oracleNodeId,
@@ -53,58 +43,40 @@ export const PoolsList = () => {
   );
 
   // Fetch stata price from oracle manager
-  const stata = BaseCollateralTypes?.find((item) => item.symbol === 'stataUSDC');
+  const stata = baseCollateralTypes?.find((item) => item.symbol === 'stataUSDC');
 
-  const { data: stataPrice, isLoading: isStataPriceLoading } = useOraclePrice(
+  const { data: stataPrice, isPending: isStataPriceLoading } = useOraclePrice(
     stata?.oracleNodeId,
     BASE_ANDROMEDA
   );
 
-  // Arb Rewards
-  const { data: ArbitrumRewards, isLoading: isArbitrumRewardsLoading } =
-    useRewardsDistributors(ARBITRUM);
-
-  // Base Rewards
-  const { data: BaseRewards, isLoading: isBaseRewardsLoading } =
-    useRewardsDistributors(BASE_ANDROMEDA);
-
-  // Mainnet Rewards
-  const { data: MainRewards, isLoading: isMainRewardsLoading } = useRewardsDistributors(MAINNET);
-
   const { collaterals, chains } = state;
 
-  const isLoading =
-    isPoolsListLoading ||
-    isLoadingCollateralPrices ||
-    isBaseCollateralLoading ||
-    isArbCollateralLoading ||
-    isMainCollateralLoading ||
-    isArbitrumRewardsLoading ||
-    isBaseRewardsLoading ||
-    isMainRewardsLoading ||
+  const isPending =
+    isPendingPoolsList ||
+    isPendingCollateralPrices ||
+    isPendingBaseCollateralTypes ||
+    isPendingArbitrumCollateralTypes ||
+    isPendingMainnetCollateralTypes ||
     isStataPriceLoading;
 
   const filteredPools = useMemo(() => {
     return (
-      data?.synthetixPools
+      poolsList?.synthetixPools
         .map(({ network, poolInfo, apr }) => {
           const collateralDeposited = poolInfo.map(({ collateral_type }) => ({
             collateralDeposited: collateral_type.total_amount_deposited,
             tokenAddress: collateral_type.id,
           }));
 
-          let collaterals: typeof ArbitrumCollateralTypes = [];
-          let rewardsDistributors: any = {};
+          let collaterals: typeof arbitrumCollateralTypes = [];
 
           if (network.id === ARBITRUM.id) {
-            collaterals = ArbitrumCollateralTypes;
-            rewardsDistributors = ArbitrumRewards;
+            collaterals = arbitrumCollateralTypes;
           } else if (network.id === BASE_ANDROMEDA.id) {
-            collaterals = BaseCollateralTypes;
-            rewardsDistributors = BaseRewards;
+            collaterals = baseCollateralTypes;
           } else if (network.id === MAINNET.id) {
-            collaterals = MainnetCollateralTypes;
-            rewardsDistributors = MainRewards;
+            collaterals = mainnetCollateralTypes;
           }
 
           const collateralTypes = collaterals?.map((item) => ({
@@ -121,7 +93,6 @@ export const PoolsList = () => {
             apr,
             collateralDeposited,
             collateralTypes,
-            rewardsDistributors,
           };
         })
         .filter((pool) => {
@@ -152,13 +123,10 @@ export const PoolsList = () => {
         }) || []
     );
   }, [
-    data?.synthetixPools,
-    ArbitrumCollateralTypes,
-    ArbitrumRewards,
-    BaseCollateralTypes,
-    BaseRewards,
-    MainnetCollateralTypes,
-    MainRewards,
+    poolsList?.synthetixPools,
+    arbitrumCollateralTypes,
+    baseCollateralTypes,
+    mainnetCollateralTypes,
     chains,
     collaterals,
   ]);
@@ -177,7 +145,7 @@ export const PoolsList = () => {
       </Flex>
       <Flex minW="1200px" overflowX="auto" direction="column" gap={4}>
         <Divider width="100%" />
-        <Flex gap={4} px={4} py={3}>
+        <Flex flexDir="row" w="100%" gap={4} py={3} px={4} whiteSpace="nowrap">
           <Text
             color="gray.600"
             fontFamily="heading"
@@ -185,9 +153,9 @@ export const PoolsList = () => {
             lineHeight="16px"
             letterSpacing={0.6}
             fontWeight={700}
-            width="190px"
+            width="240px"
           >
-            Collateral/Network
+            Collateral / Network
           </Text>
 
           <Text
@@ -210,20 +178,7 @@ export const PoolsList = () => {
             lineHeight="16px"
             letterSpacing={0.6}
             fontWeight={700}
-            width="189px"
-            textAlign="right"
-          >
-            Pool / Owner
-          </Text>
-
-          <Text
-            color="gray.600"
-            fontFamily="heading"
-            fontSize="12px"
-            lineHeight="16px"
-            letterSpacing={0.6}
-            fontWeight={700}
-            width="144px"
+            width="220px"
             textAlign="right"
           >
             TVL
@@ -239,7 +194,7 @@ export const PoolsList = () => {
             width="144px"
             textAlign="right"
           >
-            APY/APR
+            APY / APR
           </Text>
           <Text
             color="gray.600"
@@ -256,43 +211,32 @@ export const PoolsList = () => {
           <Flex minW="159px" flex="1" />
         </Flex>
 
-        {isLoading && !filteredPools?.length ? <PoolCardsLoading /> : null}
+        {isPending && !filteredPools?.length ? <PoolCardsLoading /> : null}
 
         {filteredPools?.length > 0
-          ? filteredPools.map(
-              ({ network, poolInfo, apr, collateralTypes, rewardsDistributors }) => {
-                const filteredCollateralTypes = collateralTypes?.filter((collateralType) => {
-                  if (!collaterals.length) {
-                    return true;
-                  }
-
-                  return collaterals.includes(collateralType.symbol);
-                });
-
-                const rewardsPayoutTokens = [
-                  ...new Set(
-                    rewardsDistributors?.map(({ payoutToken }: any) =>
-                      payoutToken.symbol.toUpperCase()
-                    )
-                  ),
-                ] as string[];
-
-                return (
-                  <PoolCard
-                    key={network.hexId}
-                    collateralTypes={filteredCollateralTypes}
-                    collateralPrices={allCollateralPrices}
-                    apr={apr}
-                    network={network}
-                    pool={poolInfo?.[0]?.pool}
-                    rewardsPayoutTokens={rewardsPayoutTokens}
-                  />
-                );
-              }
+          ? filteredPools.flatMap(
+              ({ network, poolInfo, apr, collateralTypes }) =>
+                collateralTypes
+                  ?.filter((collateralType) => {
+                    if (!collaterals.length) {
+                      return true;
+                    }
+                    return collaterals.includes(collateralType.symbol);
+                  })
+                  .map((collateralType) => (
+                    <PoolRow
+                      key={`${network.id}-${collateralType.address}`}
+                      pool={poolInfo?.[0]?.pool}
+                      network={network}
+                      apr={apr}
+                      collateralType={collateralType}
+                      collateralPrices={allCollateralPrices}
+                    />
+                  ))
             )
           : null}
 
-        {!isLoading && !filteredPools?.length && (
+        {!isPending && !filteredPools?.length && (
           <Flex flexDir="column" alignItems="center">
             <Balloon mb={12} mt={6} />
             <Text mb={2} color="gray.500">
