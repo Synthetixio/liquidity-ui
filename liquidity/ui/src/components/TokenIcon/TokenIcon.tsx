@@ -9,11 +9,11 @@ interface TokenIconProps extends ImageProps {
 export const TokenIcon = ({ symbol, width = 30, height = 30, ...props }: TokenIconProps) => {
   return symbol ? (
     <Image
-      src={`https://synthetixio.github.io/synthetix-assets/collateral/${symbol?.toUpperCase()}.svg`}
+      src={`https://assets.synthetix.io/collateral/${symbol?.toUpperCase()}.svg`}
       fallback={
         <Image
-          src={`https://synthetixio.github.io/synthetix-assets/synths/${symbol}.svg`}
-          fallbackSrc="https://synthetixio.github.io/synthetix-assets/collateral/UNKNOWN.svg"
+          src={`https://assets.synthetix.io/synths/${symbol}.svg`}
+          fallbackSrc="https://assets.synthetix.io/collateral/UNKNOWN.svg"
           alt={symbol}
           style={{ width, height }}
           {...props}
@@ -25,8 +25,8 @@ export const TokenIcon = ({ symbol, width = 30, height = 30, ...props }: TokenIc
     />
   ) : (
     <Image
-      src="https://synthetixio.github.io/synthetix-assets/collateral/UNKNOWN.svg"
-      fallbackSrc="https://synthetixio.github.io/synthetix-assets/collateral/UNKNOWN.svg"
+      src="https://assets.synthetix.io/collateral/UNKNOWN.svg"
+      fallbackSrc="https://assets.synthetix.io/collateral/UNKNOWN.svg"
       alt={symbol}
       style={{ width, height }}
       {...props}
