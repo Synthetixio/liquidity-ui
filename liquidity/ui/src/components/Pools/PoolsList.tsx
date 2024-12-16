@@ -12,7 +12,6 @@ import { ChainFilter } from './ChainFilter';
 import { CollateralFilter } from './CollateralFilter';
 import { PoolCard } from './PoolCards/PoolCard';
 import { PoolCardsLoading } from './PoolCards/PoolCardsLoading';
-import { TorosPoolCard } from './PoolCards/TorosPoolCard';
 
 export const PoolsList = () => {
   const [state, dispatch] = useReducer(poolsReducer, { collaterals: [], chains: [] });
@@ -256,15 +255,9 @@ export const PoolsList = () => {
           </Text>
           <Flex minW="159px" flex="1" />
         </Flex>
+
         {isLoading && !filteredPools?.length ? <PoolCardsLoading /> : null}
-        {(!chains.length || chains.includes(BASE_ANDROMEDA.id)) &&
-        (!collaterals.length || collaterals.includes('USDC')) ? (
-          <TorosPoolCard token="USDC" />
-        ) : null}
-        {(!chains.length || chains.includes(ARBITRUM.id)) &&
-        (!collaterals.length || collaterals.includes('wstETH')) ? (
-          <TorosPoolCard token="wstETH" />
-        ) : null}
+
         {filteredPools?.length > 0
           ? filteredPools.map(
               ({ network, poolInfo, apr, collateralTypes, rewardsDistributors }) => {

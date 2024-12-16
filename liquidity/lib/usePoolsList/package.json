@@ -7,7 +7,6 @@
     "@snx-v3/constants": "workspace:*",
     "@snx-v3/useApr": "workspace:*",
     "@snx-v3/useBlockchain": "workspace:*",
-    "@tanstack/react-query": "^5.8.3",
-    "humanize-plus": "^1.8.2"
+    "@tanstack/react-query": "^5.8.3"
   }
 }

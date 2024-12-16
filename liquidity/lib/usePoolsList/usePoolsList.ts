@@ -2,7 +2,6 @@ import { getSubgraphUrl, POOL_ID } from '@snx-v3/constants';
 import { fetchApr } from '@snx-v3/useApr';
 import { ARBITRUM, BASE_ANDROMEDA, MAINNET, NETWORKS } from '@snx-v3/useBlockchain';
 import { useQuery } from '@tanstack/react-query';
-import { compactInteger } from 'humanize-plus';
 
 export function usePoolsList() {
   return useQuery({
@@ -38,35 +37,6 @@ export function usePool(networkId?: number) {
 }
 
 const supportedNetworks = [MAINNET.id, BASE_ANDROMEDA.id, ARBITRUM.id];
-
-export async function fetchTorosPool(address: string) {
-  return fetch('https://api-v2.dhedge.org/graphql', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      query: `
-          query GetFund($address: String!) {
-              fund(address: $address) {
-                totalValue
-                apy {
-                  monthly
-                  weekly
-                }
-              }
-            }`,
-      variables: { address },
-    }),
-  })
-    .then((response) => response.json())
-    .then(({ data }) => {
-      return {
-        tvl: compactInteger(data.fund.totalValue / 1e18, 1),
-        apy: data.fund.apy.weekly,
-      };
-    });
-}
 
 export const networksOffline = NETWORKS.filter(
   (n) => supportedNetworks.includes(n.id) && n.isSupported
