@@ -1,10 +1,10 @@
 import { ArrowUpIcon, CheckIcon } from '@chakra-ui/icons';
 import { Alert, Button, Flex, Text, VStack } from '@chakra-ui/react';
+import { ChangeStat } from '@snx-v3/ChangeStat';
 import { ZEROWEI } from '@snx-v3/constants';
 import { currency } from '@snx-v3/format';
 import Wei from '@synthetixio/wei';
 import React from 'react';
-import { ChangeStat } from '../ChangeStat/ChangeStat';
 import { TransactionSummary } from '../TransactionSummary/TransactionSummary';
 
 export const StepSuccess = ({

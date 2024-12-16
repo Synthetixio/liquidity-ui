@@ -1,6 +1,7 @@
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import { Button, Divider, Link, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
+import { ChangeStat } from '@snx-v3/ChangeStat';
 import { D18, D27, D6, ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
 import { currency } from '@snx-v3/format';
@@ -23,7 +24,6 @@ import { Wei, wei } from '@synthetixio/wei';
 import { useMachine } from '@xstate/react';
 import { ethers } from 'ethers';
 import React from 'react';
-import { ChangeStat } from '../../ui/src/components/ChangeStat/ChangeStat';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
 import { TransactionSummary } from '../../ui/src/components/TransactionSummary/TransactionSummary';
 import { DepositMachine, Events, ServiceNames, State } from './DepositMachine';

@@ -1,5 +1,6 @@
 import { Flex, Text } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
+import { DebtAmount, PnlAmount } from '@snx-v3/DebtAmount';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useLiquidityPositions } from '@snx-v3/useLiquidityPositions';
 import { useParams } from '@snx-v3/useParams';
@@ -84,7 +85,7 @@ export const StatsList = () => {
         <StatBox
           title="Total PNL"
           isLoading={Boolean(params.accountId && isPending)}
-          value={<Amount prefix="$" value={totalDebt.mul(-1)} />}
+          value={<PnlAmount debt={totalDebt} />}
           label={<Text textAlign="left">Aggregated PNL of all your open Positions</Text>}
         />
       ) : null}
@@ -93,7 +94,7 @@ export const StatsList = () => {
         <StatBox
           title="Total Debt"
           isLoading={Boolean(params.accountId && isPending)}
-          value={<Amount prefix="$" value={totalDebt.abs()} />}
+          value={<DebtAmount debt={totalDebt} />}
           label={<Text textAlign="left">Aggregated Debt of all your open Positions</Text>}
         />
       ) : null}

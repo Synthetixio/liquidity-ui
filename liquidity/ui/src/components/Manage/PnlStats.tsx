@@ -1,14 +1,13 @@
 import { InfoIcon } from '@chakra-ui/icons';
 import { Flex, Text } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
-import { ZEROWEI } from '@snx-v3/constants';
-import { currency } from '@snx-v3/format';
+import { ChangeStat } from '@snx-v3/ChangeStat';
+import { PnlAmount } from '@snx-v3/DebtAmount';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { type Wei } from '@synthetixio/wei';
-import { ChangeStat } from '../ChangeStat/ChangeStat';
 
 export function PnlStats({ newDebt, hasChanges }: { newDebt: Wei; hasChanges: boolean }) {
   const [params] = useParams<PositionPageSchemaType>();
@@ -42,14 +41,7 @@ export function PnlStats({ newDebt, hasChanges }: { newDebt: Wei; hasChanges: bo
             value={liquidityPosition?.debt.mul(-1)}
             isPending={Boolean(params.accountId && isPendingLiquidityPosition)}
             newValue={newDebt.mul(-1)}
-            formatFn={(val?: Wei) =>
-              currency(val ?? ZEROWEI, {
-                currency: 'USD',
-                style: 'currency',
-                maximumFractionDigits: 4,
-              })
-            }
-            withColor
+            formatFn={(val?: Wei) => <PnlAmount debt={val ? val.mul(-1) : val} as="span" />}
             hasChanges={hasChanges}
             data-cy="stats pnl"
           />

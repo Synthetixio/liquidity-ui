@@ -4647,6 +4647,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/ChangeStat@workspace:*, @snx-v3/ChangeStat@workspace:liquidity/lib/ChangeStat":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/ChangeStat@workspace:liquidity/lib/ChangeStat"
+  dependencies:
+    "@chakra-ui/icons": "npm:^2.1.1"
+    "@chakra-ui/react": "npm:^2.8.2"
+    "@synthetixio/wei": "npm:^2.74.4"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/ClaimModal@workspace:*, @snx-v3/ClaimModal@workspace:liquidity/components/ClaimModal":
   version: 0.0.0-use.local
   resolution: "@snx-v3/ClaimModal@workspace:liquidity/components/ClaimModal"
@@ -4693,6 +4704,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/DebtAmount@workspace:*, @snx-v3/DebtAmount@workspace:liquidity/lib/DebtAmount":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/DebtAmount@workspace:liquidity/lib/DebtAmount"
+  dependencies:
+    "@chakra-ui/react": "npm:^2.8.2"
+    "@snx-v3/Amount": "workspace:*"
+    "@snx-v3/constants": "workspace:*"
+    "@synthetixio/wei": "npm:^2.74.4"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/DepositModal@workspace:*, @snx-v3/DepositModal@workspace:liquidity/components/DepositModal":
   version: 0.0.0-use.local
   resolution: "@snx-v3/DepositModal@workspace:liquidity/components/DepositModal"
@@ -4700,6 +4722,7 @@ __metadata:
     "@chakra-ui/icons": "npm:^2.1.1"
     "@chakra-ui/react": "npm:^2.8.2"
     "@snx-v3/Amount": "workspace:*"
+    "@snx-v3/ChangeStat": "workspace:*"
     "@snx-v3/ContractError": "workspace:*"
     "@snx-v3/ManagePositionContext": "workspace:*"
     "@snx-v3/Multistep": "workspace:*"
@@ -4819,15 +4842,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/TrendText@workspace:liquidity/components/TrendText":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/TrendText@workspace:liquidity/components/TrendText"
-  dependencies:
-    "@chakra-ui/react": "npm:^2.8.2"
-    "@synthetixio/wei": "npm:^2.74.4"
-  languageName: unknown
-  linkType: soft
-
 "@snx-v3/UndelegateModal@workspace:*, @snx-v3/UndelegateModal@workspace:liquidity/components/UndelegateModal":
   version: 0.0.0-use.local
   resolution: "@snx-v3/UndelegateModal@workspace:liquidity/components/UndelegateModal"
@@ -4835,6 +4849,7 @@ __metadata:
     "@chakra-ui/icons": "npm:^2.1.1"
     "@chakra-ui/react": "npm:^2.8.2"
     "@snx-v3/Amount": "workspace:*"
+    "@snx-v3/ChangeStat": "workspace:*"
     "@snx-v3/ContractError": "workspace:*"
     "@snx-v3/ManagePositionContext": "workspace:*"
     "@snx-v3/Multistep": "workspace:*"
@@ -5038,8 +5053,10 @@ __metadata:
     "@safe-global/safe-apps-sdk": "npm:^9.1.0"
     "@snx-v3/Amount": "workspace:*"
     "@snx-v3/BorderBox": "workspace:*"
+    "@snx-v3/ChangeStat": "workspace:*"
     "@snx-v3/ClaimModal": "workspace:*"
     "@snx-v3/ContractError": "workspace:*"
+    "@snx-v3/DebtAmount": "workspace:*"
     "@snx-v3/DepositModal": "workspace:*"
     "@snx-v3/ManagePositionContext": "workspace:*"
     "@snx-v3/Multistep": "workspace:*"

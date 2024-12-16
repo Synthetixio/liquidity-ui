@@ -27,7 +27,6 @@ export function ChangeStat({
   newValue,
   hasChanges,
   'data-cy': dataCy,
-  withColor,
   size = 'lg',
   isPending,
 }: {
@@ -36,7 +35,6 @@ export function ChangeStat({
   hasChanges: boolean;
   'data-cy'?: string;
   formatFn: (val?: Wei) => React.ReactNode;
-  withColor?: boolean;
   size?: 'sm' | 'md' | 'lg';
   isPending?: boolean;
 }) {
@@ -55,13 +53,6 @@ export function ChangeStat({
         data-cy="change stats current"
         textAlign="center"
         opacity={value && value.eq(0) ? '70%' : undefined}
-        color={
-          withColor && value && value.gt(0)
-            ? 'green.700'
-            : value && value.lt(0)
-              ? 'red.700'
-              : 'gray.50'
-        }
         whiteSpace="nowrap"
       >
         {isPending ? '~' : formatFn(value)}
@@ -73,9 +64,6 @@ export function ChangeStat({
             data-cy="change stats new"
             textAlign="center"
             opacity={newValue.eq(0) ? '70%' : undefined}
-            color={
-              withColor && newValue.gt(0) ? 'green.700' : newValue.lt(0) ? 'red.700' : 'gray.50'
-            }
             whiteSpace="nowrap"
           >
             {formatFn(newValue)}

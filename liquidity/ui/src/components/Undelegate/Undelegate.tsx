@@ -11,6 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
+import { ChangeStat } from '@snx-v3/ChangeStat';
 import { ZEROWEI } from '@snx-v3/constants';
 import { currency } from '@snx-v3/format';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
@@ -24,7 +25,6 @@ import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
 import { validatePosition } from '@snx-v3/validatePosition';
 import Wei, { wei } from '@synthetixio/wei';
 import React from 'react';
-import { ChangeStat } from '../ChangeStat/ChangeStat';
 import { CRatioChangeStat } from '../CRatioBar/CRatioChangeStat';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
 import { TransactionSummary } from '../TransactionSummary/TransactionSummary';

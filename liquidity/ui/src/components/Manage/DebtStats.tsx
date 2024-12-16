@@ -1,12 +1,12 @@
 import { InfoIcon } from '@chakra-ui/icons';
 import { Flex, Text, Tooltip } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
+import { ChangeStat } from '@snx-v3/ChangeStat';
+import { DebtAmount } from '@snx-v3/DebtAmount';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { type Wei } from '@synthetixio/wei';
-import { ChangeStat } from '../ChangeStat/ChangeStat';
-import { DebtAmount } from '../Positions/DebtAmount';
 
 export function DebtStats({ newDebt, hasChanges }: { newDebt: Wei; hasChanges: boolean }) {
   const [params] = useParams<PositionPageSchemaType>();

@@ -1,6 +1,7 @@
 import { TimeIcon } from '@chakra-ui/icons';
 import { Box, Button, Collapse, Fade, Flex, Link, Td, Text, Tooltip } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
+import { DebtAmount, PnlAmount } from '@snx-v3/DebtAmount';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
@@ -10,7 +11,6 @@ import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
 import { CRatioAmount } from '../CRatioBar/CRatioAmount';
 import { CRatioBadge } from '../CRatioBar/CRatioBadge';
 import { TokenIcon } from '../TokenIcon/TokenIcon';
-import { DebtAmount } from './DebtAmount';
 
 export function PositionRow({
   liquidityPosition,
@@ -155,13 +155,21 @@ export function PositionRow({
 
       <Td border="none">
         <Flex flexDirection="column" alignItems="flex-end">
-          <DebtAmount
-            debt={liquidityPosition.debt}
-            showPNL={network?.preset === 'andromeda'}
-            lineHeight="1.25rem"
-            fontFamily="heading"
-            fontSize="sm"
-          />
+          {network?.preset === 'andromeda' ? (
+            <PnlAmount
+              debt={liquidityPosition.debt}
+              lineHeight="1.25rem"
+              fontFamily="heading"
+              fontSize="sm"
+            />
+          ) : (
+            <DebtAmount
+              debt={liquidityPosition.debt}
+              lineHeight="1.25rem"
+              fontFamily="heading"
+              fontSize="sm"
+            />
+          )}
           <Collapse in={liquidityPosition.debt.gt(0) || liquidityPosition.debt.lt(0)}>
             {liquidityPosition.debt.gt(0) ? (
               <Link

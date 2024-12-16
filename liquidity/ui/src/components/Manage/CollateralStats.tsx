@@ -1,12 +1,12 @@
 import { Flex, Text } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
+import { ChangeStat } from '@snx-v3/ChangeStat';
 import { ZEROWEI } from '@snx-v3/constants';
 import { currency } from '@snx-v3/format';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { type Wei } from '@synthetixio/wei';
-import { ChangeStat } from '../ChangeStat/ChangeStat';
 
 export function CollateralStats({
   newCollateralAmount,

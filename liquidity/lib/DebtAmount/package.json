@@ -1,10 +1,12 @@
 {
-  "name": "@snx-v3/TrendText",
+  "name": "@snx-v3/DebtAmount",
   "private": true,
   "main": "index.ts",
   "version": "0.0.1",
   "dependencies": {
     "@chakra-ui/react": "^2.8.2",
+    "@snx-v3/Amount": "workspace:*",
+    "@snx-v3/constants": "workspace:*",
     "@synthetixio/wei": "^2.74.4"
   }
 }
