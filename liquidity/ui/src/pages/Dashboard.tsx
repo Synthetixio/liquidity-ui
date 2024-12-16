@@ -23,6 +23,7 @@ export function Dashboard() {
         <Heading color="gray.50" fontSize="1.5rem">
           Dashboard
         </Heading>
+
         <StatsList />
 
         <Flex mt={6} flexDirection="column" gap={4}>

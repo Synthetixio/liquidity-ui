@@ -49,7 +49,7 @@ describe(__filename, () => {
       .and('include.text', 'Manage Collateral')
       .and('include.text', 'Approve USDC transfer')
       .and('include.text', 'Deposit and Lock USDC')
-      .and('include.text', 'This will deposit and lock 1 USDC into Spartan Council Pool.');
+      .and('include.text', 'This will deposit and lock 1 USDC.');
 
     cy.get('[data-cy="deposit confirm button"]').should('include.text', 'Execute Transaction');
     cy.get('[data-cy="deposit confirm button"]').click();

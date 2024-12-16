@@ -56,7 +56,7 @@ export const StatsList = () => {
     <Flex flexWrap="wrap" w="100%" gap="4" mt={6}>
       <StatBox
         title="Available to Lock"
-        isLoading={isPending}
+        isLoading={Boolean(params.accountId && isPending)}
         value={<Amount prefix="$" value={wei(totalAssets || '0')} />}
         label={
           <>
@@ -83,7 +83,7 @@ export const StatsList = () => {
       {network?.preset === 'andromeda' ? (
         <StatBox
           title="Total PNL"
-          isLoading={isPending}
+          isLoading={Boolean(params.accountId && isPending)}
           value={<Amount prefix="$" value={totalDebt.mul(-1)} />}
           label={<Text textAlign="left">Aggregated PNL of all your open Positions</Text>}
         />
@@ -92,7 +92,7 @@ export const StatsList = () => {
       {network?.preset !== 'andromeda' ? (
         <StatBox
           title="Total Debt"
-          isLoading={isPending}
+          isLoading={Boolean(params.accountId && isPending)}
           value={<Amount prefix="$" value={totalDebt.abs()} />}
           label={<Text textAlign="left">Aggregated Debt of all your open Positions</Text>}
         />

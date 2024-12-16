@@ -7,9 +7,9 @@ import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { type LiquidityPositionType } from '@snx-v3/useLiquidityPosition';
 import { makeSearch, useParams } from '@snx-v3/useParams';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
-import { CRatioAmount } from '../../CRatioBar/CRatioAmount';
-import { CRatioBadge } from '../../CRatioBar/CRatioBadge';
-import { TokenIcon } from '../../TokenIcon/TokenIcon';
+import { CRatioAmount } from '../CRatioBar/CRatioAmount';
+import { CRatioBadge } from '../CRatioBar/CRatioBadge';
+import { TokenIcon } from '../TokenIcon/TokenIcon';
 import { DebtAmount } from './DebtAmount';
 
 export function PositionRow({

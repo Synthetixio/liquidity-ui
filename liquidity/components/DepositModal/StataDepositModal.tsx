@@ -13,7 +13,6 @@ import { useConvertStataUSDC } from '@snx-v3/useConvertStataUSDC';
 import { useDepositBaseAndromeda } from '@snx-v3/useDepositBaseAndromeda';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
-import { usePool } from '@snx-v3/usePools';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
 import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
@@ -370,8 +369,6 @@ export function StataDepositModal({
     state.matches(State.deposit) ||
     state.matches(State.wrap);
 
-  const { data: pool } = usePool();
-
   if (state.matches(State.success)) {
     return (
       <LiquidityPositionUpdated
@@ -472,7 +469,7 @@ export function StataDepositModal({
             <Amount
               prefix="This will deposit and lock "
               value={collateralChange}
-              suffix={` Static aUSDC into ${pool?.name}.`}
+              suffix={` Static aUSDC.`}
             />
           }
           status={{

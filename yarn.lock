@@ -4715,7 +4715,6 @@ __metadata:
     "@snx-v3/useDepositBaseAndromeda": "workspace:*"
     "@snx-v3/useLiquidityPosition": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
-    "@snx-v3/usePools": "workspace:*"
     "@snx-v3/useSpotMarketProxy": "workspace:*"
     "@snx-v3/useStaticAaveUSDC": "workspace:*"
     "@snx-v3/useStaticAaveUSDCRate": "workspace:*"
@@ -5844,7 +5843,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/usePools@workspace:*, @snx-v3/usePools@workspace:liquidity/lib/usePools":
+"@snx-v3/usePools@workspace:liquidity/lib/usePools":
   version: 0.0.0-use.local
   resolution: "@snx-v3/usePools@workspace:liquidity/lib/usePools"
   dependencies:

@@ -15,7 +15,6 @@ import { useDeposit } from '@snx-v3/useDeposit';
 import { useDepositBaseAndromeda } from '@snx-v3/useDepositBaseAndromeda';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
-import { usePool } from '@snx-v3/usePools';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { useSynthToken } from '@snx-v3/useSynthToken';
 import { useWrapEth } from '@snx-v3/useWrapEth';
@@ -120,8 +119,6 @@ export function DepositModal({
   const toast = useToast({ isClosable: true, duration: 9000 });
 
   // TODO: Update logic on new account id
-
-  const { data: pool } = usePool();
 
   const errorParser = useContractErrorParser();
 
@@ -337,7 +334,6 @@ export function DepositModal({
     txSummary.currentDebt,
   ]);
 
-  const poolName = pool?.name || '';
   const symbol = collateralType?.displaySymbol;
 
   const isProcessing =
@@ -440,7 +436,7 @@ export function DepositModal({
             {state.matches(State.success) ? (
               <Amount
                 value={collateralChange}
-                suffix={` ${collateralType?.symbol} deposited and locked into ${poolName}.`}
+                suffix={` ${collateralType?.symbol} deposited and locked.`}
               />
             ) : (
               <>
@@ -450,7 +446,7 @@ export function DepositModal({
                       <Amount
                         prefix={`This will deposit and lock `}
                         value={collateralChange}
-                        suffix={` ${collateralType?.symbol} into ${poolName}.`}
+                        suffix={` ${collateralType?.symbol}.`}
                       />
                     ) : (
                       <>
@@ -458,7 +454,7 @@ export function DepositModal({
                           <Amount
                             prefix={`This will deposit and lock `}
                             value={availableCollateral}
-                            suffix={` ${collateralType?.symbol} into ${poolName}.`}
+                            suffix={` ${collateralType?.symbol}.`}
                           />
                         </Text>
                         <Text>
@@ -475,7 +471,7 @@ export function DepositModal({
                   <Amount
                     prefix={`This will deposit and lock `}
                     value={collateralChange}
-                    suffix={` ${collateralType?.symbol} into ${poolName}.`}
+                    suffix={` ${collateralType?.symbol}.`}
                   />
                 )}
               </>

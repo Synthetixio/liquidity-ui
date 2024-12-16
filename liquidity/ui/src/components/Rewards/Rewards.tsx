@@ -39,7 +39,7 @@ export function Rewards() {
     <TableContainer>
       <AllRewardsModal txnStatus={txnState.txnStatus} txnHash={txnState.txnHash} />
       <Flex alignItems="center" justifyContent="space-between">
-        <Heading fontSize="18px" fontWeight={700} lineHeight="28px" color="gray.50">
+        <Heading fontSize="18px" fontWeight={700} lineHeight="28px" color="gray.50" mb={3}>
           Rewards
         </Heading>
         <Button

@@ -1,6 +1,6 @@
 import { Badge, Button, Flex, Td, Text, Tr } from '@chakra-ui/react';
-import { SynthCircle, SynthSkeleton } from '../../SynthSkeleton/SynthSkeleton';
-import { TokenIcon } from '../../TokenIcon/TokenIcon';
+import { SynthCircle, SynthSkeleton } from '../SynthSkeleton/SynthSkeleton';
+import { TokenIcon } from '../TokenIcon/TokenIcon';
 
 export function PositionsRowLoading() {
   return (

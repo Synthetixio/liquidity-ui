@@ -10,7 +10,6 @@ export const TableDivider = () => {
       <Td height="0px" border="none" px={0} pt={0} pb={4} />
       <Td height="0px" border="none" px={0} pt={0} pb={4} />
       <Td height="0px" border="none" px={0} pt={0} pb={4} />
-      <Td height="0px" border="none" px={0} pt={0} pb={4} />
     </Tr>
   );
 };

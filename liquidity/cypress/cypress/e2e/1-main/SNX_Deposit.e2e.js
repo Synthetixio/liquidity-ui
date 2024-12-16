@@ -49,7 +49,7 @@ describe(__filename, () => {
       .should('exist')
       .and('include.text', 'Approve SNX transfer')
       .and('include.text', 'Deposit and Lock SNX')
-      .and('include.text', 'This will deposit and lock 101 SNX into Spartan Council Pool.');
+      .and('include.text', 'This will deposit and lock 101 SNX.');
 
     cy.get('[data-cy="deposit confirm button"]').should('include.text', 'Execute Transaction');
     cy.get('[data-cy="deposit confirm button"]').click();
