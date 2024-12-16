@@ -27,7 +27,12 @@ export function useSynthToken(collateralType?: CollateralType, networkOverride?:
       log('collateralType', collateralType);
 
       const tokenAddress = collateralType.address.toLowerCase();
-      const synthToken = synthTokens.find(({ address }) => address.toLowerCase() === tokenAddress);
+      const synthToken = synthTokens.find(
+        ({ address, token }) =>
+          address.toLowerCase() === tokenAddress ||
+          (token && token.address.toLowerCase() === tokenAddress)
+      );
+
       log('synthToken', synthToken);
 
       return synthToken;
