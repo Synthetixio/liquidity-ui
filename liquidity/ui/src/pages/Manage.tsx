@@ -17,7 +17,6 @@ import { UnsupportedCollateralAlert } from '../components/CollateralAlert/Unsupp
 import { ManageAction } from '../components/Manage/ManageActions';
 import { ManageStats } from '../components/Manage/ManageStats';
 import { PositionTitle } from '../components/Manage/PositionTitle';
-import { Rewards } from '../components/Rewards/Rewards';
 
 export const Manage = () => {
   const [params, setParams] = useParams<PositionPageSchemaType>();
@@ -26,7 +25,7 @@ export const Manage = () => {
   const { data: collateralType, isPending: isPendingCollateralType } = useCollateralType(
     params.collateralSymbol
   );
-  const { data: poolData } = usePoolData(params.poolId);
+  const { data: poolData } = usePoolData();
   const { data: liquidityPosition } = useLiquidityPosition({
     accountId: params.accountId,
     collateralType,
@@ -44,7 +43,7 @@ export const Manage = () => {
 
   const [txnModalOpen, setTxnModalOpen] = React.useState<ManageActionType | undefined>(undefined);
 
-  const { data: pool } = usePool(Number(network?.id), String(params.poolId));
+  const { data: pool } = usePool(Number(network?.id));
 
   const positionApr = pool?.apr?.collateralAprs?.find(
     (item: any) => item.collateralType.toLowerCase() === collateralType?.tokenAddress.toLowerCase()
@@ -98,7 +97,6 @@ export const Manage = () => {
             height="fit-content"
           >
             <ManageStats />
-            <Rewards />
           </BorderBox>
           <Flex
             maxWidth={['100%', '100%', '501px']}
@@ -121,7 +119,6 @@ export const Manage = () => {
                     setParams({
                       page: 'position',
                       collateralSymbol: params.collateralSymbol,
-                      poolId: params.poolId,
                       manageAction: 'deposit',
                       accountId: params.accountId,
                     })
@@ -144,7 +141,6 @@ export const Manage = () => {
                       setParams({
                         page: 'position',
                         collateralSymbol: params.collateralSymbol,
-                        poolId: params.poolId,
                         manageAction: 'close',
                         accountId: params.accountId,
                       })

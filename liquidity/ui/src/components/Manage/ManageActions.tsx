@@ -6,6 +6,7 @@ import { RepayModal } from '@snx-v3/RepayModal';
 import { UndelegateModal } from '@snx-v3/UndelegateModal';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import {
   makeSearch,
@@ -16,7 +17,6 @@ import {
 } from '@snx-v3/useParams';
 import { validatePosition } from '@snx-v3/validatePosition';
 import { WithdrawModal } from '@snx-v3/WithdrawModal';
-import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { wei } from '@synthetixio/wei';
 import React, { FormEvent, useCallback } from 'react';
 import { Claim } from '../Claim/Claim';
@@ -83,7 +83,6 @@ export const ManageAction = ({
                 href={`?${makeSearch({
                   page: 'position',
                   collateralSymbol: params.collateralSymbol,
-                  poolId: params.poolId,
                   manageAction: COLLATERALACTIONS[0].link,
                   accountId: params.accountId,
                 })}`}
@@ -96,7 +95,6 @@ export const ManageAction = ({
                   setParams({
                     page: 'position',
                     collateralSymbol: params.collateralSymbol,
-                    poolId: params.poolId,
                     manageAction: COLLATERALACTIONS[0].link,
                     accountId: params.accountId,
                   });
@@ -115,7 +113,6 @@ export const ManageAction = ({
                 href={`?${makeSearch({
                   page: 'position',
                   collateralSymbol: params.collateralSymbol,
-                  poolId: params.poolId,
                   manageAction: debtActions[0].link,
                   accountId: params.accountId,
                 })}`}
@@ -128,7 +125,6 @@ export const ManageAction = ({
                   setParams({
                     page: 'position',
                     collateralSymbol: params.collateralSymbol,
-                    poolId: params.poolId,
                     manageAction: debtActions[0].link,
                     accountId: params.accountId,
                   });
@@ -153,7 +149,6 @@ export const ManageAction = ({
                       href={`?${makeSearch({
                         page: 'position',
                         collateralSymbol: params.collateralSymbol,
-                        poolId: params.poolId,
                         manageAction: action.link,
                         accountId: params.accountId,
                       })}`}
@@ -164,7 +159,6 @@ export const ManageAction = ({
                         setParams({
                           page: 'position',
                           collateralSymbol: params.collateralSymbol,
-                          poolId: params.poolId,
                           manageAction: action.link,
                           accountId: params.accountId,
                         });
@@ -206,7 +200,6 @@ export const ManageAction = ({
                       href={`?${makeSearch({
                         page: 'position',
                         collateralSymbol: params.collateralSymbol,
-                        poolId: params.poolId,
                         manageAction: action.link,
                         accountId: params.accountId,
                       })}`}
@@ -217,7 +210,6 @@ export const ManageAction = ({
                         setParams({
                           page: 'position',
                           collateralSymbol: params.collateralSymbol,
-                          poolId: params.poolId,
                           manageAction: action.link,
                           accountId: params.accountId,
                         });

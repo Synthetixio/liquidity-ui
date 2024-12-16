@@ -1,4 +1,4 @@
-import { ZEROWEI } from '@snx-v3/constants';
+import { POOL_ID, ZEROWEI } from '@snx-v3/constants';
 import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
@@ -19,13 +19,11 @@ const log = debug('snx:useRepay');
 
 export const useRepay = ({
   accountId,
-  poolId,
   collateralTypeAddress,
   debtChange,
   availableUSDCollateral,
 }: {
   accountId?: string;
-  poolId?: string;
   collateralTypeAddress?: string;
   balance?: Wei;
   availableUSDCollateral?: Wei;
@@ -45,7 +43,7 @@ export const useRepay = ({
   const mutation = useMutation({
     mutationFn: async () => {
       if (!signer || !network || !provider) throw new Error('No signer or network');
-      if (!(CoreProxy && poolId && accountId && collateralTypeAddress && systemToken)) {
+      if (!(CoreProxy && accountId && collateralTypeAddress && systemToken)) {
         return;
       }
       if (debtChange.eq(0)) {
@@ -70,7 +68,7 @@ export const useRepay = ({
 
       const burn = CoreProxyContract.populateTransaction.burnUsd(
         ethers.BigNumber.from(accountId),
-        ethers.BigNumber.from(poolId),
+        ethers.BigNumber.from(POOL_ID),
         collateralTypeAddress,
         debtChangeAbs.toBN()
       );

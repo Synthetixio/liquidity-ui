@@ -1,6 +1,6 @@
 import React from 'react';
-import { z } from 'zod';
 import { createSearchParams, useSearchParams } from 'react-router-dom';
+import { z } from 'zod';
 
 export const HomePageSchema = z.object({
   page: z.literal('home').optional(),
@@ -35,7 +35,6 @@ export type PoolsPageSchemaType = z.infer<typeof PoolsPageSchema>;
 export const PoolPageSchema = z.object({
   page: z.literal('pool'),
   networkId: z.string(),
-  poolId: z.string(),
   accountId: z.string().optional(),
 });
 export type PoolPageSchemaType = z.infer<typeof PoolPageSchema>;
@@ -54,7 +53,6 @@ export type ManageActionType = z.infer<typeof ManageActionSchema>;
 export const PositionPageSchema = z.object({
   page: z.literal('position'),
   collateralSymbol: z.string(),
-  poolId: z.string(),
   manageAction: ManageActionSchema,
   accountId: z.string().optional(),
 });

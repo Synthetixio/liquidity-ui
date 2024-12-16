@@ -1,3 +1,4 @@
+import { POOL_ID } from '@snx-v3/constants';
 import { contractsHash } from '@snx-v3/tsHelpers';
 import { useNetwork, useProvider } from '@snx-v3/useBlockchain';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
@@ -22,30 +23,27 @@ export const PoolConfigurationSchema = z.object({
 
 const isLockedSchema = z.boolean();
 
-export const usePoolConfiguration = (poolId?: string) => {
+export const usePoolConfiguration = () => {
   const { network } = useNetwork();
   const { data: CoreProxy } = useCoreProxy();
   const provider = useProvider();
 
   return useQuery({
-    enabled: Boolean(CoreProxy && poolId && network && provider),
+    enabled: Boolean(CoreProxy && network && provider),
     queryKey: [
       `${network?.id}-${network?.preset}`,
       'PoolConfiguration',
-      { poolId },
-      {
-        contractsHash: contractsHash([CoreProxy]),
-      },
+      { contractsHash: contractsHash([CoreProxy]) },
     ],
     queryFn: async () => {
-      if (!(CoreProxy && poolId && network && provider)) throw 'OMFG';
+      if (!(CoreProxy && network && provider)) throw 'OMFG';
       const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
 
       const marketsData: {
         marketId: ethers.BigNumber;
         maxDebtShareValueD18: ethers.BigNumber;
         weightD18: ethers.BigNumber;
-      }[] = await CoreProxyContract.getPoolConfiguration(ethers.BigNumber.from(poolId));
+      }[] = await CoreProxyContract.getPoolConfiguration(ethers.BigNumber.from(POOL_ID));
       const markets = marketsData.map(({ marketId, maxDebtShareValueD18, weightD18 }) => ({
         id: marketId,
         weight: maxDebtShareValueD18,
@@ -72,7 +70,7 @@ export const usePoolConfiguration = (poolId?: string) => {
       );
 
       return PoolConfigurationSchema.parse({
-        id: parseInt(poolId),
+        id: parseInt(POOL_ID),
         markets: markets.map((market, i) => ({
           ...market,
           isLocked: decoded[i],

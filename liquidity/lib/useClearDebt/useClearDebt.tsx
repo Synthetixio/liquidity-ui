@@ -1,3 +1,4 @@
+import { POOL_ID } from '@snx-v3/constants';
 import { USDC_BASE_MARKET } from '@snx-v3/isBaseAndromeda';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useAccountProxy } from '@snx-v3/useAccountProxy';
@@ -19,11 +20,9 @@ const log = debug('snx:useClearDebt');
 
 export const useClearDebt = ({
   accountId,
-  poolId,
   collateralTypeAddress,
 }: {
   accountId?: string;
-  poolId?: string;
   collateralTypeAddress?: string;
 }) => {
   const [txnState, dispatch] = React.useReducer(reducer, initialState);
@@ -46,7 +45,6 @@ export const useClearDebt = ({
       if (
         !(
           CoreProxy &&
-          poolId &&
           accountId &&
           collateralTypeAddress &&
           SpotMarketProxy &&
@@ -76,7 +74,7 @@ export const useClearDebt = ({
         SpotMarketProxy.address,
         AccountProxy.address,
         accountId,
-        poolId,
+        POOL_ID,
         collateralTypeAddress,
         USDC_BASE_MARKET
       );

@@ -88,7 +88,6 @@ export function ClosePositionTransactions({
   });
   const { exec: execRepay } = useRepay({
     accountId: params.accountId,
-    poolId: params.poolId,
     collateralTypeAddress: collateralType?.tokenAddress,
     debtChange: liquidityPosition?.debt.mul(-1) || ZEROWEI,
     availableUSDCollateral,
@@ -96,7 +95,6 @@ export function ClosePositionTransactions({
   });
   const { exec: undelegate } = useUndelegate({
     accountId: params.accountId,
-    poolId: params.poolId,
     collateralTypeAddress: collateralType?.tokenAddress,
     collateralChange: liquidityPosition?.collateralAmount.mul(-1) || ZEROWEI,
     currentCollateral: liquidityPosition?.collateralAmount || ZEROWEI,
@@ -127,7 +125,6 @@ export function ClosePositionTransactions({
   //claim
   const { exec: execBorrow } = useBorrow({
     accountId: params.accountId,
-    poolId: params.poolId,
     collateralTypeAddress: collateralType?.tokenAddress,
     debtChange: liquidityPosition?.debt.mul(-1) || ZEROWEI,
   });

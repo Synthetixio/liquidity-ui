@@ -31,7 +31,6 @@ describe(__filename, () => {
       `?${makeSearch({
         page: 'position',
         collateralSymbol: 'stataUSDC',
-        poolId: 1,
         manageAction: 'deposit',
         accountId: Cypress.env('accountId'),
       })}`

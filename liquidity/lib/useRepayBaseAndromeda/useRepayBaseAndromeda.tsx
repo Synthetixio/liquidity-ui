@@ -1,3 +1,4 @@
+import { POOL_ID } from '@snx-v3/constants';
 import { parseUnits } from '@snx-v3/format';
 import { getSpotMarketId } from '@snx-v3/isBaseAndromeda';
 import { notNil } from '@snx-v3/tsHelpers';
@@ -23,14 +24,12 @@ const log = debug('snx:useRepayBaseAndromeda');
 
 export const useRepayBaseAndromeda = ({
   accountId,
-  poolId,
   collateralTypeAddress,
   debtChange,
   availableUSDCollateral,
   collateralSymbol,
 }: {
   accountId?: string;
-  poolId?: string;
   collateralTypeAddress?: string;
   availableUSDCollateral?: Wei;
   debtChange: Wei;
@@ -56,7 +55,6 @@ export const useRepayBaseAndromeda = ({
       if (
         !(
           CoreProxy &&
-          poolId &&
           accountId &&
           collateralTypeAddress &&
           systemToken &&
@@ -127,7 +125,7 @@ export const useRepayBaseAndromeda = ({
 
       const burn = CoreProxyContract.populateTransaction.burnUsd(
         BigNumber.from(accountId),
-        BigNumber.from(poolId),
+        BigNumber.from(POOL_ID),
         collateralTypeAddress,
         debtChangeAbs.toBN()
       );

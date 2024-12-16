@@ -1,3 +1,4 @@
+import { POOL_ID } from '@snx-v3/constants';
 import { contractsHash } from '@snx-v3/tsHelpers';
 import { Network, useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
@@ -52,17 +53,21 @@ export function usePools(customNetwork?: Network) {
   });
 }
 
-export function usePool(poolId?: string, customNetwork?: Network) {
+export function usePool(customNetwork?: Network) {
   const { network } = useNetwork();
   const targetNetwork = customNetwork || network;
   const { data: pools } = usePools(targetNetwork);
 
   return useQuery({
-    queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'Pool', { poolId }],
+    queryKey: [`${targetNetwork?.id}-${targetNetwork?.preset}`, 'Pool'],
     enabled: Boolean(pools),
     queryFn: () => {
       if (!pools) throw 'OMFG';
-      return pools.find((item) => `${item.id}` === `${poolId}`);
+      const pool = pools.find((item) => `${item.id}` === `${POOL_ID}`);
+      if (!pool) {
+        throw Error(`Pool ${POOL_ID} not found`);
+      }
+      return pool;
     },
   });
 }

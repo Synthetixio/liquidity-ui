@@ -78,3 +78,7 @@ export const tokenOverrides: {
     name: 'Static aUSDC',
   },
 };
+
+// We only have 1 pool and UI does not support more than one pool
+// Will need to refactor when we add new pools
+export const POOL_ID = '1';

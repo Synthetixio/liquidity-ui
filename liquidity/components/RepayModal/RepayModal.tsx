@@ -47,7 +47,6 @@ export function RepayModal({ onClose }: { onClose: () => void }) {
 
   const { exec: execRepay, settle: settleRepay } = useRepay({
     accountId: params.accountId,
-    poolId: params.poolId,
     collateralTypeAddress: collateralType?.tokenAddress,
     debtChange,
     availableUSDCollateral: availableCollateral,
@@ -56,7 +55,6 @@ export function RepayModal({ onClose }: { onClose: () => void }) {
 
   const { exec: execRepayBaseAndromeda, settle: settleRepayBaseAndromeda } = useRepayBaseAndromeda({
     accountId: params.accountId,
-    poolId: params.poolId,
     collateralTypeAddress: collateralType?.tokenAddress,
     debtChange,
     availableUSDCollateral: availableCollateral,

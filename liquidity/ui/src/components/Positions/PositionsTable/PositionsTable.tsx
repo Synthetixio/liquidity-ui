@@ -9,6 +9,7 @@ import {
   Tbody,
   Tr,
 } from '@chakra-ui/react';
+import { POOL_ID } from '@snx-v3/constants';
 import { NetworkIcon, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { type LiquidityPositionType } from '@snx-v3/useLiquidityPosition';
 import { makeSearch, useParams } from '@snx-v3/useParams';
@@ -18,8 +19,6 @@ import { PositionRow } from './PositionsRow';
 import { PositionsRowLoading } from './PositionsRowLoading';
 import { PositionTableHeader } from './PositionTableHeader';
 import { TableDivider } from './TableDivider';
-
-const poolId = '1';
 
 export function PositionsTable({
   isLoading,
@@ -37,7 +36,6 @@ export function PositionsTable({
   return (
     <TableContainer
       maxW="100%"
-      mt={4}
       borderColor="gray.900"
       borderWidth="1px"
       borderRadius="5px"
@@ -62,7 +60,6 @@ export function PositionsTable({
                   ? {
                       page: 'pool',
                       networkId: `${network.id}`,
-                      poolId: '1',
                       accountId: params.accountId,
                     }
                   : { page: 'pools', accountId: params.accountId }
@@ -74,7 +71,6 @@ export function PositionsTable({
                     ? {
                         page: 'pool',
                         networkId: `${network.id}`,
-                        poolId: '1',
                         accountId: params.accountId,
                       }
                     : { page: 'pools', accountId: params.accountId }
@@ -111,7 +107,6 @@ export function PositionsTable({
                     ? {
                         page: 'pool',
                         networkId: `${network.id}`,
-                        poolId: '1',
                         accountId: params.accountId,
                       }
                     : { page: 'pools', accountId: params.accountId }
@@ -123,7 +118,6 @@ export function PositionsTable({
                       ? {
                           page: 'pool',
                           networkId: `${network.id}`,
-                          poolId: '1',
                           accountId: params.accountId,
                         }
                       : { page: 'pools', accountId: params.accountId }
@@ -158,7 +152,7 @@ export function PositionsTable({
 
                     return (
                       <Tr
-                        key={`${poolId}-${liquidityPosition.collateralType.tokenAddress}`}
+                        key={`${POOL_ID}-${liquidityPosition.collateralType.tokenAddress}`}
                         borderBottomWidth={i === liquidityPositions.length - 1 ? 'none' : '1px'}
                       >
                         <PositionRow

@@ -143,7 +143,6 @@ export function StataDepositModal({
   const { exec: depositBaseAndromeda } = useDepositBaseAndromeda({
     accountId: params.accountId,
     newAccountId,
-    poolId: params.poolId,
     collateralTypeAddress: synthToken?.token?.address,
     collateralChange,
     currentCollateral: liquidityPosition?.collateralAmount,
@@ -338,13 +337,12 @@ export function StataDepositModal({
   const handleClose = React.useCallback(() => {
     const isSuccess = state.matches(State.success);
 
-    if (isSuccess && params.poolId && params.accountId && collateralType?.symbol) {
+    if (isSuccess && params.accountId && collateralType?.symbol) {
       send(Events.RESET);
       onClose();
       setParams({
         page: 'position',
         collateralSymbol: collateralType.symbol,
-        poolId: params.poolId,
         manageAction: 'deposit',
         accountId: params.accountId,
       });
@@ -352,7 +350,7 @@ export function StataDepositModal({
     }
     send(Events.RESET);
     onClose();
-  }, [state, params.poolId, params.accountId, collateralType?.symbol, send, onClose, setParams]);
+  }, [state, params.accountId, collateralType?.symbol, send, onClose, setParams]);
 
   const onSubmit = React.useCallback(async () => {
     if (state.matches(State.success)) {
@@ -372,7 +370,7 @@ export function StataDepositModal({
     state.matches(State.deposit) ||
     state.matches(State.wrap);
 
-  const { data: pool } = usePool(params.poolId);
+  const { data: pool } = usePool();
 
   if (state.matches(State.success)) {
     return (

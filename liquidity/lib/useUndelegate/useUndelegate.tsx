@@ -1,3 +1,4 @@
+import { POOL_ID } from '@snx-v3/constants';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
@@ -16,13 +17,11 @@ const log = debug('snx:useUndelegate');
 
 export const useUndelegate = ({
   accountId,
-  poolId,
   collateralTypeAddress,
   collateralChange,
   currentCollateral,
 }: {
   accountId?: string;
-  poolId?: string;
   collateralTypeAddress?: string;
   currentCollateral: Wei;
   collateralChange: Wei;
@@ -39,7 +38,7 @@ export const useUndelegate = ({
   const mutation = useMutation({
     mutationFn: async () => {
       if (!signer || !network || !provider) throw new Error('No signer or network');
-      if (!(CoreProxy && poolId && collateralTypeAddress)) return;
+      if (!(CoreProxy && collateralTypeAddress)) return;
       if (collateralChange.eq(0)) return;
       if (currentCollateral.eq(0)) return;
 
@@ -48,7 +47,7 @@ export const useUndelegate = ({
       const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
       const populatedTxnPromised = CoreProxyContract.populateTransaction.delegateCollateral(
         ethers.BigNumber.from(accountId),
-        ethers.BigNumber.from(poolId),
+        ethers.BigNumber.from(POOL_ID),
         collateralTypeAddress,
         currentCollateral.add(collateralChange).toBN(),
         wei(1).toBN()

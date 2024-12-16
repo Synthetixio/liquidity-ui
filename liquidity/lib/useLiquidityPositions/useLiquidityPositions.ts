@@ -1,4 +1,5 @@
 import { calculateCRatio } from '@snx-v3/calculations';
+import { POOL_ID } from '@snx-v3/constants';
 import { contractsHash } from '@snx-v3/tsHelpers';
 import { useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
@@ -40,9 +41,6 @@ export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => 
       }
       const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
 
-      // We only have 1 pool and UI does not support more than one pool
-      const poolId = '1';
-
       const getAccountAvailableSystemTokenCallPromised =
         CoreProxyContract.populateTransaction.getAccountAvailableCollateral(
           accountId,
@@ -51,14 +49,14 @@ export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => 
       const getPositionCollateralCallsPromised = collateralTypes.map((collateralType) =>
         CoreProxyContract.populateTransaction.getPositionCollateral(
           accountId,
-          poolId,
+          POOL_ID,
           collateralType.tokenAddress
         )
       );
       const getPositionDebtCallsPromised = collateralTypes.map((collateralType) =>
         CoreProxyContract.populateTransaction.getPositionDebt(
           accountId,
-          poolId,
+          POOL_ID,
           collateralType.tokenAddress
         )
       );

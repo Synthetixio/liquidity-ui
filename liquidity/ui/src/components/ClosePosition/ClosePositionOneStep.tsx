@@ -1,7 +1,7 @@
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import { Button, Divider, Flex, Link, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
-import { ZEROWEI } from '@snx-v3/constants';
+import { POOL_ID, ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
@@ -88,7 +88,6 @@ export function ClosePositionOneStep({
           ClosePosition &&
           PythVerfier &&
           pythFeeds &&
-          params.poolId &&
           params.accountId &&
           systemToken?.address &&
           collateralType?.tokenAddress
@@ -138,7 +137,7 @@ export function ClosePositionOneStep({
         CoreProxy.address,
         AccountProxy.address,
         params.accountId,
-        params.poolId,
+        POOL_ID,
         collateralType.tokenAddress
       );
       const callsPromise = Promise.all([approveAccountTx, approveUsdTx, closePositionTx]);

@@ -6,15 +6,11 @@ import { useNetwork } from '@snx-v3/useBlockchain';
 import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { type LiquidityPositionType } from '@snx-v3/useLiquidityPosition';
 import { makeSearch, useParams } from '@snx-v3/useParams';
-import { useRewards } from '@snx-v3/useRewards';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
-import { useMemo } from 'react';
 import { CRatioAmount } from '../../CRatioBar/CRatioAmount';
 import { CRatioBadge } from '../../CRatioBar/CRatioBadge';
 import { TokenIcon } from '../../TokenIcon/TokenIcon';
 import { DebtAmount } from './DebtAmount';
-
-const poolId = '1';
 
 export function PositionRow({
   liquidityPosition,
@@ -24,11 +20,6 @@ export function PositionRow({
   apr?: number;
 }) {
   const [params, setParams] = useParams();
-  const { data: rewardsData } = useRewards({
-    accountId: params.accountId,
-    poolId,
-    collateralType: liquidityPosition.collateralType,
-  });
   const { network } = useNetwork();
 
   const isStataUSDC = useIsSynthStataUSDC({
@@ -40,11 +31,6 @@ export function PositionRow({
   const { data: stataUSDCAPR } = useStataUSDCApr(network?.id, network?.preset);
   const stataUSDCAPRParsed = stataUSDCAPR || 0;
 
-  const hasRewards = useMemo(
-    () => (rewardsData || []).reduce((curr, acc) => curr + acc.claimableAmount.toNumber(), 0) > 0,
-    [rewardsData]
-  );
-
   return (
     <>
       <Td border="none">
@@ -54,7 +40,6 @@ export function PositionRow({
             href={`?${makeSearch({
               page: 'position',
               collateralSymbol: liquidityPosition.collateralType.symbol,
-              poolId,
               manageAction: liquidityPosition.debt.gt(0) ? 'repay' : 'claim',
               accountId: params.accountId,
             })}`}
@@ -63,7 +48,6 @@ export function PositionRow({
               setParams({
                 page: 'position',
                 collateralSymbol: liquidityPosition.collateralType.symbol,
-                poolId,
                 manageAction: liquidityPosition.debt.gt(0) ? 'repay' : 'claim',
                 accountId: params.accountId,
               });
@@ -134,7 +118,6 @@ export function PositionRow({
                 href={`?${makeSearch({
                   page: 'position',
                   collateralSymbol: liquidityPosition.collateralType.symbol,
-                  poolId,
                   manageAction: 'withdraw',
                   accountId: params.accountId,
                 })}`}
@@ -143,7 +126,6 @@ export function PositionRow({
                   setParams({
                     page: 'position',
                     collateralSymbol: liquidityPosition.collateralType.symbol,
-                    poolId,
                     manageAction: 'withdraw',
                     accountId: params.accountId,
                   });
@@ -167,33 +149,6 @@ export function PositionRow({
                 ? (isStataUSDC ? apr + stataUSDCAPRParsed : apr).toFixed(2).concat('%')
                 : '-'}
             </Text>
-            {hasRewards ? (
-              <Link
-                color="cyan.500"
-                fontFamily="heading"
-                fontSize="0.75rem"
-                lineHeight="1rem"
-                href={`?${makeSearch({
-                  page: 'position',
-                  collateralSymbol: liquidityPosition.collateralType.symbol,
-                  poolId,
-                  manageAction: 'deposit',
-                  accountId: params.accountId,
-                })}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setParams({
-                    page: 'position',
-                    collateralSymbol: liquidityPosition.collateralType.symbol,
-                    poolId,
-                    manageAction: 'deposit',
-                    accountId: params.accountId,
-                  });
-                }}
-              >
-                Claim Rewards
-              </Link>
-            ) : null}
           </Flex>
         </Fade>
       </Td>
@@ -217,7 +172,6 @@ export function PositionRow({
                 href={`?${makeSearch({
                   page: 'position',
                   collateralSymbol: liquidityPosition.collateralType.symbol,
-                  poolId,
                   manageAction: 'repay',
                   accountId: params.accountId,
                 })}`}
@@ -226,7 +180,6 @@ export function PositionRow({
                   setParams({
                     page: 'position',
                     collateralSymbol: liquidityPosition.collateralType.symbol,
-                    poolId,
                     manageAction: 'repay',
                     accountId: params.accountId,
                   });
@@ -244,7 +197,6 @@ export function PositionRow({
                 href={`?${makeSearch({
                   page: 'position',
                   collateralSymbol: liquidityPosition.collateralType.symbol,
-                  poolId,
                   manageAction: 'claim',
                   accountId: params.accountId,
                 })}`}
@@ -253,7 +205,6 @@ export function PositionRow({
                   setParams({
                     page: 'position',
                     collateralSymbol: liquidityPosition.collateralType.symbol,
-                    poolId,
                     manageAction: 'claim',
                     accountId: params.accountId,
                   });
@@ -296,7 +247,6 @@ export function PositionRow({
             href={`?${makeSearch({
               page: 'position',
               collateralSymbol: liquidityPosition.collateralType.symbol,
-              poolId,
               manageAction: 'deposit',
               accountId: params.accountId,
             })}`}
@@ -305,7 +255,6 @@ export function PositionRow({
               setParams({
                 page: 'position',
                 collateralSymbol: liquidityPosition.collateralType.symbol,
-                poolId,
                 manageAction: 'deposit',
                 accountId: params.accountId,
               });

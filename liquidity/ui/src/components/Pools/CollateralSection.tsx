@@ -48,10 +48,7 @@ export function formatApr(apr?: number, networkId?: number) {
 export const CollateralSection = () => {
   const [params, setParams] = useParams<PoolPageSchemaType>();
   const network = NETWORKS.find((n) => n.id === Number(params.networkId));
-  const { data: vaultsData, isPending: isVaultsLoading } = useVaultsData(
-    Number(params.poolId),
-    network
-  );
+  const { data: vaultsData, isPending: isVaultsLoading } = useVaultsData(network);
   const { data: aprData, isPending: isAprLoading } = useApr(network);
   const { network: currentNetwork, setNetwork } = useNetwork();
   const { connect } = useWallet();
@@ -481,7 +478,6 @@ export const CollateralSection = () => {
                             setParams({
                               page: 'position',
                               collateralSymbol: vaultCollateral.collateralType.symbol,
-                              poolId: params.poolId,
                               manageAction: 'deposit',
                               accountId: params.accountId,
                             });

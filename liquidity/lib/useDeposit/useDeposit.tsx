@@ -1,3 +1,4 @@
+import { POOL_ID } from '@snx-v3/constants';
 import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
@@ -18,7 +19,6 @@ const log = debug('snx:useDeposit');
 export const useDeposit = ({
   accountId,
   newAccountId,
-  poolId,
   collateralTypeAddress,
   collateralChange,
   currentCollateral,
@@ -26,7 +26,6 @@ export const useDeposit = ({
 }: {
   accountId?: string;
   newAccountId: string;
-  poolId?: string;
   collateralTypeAddress?: string;
   currentCollateral: Wei;
   availableCollateral?: Wei;
@@ -51,7 +50,6 @@ export const useDeposit = ({
           provider &&
           signer &&
           CoreProxy &&
-          poolId &&
           collateralTypeAddress &&
           availableCollateral
         )
@@ -95,7 +93,7 @@ export const useDeposit = ({
       log('newDelegation', currentCollateral.add(collateralChange));
       const delegate = CoreProxyContract.populateTransaction.delegateCollateral(
         ethers.BigNumber.from(id),
-        ethers.BigNumber.from(poolId),
+        ethers.BigNumber.from(POOL_ID),
         collateralTypeAddress,
         currentCollateral.add(collateralChange).toBN(),
         wei(1).toBN()

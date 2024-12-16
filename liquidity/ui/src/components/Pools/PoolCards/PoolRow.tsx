@@ -32,7 +32,7 @@ interface CollateralTypeWithDeposited extends CollateralType {
 }
 
 export function PoolRow({
-  pool,
+  pool: _pool,
   network,
   apr,
   collateralType,
@@ -121,7 +121,6 @@ export function PoolRow({
       setParams({
         page: 'position',
         collateralSymbol: collateralType.symbol,
-        poolId: pool.id,
         manageAction: 'deposit',
         accountId: params.accountId,
       });
@@ -150,7 +149,6 @@ export function PoolRow({
             href={`?${makeSearch({
               page: 'position',
               collateralSymbol: collateralType.symbol,
-              poolId: pool.id,
               manageAction: 'deposit',
               accountId: params.accountId,
             })}`}
@@ -283,7 +281,6 @@ export function PoolRow({
               href={`?${makeSearch({
                 page: 'position',
                 collateralSymbol: collateralType.symbol,
-                poolId: pool.id,
                 manageAction: 'deposit',
                 accountId: params.accountId,
               })}`}

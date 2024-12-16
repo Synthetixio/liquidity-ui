@@ -1,3 +1,4 @@
+import { POOL_ID } from '@snx-v3/constants';
 import { USDC_BASE_MARKET } from '@snx-v3/isBaseAndromeda';
 import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
@@ -56,7 +57,6 @@ export function useUndelegateBaseAndromeda({ collateralChange }: { collateralCha
           CoreProxy &&
           AccountProxy &&
           DebtRepayer &&
-          params.poolId &&
           params.accountId &&
           collateralTypeAddress &&
           SpotMarketProxy
@@ -86,7 +86,7 @@ export function useUndelegateBaseAndromeda({ collateralChange }: { collateralCha
         SpotMarketProxy.address,
         AccountProxy.address,
         params.accountId,
-        params.poolId,
+        POOL_ID,
         collateralTypeAddress,
         USDC_BASE_MARKET
       );
@@ -95,7 +95,7 @@ export function useUndelegateBaseAndromeda({ collateralChange }: { collateralCha
 
       const delegateTx = CoreProxyContract.populateTransaction.delegateCollateral(
         ethers.BigNumber.from(params.accountId),
-        ethers.BigNumber.from(params.poolId),
+        ethers.BigNumber.from(POOL_ID),
         collateralTypeAddress,
         currentCollateral.add(collateralChange).toBN(),
         wei(1).toBN()

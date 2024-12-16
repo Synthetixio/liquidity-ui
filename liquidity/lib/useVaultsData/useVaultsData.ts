@@ -1,3 +1,5 @@
+import { POOL_ID } from '@snx-v3/constants';
+import { contractsHash } from '@snx-v3/tsHelpers';
 import { Network, useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
@@ -13,7 +15,7 @@ const VaultCollateralSchema = z
   .transform(({ value, amount }) => ({ value: wei(value), amount: wei(amount) }));
 const VaultDebtSchema = ZodBigNumber.transform((x) => wei(x));
 
-export const useVaultsData = (poolId?: number, customNetwork?: Network) => {
+export const useVaultsData = (customNetwork?: Network) => {
   const { network } = useNetwork();
   const targetNetwork = customNetwork || network;
 
@@ -26,14 +28,11 @@ export const useVaultsData = (poolId?: number, customNetwork?: Network) => {
     queryKey: [
       `${targetNetwork?.id}-${targetNetwork?.preset}`,
       'VaultCollaterals',
-      {
-        pool: poolId,
-        tokens: collateralTypes ? collateralTypes?.map((x) => x.tokenAddress).sort() : [],
-      },
+      { contractsHash: contractsHash([CoreProxy, ...(collateralTypes ?? [])]) },
     ],
-    enabled: Boolean(CoreProxy && collateralTypes && poolId && targetNetwork && provider),
+    enabled: Boolean(CoreProxy && collateralTypes && targetNetwork && provider),
     queryFn: async () => {
-      if (!(CoreProxy && collateralTypes && poolId && targetNetwork && provider)) {
+      if (!(CoreProxy && collateralTypes && targetNetwork && provider)) {
         throw Error('useVaultsData should not be enabled when missing data');
       }
 
@@ -41,7 +40,7 @@ export const useVaultsData = (poolId?: number, customNetwork?: Network) => {
       const collateralCallsP = Promise.all(
         collateralTypes.map((collateralType) =>
           CoreProxyContract.populateTransaction.getVaultCollateral(
-            poolId,
+            POOL_ID,
             collateralType.tokenAddress
           )
         )
@@ -49,7 +48,7 @@ export const useVaultsData = (poolId?: number, customNetwork?: Network) => {
 
       const debtCallsP = Promise.all(
         collateralTypes.map((collateralType) =>
-          CoreProxyContract.populateTransaction.getVaultDebt(poolId, collateralType.tokenAddress)
+          CoreProxyContract.populateTransaction.getVaultDebt(POOL_ID, collateralType.tokenAddress)
         )
       );
 

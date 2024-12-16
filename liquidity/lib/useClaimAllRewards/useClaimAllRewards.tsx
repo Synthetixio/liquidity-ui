@@ -3,7 +3,6 @@ import { ContractError } from '@snx-v3/ContractError';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
-import { type CollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
@@ -20,16 +19,8 @@ import React from 'react';
 
 const log = debug('snx:useClaimAllRewards');
 
-export function useClaimAllRewards({
-  accountId,
-  poolId,
-  collateralType,
-}: {
-  accountId?: string;
-  poolId?: string;
-  collateralType?: CollateralType;
-}) {
-  const { data: rewards } = useRewards({ accountId, poolId, collateralType });
+export function useClaimAllRewards({ accountId }: { accountId?: string }) {
+  const { data: rewards } = useRewards({ accountId });
 
   const toast = useToast({ isClosable: true, duration: 9000 });
 
@@ -50,16 +41,7 @@ export function useClaimAllRewards({
   const mutation = useMutation({
     mutationFn: async function () {
       if (
-        !(
-          network &&
-          provider &&
-          signer &&
-          SpotMarketProxy &&
-          CoreProxy &&
-          collateralType &&
-          rewards &&
-          synthTokens
-        )
+        !(network && provider && signer && SpotMarketProxy && CoreProxy && rewards && synthTokens)
       ) {
         throw new Error('Not ready');
       }
@@ -77,16 +59,8 @@ export function useClaimAllRewards({
 
       rewards
         .filter(({ claimableAmount }) => claimableAmount.gt(0))
-        .forEach(({ distributor, claimableAmount, isPoolDistributor }) => {
-          const method = isPoolDistributor ? 'claimPoolRewards' : 'claimRewards';
-          transactions.push(
-            CoreProxyContract.populateTransaction[method](
-              ethers.BigNumber.from(accountId),
-              ethers.BigNumber.from(poolId),
-              collateralType.address,
-              distributor.address
-            )
-          );
+        .forEach(({ distributor, claimableAmount, claimMethod, args }) => {
+          transactions.push(CoreProxyContract.populateTransaction[claimMethod](...args));
           const synthToken = synthTokens.find(
             (synth) => synth.address.toLowerCase() === distributor.payoutToken.address.toLowerCase()
           );

@@ -101,7 +101,6 @@ export function DepositModal({
   const { exec: execDeposit } = useDeposit({
     accountId: params.accountId,
     newAccountId,
-    poolId: params.poolId,
     collateralTypeAddress: collateralType?.tokenAddress,
     collateralChange,
     currentCollateral,
@@ -110,7 +109,6 @@ export function DepositModal({
   const { exec: depositBaseAndromeda } = useDepositBaseAndromeda({
     accountId: params.accountId,
     newAccountId,
-    poolId: params.poolId,
     collateralTypeAddress: synthToken?.token?.address,
     collateralChange,
     currentCollateral,
@@ -123,7 +121,7 @@ export function DepositModal({
 
   // TODO: Update logic on new account id
 
-  const { data: pool } = usePool(params.poolId);
+  const { data: pool } = usePool();
 
   const errorParser = useContractErrorParser();
 
@@ -266,13 +264,12 @@ export function DepositModal({
   const handleClose = React.useCallback(() => {
     const isSuccess = state.matches(State.success);
 
-    if (isSuccess && params.poolId && params.accountId && collateralType?.symbol) {
+    if (isSuccess && params.accountId && collateralType?.symbol) {
       send(Events.RESET);
       onClose();
       setParams({
         page: 'position',
         collateralSymbol: collateralType.symbol,
-        poolId: params.poolId,
         manageAction: 'deposit',
         accountId: params.accountId,
       });
@@ -280,7 +277,7 @@ export function DepositModal({
     }
     send(Events.RESET);
     onClose();
-  }, [state, params.poolId, params.accountId, collateralType?.symbol, send, onClose, setParams]);
+  }, [state, params.accountId, collateralType?.symbol, send, onClose, setParams]);
 
   const onSubmit = React.useCallback(async () => {
     if (state.matches(State.success)) {

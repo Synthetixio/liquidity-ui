@@ -15,7 +15,7 @@ export function PositionTitle({
   const [params, setParams] = useParams<PositionPageSchemaType>();
 
   const { network } = useNetwork();
-  const { data: pool } = usePool(network?.id, String(params.poolId));
+  const { data: pool } = usePool(network?.id);
 
   const poolName = pool?.poolInfo?.[0]?.pool?.name ?? '';
 
@@ -52,11 +52,10 @@ export function PositionTitle({
         <Heading
           as={Link}
           href={`?${makeSearch(
-            network?.id && params.poolId
+            network?.id
               ? {
                   page: 'pool',
                   networkId: `${network.id}`,
-                  poolId: params.poolId,
                   accountId: params.accountId,
                 }
               : { page: 'pools', accountId: params.accountId }
@@ -64,11 +63,10 @@ export function PositionTitle({
           onClick={(e) => {
             e.preventDefault();
             setParams(
-              network?.id && params.poolId
+              network?.id
                 ? {
                     page: 'pool',
                     networkId: `${network.id}`,
-                    poolId: params.poolId,
                     accountId: params.accountId,
                   }
                 : { page: 'pools', accountId: params.accountId }

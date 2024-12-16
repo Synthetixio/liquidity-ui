@@ -1,4 +1,5 @@
 import { calculateCRatio } from '@snx-v3/calculations';
+import { POOL_ID } from '@snx-v3/constants';
 import { contractsHash } from '@snx-v3/tsHelpers';
 import { useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { CollateralType } from '@snx-v3/useCollateralTypes';
@@ -11,9 +12,6 @@ import debug from 'debug';
 import { ethers } from 'ethers';
 
 const log = debug('snx:useLiquidityPosition');
-
-// We only have 1 pool and UI does not support more than one pool
-const poolId = '1';
 
 export type LiquidityPositionType = {
   collateralType: CollateralType;
@@ -63,12 +61,12 @@ export const useLiquidityPosition = ({
       const getPositionCollateralCallPromised =
         CoreProxyContract.populateTransaction.getPositionCollateral(
           accountId,
-          poolId,
+          POOL_ID,
           collateralType.tokenAddress
         );
       const getPositionDebtCallPromised = CoreProxyContract.populateTransaction.getPositionDebt(
         accountId,
-        poolId,
+        POOL_ID,
         collateralType.tokenAddress
       );
       const getCollateralPriceCallPromised =

@@ -1,3 +1,4 @@
+import { POOL_ID } from '@snx-v3/constants';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
@@ -16,12 +17,10 @@ const log = debug('snx:useBorrow');
 
 export const useBorrow = ({
   accountId,
-  poolId,
   collateralTypeAddress,
   debtChange,
 }: {
   accountId?: string;
-  poolId?: string;
   collateralTypeAddress?: string;
   debtChange: Wei;
 }) => {
@@ -37,17 +36,7 @@ export const useBorrow = ({
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: async () => {
-      if (
-        !(
-          signer &&
-          CoreProxy &&
-          poolId &&
-          accountId &&
-          collateralTypeAddress &&
-          network &&
-          provider
-        )
-      ) {
+      if (!(signer && CoreProxy && accountId && collateralTypeAddress && network && provider)) {
         return;
       }
 
@@ -60,7 +49,7 @@ export const useBorrow = ({
       const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
       const populatedTxnPromised = CoreProxyContract.populateTransaction.mintUsd(
         ethers.BigNumber.from(accountId),
-        ethers.BigNumber.from(poolId),
+        ethers.BigNumber.from(POOL_ID),
         collateralTypeAddress,
         debtChange.abs().toBN()
       );

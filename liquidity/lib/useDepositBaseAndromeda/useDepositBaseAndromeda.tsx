@@ -1,4 +1,4 @@
-import { D18 } from '@snx-v3/constants';
+import { D18, POOL_ID } from '@snx-v3/constants';
 import { notNil } from '@snx-v3/tsHelpers';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { approveAbi } from '@snx-v3/useApprove';
@@ -23,7 +23,6 @@ const log = debug('snx:useDepositBaseAndromeda');
 export const useDepositBaseAndromeda = ({
   accountId,
   newAccountId,
-  poolId,
   collateralTypeAddress,
   collateralChange,
   currentCollateral,
@@ -32,7 +31,6 @@ export const useDepositBaseAndromeda = ({
 }: {
   accountId?: string;
   newAccountId: string;
-  poolId?: string;
   collateralTypeAddress?: string;
   currentCollateral?: Wei;
   availableCollateral?: Wei;
@@ -62,7 +60,6 @@ export const useDepositBaseAndromeda = ({
           signer &&
           CoreProxy &&
           SpotMarketProxy &&
-          poolId &&
           collateralTypeAddress &&
           availableCollateral &&
           currentCollateral &&
@@ -151,7 +148,7 @@ export const useDepositBaseAndromeda = ({
       log('newDelegation', currentCollateral.add(collateralChange));
       const delegate = CoreProxyContract.populateTransaction.delegateCollateral(
         ethers.BigNumber.from(id),
-        ethers.BigNumber.from(poolId),
+        ethers.BigNumber.from(POOL_ID),
         synthToken.address,
         currentCollateral.add(collateralChange).toBN(),
         ethers.utils.parseEther('1')

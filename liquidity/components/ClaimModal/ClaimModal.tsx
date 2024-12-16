@@ -46,7 +46,6 @@ export function ClaimModal({ onClose }: { onClose: () => void }) {
     settle: settleBorrow,
   } = useBorrow({
     accountId: params.accountId,
-    poolId: params.poolId,
     collateralTypeAddress: collateralType?.tokenAddress,
     debtChange,
   });

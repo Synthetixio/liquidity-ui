@@ -1,3 +1,4 @@
+import { POOL_ID } from '@snx-v3/constants';
 import { contractsHash } from '@snx-v3/tsHelpers';
 import { useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
@@ -9,11 +10,9 @@ import { ethers } from 'ethers';
 export function usePositionDebt({
   tokenAddress,
   accountId,
-  poolId,
 }: {
   tokenAddress?: string;
   accountId?: string;
-  poolId?: string;
 }) {
   const { data: CoreProxy } = useCoreProxy();
   const { network } = useNetwork();
@@ -23,18 +22,18 @@ export function usePositionDebt({
       `${network?.id}-${network?.preset}`,
       'PositionDebt',
       { accountId },
-      { pool: poolId, token: tokenAddress },
+      { token: tokenAddress },
       { contractsHash: contractsHash([CoreProxy]) },
     ],
-    enabled: Boolean(network && provider && CoreProxy && accountId && poolId && tokenAddress),
+    enabled: Boolean(network && provider && CoreProxy && accountId && tokenAddress),
     queryFn: async () => {
-      if (!(network && provider && CoreProxy && accountId && poolId && tokenAddress)) {
+      if (!(network && provider && CoreProxy && accountId && tokenAddress)) {
         throw Error('OMFG');
       }
       const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
 
       const calls = await Promise.all([
-        CoreProxyContract.populateTransaction.getPositionDebt(accountId, poolId, tokenAddress),
+        CoreProxyContract.populateTransaction.getPositionDebt(accountId, POOL_ID, tokenAddress),
       ]);
 
       return await erc7412Call(

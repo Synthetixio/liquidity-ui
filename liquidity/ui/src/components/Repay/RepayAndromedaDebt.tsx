@@ -30,7 +30,6 @@ export function RepayAndromedaDebt() {
     isLoading,
   } = useClearDebt({
     accountId: params.accountId,
-    poolId: params.poolId,
     collateralTypeAddress: collateralType?.address,
   });
 

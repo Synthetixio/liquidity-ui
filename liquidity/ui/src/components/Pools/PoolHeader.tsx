@@ -8,7 +8,7 @@ export function PoolHeader() {
 
   const { network: connectedNetwork } = useNetwork();
   const networkId = params.networkId ? Number(params.networkId) : connectedNetwork?.id;
-  const { data: pool, isPending } = usePool(networkId, String(params.poolId));
+  const { data: pool, isPending } = usePool(networkId);
   const network = NETWORKS.find((n) => n.id === networkId);
 
   const poolName = pool?.poolInfo?.[0]?.pool?.name ?? '';

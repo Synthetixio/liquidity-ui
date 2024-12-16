@@ -1,8 +1,8 @@
-import { getSubgraphUrl } from '@snx-v3/constants';
-import { ARBITRUM, BASE_ANDROMEDA, MAINNET, NETWORKS } from '@snx-v3/useBlockchain';
-import { compactInteger } from 'humanize-plus';
+import { getSubgraphUrl, POOL_ID } from '@snx-v3/constants';
 import { fetchApr } from '@snx-v3/useApr';
+import { ARBITRUM, BASE_ANDROMEDA, MAINNET, NETWORKS } from '@snx-v3/useBlockchain';
 import { useQuery } from '@tanstack/react-query';
+import { compactInteger } from 'humanize-plus';
 
 export function usePoolsList() {
   return useQuery({
@@ -25,13 +25,13 @@ export function usePoolsList() {
   });
 }
 
-export function usePool(networkId?: number, poolId?: string) {
+export function usePool(networkId?: number) {
   const { data, isPending } = usePoolsList();
 
   // TODO: In the future if we have multiple pools per network filter by poolId also
   return {
     data: data?.synthetixPools.find(
-      (p) => p?.network?.id === networkId && p?.poolInfo?.[0]?.pool?.id === poolId
+      (p) => p?.network?.id === networkId && p?.poolInfo?.[0]?.pool?.id === POOL_ID
     ),
     isPending,
   };

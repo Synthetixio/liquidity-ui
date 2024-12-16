@@ -3,15 +3,14 @@ import { makeSearch } from '@snx-v3/useParams';
 describe(__filename, () => {
   Cypress.env('chainId', '8453');
   Cypress.env('preset', 'andromeda');
-  Cypress.env('walletAddress', '0xdf29b49ede0289ba00a507e900552c46deed0dac');
-  Cypress.env('accountId', '69');
+  Cypress.env('walletAddress', '0x1a245Fa866932731631E1ec8EDcDbB0C6A402559');
+  Cypress.env('accountId', '1640332659');
 
   beforeEach(() => {
     cy.task('startAnvil', {
       chainId: Cypress.env('chainId'),
       forkUrl: `https://base-mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      //      block: '22544990',
-      block: '23559352',
+      block: '22544990',
     }).then(() => cy.log('Anvil started'));
 
     cy.on('window:before:load', (win) => {
@@ -29,10 +28,7 @@ describe(__filename, () => {
 
     cy.visit(
       `?${makeSearch({
-        page: 'position',
-        collateralSymbol: 'stataUSDC',
-        poolId: 1,
-        manageAction: 'deposit',
+        page: 'dashboard',
         accountId: Cypress.env('accountId'),
       })}`
     );
@@ -44,15 +40,17 @@ describe(__filename, () => {
 
     cy.get('[data-cy="claim rewards info"]')
       .should('exist')
-      .and('include.text', 'Claiming 0.016 USDC')
-      .and('include.text', 'Claiming 0.013 SNX');
+      .and('include.text', 'Claiming 640.24 USDC')
+      .and('include.text', 'Claiming 449.22 SNX');
 
-    cy.get('[data-cy="claim rewards info"]', { timeout: 180_000 })
-      .should('include.text', 'Claimed 0.016 USDC')
-      .and('include.text', 'Claimed 0.013 SNX');
-
-    cy.contains('[data-status="success"]', 'Your rewards have been claimed').should('exist');
+    cy.contains('[data-status="success"]', 'Your rewards have been claimed', {
+      timeout: 180_000,
+    }).should('exist');
     cy.get('[data-cy="transaction hash"]').should('exist');
+
+    cy.get('[data-cy="claim rewards info"]')
+      .should('include.text', 'Claimed 640.24 USDC')
+      .and('include.text', 'Claimed 449.22 SNX');
 
     cy.contains('[data-cy="claim rewards dialog"] button', 'Done').click();
     cy.get('[data-cy="rewards table"]').should('include.text', 'No Rewards Available');

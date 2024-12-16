@@ -12,12 +12,10 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
-import { tokenOverrides } from '@snx-v3/constants';
 import { etherscanLink } from '@snx-v3/etherscanLink';
 import { useNetwork } from '@snx-v3/useBlockchain';
-import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
-import { useRewards } from '@snx-v3/useRewards';
+import { groupRewardsBySymbol, useRewards } from '@snx-v3/useRewards';
 import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { WithdrawIncrease } from '@snx-v3/WithdrawIncrease';
 import { Wei } from '@synthetixio/wei';
@@ -31,13 +29,12 @@ export function AllRewardsModal({
   txnHash: string | null;
 }) {
   const [params] = useParams<PositionPageSchemaType>();
-  const { data: collateralType } = useCollateralType(params.collateralSymbol);
-  const { data: rewards } = useRewards({
-    accountId: params.accountId,
-    poolId: params.poolId,
-    collateralType,
-  });
+  const { data: rewards } = useRewards({ accountId: params.accountId });
   const { data: synthTokens } = useSynthTokens();
+  const groupedRewards = React.useMemo(
+    () => groupRewardsBySymbol({ rewards, synthTokens }),
+    [rewards, synthTokens]
+  );
 
   const [isOpen, setIsOpen] = React.useState(false);
 
@@ -51,33 +48,6 @@ export function AllRewardsModal({
       setIsOpen(false);
     }
   }, [txnStatus]);
-
-  const groupedRewards = React.useMemo(() => {
-    if (!rewards || !rewards.length) {
-      return;
-    }
-    const map = new Map();
-    rewards.forEach(({ distributor, claimableAmount }) => {
-      const synthToken = synthTokens?.find(
-        (synth) => synth.address.toLowerCase() === distributor.payoutToken.address.toLowerCase()
-      );
-      const token = synthToken && synthToken.token ? synthToken.token : distributor.payoutToken;
-      const displaySymbol = tokenOverrides[token.address] ?? token.symbol;
-      if (map.has(displaySymbol)) {
-        map.set(displaySymbol, map.get(displaySymbol).add(claimableAmount));
-      } else {
-        map.set(displaySymbol, claimableAmount);
-      }
-    });
-    return Array.from(map.entries())
-      .map(([displaySymbol, claimableAmount]) => ({
-        displaySymbol,
-        claimableAmount,
-      }))
-      .filter(({ claimableAmount }) => claimableAmount.gt(0))
-      .sort((a, b) => a.displaySymbol.localeCompare(b.displaySymbol))
-      .sort((a, b) => b.claimableAmount.toNumber() - a.claimableAmount.toNumber());
-  }, [rewards, synthTokens]);
 
   // This caching is necessary to keep initial values after success and not reset them to zeroes
   const [cachedRewards, setCachedRewards] = React.useState<

@@ -5359,6 +5359,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useBorrow@workspace:liquidity/lib/useBorrow"
   dependencies:
+    "@snx-v3/constants": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
@@ -5384,7 +5385,6 @@ __metadata:
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
-    "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useContractErrorParser": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useGasOptions": "workspace:*"
@@ -5405,6 +5405,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useClearDebt@workspace:liquidity/lib/useClearDebt"
   dependencies:
+    "@snx-v3/constants": "workspace:*"
     "@snx-v3/isBaseAndromeda": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useAccountProxy": "workspace:*"
@@ -5548,6 +5549,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useDeposit@workspace:liquidity/lib/useDeposit"
   dependencies:
+    "@snx-v3/constants": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
@@ -5677,6 +5679,7 @@ __metadata:
   resolution: "@snx-v3/useLiquidityPosition@workspace:liquidity/lib/useLiquidityPosition"
   dependencies:
     "@snx-v3/calculations": "workspace:*"
+    "@snx-v3/constants": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
@@ -5696,6 +5699,7 @@ __metadata:
   resolution: "@snx-v3/useLiquidityPositions@workspace:liquidity/lib/useLiquidityPositions"
   dependencies:
     "@snx-v3/calculations": "workspace:*"
+    "@snx-v3/constants": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
@@ -5820,6 +5824,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/usePoolConfiguration@workspace:liquidity/lib/usePoolConfiguration"
   dependencies:
+    "@snx-v3/constants": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
@@ -5849,6 +5854,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/usePools@workspace:liquidity/lib/usePools"
   dependencies:
+    "@snx-v3/constants": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
@@ -5874,6 +5880,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/usePositionDebt@workspace:liquidity/lib/usePositionDebt"
   dependencies:
+    "@snx-v3/constants": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
@@ -5946,6 +5953,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useRepayBaseAndromeda@workspace:liquidity/lib/useRepayBaseAndromeda"
   dependencies:
+    "@snx-v3/constants": "workspace:*"
     "@snx-v3/format": "workspace:*"
     "@snx-v3/isBaseAndromeda": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
@@ -5973,6 +5981,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useRewards@workspace:liquidity/lib/useRewards"
   dependencies:
+    "@snx-v3/constants": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useAllErrors": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
@@ -6169,6 +6178,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useUndelegate@workspace:liquidity/lib/useUndelegate"
   dependencies:
+    "@snx-v3/constants": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
@@ -6189,6 +6199,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useUndelegateBaseAndromeda@workspace:liquidity/lib/useUndelegateBaseAndromeda"
   dependencies:
+    "@snx-v3/constants": "workspace:*"
     "@snx-v3/isBaseAndromeda": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
@@ -6297,6 +6308,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useVaultsData@workspace:liquidity/lib/useVaultsData"
   dependencies:
+    "@snx-v3/constants": "workspace:*"
+    "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"

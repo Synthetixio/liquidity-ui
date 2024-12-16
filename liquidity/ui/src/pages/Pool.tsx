@@ -11,9 +11,8 @@ import { PoolHeader } from '../components/Pools/PoolHeader';
 export const Pool = () => {
   const [params] = useParams();
   const safeParams = PoolPageSchema.safeParse(params);
-  const poolId = safeParams.success ? String(safeParams.data.poolId) : undefined;
   const networkId = safeParams.success ? Number(safeParams.data.networkId) : undefined;
-  const { data: pool, isPending } = usePool(networkId, poolId);
+  const { data: pool, isPending } = usePool(networkId);
   const network = NETWORKS.find((n) => n.id === networkId);
 
   const title = pool

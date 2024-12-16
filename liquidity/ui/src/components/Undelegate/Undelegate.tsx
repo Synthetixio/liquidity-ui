@@ -35,7 +35,7 @@ export function Undelegate() {
     React.useContext(ManagePositionContext);
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
 
-  const poolConfiguration = usePoolConfiguration(params.poolId);
+  const poolConfiguration = usePoolConfiguration();
   const { network } = useNetwork();
 
   const { data: liquidityPosition, isPending: isPendingLiquidityPosition } = useLiquidityPosition({
@@ -225,7 +225,6 @@ export function Undelegate() {
                 href={`?${makeSearch({
                   page: 'position',
                   collateralSymbol: params.collateralSymbol,
-                  poolId: params.poolId,
                   manageAction: 'withdraw',
                   accountId: params.accountId,
                 })}`}
@@ -234,7 +233,6 @@ export function Undelegate() {
                   setParams({
                     page: 'position',
                     collateralSymbol: params.collateralSymbol,
-                    poolId: params.poolId,
                     manageAction: 'withdraw',
                     accountId: params.accountId,
                   });
@@ -259,7 +257,6 @@ export function Undelegate() {
                 href={`?${makeSearch({
                   page: 'position',
                   collateralSymbol: params.collateralSymbol,
-                  poolId: params.poolId,
                   manageAction: 'repay',
                   accountId: params.accountId,
                 })}`}
@@ -268,7 +265,6 @@ export function Undelegate() {
                   setParams({
                     page: 'position',
                     collateralSymbol: params.collateralSymbol,
-                    poolId: params.poolId,
                     manageAction: 'repay',
                     accountId: params.accountId,
                   });

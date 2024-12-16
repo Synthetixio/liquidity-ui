@@ -1,4 +1,4 @@
-import { getSubgraphUrl } from '@snx-v3/constants';
+import { getSubgraphUrl, POOL_ID } from '@snx-v3/constants';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import Wei, { wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
@@ -122,12 +122,12 @@ const PoolsDataDocument = gql`
   }
 `;
 
-const getPoolData = async (chainName: string, id: string) => {
+const getPoolData = async (chainName: string) => {
   const url = getSubgraphUrl(chainName);
 
   const res = await fetch(url, {
     method: 'POST',
-    body: JSON.stringify({ query: PoolsDataDocument, variables: { id } }),
+    body: JSON.stringify({ query: PoolsDataDocument, variables: { id: POOL_ID } }),
   });
 
   const json = await res.json();
@@ -140,19 +140,21 @@ const getPoolData = async (chainName: string, id: string) => {
   return PoolDataResultSchema.parse(json);
 };
 
-export const usePoolData = (poolId?: string, networkName?: string) => {
+export const usePoolData = (networkName?: string) => {
   const { network } = useNetwork();
   const chainName = networkName || network?.name;
 
   return useQuery({
-    enabled: Boolean(poolId && parseInt(poolId) > 0 && chainName),
-    queryKey: [`${network?.id}-${network?.preset}`, 'PoolData', { pool: poolId }],
+    enabled: Boolean(chainName),
+    queryKey: [`${network?.id}-${network?.preset}`, 'PoolData'],
     queryFn: async () => {
-      if (!poolId || !chainName) throw Error('No poolId or chainName');
-      const poolData = await getPoolData(chainName, poolId);
+      if (!chainName) {
+        throw Error('OMFG');
+      }
+      const poolData = await getPoolData(chainName);
 
       if (!poolData.data.pool) {
-        throw Error(`Pool ${poolId} not found`);
+        throw Error(`Pool ${POOL_ID} not found`);
       }
 
       return poolData.data.pool;

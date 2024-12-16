@@ -6,5 +6,9 @@ export function contractsHash(Contracts: ({ address: string } | undefined)[]) {
   if (Contracts.some((Contract) => Contract === undefined)) {
     return '~';
   }
-  return stringToHash(Contracts.map((Contract) => Contract?.address || '').join());
+  return stringToHash(
+    Contracts.map((Contract) => Contract?.address.toLowerCase() || '')
+      .sort()
+      .join()
+  );
 }

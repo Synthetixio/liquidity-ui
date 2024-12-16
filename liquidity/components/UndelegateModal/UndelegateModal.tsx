@@ -47,7 +47,6 @@ export function UndelegateModal({ onClose }: { onClose: () => void }) {
 
   const { exec: execUndelegate } = useUndelegate({
     accountId: params.accountId,
-    poolId: params.poolId,
     collateralTypeAddress: collateralType?.tokenAddress,
     collateralChange,
     currentCollateral: currentCollateral,

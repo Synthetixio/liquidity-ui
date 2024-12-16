@@ -28,28 +28,26 @@ export type CollateralType = {
 };
 
 async function loadCollateralTypes(chainId: number, preset: string) {
-  return (await importCollateralTokens(chainId, preset))
-    .map((config) => ({
-      address: config.address,
-      symbol: config.symbol,
-      displaySymbol: config.symbol,
-      name: config.name,
-      decimals: config.decimals,
-      depositingEnabled: config.depositingEnabled,
-      issuanceRatioD18: wei(config.issuanceRatioD18, 18, true),
-      liquidationRatioD18: wei(config.liquidationRatioD18, 18, true),
-      liquidationRewardD18: wei(config.liquidationRewardD18, 18, true),
-      minDelegationD18: wei(config.minDelegationD18, 18, true),
-      oracleNodeId: config.oracleNodeId,
-      tokenAddress: config.tokenAddress,
-      oracle: {
-        constPrice: config.oracle.constPrice ? wei(config.oracle.constPrice, 18, true) : undefined,
-        externalContract: config.oracle.externalContract,
-        stalenessTolerance: config.oracle.stalenessTolerance,
-        pythFeedId: config.oracle.pythFeedId,
-      },
-    }))
-    .filter(({ depositingEnabled }) => depositingEnabled);
+  return (await importCollateralTokens(chainId, preset)).map((config) => ({
+    address: config.address,
+    symbol: config.symbol,
+    displaySymbol: config.symbol,
+    name: config.name,
+    decimals: config.decimals,
+    depositingEnabled: config.depositingEnabled,
+    issuanceRatioD18: wei(config.issuanceRatioD18, 18, true),
+    liquidationRatioD18: wei(config.liquidationRatioD18, 18, true),
+    liquidationRewardD18: wei(config.liquidationRewardD18, 18, true),
+    minDelegationD18: wei(config.minDelegationD18, 18, true),
+    oracleNodeId: config.oracleNodeId,
+    tokenAddress: config.tokenAddress,
+    oracle: {
+      constPrice: config.oracle.constPrice ? wei(config.oracle.constPrice, 18, true) : undefined,
+      externalContract: config.oracle.externalContract,
+      stalenessTolerance: config.oracle.stalenessTolerance,
+      pythFeedId: config.oracle.pythFeedId,
+    },
+  }));
 }
 
 export function useCollateralTypes(includeDelegationOff = false, customNetwork?: Network) {
@@ -62,7 +60,8 @@ export function useCollateralTypes(includeDelegationOff = false, customNetwork?:
     queryKey: [
       `${network?.id}-${network?.preset}`,
       'CollateralTypes',
-      { systemToken: systemToken?.symbol, includeDelegationOff },
+      { includeDelegationOff },
+      { contractsHash: contractsHash([systemToken]) },
     ],
     queryFn: async () => {
       if (!(network?.id && network?.preset && systemToken))
@@ -99,9 +98,11 @@ export function useCollateralTypes(includeDelegationOff = false, customNetwork?:
 
       // Return collateral types that have minDelegationD18 < MaxUint256
       // When minDelegationD18 === MaxUint256, delegation is effectively disabled
-      return collateralTypes.filter((collateralType) =>
-        collateralType.minDelegationD18.lt(ethers.constants.MaxUint256)
-      );
+      return collateralTypes
+        .filter(({ depositingEnabled }) => depositingEnabled)
+        .filter((collateralType) =>
+          collateralType.minDelegationD18.lt(ethers.constants.MaxUint256)
+        );
     },
     // one hour in ms
     staleTime: 3_600_000,
