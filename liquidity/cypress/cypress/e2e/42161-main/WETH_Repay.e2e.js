@@ -3,14 +3,14 @@ import { makeSearch } from '@snx-v3/useParams';
 describe(__filename, () => {
   Cypress.env('chainId', '42161');
   Cypress.env('preset', 'main');
-  Cypress.env('walletAddress', '0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345');
-  Cypress.env('accountId', '58655818123');
+  Cypress.env('walletAddress', '0xD41908f92e29387bABc3861d76B9504d7F18bF4E');
+  Cypress.env('accountId', '557271071589');
 
   beforeEach(() => {
     cy.task('startAnvil', {
       chainId: Cypress.env('chainId'),
       forkUrl: `https://arbitrum-mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '271813668',
+      block: '285255179',
     }).then(() => cy.log('Anvil started'));
 
     cy.on('window:before:load', (win) => {
@@ -24,13 +24,6 @@ describe(__filename, () => {
   afterEach(() => cy.task('stopAnvil').then(() => cy.log('Anvil stopped')));
 
   it(__filename, () => {
-    cy.setEthBalance({ balance: 100 });
-    cy.approveCollateral({ symbol: 'WETH', spender: 'CoreProxy' });
-    cy.wrapEth({ amount: 20 });
-    cy.depositCollateral({ symbol: 'WETH', amount: 10 });
-    cy.delegateCollateral({ symbol: 'WETH', amount: 10, poolId: 1 });
-    cy.borrowUsd({ symbol: 'WETH', amount: 100, poolId: 1 });
-
     cy.visit(
       `?${makeSearch({
         page: 'position',

@@ -40,16 +40,11 @@ export function RepayModal({ onClose }: { onClose: () => void }) {
   const { data: systemToken } = useSystemToken();
   const { data: systemTokenBalance } = useTokenBalance(systemToken?.address);
 
-  const availableCollateral =
-    systemTokenBalance && liquidityPosition
-      ? systemTokenBalance.add(liquidityPosition.availableSystemToken)
-      : undefined;
-
   const { exec: execRepay, settle: settleRepay } = useRepay({
     accountId: params.accountId,
     collateralTypeAddress: collateralType?.tokenAddress,
     debtChange,
-    availableUSDCollateral: availableCollateral,
+    availableUSDCollateral: liquidityPosition ? liquidityPosition.availableSystemToken : undefined,
     balance: systemTokenBalance,
   });
 
@@ -57,7 +52,7 @@ export function RepayModal({ onClose }: { onClose: () => void }) {
     accountId: params.accountId,
     collateralTypeAddress: collateralType?.tokenAddress,
     debtChange,
-    availableUSDCollateral: availableCollateral,
+    availableUSDCollateral: liquidityPosition ? liquidityPosition.availableSystemToken : undefined,
   });
 
   const toast = useToast({ isClosable: true, duration: 9000 });
@@ -66,7 +61,9 @@ export function RepayModal({ onClose }: { onClose: () => void }) {
   const { data: SpotMarketProxy } = useSpotMarketProxy();
 
   const errorParser = useContractErrorParser();
-  const amountToDeposit = debtChange.abs().sub(availableCollateral || 0);
+  const amountToDeposit = debtChange
+    .abs()
+    .sub(liquidityPosition ? liquidityPosition.availableSystemToken : 0);
 
   const { data: synthTokens } = useSynthTokens();
   const wrapperToken = React.useMemo(() => {

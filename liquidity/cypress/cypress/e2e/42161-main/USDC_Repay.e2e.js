@@ -10,7 +10,7 @@ describe(__filename, () => {
     cy.task('startAnvil', {
       chainId: Cypress.env('chainId'),
       forkUrl: `https://arbitrum-mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '271813668',
+      block: '285187379',
     }).then(() => cy.log('Anvil started'));
 
     cy.on('window:before:load', (win) => {
@@ -24,10 +24,6 @@ describe(__filename, () => {
   afterEach(() => cy.task('stopAnvil').then(() => cy.log('Anvil stopped')));
 
   it(__filename, () => {
-    cy.setEthBalance({ balance: 100 });
-    cy.borrowUsd({ symbol: 'USDC', amount: 10, poolId: 1 });
-    cy.getSystemToken({ amount: 500 });
-
     cy.visit(
       `?${makeSearch({
         page: 'position',
@@ -42,7 +38,7 @@ describe(__filename, () => {
       .should('exist')
       .and('include.text', 'Max');
 
-    cy.get('[data-cy="repay amount input"]').type('5');
+    cy.contains('[data-cy="current debt amount"] span', 'Max').click();
 
     cy.get('[data-cy="repay submit"]').should('be.enabled');
     cy.get('[data-cy="repay submit"]').click();
@@ -52,7 +48,7 @@ describe(__filename, () => {
       .and('include.text', 'Manage Debt')
       .and('include.text', 'Approve USDx transfer')
       .and('include.text', 'Repay')
-      .and('include.text', 'Repay 5 USDx');
+      .and('include.text', 'Repay 1.2 USDx');
 
     cy.get('[data-cy="repay confirm button"]').should('include.text', 'Execute Transaction');
     cy.get('[data-cy="repay confirm button"]').click();
