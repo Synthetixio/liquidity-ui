@@ -1,4 +1,5 @@
 import { Skeleton, SkeletonCircle, SkeletonProps } from '@chakra-ui/react';
+import React from 'react';
 
 interface SynthSkeletonProps extends SkeletonProps {
   children: React.ReactNode;

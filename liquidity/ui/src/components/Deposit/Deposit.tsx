@@ -63,39 +63,55 @@ export function Deposit() {
   const { data: stataBalance } = useTokenBalance(StaticAaveUSDC?.address);
 
   const maxAmount = React.useMemo(() => {
-    if (collateralType?.symbol === 'SNX' && liquidityPosition && transferrableSnx) {
-      return liquidityPosition.availableCollateral.add(transferrableSnx.transferable);
-    }
-    if (collateralType?.symbol === 'WETH' && liquidityPosition && collateralBalance && ethBalance) {
-      return liquidityPosition.availableCollateral.add(collateralBalance).add(ethBalance);
-    }
-    if (
-      isStataUSDC &&
-      liquidityPosition &&
-      usdcBalance &&
-      stataBalance &&
-      collateralBalance &&
-      stataUSDCRate
-    ) {
-      const stataAmount = liquidityPosition.availableCollateral // synth stata deposited
-        .add(stataBalance) // stata in wallet
-        .add(collateralBalance); // synth stata in wallet
-      return stataAmount.add(usdcBalance.div(wei(stataUSDCRate, 27)).mul(97).div(100)); // Add 97% of wallet USDC
-    }
-    if (
-      collateralType?.symbol === 'USDC' &&
-      network?.preset === 'andromeda' &&
-      liquidityPosition &&
-      usdcBalance
-    ) {
-      return liquidityPosition.availableCollateral.add(usdcBalance);
+    if (collateralType?.symbol === 'SNX') {
+      return (
+        ZEROWEI
+          //
+          .add(transferrableSnx ? transferrableSnx.transferable : ZEROWEI)
+          .add(liquidityPosition ? liquidityPosition.availableCollateral : ZEROWEI)
+      );
     }
 
-    if (liquidityPosition && collateralBalance) {
-      return liquidityPosition.availableCollateral.add(collateralBalance);
+    if (collateralType?.symbol === 'WETH') {
+      return (
+        ZEROWEI
+          //
+          .add(ethBalance ?? ZEROWEI)
+          .add(collateralBalance ?? ZEROWEI)
+          .add(liquidityPosition ? liquidityPosition.availableCollateral : ZEROWEI)
+      );
     }
 
-    return ZEROWEI;
+    if (isStataUSDC) {
+      return (
+        ZEROWEI
+          //
+          .add(
+            usdcBalance && stataUSDCRate
+              ? usdcBalance.div(wei(stataUSDCRate, 27)).mul(97).div(100) // Add 97% of wallet USDC
+              : ZEROWEI
+          )
+          .add(collateralBalance ?? ZEROWEI) // synth stata in wallet
+          .add(stataBalance ?? ZEROWEI) // stata in wallet
+          .add(liquidityPosition ? liquidityPosition.availableCollateral : ZEROWEI) // synth stata deposited
+      );
+    }
+
+    if (collateralType?.symbol === 'USDC' && network?.preset === 'andromeda') {
+      return (
+        ZEROWEI
+          //
+          .add(usdcBalance ?? ZEROWEI)
+          .add(liquidityPosition ? liquidityPosition.availableCollateral : ZEROWEI)
+      );
+    }
+
+    return (
+      ZEROWEI
+        //
+        .add(collateralBalance ?? ZEROWEI)
+        .add(liquidityPosition ? liquidityPosition.availableCollateral : ZEROWEI)
+    );
   }, [
     collateralType?.symbol,
     liquidityPosition,
@@ -120,8 +136,12 @@ export function Deposit() {
         <Flex alignItems="flex-start" flexDir="column" gap="1">
           <BorderBox display="flex" py={1.5} px={2.5}>
             <Text display="flex" gap={2} alignItems="center" fontWeight="600">
-              <TokenIcon symbol={collateralType?.symbol} width={16} height={16} />
-              {collateralType?.displaySymbol}
+              <TokenIcon
+                symbol={collateralType?.symbol ?? params.collateralSymbol}
+                width={16}
+                height={16}
+              />
+              {collateralType?.displaySymbol ?? params.collateralSymbol}
             </Text>
           </BorderBox>
           <Tooltip
@@ -188,8 +208,9 @@ export function Deposit() {
             }
           >
             <Text fontSize="12px" data-cy="balance amount">
-              {isPendingLiquidityPosition ? 'Balance: ~' : null}
-              {!isPendingLiquidityPosition && maxAmount ? (
+              {params.accountId && isPendingLiquidityPosition ? 'Balance: ~' : null}
+              {(!params.accountId || (params.accountId && !isPendingLiquidityPosition)) &&
+              maxAmount ? (
                 <>
                   <Amount prefix="Balance: " value={maxAmount} />
                   &nbsp;
@@ -222,7 +243,7 @@ export function Deposit() {
             min={ZEROWEI}
           />
           <Flex fontSize="xs" color="whiteAlpha.700" alignSelf="flex-end" gap="1">
-            {price.gt(0) && <Amount prefix="$" value={collateralChange.abs().mul(price)} />}
+            <Amount prefix="$" value={collateralChange.abs().mul(price)} />
           </Flex>
         </Flex>
       </BorderBox>
@@ -299,7 +320,7 @@ export function Deposit() {
                         <ChangeStat
                           value={liquidityPosition.collateralAmount}
                           newValue={liquidityPosition.collateralAmount.add(collateralChange)}
-                          formatFn={(val: Wei) => currency(val)}
+                          formatFn={(val?: Wei) => currency(val ?? ZEROWEI)}
                           hasChanges={collateralChange.abs().gt(0)}
                           size="sm"
                         />
@@ -333,14 +354,14 @@ export function Deposit() {
         data-cy="deposit submit"
         type="submit"
         isDisabled={
-          collateralChange.lte(0) ||
-          maxAmount.eq(0) ||
-          !collateralType ||
-          !liquidityPosition ||
-          collateralChange
-            .add(liquidityPosition.collateralAmount)
-            .lt(collateralType.minDelegationD18) ||
-          overAvailableBalance
+          !(
+            collateralChange.gt(0) &&
+            !overAvailableBalance &&
+            collateralType &&
+            collateralChange
+              .add(liquidityPosition?.collateralAmount ?? ZEROWEI)
+              .gt(collateralType.minDelegationD18)
+          )
         }
       >
         {collateralChange.lte(0) ? 'Enter Amount' : 'Deposit and Lock Collateral'}

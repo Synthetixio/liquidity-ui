@@ -132,8 +132,12 @@ export function InitialDeposit({
                   width="fit-content"
                 >
                   <Text display="flex" gap={2} alignItems="center" fontWeight="600">
-                    <TokenIcon symbol={collateralType?.symbol} width={16} height={16} />
-                    {collateralType?.displaySymbol}
+                    <TokenIcon
+                      symbol={collateralType?.symbol ?? params.collateralSymbol}
+                      width={16}
+                      height={16}
+                    />
+                    {collateralType?.displaySymbol ?? params.collateralSymbol}
                   </Text>
                 </BorderBox>
                 <Tooltip
@@ -260,7 +264,7 @@ export function InitialDeposit({
                 {collateralType
                   ? formatNumber(parseFloat(collateralType.minDelegationD18.toString()))
                   : ''}{' '}
-                {collateralType?.symbol} or higher
+                {collateralType?.displaySymbol ?? params.collateralSymbol} or higher
               </AlertDescription>
             </Alert>
           </Collapse>

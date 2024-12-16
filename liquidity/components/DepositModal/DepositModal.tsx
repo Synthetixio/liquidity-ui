@@ -71,7 +71,8 @@ export function DepositModal({
   //Preparing wETH
   const { exec: wrapEth, wethBalance } = useWrapEth();
   const wrapETHAmount =
-    collateralType?.symbol === 'WETH' && collateralNeeded.gt(wethBalance || 0)
+    (collateralType?.displaySymbol ?? params.collateralSymbol) === 'WETH' &&
+    collateralNeeded.gt(wethBalance || 0)
       ? collateralNeeded.sub(wethBalance || 0)
       : ZEROWEI;
   //Preparing wETH done
@@ -292,12 +293,12 @@ export function DepositModal({
   const txSummaryItems = React.useMemo(() => {
     const items = [
       {
-        label: `Locked ${collateralType?.symbol}`,
+        label: `Locked ${collateralType?.displaySymbol ?? params.collateralSymbol}`,
         value: (
           <ChangeStat
             value={txSummary.currentCollateral}
             newValue={txSummary.currentCollateral.add(txSummary.collateralChange)}
-            formatFn={(val: Wei) => currency(val)}
+            formatFn={(val?: Wei) => currency(val ?? ZEROWEI)}
             hasChanges={txSummary.collateralChange.abs().gt(0)}
             size="sm"
           />
@@ -326,12 +327,13 @@ export function DepositModal({
       },
     ];
   }, [
-    collateralType?.symbol,
+    collateralType?.displaySymbol,
+    params.collateralSymbol,
+    txSummary.currentCollateral,
+    txSummary.collateralChange,
+    txSummary.currentDebt,
     network?.preset,
     liquidityPosition?.collateralPrice,
-    txSummary.collateralChange,
-    txSummary.currentCollateral,
-    txSummary.currentDebt,
   ]);
 
   const symbol = collateralType?.displaySymbol;
@@ -341,7 +343,7 @@ export function DepositModal({
     state.matches(State.deposit) ||
     state.matches(State.wrap);
 
-  const isWETH = collateralType?.symbol === 'WETH';
+  const isWETH = (collateralType?.displaySymbol ?? params.collateralSymbol) === 'WETH';
 
   const stepNumbers = {
     wrap: isWETH ? 1 : 0,
@@ -390,8 +392,11 @@ export function DepositModal({
           subtitle={
             state.context.wrapAmount.eq(0) ? (
               <Text as="div">
-                <Amount value={collateralChange} suffix={` ${collateralType?.symbol}`} /> from
-                balance will be used.
+                <Amount
+                  value={collateralChange}
+                  suffix={` ${collateralType?.displaySymbol ?? params.collateralSymbol}`}
+                />{' '}
+                from balance will be used.
               </Text>
             ) : (
               <Text as="div">
@@ -402,7 +407,7 @@ export function DepositModal({
           }
           status={{
             failed: state.context.error?.step === State.wrap,
-            disabled: collateralType?.symbol !== 'WETH',
+            disabled: (collateralType?.displaySymbol ?? params.collateralSymbol) !== 'WETH',
             success: state.context.wrapAmount.eq(0) || state.matches(State.success),
             loading: state.matches(State.wrap) && !state.context.error,
           }}
@@ -436,7 +441,9 @@ export function DepositModal({
             {state.matches(State.success) ? (
               <Amount
                 value={collateralChange}
-                suffix={` ${collateralType?.symbol} deposited and locked.`}
+                suffix={` ${
+                  collateralType?.displaySymbol ?? params.collateralSymbol
+                } deposited and locked.`}
               />
             ) : (
               <>
@@ -446,7 +453,7 @@ export function DepositModal({
                       <Amount
                         prefix={`This will deposit and lock `}
                         value={collateralChange}
-                        suffix={` ${collateralType?.symbol}.`}
+                        suffix={` ${collateralType?.displaySymbol ?? params.collateralSymbol}.`}
                       />
                     ) : (
                       <>
@@ -454,14 +461,16 @@ export function DepositModal({
                           <Amount
                             prefix={`This will deposit and lock `}
                             value={availableCollateral}
-                            suffix={` ${collateralType?.symbol}.`}
+                            suffix={` ${collateralType?.displaySymbol ?? params.collateralSymbol}.`}
                           />
                         </Text>
                         <Text>
                           <Amount
                             prefix={`An additional `}
                             value={collateralChange.sub(availableCollateral)}
-                            suffix={` ${collateralType?.symbol} will be deposited and locked from your wallet.`}
+                            suffix={` ${
+                              collateralType?.displaySymbol ?? params.collateralSymbol
+                            } will be deposited and locked from your wallet.`}
                           />
                         </Text>
                       </>
@@ -471,7 +480,7 @@ export function DepositModal({
                   <Amount
                     prefix={`This will deposit and lock `}
                     value={collateralChange}
-                    suffix={` ${collateralType?.symbol}.`}
+                    suffix={` ${collateralType?.displaySymbol ?? params.collateralSymbol}.`}
                   />
                 )}
               </>

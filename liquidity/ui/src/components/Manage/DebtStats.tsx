@@ -47,9 +47,9 @@ export function DebtStats({ newDebt, hasChanges }: { newDebt: Wei; hasChanges: b
         <Flex width="100%">
           <ChangeStat
             value={liquidityPosition?.debt}
-            isPending={isPendingLiquidityPosition}
+            isPending={Boolean(params.accountId && isPendingLiquidityPosition)}
             newValue={newDebt}
-            formatFn={(val: Wei) => <DebtAmount debt={val} as="span" />}
+            formatFn={(val?: Wei) => <DebtAmount debt={val} as="span" />}
             hasChanges={hasChanges}
             data-cy="stats debt"
           />

@@ -35,7 +35,7 @@ export function ChangeStat({
   newValue: Wei;
   hasChanges: boolean;
   'data-cy'?: string;
-  formatFn: (val: Wei) => React.ReactNode;
+  formatFn: (val?: Wei) => React.ReactNode;
   withColor?: boolean;
   size?: 'sm' | 'md' | 'lg';
   isPending?: boolean;
@@ -64,10 +64,9 @@ export function ChangeStat({
         }
         whiteSpace="nowrap"
       >
-        {isPending ? '~' : null}
-        {!isPending && value ? formatFn(value) : null}
+        {isPending ? '~' : formatFn(value)}
       </Text>
-      {hasChanges && !isPending && value && !value.eq(newValue) ? (
+      {hasChanges && !isPending && (!value || !value.eq(newValue)) ? (
         <Flex gap="1" alignItems="center" isTruncated>
           <ArrowForwardIcon />
           <Text

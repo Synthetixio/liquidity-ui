@@ -183,7 +183,7 @@ export function UndelegateModal({ onClose }: { onClose: () => void }) {
                         <ChangeStat
                           value={txSummary.currentCollateral}
                           newValue={txSummary.currentCollateral.add(txSummary.collateralChange)}
-                          formatFn={(val: Wei) => currency(val)}
+                          formatFn={(val?: Wei) => currency(val ?? ZEROWEI)}
                           hasChanges={txSummary.collateralChange.abs().gt(0)}
                           size="sm"
                         />

@@ -1,6 +1,7 @@
 import { InfoIcon } from '@chakra-ui/icons';
 import { Flex, Text } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
+import { ZEROWEI } from '@snx-v3/constants';
 import { currency } from '@snx-v3/format';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
@@ -39,10 +40,10 @@ export function PnlStats({ newDebt, hasChanges }: { newDebt: Wei; hasChanges: bo
         <Flex width="100%">
           <ChangeStat
             value={liquidityPosition?.debt.mul(-1)}
-            isPending={isPendingLiquidityPosition}
+            isPending={Boolean(params.accountId && isPendingLiquidityPosition)}
             newValue={newDebt.mul(-1)}
-            formatFn={(val: Wei) =>
-              currency(val, {
+            formatFn={(val?: Wei) =>
+              currency(val ?? ZEROWEI, {
                 currency: 'USD',
                 style: 'currency',
                 maximumFractionDigits: 4,

@@ -395,12 +395,12 @@ export function StataDepositModal({
           <TransactionSummary
             items={[
               {
-                label: `Locked ${collateralType?.symbol}`,
+                label: `Locked ${collateralType?.displaySymbol ?? params.collateralSymbol}`,
                 value: (
                   <ChangeStat
                     value={txSummary.currentCollateral}
                     newValue={txSummary.currentCollateral.add(txSummary.collateralChange)}
-                    formatFn={(val: Wei) => currency(val)}
+                    formatFn={(val?: Wei) => currency(val ?? ZEROWEI)}
                     hasChanges={txSummary.collateralChange.abs().gt(0)}
                     size="sm"
                   />

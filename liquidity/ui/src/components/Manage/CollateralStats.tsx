@@ -1,10 +1,11 @@
 import { Flex, Text } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
+import { ZEROWEI } from '@snx-v3/constants';
 import { currency } from '@snx-v3/format';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
-import Wei from '@synthetixio/wei';
+import { type Wei } from '@synthetixio/wei';
 import { ChangeStat } from '../ChangeStat/ChangeStat';
 
 export function CollateralStats({
@@ -34,36 +35,37 @@ export function CollateralStats({
           </Text>
         </Flex>
         <Flex width="100%" isTruncated>
-          {!isPendingLiquidityPosition && liquidityPosition && collateralType ? (
-            <Flex width="100%" direction="column" gap="1">
+          <Flex width="100%" direction="column" gap="1">
+            <ChangeStat
+              isPending={Boolean(params.accountId && isPendingLiquidityPosition)}
+              value={liquidityPosition?.collateralAmount}
+              newValue={newCollateralAmount}
+              formatFn={(val?: Wei) =>
+                `${currency(val ?? ZEROWEI)} ${
+                  collateralType?.displaySymbol ?? params.collateralSymbol
+                }`
+              }
+              hasChanges={hasChanges}
+              data-cy="stats collateral"
+            />
+            {liquidityPosition ? (
               <ChangeStat
-                value={liquidityPosition.collateralAmount}
-                newValue={newCollateralAmount}
-                formatFn={(val: Wei) => `${currency(val)} ${collateralType.displaySymbol}`}
-                hasChanges={hasChanges}
-                data-cy="stats collateral"
-              />
-              <ChangeStat
-                value={liquidityPosition.collateralAmount.mul(liquidityPosition.collateralPrice)}
-                newValue={newCollateralAmount.mul(liquidityPosition.collateralPrice)}
-                formatFn={(val: Wei) => currency(val, { currency: 'USD', style: 'currency' })}
+                isPending={Boolean(params.accountId && isPendingLiquidityPosition)}
+                value={
+                  liquidityPosition
+                    ? liquidityPosition.collateralAmount.mul(liquidityPosition.collateralPrice)
+                    : ZEROWEI
+                }
+                newValue={newCollateralAmount.mul(liquidityPosition?.collateralPrice ?? ZEROWEI)}
+                formatFn={(val?: Wei) =>
+                  currency(val ?? ZEROWEI, { currency: 'USD', style: 'currency' })
+                }
                 size="md"
                 hasChanges={hasChanges}
                 data-cy="stats collateral value"
               />
-            </Flex>
-          ) : null}
-
-          {isPendingLiquidityPosition ? (
-            <Flex direction="column">
-              <ChangeStat
-                newValue={newCollateralAmount}
-                formatFn={() => null}
-                hasChanges={hasChanges}
-                isPending={isPendingLiquidityPosition}
-              />
-            </Flex>
-          ) : null}
+            ) : null}
+          </Flex>
         </Flex>
       </Flex>
     </BorderBox>
