@@ -93,7 +93,7 @@ export function useCollateralTypes(includeDelegationOff = false, customNetwork?:
         .filter((collateralType) => collateralType.tokenAddress !== systemToken.address);
 
       if (includeDelegationOff) {
-        return collateralTypes;
+        return collateralTypes.filter(({ depositingEnabled }) => depositingEnabled);
       }
 
       // Return collateral types that have minDelegationD18 < MaxUint256
@@ -109,26 +109,24 @@ export function useCollateralTypes(includeDelegationOff = false, customNetwork?:
   });
 }
 
-export function useCollateralType(collateralSymbol?: string, customNetwork?: Network) {
-  const { network } = useNetwork();
-  const targetNetwork = customNetwork || network;
-
-  const { data: collateralTypes } = useCollateralTypes(true, customNetwork);
+export function useCollateralType(collateralSymbol?: string, networkOverride?: Network) {
+  const { network: currentNetwork } = useNetwork();
+  const network = networkOverride || currentNetwork;
+  const { data: collateralTypes } = useCollateralTypes(true, networkOverride);
 
   return useQuery({
-    enabled: Boolean(
-      targetNetwork?.id && targetNetwork?.preset && collateralTypes && collateralTypes.length > 0
-    ),
+    enabled: Boolean(network && collateralTypes && collateralSymbol),
     queryKey: [
-      `${targetNetwork?.id}-${targetNetwork?.preset}`,
+      `${network?.id}-${network?.preset}`,
       'CollateralType',
-      { collaterals: contractsHash(collateralTypes ?? []) },
       { collateralSymbol },
+      { contractsHash: contractsHash(collateralTypes ?? []) },
     ],
     queryFn: async () => {
-      if (!(targetNetwork?.id && targetNetwork?.preset && collateralTypes && collateralSymbol)) {
+      if (!(network && collateralTypes && collateralSymbol)) {
         throw new Error('OMFG');
       }
+
       const collateralType = collateralTypes.find(
         (collateral) => `${collateral.symbol}`.toLowerCase() === `${collateralSymbol}`.toLowerCase()
       );
