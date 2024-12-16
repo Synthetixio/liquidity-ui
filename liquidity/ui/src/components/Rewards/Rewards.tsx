@@ -2,6 +2,7 @@ import { InfoIcon } from '@chakra-ui/icons';
 import {
   Button,
   Flex,
+  Heading,
   Table,
   TableContainer,
   Tbody,
@@ -14,7 +15,7 @@ import {
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useClaimAllRewards } from '@snx-v3/useClaimAllRewards';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
-import { useRewards, groupRewardsBySymbol } from '@snx-v3/useRewards';
+import { groupRewardsBySymbol, useRewards } from '@snx-v3/useRewards';
 import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import React from 'react';
 import { AllRewardsModal } from './AllRewardsModal';
@@ -38,9 +39,9 @@ export function Rewards() {
     <TableContainer>
       <AllRewardsModal txnStatus={txnState.txnStatus} txnHash={txnState.txnHash} />
       <Flex alignItems="center" justifyContent="space-between">
-        <Text color="gray.500" fontFamily="heading" lineHeight="4" fontSize="xs" mb="8px">
-          &nbsp;
-        </Text>
+        <Heading fontSize="18px" fontWeight={700} lineHeight="28px" color="gray.50">
+          Rewards
+        </Heading>
         <Button
           size="sm"
           variant="solid"
@@ -74,7 +75,7 @@ export function Rewards() {
               px={4}
               py={3}
             >
-              Rewards type
+              Token
               <Tooltip label="Total rewards active for the Pool">
                 <InfoIcon ml={1} mb="1px" />
               </Tooltip>

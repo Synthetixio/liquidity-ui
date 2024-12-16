@@ -33,46 +33,36 @@ export function Dashboard() {
         </Flex>
 
         <Flex mt={6} flexDirection={['column', 'column', 'row']} gap={4}>
-          <Flex gap={4} flex={1} flexDirection="column">
-            <Heading fontSize="1.25rem" fontFamily="heading" lineHeight="1.75rem">
-              Rewards
-            </Heading>
-            <Flex
-              flex={1}
-              flexDirection="column"
-              borderColor="gray.900"
-              borderWidth="1px"
-              borderRadius="5px"
-              p={6}
-              sx={{
-                borderCollapse: 'separate !important',
-                borderSpacing: 0,
-              }}
-              bg="navy.700"
-            >
-              <Rewards />
-            </Flex>
+          <Flex
+            flex={1}
+            flexDirection="column"
+            borderColor="gray.900"
+            borderWidth="1px"
+            borderRadius="5px"
+            p={6}
+            sx={{
+              borderCollapse: 'separate !important',
+              borderSpacing: 0,
+            }}
+            bg="navy.700"
+          >
+            <Rewards />
           </Flex>
 
-          <Flex gap={4} flex={1} flexDirection="column">
-            <Heading fontSize="1.25rem" fontFamily="heading" lineHeight="1.75rem">
-              Synths
-            </Heading>
-            <Flex
-              flex={1}
-              flexDirection="column"
-              borderColor="gray.900"
-              borderWidth="1px"
-              borderRadius="5px"
-              p={6}
-              sx={{
-                borderCollapse: 'separate !important',
-                borderSpacing: 0,
-              }}
-              bg="navy.700"
-            >
-              <Synths />
-            </Flex>
+          <Flex
+            flex={1}
+            flexDirection="column"
+            borderColor="gray.900"
+            borderWidth="1px"
+            borderRadius="5px"
+            p={6}
+            sx={{
+              borderCollapse: 'separate !important',
+              borderSpacing: 0,
+            }}
+            bg="navy.700"
+          >
+            <Synths />
           </Flex>
         </Flex>
       </Flex>
