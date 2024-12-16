@@ -384,11 +384,11 @@ workflows:
       - e2e:
           name: e2e-base
           dir: '8453-andromeda'
-          parallelism: 2
+          parallelism: 3
       - e2e:
           name: e2e-arbitrum
           dir: '42161-main'
-          parallelism: 2
+          parallelism: 3
       - e2e:
           name: e2e-mainnet
           dir: '1-main'
