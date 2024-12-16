@@ -15,6 +15,7 @@ import { useSystemToken } from '@snx-v3/useSystemToken';
 import { wei } from '@synthetixio/wei';
 import { useCallback, useContext, useMemo } from 'react';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
+import { ClaimSuccessBanner } from './ClaimSuccessBanner';
 
 export function ClaimModal({ onClose }: { onClose: () => void }) {
   const [params] = useParams<PositionPageSchemaType>();
@@ -81,32 +82,43 @@ export function ClaimModal({ onClose }: { onClose: () => void }) {
     network?.preset === 'andromeda' ? collateralType?.displaySymbol : systemToken?.symbol;
 
   if (txnState.txnStatus === 'success') {
-    return (
-      <LiquidityPositionUpdated
-        onClose={() => {
-          settleBorrow();
-          onClose();
-        }}
-        title="Debt successfully Updated"
-        subline={
-          <>
-            Your <b>Debt</b> has been updated, read more about it in the{' '}
-            <Link
-              href="https://docs.synthetix.io/v/synthetix-v3-user-documentation"
-              target="_blank"
-              color="cyan.500"
-            >
-              Synthetix V3 Documentation
-            </Link>
-          </>
-        }
-        alertText={
-          <>
-            <b>Debt</b> successfully Updated
-          </>
-        }
-      />
-    );
+    if (network?.preset === 'main') {
+      return (
+        <ClaimSuccessBanner
+          onClose={() => {
+            settleBorrow();
+            onClose();
+          }}
+        />
+      );
+    } else {
+      return (
+        <LiquidityPositionUpdated
+          onClose={() => {
+            settleBorrow();
+            onClose();
+          }}
+          title="Debt successfully Updated"
+          subline={
+            <>
+              Your <b>Debt</b> has been updated, read more about it in the{' '}
+              <Link
+                href="https://docs.synthetix.io/v/synthetix-v3-user-documentation"
+                target="_blank"
+                color="cyan.500"
+              >
+                Synthetix V3 Documentation
+              </Link>
+            </>
+          }
+          alertText={
+            <>
+              <b>Debt</b> successfully Updated
+            </>
+          }
+        />
+      );
+    }
   }
 
   return (
