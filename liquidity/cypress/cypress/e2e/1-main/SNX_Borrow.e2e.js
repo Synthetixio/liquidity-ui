@@ -73,7 +73,7 @@ describe(__filename, () => {
     cy.get('[data-cy="claim confirm button"]').should('include.text', 'Execute Transaction');
     cy.get('[data-cy="claim confirm button"]').click();
 
-    cy.contains('[data-status="success"]', 'Debt successfully Updated', {
+    cy.contains('[data-cy="claim success"]', {
       timeout: 180_000,
     }).should('exist');
 

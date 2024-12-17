@@ -172,7 +172,7 @@ export function MigrateUSDTransaction({
         }
         status={{
           failed: txState.step === 2 && txState.status === 'error',
-          success: txState.step === 2 && txState.status === 'sucess',
+          success: txState.step === 2 && txState.status === 'success',
           loading: txState.step === 2 && txState.status === 'pending',
         }}
       />
@@ -184,7 +184,7 @@ export function MigrateUSDTransaction({
               return 'Retry';
             case txState.status === 'pending':
               return 'Processing...';
-            case txState.step === 2 && txState.status === 'sucess':
+            case txState.step === 2 && txState.status === 'success':
               return 'Done';
             default:
               return 'Execute Transaction';
