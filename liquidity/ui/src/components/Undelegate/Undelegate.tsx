@@ -16,6 +16,7 @@ import { ZEROWEI } from '@snx-v3/constants';
 import { currency } from '@snx-v3/format';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
+import { TokenIcon } from '@snx-v3/TokenIcon';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
@@ -26,7 +27,6 @@ import { validatePosition } from '@snx-v3/validatePosition';
 import Wei, { wei } from '@synthetixio/wei';
 import React from 'react';
 import { CRatioChangeStat } from '../CRatioBar/CRatioChangeStat';
-import { TokenIcon } from '../TokenIcon/TokenIcon';
 import { TransactionSummary } from '../TransactionSummary/TransactionSummary';
 
 export function Undelegate() {

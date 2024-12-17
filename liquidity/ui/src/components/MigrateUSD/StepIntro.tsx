@@ -12,13 +12,13 @@ import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { ZEROWEI } from '@snx-v3/constants';
 import { NumberInput } from '@snx-v3/NumberInput';
+import { TokenIcon } from '@snx-v3/TokenIcon';
 import { Network } from '@snx-v3/useBlockchain';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useUSDProxy } from '@snx-v3/useUSDProxy';
 import { useV2sUSD } from '@snx-v3/useV2sUSD';
 import Wei from '@synthetixio/wei';
 import React, { useEffect, useState } from 'react';
-import { TokenIcon } from '../TokenIcon/TokenIcon';
 
 export const StepIntro = ({
   onClose,

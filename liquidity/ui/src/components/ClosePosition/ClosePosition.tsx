@@ -14,6 +14,7 @@ import { BorderBox } from '@snx-v3/BorderBox';
 import { ZEROWEI } from '@snx-v3/constants';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
+import { TokenIcon } from '@snx-v3/TokenIcon';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useClosePosition } from '@snx-v3/useClosePosition';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
@@ -23,7 +24,6 @@ import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import React from 'react';
-import { TokenIcon } from '../TokenIcon/TokenIcon';
 import { ClosePositionOneStep } from './ClosePositionOneStep';
 import { ClosePositionTransactions } from './ClosePositionTransactions';
 

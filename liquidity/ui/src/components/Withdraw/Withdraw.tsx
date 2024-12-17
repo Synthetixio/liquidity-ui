@@ -4,6 +4,7 @@ import { BorderBox } from '@snx-v3/BorderBox';
 import { ZEROWEI } from '@snx-v3/constants';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
+import { TokenIcon } from '@snx-v3/TokenIcon';
 import { useAccountCollateralUnlockDate } from '@snx-v3/useAccountCollateralUnlockDate';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
@@ -12,7 +13,6 @@ import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
 import React from 'react';
-import { TokenIcon } from '../TokenIcon/TokenIcon';
 
 export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: boolean }) {
   const [params] = useParams<PositionPageSchemaType>();

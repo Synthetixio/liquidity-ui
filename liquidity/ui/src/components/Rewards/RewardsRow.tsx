@@ -1,8 +1,8 @@
 import { Fade, Flex, Td, Text, Tr } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
+import { TokenIcon } from '@snx-v3/TokenIcon';
 import Wei from '@synthetixio/wei';
 import React from 'react';
-import { TokenIcon } from '../TokenIcon/TokenIcon';
 
 export function RewardsRow({
   displaySymbol,

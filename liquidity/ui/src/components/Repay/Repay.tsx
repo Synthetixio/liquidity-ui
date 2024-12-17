@@ -4,6 +4,7 @@ import { BorderBox } from '@snx-v3/BorderBox';
 import { ZEROWEI } from '@snx-v3/constants';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
+import { TokenIcon } from '@snx-v3/TokenIcon';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
@@ -11,7 +12,6 @@ import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { wei } from '@synthetixio/wei';
 import { useContext } from 'react';
-import { TokenIcon } from '../TokenIcon/TokenIcon';
 
 export function Repay() {
   const [params] = useParams<PositionPageSchemaType>();

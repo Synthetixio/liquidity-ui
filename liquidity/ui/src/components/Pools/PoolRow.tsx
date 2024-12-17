@@ -2,6 +2,7 @@ import { Button, Fade, Flex, Link, Text } from '@chakra-ui/react';
 import { ZEROWEI } from '@snx-v3/constants';
 import { formatApr, formatNumber, formatNumberToUsd } from '@snx-v3/formatters';
 import { Sparkles } from '@snx-v3/icons';
+import { TokenIcon } from '@snx-v3/TokenIcon';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import { Network, NetworkIcon, useNetwork, useWallet } from '@snx-v3/useBlockchain';
@@ -15,7 +16,6 @@ import { useUSDC } from '@snx-v3/useUSDC';
 import { wei } from '@synthetixio/wei';
 import { ethers } from 'ethers';
 import React from 'react';
-import { TokenIcon } from '../TokenIcon/TokenIcon';
 import { Specifics } from './Specifics';
 
 interface CollateralTypeWithDeposited extends CollateralType {

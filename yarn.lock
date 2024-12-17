@@ -4834,6 +4834,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/TokenIcon@workspace:*, @snx-v3/TokenIcon@workspace:liquidity/lib/TokenIcon":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/TokenIcon@workspace:liquidity/lib/TokenIcon"
+  dependencies:
+    "@chakra-ui/react": "npm:^2.8.2"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/Tooltip@workspace:*, @snx-v3/Tooltip@workspace:liquidity/components/Tooltip":
   version: 0.0.0-use.local
   resolution: "@snx-v3/Tooltip@workspace:liquidity/components/Tooltip"
@@ -5063,6 +5071,7 @@ __metadata:
     "@snx-v3/NumberInput": "workspace:*"
     "@snx-v3/RepayModal": "workspace:*"
     "@snx-v3/TermsModal": "workspace:*"
+    "@snx-v3/TokenIcon": "workspace:*"
     "@snx-v3/Tooltip": "workspace:*"
     "@snx-v3/UndelegateModal": "workspace:*"
     "@snx-v3/WithdrawIncrease": "workspace:*"
