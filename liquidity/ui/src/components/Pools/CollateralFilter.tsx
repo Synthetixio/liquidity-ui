@@ -1,6 +1,6 @@
 import { Button, Flex } from '@chakra-ui/react';
+import { TokenIcon } from '@snx-v3/TokenIcon';
 import { Dispatch } from 'react';
-import { TokenIcon } from '../TokenIcon/TokenIcon';
 import { PoolsFilterAction } from './PoolsList';
 
 const supportedCollateralTypes = ['WETH', 'SNX', 'USDC', 'ARB', 'wstETH'];

@@ -4,6 +4,7 @@ import { BorderBox } from '@snx-v3/BorderBox';
 import { ZEROWEI } from '@snx-v3/constants';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
+import { TokenIcon } from '@snx-v3/TokenIcon';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
@@ -13,7 +14,6 @@ import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { validatePosition } from '@snx-v3/validatePosition';
 import { wei } from '@synthetixio/wei';
 import { useContext, useMemo } from 'react';
-import { TokenIcon } from '../TokenIcon/TokenIcon';
 
 export function Claim() {
   const { network } = useNetwork();

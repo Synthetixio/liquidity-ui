@@ -1,12 +1,13 @@
 import { ArrowUpIcon } from '@chakra-ui/icons';
 import { Flex, Heading, Link, Text } from '@chakra-ui/react';
 import { formatNumberToUsd } from '@snx-v3/formatters';
+import { TokenIcon } from '@snx-v3/TokenIcon';
 import { NetworkIcon, useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useVaultsData } from '@snx-v3/useVaultsData';
 import React from 'react';
-import { TokenIcon } from '../TokenIcon/TokenIcon';
+
 // import { useApr } from '@snx-v3/useApr';
 
 function getStatsUrl(chainId?: number) {

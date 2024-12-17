@@ -2,6 +2,7 @@ import { TimeIcon } from '@chakra-ui/icons';
 import { Box, Button, Collapse, Fade, Flex, Link, Td, Text, Tooltip } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { DebtAmount, PnlAmount } from '@snx-v3/DebtAmount';
+import { TokenIcon } from '@snx-v3/TokenIcon';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
@@ -10,7 +11,6 @@ import { makeSearch, useParams } from '@snx-v3/useParams';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
 import { CRatioAmount } from '../CRatioBar/CRatioAmount';
 import { CRatioBadge } from '../CRatioBar/CRatioBadge';
-import { TokenIcon } from '../TokenIcon/TokenIcon';
 
 export function PositionRow({
   liquidityPosition,

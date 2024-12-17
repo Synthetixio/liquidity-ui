@@ -1,8 +1,8 @@
 import { Fade, Flex, Td, Text } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
+import { SynthIcon } from '@snx-v3/TokenIcon';
 import Wei from '@synthetixio/wei';
 import React from 'react';
-import { SynthIcon } from '../TokenIcon/TokenIcon';
 
 export function SynthRow({
   symbol,

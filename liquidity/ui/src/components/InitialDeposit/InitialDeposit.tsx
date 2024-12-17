@@ -19,6 +19,7 @@ import { ZEROWEI } from '@snx-v3/constants';
 import { formatNumber } from '@snx-v3/formatters';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
+import { TokenIcon } from '@snx-v3/TokenIcon';
 import { MAINNET, SEPOLIA, useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useEthBalance } from '@snx-v3/useEthBalance';
@@ -34,7 +35,6 @@ import { useUSDC } from '@snx-v3/useUSDC';
 import { WithdrawIncrease } from '@snx-v3/WithdrawIncrease';
 import React from 'react';
 import { MigrationBanner } from '../Migration/MigrationBanner';
-import { TokenIcon } from '../TokenIcon/TokenIcon';
 
 export function InitialDeposit({
   submit,
