@@ -2,7 +2,7 @@ import { Fade, Flex, Td, Text } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import Wei from '@synthetixio/wei';
 import React from 'react';
-import { TokenIcon } from '../TokenIcon/TokenIcon';
+import { SynthIcon } from '../TokenIcon/TokenIcon';
 
 export function SynthRow({
   symbol,
@@ -18,7 +18,7 @@ export function SynthRow({
       <Td border="none">
         <Fade in>
           <Flex alignItems="center" textDecoration="none" _hover={{ textDecoration: 'none' }}>
-            <TokenIcon height={30} width={30} symbol={symbol} />
+            <SynthIcon height={30} width={30} symbol={symbol} />
             <Flex flexDirection="column" ml={3}>
               <Text
                 color="white"
