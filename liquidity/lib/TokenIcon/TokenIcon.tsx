@@ -10,7 +10,10 @@ export function TokenIcon({
   width?: number;
   height?: number;
 }) {
-  const src = `https://assets.synthetix.io/synths/${symbol ? symbol.toUpperCase() : 'UNKNOWN'}.svg`;
+  const src = `https://assets.synthetix.io/collateral/${
+    symbol ? symbol.toUpperCase() : 'UNKNOWN'
+  }.svg`;
+
   return (
     <Image
       src={src}
