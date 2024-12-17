@@ -82,7 +82,7 @@ export function ClaimModal({ onClose }: { onClose: () => void }) {
     network?.preset === 'andromeda' ? collateralType?.displaySymbol : systemToken?.symbol;
 
   if (txnState.txnStatus === 'success') {
-    if (network?.preset === 'main') {
+    if (network?.id === 1 && network?.preset === 'main') {
       return (
         <ClaimSuccessBanner
           onClose={() => {
