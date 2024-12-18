@@ -26,7 +26,7 @@ export function WithdrawModal({
   onClose: () => void;
   isDebtWithdrawal?: boolean;
 }) {
-  const [txState, setTxState] = useState({
+  const [state, setState] = useState({
     step: 1,
     status: 'idle',
   });
@@ -50,25 +50,24 @@ export function WithdrawModal({
 
   const { mutateAsync: unwrapStata } = useUnwrapStataUSDC();
 
-  const { mutation: withdrawMain } = useWithdraw({
+  const { mutation: withdrawMain, isReady: isReadyWithdrawMain } = useWithdraw({
     amount: withdrawAmount,
     accountId: params.accountId,
-    collateralTypeAddress: isDebtWithdrawal ? systemToken?.address : collateralType?.tokenAddress,
+    token: isDebtWithdrawal ? systemToken : collateralType,
   });
 
-  const { mutation: withdrawAndromeda } = useWithdrawBaseAndromeda({
-    amountToWithdraw: withdrawAmount,
-  });
+  const { mutation: withdrawAndromeda, isReady: isReadyWithdrawAndromeda } =
+    useWithdrawBaseAndromeda({ amount: withdrawAmount });
 
   const onSubmit = async () => {
     try {
-      if (txState.status === 'success') {
+      if (state.status === 'success') {
         onClose();
       }
 
-      let step = txState.step;
+      let step = state.step;
       if (step === 1) {
-        setTxState({
+        setState({
           step: 1,
           status: 'pending',
         });
@@ -81,12 +80,12 @@ export function WithdrawModal({
 
         if (isStataUSDC) {
           step = 2;
-          setTxState({
+          setState({
             step: 2,
             status: 'pending',
           });
         } else {
-          setTxState({
+          setState({
             step: 2,
             status: 'success',
           });
@@ -97,7 +96,7 @@ export function WithdrawModal({
           throw new Error('Not ready');
         }
 
-        setTxState({
+        setState({
           step: 2,
           status: 'pending',
         });
@@ -111,7 +110,7 @@ export function WithdrawModal({
         const balance = await StaticAaveUSDCContract.balanceOf(activeWallet?.address);
         await unwrapStata(balance);
 
-        setTxState({
+        setState({
           step: 2,
           status: 'success',
         });
@@ -119,7 +118,7 @@ export function WithdrawModal({
 
       setWithdrawAmount(ZEROWEI);
     } catch (error) {
-      setTxState((state) => ({
+      setState((state) => ({
         ...state,
         status: 'error',
       }));
@@ -142,10 +141,6 @@ export function WithdrawModal({
       });
     }
   };
-
-  const amount = withdrawAmount;
-  const symbol = isDebtWithdrawal ? systemToken?.symbol : collateralType?.displaySymbol;
-  const state = txState;
 
   if (state.status === 'success') {
     return (
@@ -180,7 +175,14 @@ export function WithdrawModal({
       <Multistep
         step={1}
         title="Withdraw"
-        subtitle={<Amount value={amount} suffix={` ${symbol} will be withdrawn`} />}
+        subtitle={
+          <Amount
+            value={withdrawAmount}
+            suffix={` ${
+              isDebtWithdrawal ? systemToken?.symbol : collateralType?.displaySymbol
+            } will be withdrawn`}
+          />
+        }
         status={{
           failed: state.step === 1 && state.status === 'error',
           success: state.step > 1,
@@ -200,7 +202,12 @@ export function WithdrawModal({
         />
       )}
       <Button
-        isDisabled={state.status === 'pending' || isPendingStaticAaveUSDC || !provider}
+        isDisabled={
+          (network?.preset === 'andromeda' && !isReadyWithdrawAndromeda) ||
+          (network?.preset !== 'andromeda' && !isReadyWithdrawMain) ||
+          state.status === 'pending' ||
+          isPendingStaticAaveUSDC
+        }
         onClick={onSubmit}
         width="100%"
         mt="6"

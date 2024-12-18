@@ -17,11 +17,11 @@ const log = debug('snx:useWithdraw');
 
 export const useWithdraw = ({
   accountId,
-  collateralTypeAddress,
+  token,
   amount,
 }: {
   accountId?: string;
-  collateralTypeAddress?: string;
+  token?: { address: string; decimals: number };
   amount: Wei;
 }) => {
   const [txnState, dispatch] = useReducer(reducer, initialState);
@@ -33,39 +33,22 @@ export const useWithdraw = ({
   const signer = useSigner();
   const provider = useProvider();
 
+  const isReady = signer && network && provider && CoreProxy && token && amount && amount.gt(0);
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: async () => {
-      if (!signer || !network || !provider) throw new Error('No signer or network');
-
-      if (!(CoreProxy && collateralTypeAddress && amount)) {
+      if (!isReady) {
         throw new Error('Not ready');
       }
-      if (amount?.eq(0)) {
-        throw new Error('Amount less than 0');
-      }
-
       const walletAddress = await signer.getAddress();
 
       dispatch({ type: 'prompting' });
 
-      const contract = new ethers.Contract(
-        collateralTypeAddress,
-        ['function decimals() view returns (uint8)'],
-        provider
-      );
-
-      const decimals = await contract.decimals();
-
-      const collateralAmount = amount.gt(0)
-        ? parseUnits(amount.toString(), decimals)
-        : BigNumber.from(0);
-
       const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
       const populatedTxnPromised = CoreProxyContract.populateTransaction.withdraw(
         BigNumber.from(accountId),
-        collateralTypeAddress,
-        collateralAmount
+        token.address,
+        parseUnits(amount.toString(), token.decimals)
       );
 
       const callsPromise = Promise.all([populatedTxnPromised]);
@@ -122,6 +105,7 @@ export const useWithdraw = ({
     },
   });
   return {
+    isReady,
     mutation,
     txnState,
     settle: () => dispatch({ type: 'settled' }),
