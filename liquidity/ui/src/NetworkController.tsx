@@ -96,66 +96,71 @@ export function NetworkController() {
   }
   return (
     <Flex>
-      <Menu>
-        <MenuButton
-          as={Button}
-          variant="outline"
-          colorScheme="gray"
-          sx={{ '> span': { display: 'flex', alignItems: 'center' } }}
-          mr={1}
-          px={3}
-        >
-          <NetworkIcon
-            filter={activeNetwork?.isTestnet ? 'grayscale(1)' : ''}
-            networkId={notConnected ? 8453 : notSupported ? 0 : activeNetwork?.id}
-          />
-        </MenuButton>
-        <MenuList border="1px" borderColor="gray.900">
-          {mainnets.map(({ id, preset, label }) => (
-            <MenuItem
-              key={`${id}-${preset}`}
-              onClick={() => setNetwork(id)}
-              isDisabled={window.$chainId ? window.$chainId !== id : false}
-            >
-              <NetworkIcon networkId={id} size="20px" />
-              <Text variant="nav" ml={2}>
-                {label}
-              </Text>
-            </MenuItem>
-          ))}
+      {activeNetwork ? (
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            colorScheme="gray"
+            sx={{ '> span': { display: 'flex', alignItems: 'center' } }}
+            mr={1}
+            px={3}
+          >
+            <NetworkIcon
+              filter={activeNetwork.isTestnet ? 'grayscale(1)' : ''}
+              networkId={notConnected ? 8453 : notSupported ? 0 : activeNetwork.id}
+            />
+            <Text variant="nav" ml={2} display={{ base: 'none', md: 'inline-block' }}>
+              {activeNetwork.label}
+            </Text>
+          </MenuButton>
+          <MenuList border="1px" borderColor="gray.900">
+            {mainnets.map(({ id, preset, label }) => (
+              <MenuItem
+                key={`${id}-${preset}`}
+                onClick={() => setNetwork(id)}
+                isDisabled={window.$chainId ? window.$chainId !== id : false}
+              >
+                <NetworkIcon networkId={id} size="20px" />
+                <Text variant="nav" ml={2}>
+                  {label}
+                </Text>
+              </MenuItem>
+            ))}
 
-          {showTestnets && <Divider color="gray.900" />}
+            {showTestnets && <Divider color="gray.900" />}
 
-          <MenuOptionGroup>
-            <Flex py={4} px={3} alignItems="center" justifyContent="space-between">
-              <Text fontSize="14px" fontFamily="heading" lineHeight="20px">
-                Show Testnets
-              </Text>
-              <Switch
-                mr={2}
-                size="sm"
-                color="gray.900"
-                colorScheme="gray"
-                isChecked={showTestnets}
-                onChange={() => setShowTestnets(!showTestnets)}
-              />
-            </Flex>
-          </MenuOptionGroup>
+            <MenuOptionGroup>
+              <Flex py={4} px={3} alignItems="center" justifyContent="space-between">
+                <Text fontSize="14px" fontFamily="heading" lineHeight="20px">
+                  Show Testnets
+                </Text>
+                <Switch
+                  mr={2}
+                  size="sm"
+                  color="gray.900"
+                  colorScheme="gray"
+                  isChecked={showTestnets}
+                  onChange={() => setShowTestnets(!showTestnets)}
+                />
+              </Flex>
+            </MenuOptionGroup>
 
-          {(showTestnets ? testnets : []).map(({ id, preset, label }) => (
-            <MenuItem
-              key={`${id}-${preset}`}
-              onClick={() => setNetwork(id)}
-              isDisabled={window.$chainId ? window.$chainId !== id : false}
-            >
-              <NetworkIcon filter="grayscale(1)" networkId={id} size="20px" />
-              <Text variant="nav" ml={2}>
-                {label}
-              </Text>
-            </MenuItem>
-          ))}
-        </MenuList>
-      </Menu>
+            {(showTestnets ? testnets : []).map(({ id, preset, label }) => (
+              <MenuItem
+                key={`${id}-${preset}`}
+                onClick={() => setNetwork(id)}
+                isDisabled={window.$chainId ? window.$chainId !== id : false}
+              >
+                <NetworkIcon filter="grayscale(1)" networkId={id} size="20px" />
+                <Text variant="nav" ml={2}>
+                  {label}
+                </Text>
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
+      ) : null}
       <Menu placement="bottom-end">
         <MenuButton
           as={Button}
@@ -211,8 +216,10 @@ export function NetworkController() {
                   Disconnect
                 </Button>
               </Flex>
-              <Text fontWeight={700} color="white" fontSize="16px">
-                {prettyString(activeWallet.address)}{' '}
+              <Flex fontWeight={700} color="white" fontSize="16px" alignItems="center">
+                <Tooltip label={activeWallet.address} fontFamily="monospace" fontSize="0.9em">
+                  <Text>{prettyString(activeWallet.address)}</Text>
+                </Tooltip>
                 <Tooltip label={toolTipLabel} closeOnClick={false}>
                   <CopyIcon
                     ml="2"
@@ -225,7 +232,7 @@ export function NetworkController() {
                     }}
                   />
                 </Tooltip>
-              </Text>
+              </Flex>
               <Flex
                 flexDir="column"
                 p="2"
