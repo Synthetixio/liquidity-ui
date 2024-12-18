@@ -23,7 +23,7 @@ import { useReducer } from 'react';
 
 const log = debug('snx:useWithdrawBaseAndromeda');
 
-export const useWithdrawBaseAndromeda = ({ amountToWithdraw }: { amountToWithdraw: Wei }) => {
+export const useWithdrawBaseAndromeda = ({ amount }: { amount: Wei }) => {
   const [params] = useParams<PositionPageSchemaType>();
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { data: liquidityPosition } = useLiquidityPosition({
@@ -45,43 +45,42 @@ export const useWithdrawBaseAndromeda = ({ amountToWithdraw }: { amountToWithdra
   const signer = useSigner();
   const provider = useProvider();
 
+  const isReady =
+    signer &&
+    network &&
+    provider &&
+    CoreProxy &&
+    SpotMarketProxy &&
+    USDProxy &&
+    accountId &&
+    usdTokens &&
+    params.collateralSymbol &&
+    collateralType &&
+    liquidityPosition;
+
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: async () => {
-      if (!signer || !network || !provider) throw new Error('No signer or network');
-      if (
-        !(
-          CoreProxy &&
-          SpotMarketProxy &&
-          USDProxy &&
-          accountId &&
-          usdTokens?.sUSD &&
-          usdTokens.snxUSD &&
-          params.collateralSymbol &&
-          collateralType &&
-          liquidityPosition
-        )
-      ) {
+      if (!isReady) {
         throw new Error('Not ready');
       }
-
       const total = liquidityPosition.availableSystemToken.add(
         liquidityPosition.availableCollateral
       );
       log('total', total);
 
-      log('amountToWithdraw', amountToWithdraw);
-      if (total.lt(amountToWithdraw)) {
+      log('amountToWithdraw', amount);
+      if (total.lt(amount)) {
         throw new Error('Exceeds balance');
       }
 
-      const wrappedCollateralAmount = amountToWithdraw.gt(liquidityPosition.availableCollateral)
+      const wrappedCollateralAmount = amount.gt(liquidityPosition.availableCollateral)
         ? liquidityPosition.availableCollateral
-        : amountToWithdraw;
+        : amount;
       log('wrappedCollateralAmount', wrappedCollateralAmount);
 
-      const snxUSDAmount = amountToWithdraw.sub(wrappedCollateralAmount).gt(0)
-        ? amountToWithdraw.sub(wrappedCollateralAmount)
+      const snxUSDAmount = amount.sub(wrappedCollateralAmount).gt(0)
+        ? amount.sub(wrappedCollateralAmount)
         : ZEROWEI;
 
       log('snxUSDAmount', snxUSDAmount);
@@ -120,7 +119,7 @@ export const useWithdrawBaseAndromeda = ({ amountToWithdraw }: { amountToWithdra
       const withdraw_snxUSD = snxUSDAmount.gt(0)
         ? CoreProxyContract.populateTransaction.withdraw(
             ethers.BigNumber.from(accountId),
-            usdTokens?.snxUSD,
+            usdTokens.snxUSD,
             snxUSDAmount.toBN()
           )
         : undefined;
@@ -242,6 +241,7 @@ export const useWithdrawBaseAndromeda = ({ amountToWithdraw }: { amountToWithdra
   });
 
   return {
+    isReady,
     mutation,
     txnState,
     settle: () => dispatch({ type: 'settled' }),
