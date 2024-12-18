@@ -16,8 +16,6 @@ import { getSUSD } from './commands/getSUSD';
 import { getSystemToken } from './commands/getSystemToken';
 
 installLogsCollector({
-  defaultTrimLength: 10_000,
-  commandTrimLength: 10_000,
   enableExtendedCollector: true,
   enableContinuousLogging: true,
 });

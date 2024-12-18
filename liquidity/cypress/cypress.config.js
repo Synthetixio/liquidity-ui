@@ -29,6 +29,8 @@ module.exports = defineConfig({
       require('cypress-terminal-report/src/installLogsPrinter')(on, {
         printLogsToConsole: 'always',
         includeSuccessfulHookLogs: true,
+        defaultTrimLength: 10_000,
+        commandTrimLength: 10_000,
       });
       require('@cypress/code-coverage/task')(on, config);
       //      }
