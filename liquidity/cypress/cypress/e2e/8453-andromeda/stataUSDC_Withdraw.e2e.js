@@ -58,7 +58,7 @@ describe(__filename, () => {
     cy.get('[data-cy="withdraw confirm button"]').click();
 
     cy.contains('[data-status="success"]', 'Collateral successfully Withdrawn', {
-      timeout: 180_000,
+      timeout: 60_000,
     }).should('exist');
   });
 });
