@@ -80,6 +80,20 @@ export function NetworkController() {
   const notConnected = !activeWallet;
   const notSupported = activeWallet && !activeNetwork;
 
+  if (!activeWallet) {
+    return (
+      <Button
+        data-cy="connect wallet button"
+        onClick={() => connect()}
+        type="button"
+        size="sm"
+        ml={2}
+        py={5}
+      >
+        Connect Wallet
+      </Button>
+    );
+  }
   return (
     <Flex>
       <Menu>
@@ -142,181 +156,168 @@ export function NetworkController() {
           ))}
         </MenuList>
       </Menu>
-      {activeWallet ? (
-        <Menu placement="bottom-end">
-          <MenuButton
-            as={Button}
-            variant="outline"
-            colorScheme="gray"
-            ml={2}
-            height={10}
-            py="6px"
-            px="9.5px"
-            whiteSpace="nowrap"
-            data-cy="wallet button"
+      <Menu placement="bottom-end">
+        <MenuButton
+          as={Button}
+          variant="outline"
+          colorScheme="gray"
+          ml={2}
+          height={10}
+          py="6px"
+          px="9.5px"
+          whiteSpace="nowrap"
+          data-cy="wallet button"
+        >
+          <WalletIcon color="white" />
+          <Text
+            as="span"
+            ml={1}
+            color="white"
+            fontWeight={700}
+            fontSize="xs"
+            userSelect="none"
+            data-cy="short wallet address"
           >
-            <WalletIcon color="white" />
-            <Text
-              as="span"
-              ml={1}
-              color="white"
-              fontWeight={700}
-              fontSize="xs"
-              userSelect="none"
-              data-cy="short wallet address"
-            >
-              {activeWallet.ens?.name || prettyString(activeWallet.address)}
-            </Text>
-          </MenuButton>
-          <MenuList>
-            <Flex
-              border="1px solid"
-              rounded="base"
-              borderColor="gray.900"
-              w="370px"
-              _hover={{ bg: 'navy.700' }}
-              backgroundColor="navy.700"
-              opacity={1}
-              p="4"
-            >
-              <Flex flexDir="column" w="100%" gap="2">
-                <Flex justifyContent="space-between">
-                  <Text fontSize="14px" color="gray.500">
-                    Connected with {walletsInfo?.label}
-                  </Text>
-                  <Button
-                    onClick={() => {
-                      if (walletsInfo) {
-                        disconnect(walletsInfo);
-                      }
-                    }}
-                    size="xs"
-                    variant="outline"
-                    colorScheme="gray"
-                    color="white"
-                  >
-                    Disconnect
-                  </Button>
-                </Flex>
-                <Text fontWeight={700} color="white" fontSize="16px">
-                  {prettyString(activeWallet.address)}{' '}
-                  <Tooltip label={toolTipLabel} closeOnClick={false}>
-                    <CopyIcon
-                      ml="2"
-                      onClick={() => {
-                        navigator.clipboard.writeText(activeWallet.address);
-                        setTooltipLabel('Copied');
-                        setTimeout(() => {
-                          setTooltipLabel('Copy');
-                        }, 10000);
-                      }}
-                    />
-                  </Tooltip>
+            {activeWallet.ens?.name || prettyString(activeWallet.address)}
+          </Text>
+        </MenuButton>
+        <MenuList>
+          <Flex
+            border="1px solid"
+            rounded="base"
+            borderColor="gray.900"
+            w="370px"
+            _hover={{ bg: 'navy.700' }}
+            backgroundColor="navy.700"
+            opacity={1}
+            p="4"
+          >
+            <Flex flexDir="column" w="100%" gap="2">
+              <Flex justifyContent="space-between">
+                <Text fontSize="14px" color="gray.500">
+                  Connected with {walletsInfo?.label}
                 </Text>
-                <Flex
-                  flexDir="column"
-                  p="2"
-                  border="1px solid"
-                  borderColor="gray.900"
-                  rounded="base"
-                  gap="2"
+                <Button
+                  onClick={() => {
+                    if (walletsInfo) {
+                      disconnect(walletsInfo);
+                    }
+                  }}
+                  size="xs"
+                  variant="outline"
+                  colorScheme="gray"
+                  color="white"
                 >
-                  <Flex w="100%" justifyContent="space-between">
-                    <Text fontWeight={400} fontSize="14px">
-                      Account(s)
-                    </Text>
-                    <Link
-                      href={`?${makeSearch({ page: 'settings', accountId: params.accountId })}`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setParams({ page: 'settings', accountId: params.accountId });
-                      }}
-                    >
-                      <IconButton
-                        variant="outline"
-                        colorScheme="gray"
-                        size="xs"
-                        icon={<SettingsIcon />}
-                        aria-label="account settings"
-                      />
-                    </Link>
-                  </Flex>
-                  <Flex data-cy="accounts list" flexDir="column">
-                    {accounts?.map((accountId) => (
-                      <Text
-                        key={accountId.toString()}
-                        display="flex"
-                        alignItems="center"
-                        color="white"
-                        fontWeight={700}
-                        fontSize="16px"
-                        cursor="pointer"
-                        p="3"
-                        data-cy="account id"
-                        data-account-id={accountId}
-                        _hover={{ bg: 'whiteAlpha.300' }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setParams({ ...params, accountId: accountId.toString() });
-                        }}
-                      >
-                        {renderAccountId(accountId)}
-                        {paramsAccountId && accountId.eq(paramsAccountId) ? (
-                          <Badge ml={2} colorScheme="cyan" variant="outline">
-                            Connected
-                          </Badge>
-                        ) : null}
-                      </Text>
-                    ))}
-                  </Flex>
-
-                  <Button
+                  Disconnect
+                </Button>
+              </Flex>
+              <Text fontWeight={700} color="white" fontSize="16px">
+                {prettyString(activeWallet.address)}{' '}
+                <Tooltip label={toolTipLabel} closeOnClick={false}>
+                  <CopyIcon
+                    ml="2"
+                    onClick={() => {
+                      navigator.clipboard.writeText(activeWallet.address);
+                      setTooltipLabel('Copied');
+                      setTimeout(() => {
+                        setTooltipLabel('Copy');
+                      }, 10000);
+                    }}
+                  />
+                </Tooltip>
+              </Text>
+              <Flex
+                flexDir="column"
+                p="2"
+                border="1px solid"
+                borderColor="gray.900"
+                rounded="base"
+                gap="2"
+              >
+                <Flex w="100%" justifyContent="space-between">
+                  <Text fontWeight={400} fontSize="14px">
+                    Account(s)
+                  </Text>
+                  <Link
+                    href={`?${makeSearch({ page: 'settings', accountId: params.accountId })}`}
                     onClick={(e) => {
                       e.preventDefault();
-                      e.stopPropagation();
-                      createAccount.mutation.mutate();
+                      setParams({ page: 'settings', accountId: params.accountId });
                     }}
-                    isDisabled={!createAccount.enabled || createAccount.mutation.isPending}
-                    size="xs"
-                    variant="outline"
-                    colorScheme="gray"
-                    color="white"
-                    leftIcon={
-                      <svg
-                        width="8"
-                        height="8"
-                        viewBox="0 0 8 8"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M3.5 3.5V0.5H4.5V3.5H7.5V4.5H4.5V7.5H3.5V4.5H0.5V3.5H3.5Z"
-                          fill="white"
-                        />
-                      </svg>
-                    }
-                    w="130px"
-                    data-cy="create new account button"
                   >
-                    Create Account
-                  </Button>
+                    <IconButton
+                      variant="outline"
+                      colorScheme="gray"
+                      size="xs"
+                      icon={<SettingsIcon />}
+                      aria-label="account settings"
+                    />
+                  </Link>
                 </Flex>
+                <Flex data-cy="accounts list" flexDir="column">
+                  {accounts?.map((accountId) => (
+                    <Text
+                      key={accountId.toString()}
+                      display="flex"
+                      alignItems="center"
+                      color="white"
+                      fontWeight={700}
+                      fontSize="16px"
+                      cursor="pointer"
+                      p="3"
+                      data-cy="account id"
+                      data-account-id={accountId}
+                      _hover={{ bg: 'whiteAlpha.300' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setParams({ ...params, accountId: accountId.toString() });
+                      }}
+                    >
+                      {renderAccountId(accountId)}
+                      {paramsAccountId && accountId.eq(paramsAccountId) ? (
+                        <Badge ml={2} colorScheme="cyan" variant="outline">
+                          Connected
+                        </Badge>
+                      ) : null}
+                    </Text>
+                  ))}
+                </Flex>
+
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    createAccount.mutation.mutate();
+                  }}
+                  isDisabled={!createAccount.enabled || createAccount.mutation.isPending}
+                  size="xs"
+                  variant="outline"
+                  colorScheme="gray"
+                  color="white"
+                  leftIcon={
+                    <svg
+                      width="8"
+                      height="8"
+                      viewBox="0 0 8 8"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M3.5 3.5V0.5H4.5V3.5H7.5V4.5H4.5V7.5H3.5V4.5H0.5V3.5H3.5Z"
+                        fill="white"
+                      />
+                    </svg>
+                  }
+                  w="130px"
+                  data-cy="create new account button"
+                >
+                  Create Account
+                </Button>
               </Flex>
             </Flex>
-          </MenuList>
-        </Menu>
-      ) : (
-        <Button
-          data-cy="connect wallet button"
-          onClick={() => connect()}
-          type="button"
-          size="sm"
-          ml={2}
-          py={5}
-        >
-          Connect Wallet
-        </Button>
-      )}
+          </Flex>
+        </MenuList>
+      </Menu>
     </Flex>
   );
 }
