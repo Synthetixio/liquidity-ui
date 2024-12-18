@@ -5,12 +5,14 @@ import Wei from '@synthetixio/wei';
 import React from 'react';
 
 export function SynthRow({
-  symbol,
-  name,
+  synth,
   balance,
 }: {
-  symbol: string;
-  name: string;
+  synth: {
+    address: string;
+    symbol: string;
+    name: string;
+  };
   balance: Wei;
 }) {
   return (
@@ -18,7 +20,7 @@ export function SynthRow({
       <Td border="none">
         <Fade in>
           <Flex alignItems="center" textDecoration="none" _hover={{ textDecoration: 'none' }}>
-            <SynthIcon height={30} width={30} symbol={symbol} />
+            <SynthIcon height={30} width={30} symbol={synth.symbol} />
             <Flex flexDirection="column" ml={3}>
               <Text
                 color="white"
@@ -27,10 +29,10 @@ export function SynthRow({
                 fontFamily="heading"
                 fontSize="sm"
               >
-                {symbol}
+                {synth.symbol}
               </Text>
               <Text color="gray.500" fontFamily="heading" fontSize="0.75rem" lineHeight="1rem">
-                {name}
+                {synth.name}
               </Text>
             </Flex>
           </Flex>

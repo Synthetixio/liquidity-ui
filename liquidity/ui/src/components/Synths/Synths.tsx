@@ -12,7 +12,6 @@ import {
   Thead,
   Tr,
 } from '@chakra-ui/react';
-import { tokenOverrides } from '@snx-v3/constants';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useSynthBalances } from '@snx-v3/useSynthBalances';
 import { useUnwrapAllSynths } from '@snx-v3/useUnwrapAllSynths';
@@ -30,14 +29,8 @@ export function Synths() {
       return;
     }
     return synthBalances
-      .map(({ synth, balance }) => ({
-        balance,
-        symbol: synth.token ? synth.token.symbol : synth.symbol,
-        name: synth.token ? synth.token.name : synth.name,
-        ...tokenOverrides[synth.token ? synth.token.address : synth.address],
-      }))
       .filter(({ balance }) => balance.gt(0))
-      .sort((a, b) => a.symbol.localeCompare(b.symbol))
+      .sort((a, b) => a.synth.symbol.localeCompare(b.synth.symbol))
       .sort((a, b) => b.balance.toNumber() - a.balance.toNumber());
   }, [synthBalances]);
 
@@ -114,12 +107,12 @@ export function Synths() {
           ) : null}
 
           {filteredSynths
-            ? filteredSynths.map(({ symbol, name, balance }, i) => (
+            ? filteredSynths.map(({ synth, balance }, i) => (
                 <Tr
-                  key={symbol}
+                  key={synth.symbol}
                   borderBottomWidth={i === filteredSynths.length - 1 ? 'none' : '1px'}
                 >
-                  <SynthRow symbol={symbol} name={name} balance={balance} />
+                  <SynthRow synth={synth} balance={balance} />
                 </Tr>
               ))
             : null}
