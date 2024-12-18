@@ -5,7 +5,7 @@ import { useOfflinePrices } from '@snx-v3/useCollateralPriceUpdates';
 import { CollateralType, useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useOraclePrice } from '@snx-v3/useOraclePrice';
 import { usePoolsList } from '@snx-v3/usePoolsList';
-import { useMemo, useReducer } from 'react';
+import { useMemo, useReducer, useState } from 'react';
 import { Balloon } from './Balloon';
 import { ChainFilter } from './ChainFilter';
 import { CollateralFilter } from './CollateralFilter';
@@ -15,6 +15,10 @@ import { PoolRow } from './PoolRow';
 export const PoolsList = () => {
   const [state, dispatch] = useReducer(poolsReducer, { collaterals: [], chains: [] });
   const { data: poolsList, isPending: isPendingPoolsList } = usePoolsList();
+  const [sortConfig, setSortConfig] = useState({
+    sortBy: 'tvl',
+    direction: 'asc',
+  });
 
   const { data: baseCollateralTypes, isPending: isPendingBaseCollateralTypes } = useCollateralTypes(
     false,
@@ -137,6 +141,20 @@ export const PoolsList = () => {
     }
   }, [stata, collateralPrices, stataPrice]);
 
+  const sortPools = (sortBy: string) => {
+    if (sortConfig.sortBy === sortBy) {
+      setSortConfig({
+        sortBy,
+        direction: sortConfig.direction === 'asc' ? 'desc' : 'asc',
+      });
+    } else {
+      setSortConfig({
+        sortBy,
+        direction: 'desc',
+      });
+    }
+  };
+
   return (
     <Flex mt={6} flexDirection="column">
       <Flex flexWrap="wrap" gap={4} justifyContent="space-between" my={6}>
@@ -167,6 +185,8 @@ export const PoolsList = () => {
             fontWeight={700}
             width="220px"
             textAlign="right"
+            onClick={() => sortPools('balance')}
+            cursor="pointer"
           >
             Wallet Balance
           </Text>
@@ -180,6 +200,8 @@ export const PoolsList = () => {
             fontWeight={700}
             width="220px"
             textAlign="right"
+            onClick={() => sortPools('tvl')}
+            cursor="pointer"
           >
             TVL
           </Text>
@@ -193,6 +215,8 @@ export const PoolsList = () => {
             fontWeight={700}
             width="144px"
             textAlign="right"
+            onClick={() => sortPools('apy')}
+            cursor="pointer"
           >
             APY / APR
           </Text>
@@ -212,29 +236,31 @@ export const PoolsList = () => {
         </Flex>
 
         {isPending && !filteredPools?.length ? <PoolCardsLoading /> : null}
-
-        {filteredPools?.length > 0
-          ? filteredPools.flatMap(
-              ({ network, poolInfo, apr, collateralTypes }) =>
-                collateralTypes
-                  ?.filter((collateralType) => {
-                    if (!collaterals.length) {
-                      return true;
-                    }
-                    return collaterals.includes(collateralType.symbol);
-                  })
-                  .map((collateralType) => (
-                    <PoolRow
-                      key={`${network.id}-${collateralType.address}`}
-                      pool={poolInfo?.[0]?.pool}
-                      network={network}
-                      apr={apr}
-                      collateralType={collateralType}
-                      collateralPrices={allCollateralPrices}
-                    />
-                  ))
-            )
-          : null}
+        <Flex direction={sortConfig.direction === 'asc' ? 'column-reverse' : 'column'} gap={4}>
+          {filteredPools?.length > 0
+            ? filteredPools.flatMap(
+                ({ network, poolInfo, apr, collateralTypes }) =>
+                  collateralTypes
+                    ?.filter((collateralType) => {
+                      if (!collaterals.length) {
+                        return true;
+                      }
+                      return collaterals.includes(collateralType.symbol);
+                    })
+                    .map((collateralType) => (
+                      <PoolRow
+                        key={`${network.id}-${collateralType.address}`}
+                        pool={poolInfo?.[0]?.pool}
+                        network={network}
+                        apr={apr}
+                        collateralType={collateralType}
+                        collateralPrices={allCollateralPrices}
+                        sortBy={sortConfig.sortBy}
+                      />
+                    ))
+              )
+            : null}
+        </Flex>
 
         {!isPending && !filteredPools?.length && (
           <Flex flexDir="column" alignItems="center">

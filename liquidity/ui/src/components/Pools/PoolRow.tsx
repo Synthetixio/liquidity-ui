@@ -28,6 +28,7 @@ export function PoolRow({
   apr,
   collateralType,
   collateralPrices,
+  sortBy,
 }: {
   collateralType: CollateralTypeWithDeposited;
   pool: {
@@ -44,6 +45,7 @@ export function PoolRow({
     cumulativePnl: number;
     collateralAprs: any[];
   };
+  sortBy: string;
 }) {
   const [params, setParams] = useParams();
 
@@ -122,8 +124,37 @@ export function PoolRow({
 
   const buttonText = !currentNetwork ? 'Connect Wallet' : 'Deposit';
 
+  const order = React.useMemo(() => {
+    if (sortBy === 'tvl') {
+      return wei(collateralType.collateralDeposited, Number(collateralType.decimals), true)
+        .mul(price)
+        .toNumber()
+        .toFixed(0);
+    } else if (sortBy === 'balance') {
+      return balance.mul(price).toNumber().toFixed(0);
+    } else if (sortBy === 'apy') {
+      return isStataUSDC && stataUSDCApr
+        ? (apr7d * 100 + stataUSDCApr).toFixed(0)
+        : (apr7d * 100).toFixed(0);
+    }
+  }, [
+    apr7d,
+    balance,
+    collateralType.collateralDeposited,
+    collateralType.decimals,
+    isStataUSDC,
+    price,
+    sortBy,
+    stataUSDCApr,
+  ]);
+
   return (
-    <Fade in>
+    <Fade
+      in
+      style={{
+        order,
+      }}
+    >
       <Flex
         flexDir="row"
         w="100%"
@@ -210,7 +241,11 @@ export function PoolRow({
               ? formatNumberToUsd(
                   wei(collateralType.collateralDeposited, Number(collateralType.decimals), true)
                     .mul(price)
-                    .toNumber()
+                    .toNumber(),
+                  {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  }
                 )
               : 0}
           </Text>
