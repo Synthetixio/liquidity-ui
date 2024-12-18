@@ -13,7 +13,7 @@ import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { wei } from '@synthetixio/wei';
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
 import { ClaimSuccessBanner } from './ClaimSuccessBanner';
 
@@ -21,6 +21,7 @@ export function ClaimModal({ onClose }: { onClose: () => void }) {
   const [params] = useParams<PositionPageSchemaType>();
   const { debtChange, setDebtChange } = useContext(ManagePositionContext);
   const { network } = useNetwork();
+  const [showClaimBanner, setShowClaimBanner] = useState(false);
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { data: liquidityPosition } = useLiquidityPosition({
     accountId: params.accountId,
@@ -82,7 +83,7 @@ export function ClaimModal({ onClose }: { onClose: () => void }) {
     network?.preset === 'andromeda' ? collateralType?.displaySymbol : systemToken?.symbol;
 
   if (txnState.txnStatus === 'success') {
-    if (network?.id === 1 && network?.preset === 'main') {
+    if (showClaimBanner) {
       return (
         <ClaimSuccessBanner
           onClose={() => {
@@ -95,8 +96,12 @@ export function ClaimModal({ onClose }: { onClose: () => void }) {
       return (
         <LiquidityPositionUpdated
           onClose={() => {
-            settleBorrow();
-            onClose();
+            if (network?.id === 1 && network?.preset === 'main') {
+              setShowClaimBanner(true);
+            } else {
+              settleBorrow();
+              onClose();
+            }
           }}
           title="Debt successfully Updated"
           subline={
