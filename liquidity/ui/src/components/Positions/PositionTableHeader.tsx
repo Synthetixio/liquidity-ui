@@ -86,25 +86,39 @@ export function PositionTableHeader() {
           </Flex>
         </Th>
         {network?.preset === 'andromeda' ? null : (
-          <Th border="none" textTransform="unset" py={5}>
-            <Flex justifyContent="flex-end" alignItems="center">
+          <>
+            <Th textAlign="right" border="none" textTransform="unset" py={5}>
               <Text color="gray.600" fontFamily="heading" fontSize="12px" lineHeight="16px" mr={1}>
-                C-Ratio
+                Issued
               </Text>
-              <Tooltip
-                label={
-                  <Flex flexDirection="column" alignItems="start">
-                    <Text textAlign="left" fontSize="14px">
-                      C-ratio is a dynamic number that represents a ratio between your locked
-                      collateral and your debt
-                    </Text>
-                  </Flex>
-                }
-              >
-                <InfoIcon w="10px" h="10px" />
-              </Tooltip>
-            </Flex>
-          </Th>
+            </Th>
+
+            <Th border="none" textTransform="unset" py={5}>
+              <Flex justifyContent="flex-end" alignItems="center">
+                <Text
+                  color="gray.600"
+                  fontFamily="heading"
+                  fontSize="12px"
+                  lineHeight="16px"
+                  mr={1}
+                >
+                  C-Ratio
+                </Text>
+                <Tooltip
+                  label={
+                    <Flex flexDirection="column" alignItems="start">
+                      <Text textAlign="left" fontSize="14px">
+                        C-ratio is a dynamic number that represents a ratio between your locked
+                        collateral and your debt
+                      </Text>
+                    </Flex>
+                  }
+                >
+                  <InfoIcon w="10px" h="10px" />
+                </Tooltip>
+              </Flex>
+            </Th>
+          </>
         )}
         <Th
           py={5}
