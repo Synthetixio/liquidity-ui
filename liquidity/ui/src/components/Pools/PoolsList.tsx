@@ -1,4 +1,4 @@
-import { Divider, Flex, Text } from '@chakra-ui/react';
+import { Divider, Flex, Link, Text } from '@chakra-ui/react';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ARBITRUM, BASE_ANDROMEDA, MAINNET } from '@snx-v3/useBlockchain';
 import { useOfflinePrices } from '@snx-v3/useCollateralPriceUpdates';
@@ -11,7 +11,7 @@ import { ChainFilter } from './ChainFilter';
 import { CollateralFilter } from './CollateralFilter';
 import { PoolCardsLoading } from './PoolCardsLoading';
 import { PoolRow } from './PoolRow';
-import { HomePageSchemaType, useParams } from '@snx-v3/useParams';
+import { HomePageSchemaType, makeSearch, useParams } from '@snx-v3/useParams';
 import { ArrowDownIcon } from '@chakra-ui/icons';
 
 export const PoolsList = () => {
@@ -146,11 +146,11 @@ export const PoolsList = () => {
     }
   }, [stata, collateralPrices, stataPrice]);
 
-  const sortPools = (sortBy: string) => {
+  const getSortParams = (sortBy: string) => {
     if (params.sort === sortBy) {
-      setParams({ ...params, dir: params.dir === 'asc' ? 'desc' : 'asc' });
+      return { ...params, dir: params.dir === 'asc' ? 'desc' : 'asc' };
     } else {
-      setParams({ ...params, sort: sortBy, dir: 'desc' });
+      return { ...params, sort: sortBy, dir: 'desc' };
     }
   };
 
@@ -175,7 +175,7 @@ export const PoolsList = () => {
             Collateral / Network
           </Text>
 
-          <Text
+          <Link
             color="gray.600"
             _hover={{ color: 'gray.700' }}
             fontFamily="heading"
@@ -185,8 +185,14 @@ export const PoolsList = () => {
             fontWeight={700}
             width="220px"
             textAlign="right"
-            onClick={() => sortPools('balance')}
+            href={`?${makeSearch(getSortParams('balance'))}`}
+            onClick={(e) => {
+              e.preventDefault();
+              setParams(getSortParams('balance'));
+            }}
             cursor="pointer"
+            display="inline"
+            textDecoration="none"
           >
             {params.sort === 'balance' && (
               <ArrowDownIcon
@@ -195,9 +201,9 @@ export const PoolsList = () => {
               />
             )}
             Wallet Balance
-          </Text>
+          </Link>
 
-          <Text
+          <Link
             color="gray.600"
             _hover={{ color: 'gray.700' }}
             fontFamily="heading"
@@ -207,8 +213,14 @@ export const PoolsList = () => {
             fontWeight={700}
             width="220px"
             textAlign="right"
-            onClick={() => sortPools('tvl')}
             cursor="pointer"
+            href={`?${makeSearch(getSortParams('tvl'))}`}
+            onClick={(e) => {
+              e.preventDefault();
+              setParams(getSortParams('tvl'));
+            }}
+            display="inline"
+            textDecoration="none"
           >
             {params.sort === 'tvl' && (
               <ArrowDownIcon
@@ -217,9 +229,9 @@ export const PoolsList = () => {
               />
             )}
             TVL
-          </Text>
+          </Link>
 
-          <Text
+          <Link
             color="gray.600"
             _hover={{ color: 'gray.700' }}
             fontFamily="heading"
@@ -229,8 +241,14 @@ export const PoolsList = () => {
             fontWeight={700}
             width="144px"
             textAlign="right"
-            onClick={() => sortPools('apy')}
+            href={`?${makeSearch(getSortParams('apy'))}`}
+            onClick={(e) => {
+              e.preventDefault();
+              setParams(getSortParams('apy'));
+            }}
             cursor="pointer"
+            display="inline"
+            textDecoration="none"
           >
             {params.sort === 'apy' && (
               <ArrowDownIcon
@@ -239,7 +257,7 @@ export const PoolsList = () => {
               />
             )}
             APY / APR
-          </Text>
+          </Link>
           <Text
             color="gray.600"
             fontFamily="heading"
