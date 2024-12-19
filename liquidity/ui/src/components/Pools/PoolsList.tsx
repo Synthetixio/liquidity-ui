@@ -5,7 +5,7 @@ import { useOfflinePrices } from '@snx-v3/useCollateralPriceUpdates';
 import { CollateralType, useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useOraclePrice } from '@snx-v3/useOraclePrice';
 import { usePoolsList } from '@snx-v3/usePoolsList';
-import { useEffect, useMemo, useReducer } from 'react';
+import { useMemo, useReducer } from 'react';
 import { Balloon } from './Balloon';
 import { ChainFilter } from './ChainFilter';
 import { CollateralFilter } from './CollateralFilter';
@@ -62,12 +62,6 @@ export const PoolsList = () => {
     isPendingArbitrumCollateralTypes ||
     isPendingMainnetCollateralTypes ||
     isStataPriceLoading;
-
-  useEffect(() => {
-    if (!params.sort) {
-      setParams({ ...params, sort: 'tvl' });
-    }
-  }, [params, setParams]);
 
   const filteredPools = useMemo(() => {
     return (
@@ -293,7 +287,7 @@ export const PoolsList = () => {
                         apr={apr}
                         collateralType={collateralType}
                         collateralPrices={allCollateralPrices}
-                        sortBy={params.sort}
+                        sortBy={params.sort || 'tvl'}
                       />
                     ))
               )
