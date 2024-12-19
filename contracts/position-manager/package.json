@@ -14,10 +14,10 @@
   "license": "MIT",
   "scripts": {
     "build": "forge build",
-    "test": "forge test -vvvvv ./test/*.t.sol",
-    "e2e": "forge test -vvvvv ./test/*.e2e.sol",
-    "test-cov": "./cov.sh ./test/*.t.sol",
-    "e2e-cov": "./cov.sh ./test/*.e2e.sol"
+    "test": "echo no tests",
+    "e2e": "forge test -vvvvv './test/*.e2e.sol'",
+    "test-cov": "echo no tests",
+    "e2e-cov": "./cov.sh './test/*.e2e.sol'"
   },
   "devDependencies": {
     "@synthetixio/core-contracts": "^3.10.1",

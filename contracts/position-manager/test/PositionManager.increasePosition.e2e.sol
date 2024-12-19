@@ -13,7 +13,7 @@ import {Test} from "forge-std/src/Test.sol";
 import {Vm} from "forge-std/src/Vm.sol";
 import {console} from "forge-std/src/console.sol";
 
-contract PositionManager_setupPosition_Test is Test {
+contract PositionManager_increasePosition_Test is Test {
     address private USDProxy;
     address private CoreProxy;
     address private AccountProxy;
@@ -70,10 +70,10 @@ contract PositionManager_setupPosition_Test is Test {
         assertEq(vm.activeFork(), fork);
     }
 
-    function test_setupPosition_success() public {
-        uint128 ACCOUNT_ID = 7;
+    function test_increasePosition_success() public {
+        uint128 ACCOUNT_ID = 170141183460469231731687303715884106176;
         uint128 POOL_ID = 1;
-        address ALICE = vm.addr(0xA11CE);
+        address ALICE = IAccountTokenModule(AccountProxy).ownerOf(ACCOUNT_ID);
         vm.label(ALICE, "0xA11CE");
         vm.deal(ALICE, 1 ether);
 
@@ -85,44 +85,51 @@ contract PositionManager_setupPosition_Test is Test {
 
         PositionManager positionManager = new PositionManager();
         vm.label(address(positionManager), "PositionManager");
-        console.log("positionManager", address(positionManager));
 
         vm.prank(ALICE);
         IERC20(CollateralToken_WETH).approve(address(positionManager), UINT256_MAX);
 
+        vm.prank(ALICE);
+        IAccountTokenModule(AccountProxy).approve(address(positionManager), ACCOUNT_ID);
+
         // Current debt
-        assertEq(0, IVaultModule(CoreProxy).getPositionDebt(ACCOUNT_ID, POOL_ID, CollateralToken_WETH));
+        assertEq(
+            18_388.423856608151437096 ether,
+            IVaultModule(CoreProxy).getPositionDebt(ACCOUNT_ID, POOL_ID, CollateralToken_WETH)
+        );
         // Current liquidity position
-        assertEq(0, IVaultModule(CoreProxy).getPositionCollateral(ACCOUNT_ID, POOL_ID, CollateralToken_WETH));
+        assertEq(50 ether, IVaultModule(CoreProxy).getPositionCollateral(ACCOUNT_ID, POOL_ID, CollateralToken_WETH));
         // Current available collateral
         assertEq(0, ICollateralModule(CoreProxy).getAccountAvailableCollateral(ACCOUNT_ID, CollateralToken_WETH));
 
         vm.recordLogs();
         vm.prank(ALICE);
-        positionManager.setupPosition(CoreProxy, AccountProxy, ACCOUNT_ID, POOL_ID, CollateralToken_WETH, 1 ether);
+        positionManager.increasePosition(CoreProxy, AccountProxy, ACCOUNT_ID, POOL_ID, CollateralToken_WETH, 5 ether);
         Vm.Log[] memory entries = vm.getRecordedLogs();
 
         assertEq(11, entries.length);
         // TODO: expect these logs
         /*
-        │   │   │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], tokenId: 7)
-        │   ├─ emit AccountCreated(accountId: 7, owner: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
-        ├─ emit Transfer(from: 0xA11CE: [0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7], to: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], value: 1000000000000000000 [1e18])
-        ├─ emit Approval(owner: 0xA11CE: [0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7], spender: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], value: 115792089237316195423570985008687907853269984665640564039456584007913129639935 [1.157e77])
-        ├─ emit Approval(owner: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], spender: CoreProxy: [0xffffffaEff0B96Ea8e4f94b2253f31abdD875847], value: 1000000000000000000 [1e18])
-        │   │   │   ├─ emit Transfer(from: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], to: CoreProxy: [0xffffffaEff0B96Ea8e4f94b2253f31abdD875847], value: 1000000000000000000 [1e18])
+        │   ├─ emit Approval(owner: 0xA11CE: [0x908D8D559A6FB979e3C3221039E5b8C3C5c2e91a], approved: 0x0000000000000000000000000000000000000000, tokenId: 170141183460469231731687303715884106176 [1.701e38])
+        │   ├─ emit Transfer(from: 0xA11CE: [0x908D8D559A6FB979e3C3221039E5b8C3C5c2e91a], to: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], tokenId: 170141183460469231731687303715884106176 [1.701e38])
+        ├─ emit Transfer(from: 0xA11CE: [0x908D8D559A6FB979e3C3221039E5b8C3C5c2e91a], to: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], value: 5000000000000000000 [5e18])
+        ├─ emit Approval(owner: 0xA11CE: [0x908D8D559A6FB979e3C3221039E5b8C3C5c2e91a], spender: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], value: 115792089237316195423570985008687907853269984665640564039452584007913129639935 [1.157e77])
+        ├─ emit Approval(owner: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], spender: CoreProxy: [0xffffffaEff0B96Ea8e4f94b2253f31abdD875847], value: 5000000000000000000 [5e18])
+        │   │   │   ├─ emit Transfer(from: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], to: CoreProxy: [0xffffffaEff0B96Ea8e4f94b2253f31abdD875847], value: 5000000000000000000 [5e18])
         │   │   │   ├─ emit Approval(owner: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], spender: CoreProxy: [0xffffffaEff0B96Ea8e4f94b2253f31abdD875847], value: 0)
-        │   ├─ emit Deposited(accountId: 7, collateralType: $WETH: [0x82aF49447D8a07e3bd95BD0d56f35241523fBab1], tokenAmount: 1000000000000000000 [1e18], sender: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
-        │   ├─ emit DelegationUpdated(accountId: 7, poolId: 1, collateralType: $WETH: [0x82aF49447D8a07e3bd95BD0d56f35241523fBab1], amount: 1000000000000000000 [1e18], leverage: 1000000000000000000 [1e18], sender: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
-        │   ├─ emit Approval(owner: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], approved: 0x0000000000000000000000000000000000000000, tokenId: 7)
-        │   ├─ emit Transfer(from: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], to: 0xA11CE: [0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7], tokenId: 7)
+        │   ├─ emit Deposited(accountId: 170141183460469231731687303715884106176 [1.701e38], collateralType: $WETH: [0x82aF49447D8a07e3bd95BD0d56f35241523fBab1], tokenAmount: 5000000000000000000 [5e18], sender: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
+        │   ├─ emit DelegationUpdated(accountId: 170141183460469231731687303715884106176 [1.701e38], poolId: 1, collateralType: $WETH: [0x82aF49447D8a07e3bd95BD0d56f35241523fBab1], amount: 55000000000000000000 [5.5e19], leverage: 1000000000000000000 [1e18], sender: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
+        │   ├─ emit Approval(owner: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], approved: 0x0000000000000000000000000000000000000000, tokenId: 170141183460469231731687303715884106176 [1.701e38])
+        │   ├─ emit Transfer(from: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], to: 0xA11CE: [0x908D8D559A6FB979e3C3221039E5b8C3C5c2e91a], tokenId: 170141183460469231731687303715884106176 [1.701e38])
         */
         assertEq(ALICE, IAccountTokenModule(AccountProxy).ownerOf(ACCOUNT_ID));
-
         // Current debt
-        assertEq(0, IVaultModule(CoreProxy).getPositionDebt(ACCOUNT_ID, POOL_ID, CollateralToken_WETH));
+        assertEq(
+            18_388.423856608151437096 ether,
+            IVaultModule(CoreProxy).getPositionDebt(ACCOUNT_ID, POOL_ID, CollateralToken_WETH)
+        );
         // Current liquidity position
-        assertEq(1 ether, IVaultModule(CoreProxy).getPositionCollateral(ACCOUNT_ID, POOL_ID, CollateralToken_WETH));
+        assertEq(55 ether, IVaultModule(CoreProxy).getPositionCollateral(ACCOUNT_ID, POOL_ID, CollateralToken_WETH));
         // Current available collateral
         assertEq(0, ICollateralModule(CoreProxy).getAccountAvailableCollateral(ACCOUNT_ID, CollateralToken_WETH));
     }

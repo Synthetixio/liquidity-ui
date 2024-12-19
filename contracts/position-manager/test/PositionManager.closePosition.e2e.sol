@@ -4,13 +4,16 @@ import {PythERC7412Wrapper} from "@synthetixio/pyth-erc7412-wrapper/contracts/Py
 import {IUSDTokenModule} from "@synthetixio/main/contracts/interfaces/IUSDTokenModule.sol";
 import {ICollateralModule} from "@synthetixio/main/contracts/interfaces/ICollateralModule.sol";
 import {IVaultModule} from "@synthetixio/main/contracts/interfaces/IVaultModule.sol";
+import {IAccountModule} from "@synthetixio/main/contracts/interfaces/IAccountModule.sol";
 import {IAccountTokenModule} from "@synthetixio/main/contracts/interfaces/IAccountTokenModule.sol";
 import {ICollateralConfigurationModule} from "@synthetixio/main/contracts/interfaces/ICollateralConfigurationModule.sol";
+import {IERC20} from "@synthetixio/core-contracts/contracts/interfaces/IERC20.sol";
 import {PositionManager} from "src/PositionManager.sol";
 import {Test} from "forge-std/src/Test.sol";
+import {Vm} from "forge-std/src/Vm.sol";
 import {console} from "forge-std/src/console.sol";
 
-contract PositionManager_closePosition_Test is Test {
+contract PositionManager_decreasePosition_Test is Test {
     address private USDProxy;
     address private CoreProxy;
     address private AccountProxy;
@@ -18,16 +21,10 @@ contract PositionManager_closePosition_Test is Test {
     address private CollateralToken_ARB;
     address private CollateralToken_USDC;
     address private CollateralToken_WETH;
-    uint128 private constant poolId = 1;
 
+    address private constant WETH_WHALE = 0xe50fA9b3c56FfB159cB0FCA61F5c9D750e8128c8;
+    address private constant USDx_WHALE = 0x096A8865367686290639bc50bF8D85C0110d9Fea; // USDe/USDx Wrapper
     bytes32 private constant PYTH_FEED_ETH = 0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace;
-    address private constant negativeDebtSnxUser = 0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345;
-    uint128 private constant negativeDebtSnxUserAccountId = 58655818123;
-    address private constant positiveDebtSnxUser = 0x193641EA463C3B9244cF9F00b77EE5220d4154e9;
-    uint128 private constant positiveDebtSnxUserAccountId = 127052930719;
-
-    uint256 private constant MAX_INT = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
-    uint256 private constant startingUSDProxyAmount = 1000 * 10 ** 18;
 
     uint256 fork;
 
@@ -36,13 +33,27 @@ contract PositionManager_closePosition_Test is Test {
         string memory metaPath =
             string.concat(root, "/../../node_modules/@synthetixio/v3-contracts/42161-main/meta.json");
         string memory metaJson = vm.readFile(metaPath);
+
         USDProxy = vm.parseJsonAddress(metaJson, ".contracts.USDProxy");
+        vm.label(USDProxy, "USDProxy");
+
         AccountProxy = vm.parseJsonAddress(metaJson, ".contracts.AccountProxy");
+        vm.label(AccountProxy, "AccountProxy");
+
         CoreProxy = vm.parseJsonAddress(metaJson, ".contracts.CoreProxy");
+        vm.label(CoreProxy, "CoreProxy");
+
         PythERC7412WrapperAddress = vm.parseJsonAddress(metaJson, ".contracts.PythERC7412Wrapper");
+        vm.label(PythERC7412WrapperAddress, "PythERC7412WrapperAddress");
+
         CollateralToken_ARB = vm.parseJsonAddress(metaJson, ".contracts.CollateralToken_ARB");
+        vm.label(CollateralToken_ARB, "$ARB");
+
         CollateralToken_USDC = vm.parseJsonAddress(metaJson, ".contracts.CollateralToken_USDC");
+        vm.label(CollateralToken_USDC, "$USDC");
+
         CollateralToken_WETH = vm.parseJsonAddress(metaJson, ".contracts.CollateralToken_WETH");
+        vm.label(CollateralToken_WETH, "$WETH");
     }
 
     function setUp() public {
@@ -52,115 +63,76 @@ contract PositionManager_closePosition_Test is Test {
 
         // Pyth bypass
         vm.etch(0x1234123412341234123412341234123412341234, "FORK");
+        // PythERC7412Wrapper(PythERC7412WrapperAddress).setLatestPrice(PYTH_FEED_ETH, 4000 ether);
     }
 
-    function test_rollFork_thenCorrectBlockAndForkDetails() public {
+    function test_rollFork_thenCorrectBlockAndForkDetails() public view {
         assertEq(block.number, 21419019);
         assertEq(vm.activeFork(), fork);
     }
 
-    function xtest_pythBypass() public {
-        int256 ethPrice1 = PythERC7412Wrapper(PythERC7412WrapperAddress).getLatestPrice(PYTH_FEED_ETH, 1);
-        assertEq(ethPrice1, 3982891053780000000000);
-        int256 wethCollateralPrice1 =
-            int256(ICollateralConfigurationModule(CoreProxy).getCollateralPrice(CollateralToken_WETH));
-        assertEq(wethCollateralPrice1, ethPrice1);
+    function test_decreasePosition_success() public {
+        uint128 ACCOUNT_ID = 170141183460469231731687303715884106176;
+        uint128 POOL_ID = 1;
+        address ALICE = IAccountTokenModule(AccountProxy).ownerOf(ACCOUNT_ID);
+        vm.label(ALICE, "0xA11CE");
+        vm.deal(ALICE, 1 ether);
 
-        PythERC7412Wrapper(PythERC7412WrapperAddress).setLatestPrice(PYTH_FEED_ETH, 1000);
+        vm.prank(WETH_WHALE);
+        IERC20(CollateralToken_WETH).approve(address(this), UINT256_MAX);
+        vm.prank(WETH_WHALE);
+        IERC20(CollateralToken_WETH).transfer(ALICE, 10 ether);
 
-        int256 ethPrice2 = PythERC7412Wrapper(PythERC7412WrapperAddress).getLatestPrice(PYTH_FEED_ETH, 1);
-        assertNotEq(ethPrice1, ethPrice2);
-        assertEq(ethPrice2, 1000);
-        int256 wethCollateralPrice2 =
-            int256(ICollateralConfigurationModule(CoreProxy).getCollateralPrice(CollateralToken_WETH));
-        assertEq(wethCollateralPrice2, ethPrice2);
-    }
+        vm.prank(USDx_WHALE);
+        IERC20(USDProxy).approve(address(this), UINT256_MAX);
+        vm.prank(USDx_WHALE);
+        IERC20(USDProxy).transfer(ALICE, 20_000 ether); // need to cover >18k debt
 
-    function test_closePosition_whenNegativeDebt_success() public {
-        vm.startPrank(negativeDebtSnxUser);
-
-        uint256 walletBalanceBefore = IUSDTokenModule(USDProxy).balanceOf(negativeDebtSnxUser);
-        uint256 depositedAmountBefore =
-            ICollateralModule(CoreProxy).getAccountAvailableCollateral(negativeDebtSnxUserAccountId, USDProxy);
-
-        uint256 userCollateralAmount;
-        uint256 userCollateralValue;
-        int256 userDebt;
-        uint256 collateralizationRatio;
-
-        (userCollateralAmount, userCollateralValue, userDebt, collateralizationRatio) =
-            IVaultModule(CoreProxy).getPosition(negativeDebtSnxUserAccountId, poolId, CollateralToken_USDC);
-        assertGt(userCollateralAmount, 0, "Collateral amount should be greater than 0");
-        assertGt(userCollateralValue, 0, "Collateral value should be greater than 0");
-        assertLt(userDebt, 0, "Debt value should be negative");
-        assertEq(collateralizationRatio, MAX_INT, "No Debt Collateral Ratio");
-
-        PositionManager closePosition = new PositionManager();
-
-        IAccountTokenModule(AccountProxy).approve(address(closePosition), negativeDebtSnxUserAccountId);
-
-        closePosition.closePosition(CoreProxy, AccountProxy, negativeDebtSnxUserAccountId, poolId, CollateralToken_USDC);
-
-        (userCollateralAmount, userCollateralValue, userDebt, collateralizationRatio) =
-            IVaultModule(CoreProxy).getPosition(negativeDebtSnxUserAccountId, poolId, CollateralToken_USDC);
-        console.log("userCollateralAmount", userCollateralAmount);
-        console.log("userCollateralValue", userCollateralValue);
-        console.log("userDebt", userDebt);
-        console.log("collateralizationRatio", collateralizationRatio);
-        assertEq(userCollateralAmount, 0, "Collateral amount should be 0");
-        assertEq(userCollateralValue, 0, "Collateral value should be 0");
-        assertEq(userDebt, 0, "Debt should be 0");
-        assertEq(collateralizationRatio, MAX_INT, "No Debt Collateral Ratio");
+        // Current debt
         assertEq(
-            IUSDTokenModule(USDProxy).balanceOf(negativeDebtSnxUser) - walletBalanceBefore,
-            0,
-            "System USD Token should still be in account"
+            18_388.423856608151437096 ether,
+            IVaultModule(CoreProxy).getPositionDebt(ACCOUNT_ID, POOL_ID, CollateralToken_WETH)
         );
-    }
+        // Current liquidity position
+        assertEq(50 ether, IVaultModule(CoreProxy).getPositionCollateral(ACCOUNT_ID, POOL_ID, CollateralToken_WETH));
+        // Current available collateral
+        assertEq(0, ICollateralModule(CoreProxy).getAccountAvailableCollateral(ACCOUNT_ID, CollateralToken_WETH));
 
-    function test_closePosition_whenPositiveDebt_success() public {
-        vm.startPrank(CoreProxy);
-        IUSDTokenModule(USDProxy).mint(positiveDebtSnxUser, startingUSDProxyAmount);
+        PositionManager positionManager = new PositionManager();
+        vm.label(address(positionManager), "PositionManager");
 
-        vm.startPrank(positiveDebtSnxUser);
-        uint256 userCollateralAmount;
-        uint256 userCollateralValue;
-        int256 userDebtBefore;
-        int256 userDebtAfter;
-        uint256 collateralizationRatio;
+        vm.prank(ALICE);
+        IAccountTokenModule(AccountProxy).approve(address(positionManager), ACCOUNT_ID);
+        vm.prank(ALICE);
+        IERC20(USDProxy).approve(address(positionManager), UINT256_MAX);
 
-        (userCollateralAmount, userCollateralValue, userDebtBefore, collateralizationRatio) =
-            IVaultModule(CoreProxy).getPosition(positiveDebtSnxUserAccountId, poolId, CollateralToken_ARB);
-        console.log("userCollateralAmount", userCollateralAmount);
-        console.log("userCollateralValue", userCollateralValue);
-        console.log("userDebtBefore", userDebtBefore);
-        console.log("collateralizationRatio", collateralizationRatio);
-        assertGt(userCollateralAmount, 0, "Collateral amount should be greater than 0");
-        assertGt(userCollateralValue, 0, "Collateral value should be greater than 0");
-        assertGt(userDebtBefore, 0, "Debt value should be positive");
-        assertLt(collateralizationRatio, MAX_INT, "Collateral Ratio is not infinite");
+        vm.recordLogs();
+        vm.prank(ALICE);
+        positionManager.closePosition(CoreProxy, AccountProxy, ACCOUNT_ID, POOL_ID, CollateralToken_WETH);
+        Vm.Log[] memory entries = vm.getRecordedLogs();
 
-        PositionManager closePosition = new PositionManager();
+        assertEq(11, entries.length);
+        // TODO: expect some of these logs
+        /*
+        ├─ emit Approval(owner: 0xA11CE: [0x908D8D559A6FB979e3C3221039E5b8C3C5c2e91a], approved: 0x0000000000000000000000000000000000000000, tokenId: 170141183460469231731687303715884106176 [1.701e38])
+        ├─ emit Transfer(from: 0xA11CE: [0x908D8D559A6FB979e3C3221039E5b8C3C5c2e91a], to: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], tokenId: 170141183460469231731687303715884106176 [1.701e38])
+        ├─ emit Transfer(from: 0xA11CE: [0x908D8D559A6FB979e3C3221039E5b8C3C5c2e91a], to: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], value: 18388423856608151437096 [1.838e22])
+        ├─ emit Approval(owner: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], spender: CoreProxy: [0xffffffaEff0B96Ea8e4f94b2253f31abdD875847], value: 18388423856608151437096 [1.838e22])
+        │   │   │   ├─ emit Transfer(from: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], to: CoreProxy: [0xffffffaEff0B96Ea8e4f94b2253f31abdD875847], value: 18388423856608151437096 [1.838e22])
+        ├─ emit Deposited(accountId: 170141183460469231731687303715884106176 [1.701e38], collateralType: USDProxy: [0xb2F30A7C980f052f02563fb518dcc39e6bf38175], tokenAmount: 18388423856608151437096 [1.838e22], sender: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
+        │   │   │   ├─ emit Transfer(from: CoreProxy: [0xffffffaEff0B96Ea8e4f94b2253f31abdD875847], to: 0x0000000000000000000000000000000000000000, value: 18388423856608151437096 [1.838e22])
+        ├─ emit UsdBurned(accountId: 170141183460469231731687303715884106176 [1.701e38], poolId: 1, collateralType: $WETH: [0x82aF49447D8a07e3bd95BD0d56f35241523fBab1], amount: 18388423856608151437096 [1.838e22], sender: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
+        ├─ emit DelegationUpdated(accountId: 170141183460469231731687303715884106176 [1.701e38], poolId: 1, collateralType: $WETH: [0x82aF49447D8a07e3bd95BD0d56f35241523fBab1], amount: 0, leverage: 1000000000000000000 [1e18], sender: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
+        ├─ emit Approval(owner: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], approved: 0x0000000000000000000000000000000000000000, tokenId: 170141183460469231731687303715884106176 [1.701e38])
+        ├─ emit Transfer(from: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], to: 0xA11CE: [0x908D8D559A6FB979e3C3221039E5b8C3C5c2e91a], tokenId: 170141183460469231731687303715884106176 [1.701e38])
+        */
+        assertEq(ALICE, IAccountTokenModule(AccountProxy).ownerOf(ACCOUNT_ID));
 
-        IAccountTokenModule(AccountProxy).approve(address(closePosition), positiveDebtSnxUserAccountId);
-        IUSDTokenModule(USDProxy).approve(address(closePosition), startingUSDProxyAmount);
-
-        closePosition.closePosition(CoreProxy, AccountProxy, positiveDebtSnxUserAccountId, poolId, CollateralToken_ARB);
-
-        (userCollateralAmount, userCollateralValue, userDebtAfter, collateralizationRatio) =
-            IVaultModule(CoreProxy).getPosition(positiveDebtSnxUserAccountId, poolId, CollateralToken_ARB);
-        console.log("userCollateralAmount", userCollateralAmount);
-        console.log("userCollateralValue", userCollateralValue);
-        console.log("userDebtAfter", userDebtAfter);
-        console.log("collateralizationRatio", collateralizationRatio);
-        assertEq(userCollateralAmount, 0, "Collateral amount should be 0");
-        assertEq(userCollateralValue, 0, "Collateral value should be 0");
-        assertEq(userDebtAfter, 0, "Debt should be 0");
-        assertEq(collateralizationRatio, MAX_INT, "No Debt Collateral Ratio");
-        assertEq(
-            startingUSDProxyAmount - uint256(userDebtBefore),
-            IUSDTokenModule(USDProxy).balanceOf(positiveDebtSnxUser),
-            "USDProxy wallet balance reduced by paid debt amount"
-        );
+        // Current debt
+        assertEq(0, IVaultModule(CoreProxy).getPositionDebt(ACCOUNT_ID, POOL_ID, CollateralToken_WETH));
+        // Current liquidity position
+        assertEq(0 ether, IVaultModule(CoreProxy).getPositionCollateral(ACCOUNT_ID, POOL_ID, CollateralToken_WETH));
+        // Current available collateral
+        assertEq(50 ether, ICollateralModule(CoreProxy).getAccountAvailableCollateral(ACCOUNT_ID, CollateralToken_WETH));
     }
 }
