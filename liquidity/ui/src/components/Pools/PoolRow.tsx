@@ -45,7 +45,7 @@ export function PoolRow({
     cumulativePnl: number;
     collateralAprs: any[];
   };
-  sortBy: string;
+  sortBy: string | undefined;
 }) {
   const [params, setParams] = useParams();
 

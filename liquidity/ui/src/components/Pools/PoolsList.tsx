@@ -5,20 +5,19 @@ import { useOfflinePrices } from '@snx-v3/useCollateralPriceUpdates';
 import { CollateralType, useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useOraclePrice } from '@snx-v3/useOraclePrice';
 import { usePoolsList } from '@snx-v3/usePoolsList';
-import { useMemo, useReducer, useState } from 'react';
+import { useEffect, useMemo, useReducer } from 'react';
 import { Balloon } from './Balloon';
 import { ChainFilter } from './ChainFilter';
 import { CollateralFilter } from './CollateralFilter';
 import { PoolCardsLoading } from './PoolCardsLoading';
 import { PoolRow } from './PoolRow';
+import { HomePageSchemaType, useParams } from '@snx-v3/useParams';
+import { ArrowDownIcon } from '@chakra-ui/icons';
 
 export const PoolsList = () => {
   const [state, dispatch] = useReducer(poolsReducer, { collaterals: [], chains: [] });
   const { data: poolsList, isPending: isPendingPoolsList } = usePoolsList();
-  const [sortConfig, setSortConfig] = useState({
-    sortBy: 'tvl',
-    direction: 'asc',
-  });
+  const [params, setParams] = useParams<HomePageSchemaType>();
 
   const { data: baseCollateralTypes, isPending: isPendingBaseCollateralTypes } = useCollateralTypes(
     false,
@@ -63,6 +62,12 @@ export const PoolsList = () => {
     isPendingArbitrumCollateralTypes ||
     isPendingMainnetCollateralTypes ||
     isStataPriceLoading;
+
+  useEffect(() => {
+    if (!params.sort) {
+      setParams({ ...params, sort: 'tvl' });
+    }
+  }, [params, setParams]);
 
   const filteredPools = useMemo(() => {
     return (
@@ -142,16 +147,10 @@ export const PoolsList = () => {
   }, [stata, collateralPrices, stataPrice]);
 
   const sortPools = (sortBy: string) => {
-    if (sortConfig.sortBy === sortBy) {
-      setSortConfig({
-        sortBy,
-        direction: sortConfig.direction === 'asc' ? 'desc' : 'asc',
-      });
+    if (params.sort === sortBy) {
+      setParams({ ...params, dir: params.dir === 'asc' ? 'desc' : 'asc' });
     } else {
-      setSortConfig({
-        sortBy,
-        direction: 'desc',
-      });
+      setParams({ ...params, sort: sortBy, dir: 'desc' });
     }
   };
 
@@ -178,6 +177,7 @@ export const PoolsList = () => {
 
           <Text
             color="gray.600"
+            _hover={{ color: 'gray.700' }}
             fontFamily="heading"
             fontSize="12px"
             lineHeight="16px"
@@ -188,11 +188,18 @@ export const PoolsList = () => {
             onClick={() => sortPools('balance')}
             cursor="pointer"
           >
+            {params.sort === 'balance' && (
+              <ArrowDownIcon
+                transform={params.dir === 'asc' ? undefined : 'rotate(180deg)'}
+                mr={1}
+              />
+            )}
             Wallet Balance
           </Text>
 
           <Text
             color="gray.600"
+            _hover={{ color: 'gray.700' }}
             fontFamily="heading"
             fontSize="12px"
             lineHeight="16px"
@@ -203,11 +210,18 @@ export const PoolsList = () => {
             onClick={() => sortPools('tvl')}
             cursor="pointer"
           >
+            {params.sort === 'tvl' && (
+              <ArrowDownIcon
+                transform={params.dir === 'asc' ? undefined : 'rotate(180deg)'}
+                mr={1}
+              />
+            )}
             TVL
           </Text>
 
           <Text
             color="gray.600"
+            _hover={{ color: 'gray.700' }}
             fontFamily="heading"
             fontSize="12px"
             lineHeight="16px"
@@ -218,6 +232,12 @@ export const PoolsList = () => {
             onClick={() => sortPools('apy')}
             cursor="pointer"
           >
+            {params.sort === 'apy' && (
+              <ArrowDownIcon
+                transform={params.dir === 'asc' ? undefined : 'rotate(180deg)'}
+                mr={1}
+              />
+            )}
             APY / APR
           </Text>
           <Text
@@ -236,7 +256,7 @@ export const PoolsList = () => {
         </Flex>
 
         {isPending && !filteredPools?.length ? <PoolCardsLoading /> : null}
-        <Flex direction={sortConfig.direction === 'asc' ? 'column-reverse' : 'column'} gap={4}>
+        <Flex direction={params.dir === 'asc' ? 'column' : 'column-reverse'} gap={4}>
           {filteredPools?.length > 0
             ? filteredPools.flatMap(
                 ({ network, poolInfo, apr, collateralTypes }) =>
@@ -255,7 +275,7 @@ export const PoolsList = () => {
                         apr={apr}
                         collateralType={collateralType}
                         collateralPrices={allCollateralPrices}
-                        sortBy={sortConfig.sortBy}
+                        sortBy={params.sort}
                       />
                     ))
               )
