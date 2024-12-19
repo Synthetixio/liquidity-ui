@@ -10,7 +10,7 @@ import {PositionManager} from "src/PositionManager.sol";
 import {Test} from "forge-std/src/Test.sol";
 import {console} from "forge-std/src/console.sol";
 
-contract PositionManagerTest is Test {
+contract PositionManager_closePosition_Test is Test {
     address private USDProxy;
     address private CoreProxy;
     address private AccountProxy;

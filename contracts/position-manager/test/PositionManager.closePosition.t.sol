@@ -99,7 +99,7 @@ contract CoreProxyMock {
     }
 }
 
-contract PositionManagerTest is Test {
+contract PositionManager_closePosition_E2E_Test is Test {
     address internal ALICE;
     uint128 internal accountId = 420;
     uint128 internal poolId = 1;
