@@ -4932,14 +4932,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/close-position-arbitrum@workspace:contracts/position-manager":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/close-position-arbitrum@workspace:contracts/position-manager"
-  dependencies:
-    forge-std: "github:foundry-rs/forge-std"
-  languageName: unknown
-  linkType: soft
-
 "@snx-v3/constants@workspace:*, @snx-v3/constants@workspace:liquidity/lib/constants":
   version: 0.0.0-use.local
   resolution: "@snx-v3/constants@workspace:liquidity/lib/constants"
@@ -5194,6 +5186,19 @@ __metadata:
   dependencies:
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
+"@snx-v3/position-manager@workspace:contracts/position-manager":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/position-manager@workspace:contracts/position-manager"
+  dependencies:
+    "@synthetixio/core-contracts": "npm:^3.10.1"
+    "@synthetixio/core-modules": "npm:^3.10.1"
+    "@synthetixio/main": "npm:^3.10.1"
+    "@synthetixio/oracle-manager": "npm:^3.10.1"
+    "@synthetixio/pyth-erc7412-wrapper": "npm:^3.10.1"
+    forge-std: "github:foundry-rs/forge-std"
   languageName: unknown
   linkType: soft
 
@@ -6674,6 +6679,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@synthetixio/core-contracts@npm:^3.10.1":
+  version: 3.10.1
+  resolution: "@synthetixio/core-contracts@npm:3.10.1"
+  checksum: 10/02afc4b849af792edf5d9550633011eafd9d867ff0832fc9ef012e6cb1dad78e209540d8873838134debefd64c9e42eeb3d0e3344f361c9f0c2741ff06c363e6
+  languageName: node
+  linkType: hard
+
+"@synthetixio/core-modules@npm:^3.10.1":
+  version: 3.10.1
+  resolution: "@synthetixio/core-modules@npm:3.10.1"
+  checksum: 10/c34eedf0bc8b5a4cf931ca7ab1de98513591ded542329c9b170a7ad69a3f336d8b039651122403bbf08ad82d8a56ca6d715c1cfda4244ad4362dda29bb61cc32
+  languageName: node
+  linkType: hard
+
 "@synthetixio/deps@workspace:*, @synthetixio/deps@workspace:tools/deps":
   version: 0.0.0-use.local
   resolution: "@synthetixio/deps@workspace:tools/deps"
@@ -6688,6 +6707,27 @@ __metadata:
     deps-version: ./version.js
   languageName: unknown
   linkType: soft
+
+"@synthetixio/main@npm:^3.10.1":
+  version: 3.10.1
+  resolution: "@synthetixio/main@npm:3.10.1"
+  checksum: 10/f67dd8a3e968fbed6bdcfc23f981bc8c1af78adf492cd92b22dc6647bdb9f90dc1bd04866e032357977527715687cfa99bd7a52723458fba29c6c4992ea4c6a5
+  languageName: node
+  linkType: hard
+
+"@synthetixio/oracle-manager@npm:^3.10.1":
+  version: 3.10.1
+  resolution: "@synthetixio/oracle-manager@npm:3.10.1"
+  checksum: 10/8d7b89f7a90af4ecda355ee4321974b33f2d10663c36228f00fc71bfcdb56dde01c1c13b5bbd69f5b012ebff2feb5a373313556342ef6e74ef26aad56144d1c9
+  languageName: node
+  linkType: hard
+
+"@synthetixio/pyth-erc7412-wrapper@npm:^3.10.1":
+  version: 3.10.1
+  resolution: "@synthetixio/pyth-erc7412-wrapper@npm:3.10.1"
+  checksum: 10/565e8c2fef92d60ba849cf9ea90b3719afd0f5a0c3057ea6a38e914375f2ab3de61ba9454a0f2cb41a8652241f31168a359ea6cd37509bb98a79dbc4a539ce1a
+  languageName: node
+  linkType: hard
 
 "@synthetixio/safe-import@workspace:*, @synthetixio/safe-import@workspace:tools/safe-import":
   version: 0.0.0-use.local

@@ -1,81 +1,144 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import {ERC2771Context} from "src/lib/ERC2771Context.sol";
-import {IAccountProxy} from "src/lib/IAccountProxy.sol";
-import {ISynthetixCore} from "src/lib/ISynthetixCore.sol";
-import {IUSDToken} from "src/lib/IUSDToken.sol";
+import {ERC2771Context} from "@synthetixio/core-contracts/contracts/utils/ERC2771Context.sol";
+import {IMarketManagerModule} from "@synthetixio/main/contracts/interfaces/IMarketManagerModule.sol";
+import {ICollateralModule} from "@synthetixio/main/contracts/interfaces/ICollateralModule.sol";
+import {IIssueUSDModule} from "@synthetixio/main/contracts/interfaces/IIssueUSDModule.sol";
+import {IVaultModule} from "@synthetixio/main/contracts/interfaces/IVaultModule.sol";
+import {IAccountModule} from "@synthetixio/main/contracts/interfaces/IAccountModule.sol";
+import {IAccountTokenModule} from "@synthetixio/main/contracts/interfaces/IAccountTokenModule.sol";
+import {IERC20} from "@synthetixio/core-contracts/contracts/interfaces/IERC20.sol";
 
 contract PositionManager {
     error NotEnoughAllowance(
         address walletAddress, address tokenAddress, uint256 requiredAllowance, uint256 availableAllowance
     );
     error NotEnoughBalance(address walletAddress, address tokenAddress, uint256 requiredAmount, uint256 availableAmount);
+    error NotEnoughDelegated(
+        address walletAddress, address tokenAddress, uint256 requiredAmount, uint256 availableAmount
+    );
 
-    function _repay(
-        ISynthetixCore coreProxy,
+    /**
+     * @notice Creates new account, deposits collateral to the system and then delegates it to the pool
+     * @param coreProxyAddress CoreProxy contract address
+     * @param accountProxyAddress AccountProxy contract address
+     * @param accountId Account ID to be created. If not specified, auto-generated ID will be used
+     * @param poolId poolId Pool ID
+     * @param collateralType Collateral token address to be delegated
+     * @param amount The amount of collateral to delegate. This is a relative number
+     */
+    function setupPosition(
+        address coreProxyAddress,
+        address accountProxyAddress,
         uint128 accountId,
         uint128 poolId,
         address collateralType,
-        uint256 debtAmount
-    ) internal {
+        uint256 amount
+    ) public {
         address msgSender = ERC2771Context._msgSender();
-
-        IUSDToken usdToken = IUSDToken(coreProxy.getUsdToken());
-        // Get deposited amount of USD Tokens available for repayment
-        uint256 depositedAmount = coreProxy.getAccountAvailableCollateral(accountId, address(usdToken));
-        if (debtAmount > depositedAmount) {
-            // Need to deposit more USD tokens
-            uint256 requiredAmount = debtAmount - depositedAmount;
-            uint256 availableAllowance = usdToken.allowance(msgSender, address(this));
-            if (requiredAmount > availableAllowance) {
-                // Wallet does not have enough USD tokens to repay debt
-                revert NotEnoughAllowance(msgSender, address(usdToken), requiredAmount, availableAllowance);
-            }
-            uint256 availableAmount = usdToken.balanceOf(msgSender);
-            if (requiredAmount > availableAmount) {
-                // Wallet does not have enough USD tokens to repay debt
-                revert NotEnoughBalance(msgSender, address(usdToken), requiredAmount, availableAmount);
-            }
-            usdToken.transferFrom(msgSender, address(this), requiredAmount);
-            usdToken.approve(address(coreProxy), requiredAmount);
-            coreProxy.deposit(accountId, address(usdToken), requiredAmount);
+        if (accountId == 0) {
+            // Create a new account with auto-generated ID
+            accountId = IAccountModule(accountProxyAddress).createAccount();
+        } else {
+            // Create new account with requested ID
+            IAccountModule(accountProxyAddress).createAccount(accountId);
         }
-        // Now we have more or exact amount of USD tokens deposited to repay the debt
-        coreProxy.burnUsd(accountId, poolId, collateralType, debtAmount);
+        _ensureDeposit(coreProxyAddress, accountProxyAddress, accountId, collateralType, amount);
+        uint256 currentDelegatedAmount =
+            IVaultModule(coreProxyAddress).getPositionCollateral(accountId, poolId, collateralType);
+        IVaultModule(coreProxyAddress).delegateCollateral(
+            accountId, poolId, collateralType, currentDelegatedAmount + amount, 1e18
+        );
+        IAccountTokenModule(accountProxyAddress).transferFrom(address(this), msgSender, uint256(accountId));
     }
 
-    function _clearDebt(ISynthetixCore coreProxy, uint128 accountId, uint128 poolId, address collateralType) internal {
+    /**
+     * @notice Deposits extra collateral to the system if needed and then delegates requested amount to the pool
+     * @param coreProxyAddress CoreProxy contract address
+     * @param accountProxyAddress AccountProxy contract address
+     * @param accountId Account ID
+     * @param poolId poolId Pool ID
+     * @param collateralType Collateral token address to be delegated
+     * @param amount The amount of collateral to delegate. This is a relative number
+     */
+    function increasePosition(
+        address coreProxyAddress,
+        address accountProxyAddress,
+        uint128 accountId,
+        uint128 poolId,
+        address collateralType,
+        uint256 amount
+    ) public {
         address msgSender = ERC2771Context._msgSender();
-
-        // Get current debt for position
-        int256 debt = coreProxy.getPositionDebt(accountId, poolId, collateralType);
-        if (debt > 0) {
-            uint256 debtAmount = uint256(debt);
-            _repay(coreProxy, accountId, poolId, collateralType, debtAmount);
-        } else if (debt < 0) {
-            // Claim negative debt
-            coreProxy.mintUsd(accountId, poolId, collateralType, uint256(-debt));
-        }
+        IAccountTokenModule(accountProxyAddress).transferFrom(msgSender, address(this), uint256(accountId));
+        _ensureDeposit(coreProxyAddress, accountProxyAddress, accountId, collateralType, amount);
+        uint256 currentDelegatedAmount =
+            IVaultModule(coreProxyAddress).getPositionCollateral(accountId, poolId, collateralType);
+        IVaultModule(coreProxyAddress).delegateCollateral(
+            accountId, poolId, collateralType, currentDelegatedAmount + amount, 1e18
+        );
+        IAccountTokenModule(accountProxyAddress).transferFrom(address(this), msgSender, uint256(accountId));
     }
 
-    function clearDebt(
+    /**
+     * @notice Removes requested amount of liquidity from the pool, requires debt repayment
+     * @param coreProxyAddress CoreProxy contract address
+     * @param accountProxyAddress AccountProxy contract address
+     * @param accountId Account ID
+     * @param poolId poolId Pool ID
+     * @param collateralType Collateral token address to be delegated
+     * @param amount The amount of collateral to undelegate. This is a relative number
+     */
+    function decreasePosition(
+        address coreProxyAddress,
+        address accountProxyAddress,
+        uint128 accountId,
+        uint128 poolId,
+        address collateralType,
+        uint256 amount
+    ) public {
+        address msgSender = ERC2771Context._msgSender();
+        IAccountTokenModule(accountProxyAddress).transferFrom(msgSender, address(this), uint256(accountId));
+        _clearDebt(coreProxyAddress, accountProxyAddress, accountId, poolId, collateralType);
+        uint256 currentDelegatedAmount =
+            IVaultModule(coreProxyAddress).getPositionCollateral(accountId, poolId, collateralType);
+        IVaultModule(coreProxyAddress).delegateCollateral(
+            accountId, poolId, collateralType, currentDelegatedAmount + amount, 1e18
+        );
+        IAccountTokenModule(accountProxyAddress).transferFrom(address(this), msgSender, uint256(accountId));
+    }
+
+    /**
+     * @notice Removes all provided liquidity from the pool, requires full debt repayment
+     * @param coreProxyAddress CoreProxy contract address
+     * @param accountProxyAddress AccountProxy contract address
+     * @param accountId Account ID
+     * @param poolId poolId Pool ID
+     * @param collateralType Collateral token address
+     */
+    function closePosition(
         address coreProxyAddress,
         address accountProxyAddress,
         uint128 accountId,
         uint128 poolId,
         address collateralType
     ) public {
-        IAccountProxy accountProxy = IAccountProxy(accountProxyAddress);
         address msgSender = ERC2771Context._msgSender();
-        accountProxy.transferFrom(msgSender, address(this), uint256(accountId));
-
-        ISynthetixCore coreProxy = ISynthetixCore(coreProxyAddress);
-        _clearDebt(coreProxy, accountId, poolId, collateralType);
-
-        accountProxy.transferFrom(address(this), msgSender, uint256(accountId));
+        IAccountTokenModule(accountProxyAddress).transferFrom(msgSender, address(this), uint256(accountId));
+        _clearDebt(coreProxyAddress, accountProxyAddress, accountId, poolId, collateralType);
+        IVaultModule(coreProxyAddress).delegateCollateral(accountId, poolId, collateralType, 0, 1e18);
+        IAccountTokenModule(accountProxyAddress).transferFrom(address(this), msgSender, uint256(accountId));
     }
 
+    /**
+     * @notice Repays specified amount of debt, depositing any additional necessary amount of system stables to the system
+     * @param coreProxyAddress CoreProxy contract address
+     * @param accountProxyAddress AccountProxy contract address
+     * @param accountId Account ID
+     * @param collateralType Collateral token address
+     * @param debtAmount Amount of debt to repay
+     */
     function repay(
         address coreProxyAddress,
         address accountProxyAddress,
@@ -84,44 +147,128 @@ contract PositionManager {
         address collateralType,
         uint256 debtAmount
     ) public {
-        IAccountProxy accountProxy = IAccountProxy(accountProxyAddress);
         address msgSender = ERC2771Context._msgSender();
-        accountProxy.transferFrom(msgSender, address(this), uint256(accountId));
-
-        ISynthetixCore coreProxy = ISynthetixCore(coreProxyAddress);
-        _repay(coreProxy, accountId, poolId, collateralType, debtAmount);
-
-        accountProxy.transferFrom(address(this), msgSender, uint256(accountId));
+        IAccountTokenModule(accountProxyAddress).transferFrom(msgSender, address(this), uint256(accountId));
+        _repay(coreProxyAddress, accountProxyAddress, accountId, poolId, collateralType, debtAmount);
+        IAccountTokenModule(accountProxyAddress).transferFrom(address(this), msgSender, uint256(accountId));
     }
 
-    function delegate(
-        address coreProxyAddress,
-        address accountProxyAddress,
-        uint128 accountId,
-        uint128 poolId,
-        address collateralType,
-        uint256 delegatedAmount
-    ) public {
-        IAccountProxy accountProxy = IAccountProxy(accountProxyAddress);
-        address msgSender = ERC2771Context._msgSender();
-        accountProxy.transferFrom(msgSender, address(this), uint256(accountId));
-
-        ISynthetixCore coreProxy = ISynthetixCore(coreProxyAddress);
-        _clearDebt(coreProxy, accountId, poolId, collateralType);
-
-        coreProxy.delegateCollateral(accountId, poolId, collateralType, delegatedAmount, 1e18);
-
-        accountProxy.transferFrom(address(this), msgSender, uint256(accountId));
-    }
-
-    function closePosition(
+    /**
+     * @notice Clears the debt to 0, repays positive debt or mints extra system stable in case of negative debt
+     * @param coreProxyAddress CoreProxy contract address
+     * @param accountProxyAddress AccountProxy contract address
+     * @param accountId Account ID
+     * @param collateralType Collateral token address
+     */
+    function clearDebt(
         address coreProxyAddress,
         address accountProxyAddress,
         uint128 accountId,
         uint128 poolId,
         address collateralType
     ) public {
-        // Set delegated collateral amount to 0, effectively closing position
-        delegate(coreProxyAddress, accountProxyAddress, accountId, poolId, collateralType, 0);
+        address msgSender = ERC2771Context._msgSender();
+        IAccountTokenModule(accountProxyAddress).transferFrom(msgSender, address(this), uint256(accountId));
+        _clearDebt(coreProxyAddress, accountProxyAddress, accountId, poolId, collateralType);
+        IAccountTokenModule(accountProxyAddress).transferFrom(address(this), msgSender, uint256(accountId));
+    }
+
+    /**
+     * @notice Transfers specified amount of tokens to the contract
+     * @param tokenAddress Token address
+     * @param tokenAmount Token amount
+     */
+    function _transfer(address tokenAddress, uint256 tokenAmount) internal {
+        address msgSender = ERC2771Context._msgSender();
+        IERC20 token = IERC20(tokenAddress);
+
+        uint256 availableAllowance = token.allowance(msgSender, address(this));
+        if (tokenAmount > availableAllowance) {
+            // Wallet does not have enough USD tokens to repay debt
+            revert NotEnoughAllowance(msgSender, tokenAddress, tokenAmount, availableAllowance);
+        }
+        uint256 availableAmount = token.balanceOf(msgSender);
+        if (tokenAmount > availableAmount) {
+            // Wallet does not have enough USD tokens to repay debt
+            revert NotEnoughBalance(msgSender, tokenAddress, tokenAmount, availableAmount);
+        }
+        token.transferFrom(msgSender, address(this), tokenAmount);
+    }
+
+    /**
+     * @notice Ensures account has exact amount of token deposited to the system
+     * @param coreProxyAddress CoreProxy contract address
+     * @param accountProxyAddress AccountProxy contract address
+     * @param accountId Account ID
+     * @param collateralType Collateral token address
+     * @param expectedAmount Exact amount of tokens that expected to be deposited to the system. NOTE: this is absolute value
+     */
+    function _ensureDeposit(
+        address coreProxyAddress,
+        address accountProxyAddress,
+        uint128 accountId,
+        address collateralType,
+        uint256 expectedAmount
+    ) internal {
+        uint256 depositedAmount =
+            ICollateralModule(coreProxyAddress).getAccountAvailableCollateral(accountId, collateralType);
+        if (expectedAmount > depositedAmount) {
+            uint256 requiredAmount = expectedAmount - depositedAmount;
+            _transfer(collateralType, requiredAmount);
+            IERC20(collateralType).approve(coreProxyAddress, requiredAmount);
+            ICollateralModule(coreProxyAddress).deposit(accountId, collateralType, requiredAmount);
+        }
+    }
+
+    /**
+     * @notice Repays specified amount of debt, depositing any additional necessary amount of system stables to the system
+     * @param coreProxyAddress CoreProxy contract address
+     * @param accountProxyAddress AccountProxy contract address
+     * @param accountId Account ID
+     * @param poolId Pool ID
+     * @param collateralType Collateral token address
+     * @param debtAmount Amount of debt to repay
+     */
+    function _repay(
+        address coreProxyAddress,
+        address accountProxyAddress,
+        uint128 accountId,
+        uint128 poolId,
+        address collateralType,
+        uint256 debtAmount
+    ) internal {
+        address msgSender = ERC2771Context._msgSender();
+        IERC20 usdToken = IMarketManagerModule(coreProxyAddress).getUsdToken();
+        // Get deposited amount of USD Tokens available for repayment
+        _ensureDeposit(coreProxyAddress, accountProxyAddress, accountId, address(usdToken), debtAmount);
+        // Now we have more or exact amount of USD tokens deposited to repay the debt
+        IIssueUSDModule(coreProxyAddress).burnUsd(accountId, poolId, collateralType, debtAmount);
+    }
+
+    /**
+     * @notice Clears the debt to 0, repays positive debt or mints extra system stable in case of negative debt
+     * @param coreProxyAddress CoreProxy contract address
+     * @param accountProxyAddress AccountProxy contract address
+     * @param accountId Account ID
+     * @param poolId Pool ID
+     * @param collateralType Collateral token address
+     */
+    function _clearDebt(
+        address coreProxyAddress,
+        address accountProxyAddress,
+        uint128 accountId,
+        uint128 poolId,
+        address collateralType
+    ) internal {
+        address msgSender = ERC2771Context._msgSender();
+        // Get current debt for position
+        int256 debt = IVaultModule(coreProxyAddress).getPositionDebt(accountId, poolId, collateralType);
+        if (debt > 0) {
+            uint256 debtAmount = uint256(debt);
+            _repay(coreProxyAddress, accountProxyAddress, accountId, poolId, collateralType, debtAmount);
+        } else if (debt < 0) {
+            // Claim negative debt
+            IIssueUSDModule(coreProxyAddress).mintUsd(accountId, poolId, collateralType, uint256(-debt));
+        }
     }
 }

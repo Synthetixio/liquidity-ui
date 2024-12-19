@@ -7,7 +7,6 @@ import {console} from "forge-std/src/console.sol";
 import {MintableToken} from "./MintableToken.sol";
 import {MintableNFT} from "./MintableNFT.sol";
 import {PositionManager} from "src/PositionManager.sol";
-import {ISynthetixCore} from "src/lib/ISynthetixCore.sol";
 
 contract CoreProxyMock {
     int256 public positionDebt = 999_999;

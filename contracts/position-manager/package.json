@@ -20,10 +20,20 @@
     "e2e-cov": "./cov.sh ./test/*.e2e.sol"
   },
   "devDependencies": {
+    "@synthetixio/core-contracts": "^3.10.1",
+    "@synthetixio/core-modules": "^3.10.1",
+    "@synthetixio/main": "^3.10.1",
+    "@synthetixio/oracle-manager": "^3.10.1",
+    "@synthetixio/pyth-erc7412-wrapper": "^3.10.1",
     "forge-std": "github:foundry-rs/forge-std"
   },
   "depcheck": {
     "ignoreMatches": [
+      "@synthetixio/core-contracts",
+      "@synthetixio/core-modules",
+      "@synthetixio/main",
+      "@synthetixio/oracle-manager",
+      "@synthetixio/pyth-erc7412-wrapper",
       "forge-std"
     ]
   }
