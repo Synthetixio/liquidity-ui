@@ -59,6 +59,11 @@ export const ManageAction = ({
   const manageActionParam = ManageActionSchema.safeParse(params.manageAction);
   const manageAction = manageActionParam.success ? manageActionParam.data : undefined;
   const debtActions = DEBTACTIONS(network?.preset === 'andromeda');
+
+  const collateralActions = React.useMemo(
+    () => COLLATERALACTIONS(network?.preset === 'andromeda', liquidityPosition),
+    [liquidityPosition, network?.preset]
+  );
   const tab = debtActions.some((action) => action.link === manageAction) ? 'debt' : 'collateral';
 
   const onSubmit = useCallback(
@@ -83,7 +88,7 @@ export const ManageAction = ({
                 href={`?${makeSearch({
                   page: 'position',
                   collateralSymbol: params.collateralSymbol,
-                  manageAction: COLLATERALACTIONS[0].link,
+                  manageAction: collateralActions[0].link,
                   accountId: params.accountId,
                 })}`}
                 onClick={(e) => {
@@ -95,7 +100,7 @@ export const ManageAction = ({
                   setParams({
                     page: 'position',
                     collateralSymbol: params.collateralSymbol,
-                    manageAction: COLLATERALACTIONS[0].link,
+                    manageAction: collateralActions[0].link,
                     accountId: params.accountId,
                   });
                 }}
@@ -143,7 +148,7 @@ export const ManageAction = ({
             <TabPanels>
               <TabPanel px="0">
                 <Flex flexDir={['column', 'row']} gap={4}>
-                  {COLLATERALACTIONS.map((action) => (
+                  {collateralActions.map((action) => (
                     <Flex
                       as={Link}
                       href={`?${makeSearch({
