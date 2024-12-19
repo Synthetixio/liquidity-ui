@@ -17,6 +17,7 @@ import { UnsupportedCollateralAlert } from '../components/CollateralAlert/Unsupp
 import { ManageAction } from '../components/Manage/ManageActions';
 import { ManageStats } from '../components/Manage/ManageStats';
 import { PositionTitle } from '../components/Manage/PositionTitle';
+import { StataDepositBanner } from '../components/Manage/StataDepositBanner';
 
 export const Manage = () => {
   const [params, setParams] = useParams<PositionPageSchemaType>();
@@ -85,16 +86,14 @@ export const Manage = () => {
           </Flex>
         </Flex>
         <Flex mt={6} flexDirection={['column', 'column', 'row']} gap={4}>
-          <BorderBox
-            gap={4}
-            flex={1}
-            p={6}
-            flexDirection="column"
-            bg="navy.700"
-            height="fit-content"
-          >
-            <ManageStats />
-          </BorderBox>
+          <Flex flex={1} direction="column" gap={6}>
+            <BorderBox gap={4} p={6} flexDirection="column" bg="navy.700">
+              <ManageStats />
+            </BorderBox>
+            {isStataUSDC && liquidityPosition && liquidityPosition.collateralAmount.eq(0) && (
+              <StataDepositBanner />
+            )}
+          </Flex>
           <Flex
             maxWidth={['100%', '100%', '501px']}
             width="100%"
