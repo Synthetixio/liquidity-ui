@@ -17,9 +17,6 @@ contract PositionManager_decreasePosition_Test is Test {
     address private USDProxy;
     address private CoreProxy;
     address private AccountProxy;
-    address private PythERC7412WrapperAddress;
-    address private CollateralToken_ARB;
-    address private CollateralToken_USDC;
     address private CollateralToken_WETH;
 
     address private constant WETH_WHALE = 0xe50fA9b3c56FfB159cB0FCA61F5c9D750e8128c8;
@@ -43,15 +40,6 @@ contract PositionManager_decreasePosition_Test is Test {
         CoreProxy = vm.parseJsonAddress(metaJson, ".contracts.CoreProxy");
         vm.label(CoreProxy, "CoreProxy");
 
-        PythERC7412WrapperAddress = vm.parseJsonAddress(metaJson, ".contracts.PythERC7412Wrapper");
-        vm.label(PythERC7412WrapperAddress, "PythERC7412WrapperAddress");
-
-        CollateralToken_ARB = vm.parseJsonAddress(metaJson, ".contracts.CollateralToken_ARB");
-        vm.label(CollateralToken_ARB, "$ARB");
-
-        CollateralToken_USDC = vm.parseJsonAddress(metaJson, ".contracts.CollateralToken_USDC");
-        vm.label(CollateralToken_USDC, "$USDC");
-
         CollateralToken_WETH = vm.parseJsonAddress(metaJson, ".contracts.CollateralToken_WETH");
         vm.label(CollateralToken_WETH, "$WETH");
     }
@@ -61,17 +49,15 @@ contract PositionManager_decreasePosition_Test is Test {
         fork = vm.createFork(forkUrl, 285545346);
         vm.selectFork(fork);
 
-        // Pyth bypass
-        vm.etch(0x1234123412341234123412341234123412341234, "FORK");
-        // PythERC7412Wrapper(PythERC7412WrapperAddress).setLatestPrice(PYTH_FEED_ETH, 4000 ether);
-    }
-
-    function test_rollFork_thenCorrectBlockAndForkDetails() public view {
+        // Verify fork
         assertEq(block.number, 21419019);
         assertEq(vm.activeFork(), fork);
+
+        // Pyth bypass
+        vm.etch(0x1234123412341234123412341234123412341234, "FORK");
     }
 
-    function test_decreasePosition_success() public {
+    function test_closePosition() public {
         uint128 ACCOUNT_ID = 170141183460469231731687303715884106176;
         uint128 POOL_ID = 1;
         address ALICE = IAccountTokenModule(AccountProxy).ownerOf(ACCOUNT_ID);
@@ -109,9 +95,9 @@ contract PositionManager_decreasePosition_Test is Test {
         vm.recordLogs();
         vm.prank(ALICE);
         positionManager.closePosition(CoreProxy, AccountProxy, ACCOUNT_ID, POOL_ID, CollateralToken_WETH);
-        Vm.Log[] memory entries = vm.getRecordedLogs();
+        Vm.Log[] memory logs = vm.getRecordedLogs();
 
-        assertEq(11, entries.length);
+        assertEq(11, logs.length);
         // TODO: expect some of these logs
         /*
         ├─ emit Approval(owner: 0xA11CE: [0x908D8D559A6FB979e3C3221039E5b8C3C5c2e91a], approved: 0x0000000000000000000000000000000000000000, tokenId: 170141183460469231731687303715884106176 [1.701e38])

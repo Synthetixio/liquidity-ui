@@ -14,8 +14,8 @@
   "license": "MIT",
   "scripts": {
     "build": "forge build",
-    "test": "forge test -vvvvv './test/*.e2e.sol'",
-    "cov": "./cov.sh './test/*.e2e.sol'"
+    "test": "forge test -vvvvv",
+    "cov": "./cov.sh"
   },
   "devDependencies": {
     "@synthetixio/core-contracts": "^3.10.1",

@@ -17,9 +17,6 @@ contract PositionManager_increasePosition_Test is Test {
     address private USDProxy;
     address private CoreProxy;
     address private AccountProxy;
-    address private PythERC7412WrapperAddress;
-    address private CollateralToken_ARB;
-    address private CollateralToken_USDC;
     address private CollateralToken_WETH;
 
     address private constant WETH_WHALE = 0xe50fA9b3c56FfB159cB0FCA61F5c9D750e8128c8;
@@ -42,15 +39,6 @@ contract PositionManager_increasePosition_Test is Test {
         CoreProxy = vm.parseJsonAddress(metaJson, ".contracts.CoreProxy");
         vm.label(CoreProxy, "CoreProxy");
 
-        PythERC7412WrapperAddress = vm.parseJsonAddress(metaJson, ".contracts.PythERC7412Wrapper");
-        vm.label(PythERC7412WrapperAddress, "PythERC7412WrapperAddress");
-
-        CollateralToken_ARB = vm.parseJsonAddress(metaJson, ".contracts.CollateralToken_ARB");
-        vm.label(CollateralToken_ARB, "$ARB");
-
-        CollateralToken_USDC = vm.parseJsonAddress(metaJson, ".contracts.CollateralToken_USDC");
-        vm.label(CollateralToken_USDC, "$USDC");
-
         CollateralToken_WETH = vm.parseJsonAddress(metaJson, ".contracts.CollateralToken_WETH");
         vm.label(CollateralToken_WETH, "$WETH");
     }
@@ -60,17 +48,15 @@ contract PositionManager_increasePosition_Test is Test {
         fork = vm.createFork(forkUrl, 285545346);
         vm.selectFork(fork);
 
-        // Pyth bypass
-        vm.etch(0x1234123412341234123412341234123412341234, "FORK");
-        // PythERC7412Wrapper(PythERC7412WrapperAddress).setLatestPrice(PYTH_FEED_ETH, 4000 ether);
-    }
-
-    function test_rollFork_thenCorrectBlockAndForkDetails() public view {
+        // Verify fork
         assertEq(block.number, 21419019);
         assertEq(vm.activeFork(), fork);
+
+        // Pyth bypass
+        vm.etch(0x1234123412341234123412341234123412341234, "FORK");
     }
 
-    function test_increasePosition_success() public {
+    function test_increasePosition() public {
         uint128 ACCOUNT_ID = 170141183460469231731687303715884106176;
         uint128 POOL_ID = 1;
         address ALICE = IAccountTokenModule(AccountProxy).ownerOf(ACCOUNT_ID);
@@ -83,15 +69,6 @@ contract PositionManager_increasePosition_Test is Test {
         vm.prank(WETH_WHALE);
         IERC20(CollateralToken_WETH).transfer(ALICE, 10 ether);
 
-        PositionManager positionManager = new PositionManager();
-        vm.label(address(positionManager), "PositionManager");
-
-        vm.prank(ALICE);
-        IERC20(CollateralToken_WETH).approve(address(positionManager), UINT256_MAX);
-
-        vm.prank(ALICE);
-        IAccountTokenModule(AccountProxy).approve(address(positionManager), ACCOUNT_ID);
-
         // Current debt
         assertEq(
             18_388.423856608151437096 ether,
@@ -102,12 +79,21 @@ contract PositionManager_increasePosition_Test is Test {
         // Current available collateral
         assertEq(0, ICollateralModule(CoreProxy).getAccountAvailableCollateral(ACCOUNT_ID, CollateralToken_WETH));
 
+        PositionManager positionManager = new PositionManager();
+        vm.label(address(positionManager), "PositionManager");
+
+        vm.prank(ALICE);
+        IERC20(CollateralToken_WETH).approve(address(positionManager), UINT256_MAX);
+
+        vm.prank(ALICE);
+        IAccountTokenModule(AccountProxy).approve(address(positionManager), ACCOUNT_ID);
+
         vm.recordLogs();
         vm.prank(ALICE);
         positionManager.increasePosition(CoreProxy, AccountProxy, ACCOUNT_ID, POOL_ID, CollateralToken_WETH, 5 ether);
-        Vm.Log[] memory entries = vm.getRecordedLogs();
+        Vm.Log[] memory logs = vm.getRecordedLogs();
 
-        assertEq(11, entries.length);
+        assertEq(11, logs.length);
         // TODO: expect these logs
         /*
         │   ├─ emit Approval(owner: 0xA11CE: [0x908D8D559A6FB979e3C3221039E5b8C3C5c2e91a], approved: 0x0000000000000000000000000000000000000000, tokenId: 170141183460469231731687303715884106176 [1.701e38])

@@ -16,9 +16,6 @@ contract PositionManager {
         address walletAddress, address tokenAddress, uint256 requiredAllowance, uint256 availableAllowance
     );
     error NotEnoughBalance(address walletAddress, address tokenAddress, uint256 requiredAmount, uint256 availableAmount);
-    error NotEnoughDelegated(
-        address walletAddress, address tokenAddress, uint256 requiredAmount, uint256 availableAmount
-    );
 
     /**
      * @notice Creates new account, deposits collateral to the system and then delegates it to the pool

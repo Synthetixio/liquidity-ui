@@ -308,7 +308,7 @@ jobs:
           working_directory: << parameters.working_directory >>
           command: |-
             echo "0" > /tmp/test_exit_code
-            forge coverage -vvvvv --report lcov --report-file lcov.info './test/*.e2e.sol' || echo $? > /tmp/test_exit_code
+            forge coverage -vvvvv --report lcov --report-file lcov.info || echo $? > /tmp/test_exit_code
             lcov --rc derive_function_end_line=0 --remove lcov.info -o clean.lcov.info '../../node_modules/' 'test/' || true
             genhtml --rc derive_function_end_line=0 clean.lcov.info --output-directory coverage || true
             cp clean.lcov.info coverage/lcov.info || true
