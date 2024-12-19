@@ -1,4 +1,4 @@
-# Debt Repayer for Arbitrum
+# Position Manager contract
 
 ## Running tests
 
@@ -37,7 +37,7 @@ forge create \
   --private-key $TESTNET_DEPLOYER_PRIVATE_KEY \
   --etherscan-api-key $ARBISCAN_API_KEY \
   --verify \
-  src/ClosePosition.sol:ClosePosition
+  src/PositionManager.sol:PositionManager
 ```
 
 Arbitrum Mainnet
@@ -49,7 +49,7 @@ forge create \
   --private-key $MAINNET_DEPLOYER_PRIVATE_KEY \
   --etherscan-api-key $ARBISCAN_API_KEY \
   --verify \
-  src/ClosePosition.sol:ClosePosition
+  src/PositionManager.sol:PositionManager
 ```
 
 Ethereum Sepolia
@@ -61,7 +61,7 @@ forge create \
   --private-key $TESTNET_DEPLOYER_PRIVATE_KEY \
   --etherscan-api-key $ETHERSCAN_API_KEY \
   --verify \
-  src/ClosePosition.sol:ClosePosition
+  src/PositionManager.sol:PositionManager
 ```
 
 Ethereum Mainnet
@@ -73,7 +73,7 @@ forge create \
   --private-key $MAINNET_DEPLOYER_PRIVATE_KEY \
   --etherscan-api-key $ETHERSCAN_API_KEY \
   --verify \
-  src/ClosePosition.sol:ClosePosition
+  src/PositionManager.sol:PositionManager
 ```
 
 ## Verify contract
@@ -84,11 +84,11 @@ If something went wrong verifying first time
 forge verify-contract \
   --etherscan-api-key $ETHERSCAN_API_KEY \
   0x800B12D24ebb639BCe7280861b05149F0D60F99e \
-  src/ClosePosition.sol:ClosePosition
+  src/PositionManager.sol:PositionManager
 
 forge verify-contract \
   --verifier-url "https://api.arbiscan.io/api" \
   --etherscan-api-key $ARBISCAN_API_KEY \
   0x800B12D24ebb639BCe7280861b05149F0D60F99e \
-  src/DebtRepayer.sol:DebtRepayer
+  src/PositionManager.sol:PositionManager
 ```
