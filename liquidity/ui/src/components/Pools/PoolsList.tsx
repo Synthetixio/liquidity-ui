@@ -1,21 +1,50 @@
+import { ChevronUpIcon } from '@chakra-ui/icons';
 import { Divider, Flex, Link, Text } from '@chakra-ui/react';
 import { isBaseAndromeda } from '@snx-v3/isBaseAndromeda';
 import { ARBITRUM, BASE_ANDROMEDA, MAINNET } from '@snx-v3/useBlockchain';
 import { useOfflinePrices } from '@snx-v3/useCollateralPriceUpdates';
 import { CollateralType, useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useOraclePrice } from '@snx-v3/useOraclePrice';
+import { HomePageSchemaType, makeSearch, useParams } from '@snx-v3/useParams';
 import { usePoolsList } from '@snx-v3/usePoolsList';
-import { useMemo, useReducer } from 'react';
+import React from 'react';
 import { Balloon } from './Balloon';
 import { ChainFilter } from './ChainFilter';
 import { CollateralFilter } from './CollateralFilter';
 import { PoolCardsLoading } from './PoolCardsLoading';
 import { PoolRow } from './PoolRow';
-import { HomePageSchemaType, makeSearch, useParams } from '@snx-v3/useParams';
-import { ArrowDownIcon } from '@chakra-ui/icons';
 
-export const PoolsList = () => {
-  const [state, dispatch] = useReducer(poolsReducer, { collaterals: [], chains: [] });
+function HeaderText({ ...props }) {
+  return (
+    <Flex
+      color="gray.600"
+      fontFamily="heading"
+      fontSize="12px"
+      lineHeight="16px"
+      letterSpacing={0.6}
+      fontWeight={700}
+      alignItems="center"
+      justifyContent="right"
+      {...props}
+    />
+  );
+}
+
+function HeaderLink({ ...props }) {
+  return (
+    <HeaderText
+      as={Link}
+      textDecoration="none"
+      _hover={{ color: 'gray.400', textDecoration: 'none' }}
+      alignItems="center"
+      justifyContent="right"
+      {...props}
+    />
+  );
+}
+
+export function PoolsList() {
+  const [state, dispatch] = React.useReducer(poolsReducer, { collaterals: [], chains: [] });
   const { data: poolsList, isPending: isPendingPoolsList } = usePoolsList();
   const [params, setParams] = useParams<HomePageSchemaType>();
 
@@ -28,7 +57,7 @@ export const PoolsList = () => {
   const { data: mainnetCollateralTypes, isPending: isPendingMainnetCollateralTypes } =
     useCollateralTypes(false, MAINNET);
 
-  const allCollaterals: CollateralType[] = useMemo(() => {
+  const allCollaterals: CollateralType[] = React.useMemo(() => {
     // We want to filter out assets that don't have a pyth price feed
     return [
       ...(baseCollateralTypes ?? []),
@@ -63,7 +92,7 @@ export const PoolsList = () => {
     isPendingMainnetCollateralTypes ||
     isStataPriceLoading;
 
-  const filteredPools = useMemo(() => {
+  const filteredPools = React.useMemo(() => {
     return (
       poolsList?.synthetixPools
         .map(({ network, poolInfo, apr }) => {
@@ -134,17 +163,19 @@ export const PoolsList = () => {
     collaterals,
   ]);
 
-  const allCollateralPrices = useMemo(() => {
+  const allCollateralPrices = React.useMemo(() => {
     if (stata && stataPrice) {
       return collateralPrices?.concat({ symbol: 'stataUSDC', price: stataPrice?.price.toBN() });
     }
   }, [stata, collateralPrices, stataPrice]);
 
-  const getSortParams = (sortBy: string) => {
-    if (params.sort === sortBy) {
+  const sortBy = params.sort || 'tvl';
+
+  const getSortParams = (sort: string) => {
+    if (sortBy === sort) {
       return { ...params, dir: params.dir === 'asc' ? 'desc' : 'asc' };
     } else {
-      return { ...params, sort: sortBy, dir: 'desc' };
+      return { ...params, sort: sort, dir: 'desc' };
     }
   };
 
@@ -157,113 +188,60 @@ export const PoolsList = () => {
       <Flex minW="1200px" overflowX="auto" direction="column" gap={4}>
         <Divider width="100%" />
         <Flex flexDir="row" w="100%" gap={4} py={3} px={4} whiteSpace="nowrap">
-          <Text
-            color="gray.600"
-            fontFamily="heading"
-            fontSize="12px"
-            lineHeight="16px"
-            letterSpacing={0.6}
-            fontWeight={700}
-            width="240px"
-          >
+          <HeaderText width="240px" justifyContent="left">
             Collateral / Network
-          </Text>
-
-          <Link
-            color="gray.600"
-            _hover={{ color: 'gray.700' }}
-            fontFamily="heading"
-            fontSize="12px"
-            lineHeight="16px"
-            letterSpacing={0.6}
-            fontWeight={700}
+          </HeaderText>
+          <HeaderLink
             width="220px"
-            textAlign="right"
             href={`?${makeSearch(getSortParams('balance'))}`}
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
               e.preventDefault();
               setParams(getSortParams('balance'));
             }}
-            cursor="pointer"
-            display="inline"
-            textDecoration="none"
           >
-            {params.sort === 'balance' && (
-              <ArrowDownIcon
+            {sortBy === 'balance' && (
+              <ChevronUpIcon
                 transform={params.dir === 'asc' ? undefined : 'rotate(180deg)'}
                 mr={1}
               />
             )}
             Wallet Balance
-          </Link>
+          </HeaderLink>
 
-          <Link
-            color="gray.600"
-            _hover={{ color: 'gray.700' }}
-            fontFamily="heading"
-            fontSize="12px"
-            lineHeight="16px"
-            letterSpacing={0.6}
-            fontWeight={700}
+          <HeaderLink
             width="220px"
-            textAlign="right"
-            cursor="pointer"
             href={`?${makeSearch(getSortParams('tvl'))}`}
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
               e.preventDefault();
               setParams(getSortParams('tvl'));
             }}
-            display="inline"
-            textDecoration="none"
           >
-            {params.sort === 'tvl' && (
-              <ArrowDownIcon
+            {sortBy === 'tvl' && (
+              <ChevronUpIcon
                 transform={params.dir === 'asc' ? undefined : 'rotate(180deg)'}
                 mr={1}
               />
             )}
-            TVL
-          </Link>
+            <Text>TVL</Text>
+          </HeaderLink>
 
-          <Link
-            color="gray.600"
-            _hover={{ color: 'gray.700' }}
-            fontFamily="heading"
-            fontSize="12px"
-            lineHeight="16px"
-            letterSpacing={0.6}
-            fontWeight={700}
+          <HeaderLink
             width="144px"
-            textAlign="right"
             href={`?${makeSearch(getSortParams('apy'))}`}
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
               e.preventDefault();
               setParams(getSortParams('apy'));
             }}
-            cursor="pointer"
-            display="inline"
-            textDecoration="none"
           >
-            {params.sort === 'apy' && (
-              <ArrowDownIcon
+            {sortBy === 'apy' && (
+              <ChevronUpIcon
                 transform={params.dir === 'asc' ? undefined : 'rotate(180deg)'}
                 mr={1}
               />
             )}
             APY / APR
-          </Link>
-          <Text
-            color="gray.600"
-            fontFamily="heading"
-            fontSize="12px"
-            lineHeight="16px"
-            letterSpacing={0.6}
-            fontWeight={700}
-            width="121px"
-            textAlign="right"
-          >
-            Specifics
-          </Text>
+          </HeaderLink>
+          <HeaderText width="121px">Specifics</HeaderText>
           <Flex minW="159px" flex="1" />
         </Flex>
 
@@ -287,7 +265,7 @@ export const PoolsList = () => {
                         apr={apr}
                         collateralType={collateralType}
                         collateralPrices={allCollateralPrices}
-                        sortBy={params.sort || 'tvl'}
+                        sortBy={sortBy}
                       />
                     ))
               )
@@ -317,7 +295,7 @@ export const PoolsList = () => {
       </Flex>
     </Flex>
   );
-};
+}
 
 interface PoolsFilterState {
   collaterals: string[];
