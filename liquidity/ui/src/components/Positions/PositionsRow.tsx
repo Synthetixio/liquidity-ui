@@ -1,5 +1,16 @@
 import { TimeIcon } from '@chakra-ui/icons';
-import { Box, Button, Collapse, Fade, Flex, Link, Td, Text, Tooltip } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Collapse,
+  Fade,
+  Flex,
+  Image,
+  Link,
+  Td,
+  Text,
+  Tooltip,
+} from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { DebtAmount, PnlAmount } from '@snx-v3/DebtAmount';
 import { TokenIcon } from '@snx-v3/TokenIcon';
@@ -12,6 +23,7 @@ import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
 import { CRatioAmount } from '../CRatioBar/CRatioAmount';
 import { CRatioBadge } from '../CRatioBar/CRatioBadge';
 import { useAccountCollateral } from '../../../../lib/useAccountCollateral';
+import lockIcon from './lock.svg';
 
 export function PositionRow({
   liquidityPosition,
@@ -26,6 +38,11 @@ export function PositionRow({
     tokenAddress: liquidityPosition.collateralType.address,
   });
   const { network } = useNetwork();
+
+  const { data: accountCollateral } = useAccountCollateral({
+    accountId: params.accountId,
+    tokenAddress: liquidityPosition.collateralType?.address,
+  });
 
   const isStataUSDC = useIsSynthStataUSDC({
     tokenAddress: liquidityPosition.collateralType.tokenAddress,
@@ -81,8 +98,31 @@ export function PositionRow({
       </Td>
       <Td border="none">
         <Flex flexDirection="column" alignItems="flex-end">
-          <Text color="white" lineHeight="1.25rem" fontFamily="heading" fontSize="sm">
+          <Text
+            display="flex"
+            alignItems="center"
+            gap={2}
+            color="white"
+            lineHeight="1.25rem"
+            fontFamily="heading"
+            fontSize="sm"
+          >
             <Amount prefix="$" value={liquidityPosition.collateralValue} />
+            <Tooltip
+              label={
+                <>
+                  Including in &nbsp;
+                  <Amount
+                    value={accountCollateral?.totalLocked}
+                    suffix={` ${liquidityPosition.collateralType?.displaySymbol}`}
+                    showTooltip
+                  />
+                  &nbsp; Escrow that cannot be unlocked until the unlocking date has been reached
+                </>
+              }
+            >
+              <Image src={lockIcon} />
+            </Tooltip>
           </Text>
           <Text color="gray.500" fontFamily="heading" fontSize="0.75rem" lineHeight="1rem">
             <Amount
@@ -107,6 +147,7 @@ export function PositionRow({
               prefix="$"
               value={liquidityPosition.availableCollateral.mul(liquidityPosition.collateralPrice)}
             />
+
             {liquidityPosition.availableCollateral.gt(0) && isRunning && (
               <Tooltip label={`Withdrawal available in ${hours}H${minutes}M`}>
                 <TimeIcon />

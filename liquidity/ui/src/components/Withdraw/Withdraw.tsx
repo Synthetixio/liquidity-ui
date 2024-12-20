@@ -51,7 +51,8 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
     }
 
     if (network?.id === 1 && accountCollateral) {
-      return liquidityPosition?.availableCollateral.sub(accountCollateral.totalLocked);
+      const amount = liquidityPosition?.availableCollateral.sub(accountCollateral.totalLocked);
+      return amount?.gt(0) ? amount : ZEROWEI;
     }
 
     return isDebtWithdrawal
@@ -79,7 +80,7 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
               <>
                 <Amount
                   prefix={isDebtWithdrawal ? 'Available: ' : 'Unlocked: '}
-                  value={maxWithdrawable.gt(0) ? maxWithdrawable : ZEROWEI}
+                  value={maxWithdrawable}
                 />
                 &nbsp;
                 {maxWithdrawable.gt(0) && (
