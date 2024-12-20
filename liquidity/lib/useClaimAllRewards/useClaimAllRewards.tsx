@@ -1,4 +1,5 @@
 import { useToast } from '@chakra-ui/react';
+import { D18 } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
@@ -67,11 +68,17 @@ export function useClaimAllRewards({ accountId }: { accountId?: string }) {
           log('synthToken', synthToken);
           log('claimableAmount', claimableAmount);
           if (synthToken && claimableAmount && claimableAmount.gt(0)) {
+            const minAmountReceived = claimableAmount
+              .toBN()
+              .sub(claimableAmount.toBN().div(100))
+              .mul(ethers.utils.parseUnits('1', synthToken.token?.decimals))
+              .div(D18);
+
             transactions.push(
               SpotMarketProxyContract.populateTransaction.unwrap(
                 synthToken.synthMarketId,
                 claimableAmount.toBN(),
-                claimableAmount.toBN().sub(claimableAmount.toBN().div(100))
+                minAmountReceived
               )
             );
           }
