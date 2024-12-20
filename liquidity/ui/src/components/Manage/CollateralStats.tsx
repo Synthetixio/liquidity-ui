@@ -1,4 +1,5 @@
-import { Flex, Text } from '@chakra-ui/react';
+import { InfoIcon } from '@chakra-ui/icons';
+import { Flex, Link, Text } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { ChangeStat } from '@snx-v3/ChangeStat';
@@ -7,7 +8,7 @@ import { currency } from '@snx-v3/format';
 import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
+import { makeSearch, type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { type Wei } from '@synthetixio/wei';
 
 export function CollateralStats({
@@ -17,7 +18,7 @@ export function CollateralStats({
   newCollateralAmount: Wei;
   hasChanges: boolean;
 }) {
-  const [params] = useParams<PositionPageSchemaType>();
+  const [params, setParams] = useParams<PositionPageSchemaType>();
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { data: liquidityPosition, isPending: isPendingLiquidityPosition } = useLiquidityPosition({
     accountId: params.accountId,
@@ -75,7 +76,7 @@ export function CollateralStats({
         </Flex>
 
         {accountCollateral?.totalLocked.gt(0) && (
-          <Flex mt={4} alignItems="center" gap={3}>
+          <Flex mt={4} alignItems="center" gap={2}>
             <Text color="gray.500" fontSize="sm" fontFamily="heading" lineHeight="16px">
               Escrowed
             </Text>
@@ -85,6 +86,7 @@ export function CollateralStats({
               fontFamily="heading"
               lineHeight="16px"
               fontWeight={700}
+              ml={1}
             >
               <Amount
                 value={accountCollateral.totalLocked}
@@ -92,6 +94,19 @@ export function CollateralStats({
                 showTooltip
               />
             </Text>
+            <Link
+              href={`?${makeSearch({
+                ...params,
+                page: 'position',
+                manageAction: 'locked',
+              })}`}
+              onClick={(e) => {
+                e.preventDefault();
+                setParams({ ...params, page: 'position', manageAction: 'locked' });
+              }}
+            >
+              <InfoIcon fontSize={12} />
+            </Link>
           </Flex>
         )}
       </Flex>
