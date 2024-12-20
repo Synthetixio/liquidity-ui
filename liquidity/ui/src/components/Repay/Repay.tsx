@@ -38,6 +38,11 @@ export function Repay() {
     availableCollateral &&
     availableCollateral.gte(debtChange.abs());
 
+  const maxRepayAmount =
+    availableCollateral && liquidityPosition?.debt.abs().gt(availableCollateral)
+      ? availableCollateral
+      : liquidityPosition?.debt.abs();
+
   return (
     <Flex flexDirection="column" data-cy="repay debt form">
       <Text color="gray./50" fontSize="sm" fontWeight="700" mb="3">
@@ -65,7 +70,7 @@ export function Repay() {
                         cursor="pointer"
                         onClick={(e) => {
                           e.preventDefault();
-                          setDebtChange(liquidityPosition.debt.neg());
+                          setDebtChange(maxRepayAmount || ZEROWEI);
                         }}
                         color="cyan.500"
                         fontWeight={700}
