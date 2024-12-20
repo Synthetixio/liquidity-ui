@@ -46,19 +46,22 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
   });
 
   const maxWithdrawable = React.useMemo(() => {
-    if (network?.preset === 'andromeda' && liquidityPosition) {
-      return liquidityPosition.availableCollateral.add(liquidityPosition.availableSystemToken);
+    if (isDebtWithdrawal && liquidityPosition) {
+      return liquidityPosition.availableSystemToken;
     }
-
-    if (accountCollateral) {
-      const amount = liquidityPosition?.availableCollateral.sub(accountCollateral.totalLocked);
-      return amount?.gt(0) ? amount : ZEROWEI;
+    if (!isDebtWithdrawal && liquidityPosition && accountCollateral) {
+      const unlockedCollateral = liquidityPosition.availableCollateral.sub(
+        accountCollateral.totalLocked
+      );
+      if (unlockedCollateral.lte(0)) {
+        // should not be possible but just in case
+        return ZEROWEI;
+      }
+      return network?.preset === 'andromeda'
+        ? unlockedCollateral.add(liquidityPosition.availableSystemToken)
+        : unlockedCollateral;
     }
-
-    return isDebtWithdrawal
-      ? liquidityPosition?.availableSystemToken
-      : liquidityPosition?.availableCollateral;
-  }, [accountCollateral, isDebtWithdrawal, liquidityPosition, network?.id, network?.preset]);
+  }, [accountCollateral, isDebtWithdrawal, liquidityPosition, network]);
 
   return (
     <Flex flexDirection="column" data-cy="withdraw form">
