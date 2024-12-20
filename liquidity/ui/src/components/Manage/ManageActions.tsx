@@ -75,7 +75,7 @@ export const ManageAction = ({
   return (
     <>
       {!txnModalOpen ? (
-        <Box as="form" onSubmit={onSubmit}>
+        <Box>
           <Tabs isFitted index={tab === 'collateral' ? 0 : 1}>
             <TabList>
               <Tab
@@ -247,21 +247,28 @@ export const ManageAction = ({
             </TabPanels>
           </Tabs>
 
-          <Flex direction="column">
-            {manageAction === 'claim' ? <Claim /> : null}
-            {manageAction === 'withdraw' ? <Withdraw /> : null}
-            {manageAction === 'withdraw-debt' ? <Withdraw isDebtWithdrawal /> : null}
-            {manageAction === 'deposit' ? <Deposit /> : null}
-            {manageAction === 'repay' && network?.preset === 'andromeda' ? (
-              <RepayAndromedaDebt />
-            ) : null}
-            {manageAction === 'repay' && network?.preset !== 'andromeda' ? <Repay /> : null}
-            {manageAction === 'undelegate' ? <Undelegate /> : null}
-          </Flex>
+          {manageAction === 'repay' && network?.preset !== 'andromeda' ? (
+            // These components do not set txnModalOpen
+            <Flex direction="column">
+              <Repay />
+            </Flex>
+          ) : (
+            <Flex direction="column" as="form" onSubmit={onSubmit}>
+              {manageAction === 'claim' ? <Claim /> : null}
+              {manageAction === 'withdraw' ? <Withdraw /> : null}
+              {manageAction === 'withdraw-debt' ? <Withdraw isDebtWithdrawal /> : null}
+              {manageAction === 'deposit' ? <Deposit /> : null}
+              {manageAction === 'repay' && network?.preset === 'andromeda' ? (
+                <RepayAndromedaDebt />
+              ) : null}
+              {manageAction === 'repay' && network?.preset !== 'andromeda' ? <Repay /> : null}
+              {manageAction === 'undelegate' ? <Undelegate /> : null}
+            </Flex>
+          )}
         </Box>
       ) : null}
 
-      {txnModalOpen === 'repay' ? (
+      {txnModalOpen === 'repay' && network?.preset === 'andromeda' ? (
         <RepayModal
           onClose={() => {
             setCollateralChange(wei(0));

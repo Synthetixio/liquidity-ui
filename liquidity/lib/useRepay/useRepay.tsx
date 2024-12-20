@@ -1,13 +1,18 @@
-import { POOL_ID, ZEROWEI } from '@snx-v3/constants';
-import { notNil } from '@snx-v3/tsHelpers';
+import { POOL_ID } from '@snx-v3/constants';
 import { initialState, reducer } from '@snx-v3/txnReducer';
+import { useAccountProxy } from '@snx-v3/useAccountProxy';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
+import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
+import { usePositionManager } from '@snx-v3/usePositionManager';
 import { useSystemToken } from '@snx-v3/useSystemToken';
+import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import Wei from '@synthetixio/wei';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -17,71 +22,105 @@ import { useReducer } from 'react';
 
 const log = debug('snx:useRepay');
 
-export const useRepay = ({
-  accountId,
-  collateralTypeAddress,
-  debtChange,
-  availableUSDCollateral,
-}: {
-  accountId?: string;
-  collateralTypeAddress?: string;
-  balance?: Wei;
-  availableUSDCollateral?: Wei;
-  debtChange: Wei;
-}) => {
+export function useRepay({ repayAmount }: { repayAmount?: Wei }) {
+  const [params] = useParams<PositionPageSchemaType>();
+
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
+
   const [txnState, dispatch] = useReducer(reducer, initialState);
+
   const { data: CoreProxy } = useCoreProxy();
-  const { data: priceUpdateTx } = useCollateralPriceUpdates();
+  const { data: AccountProxy } = useAccountProxy();
+  const { data: PositionManager } = usePositionManager();
+
+  const { data: liquidityPosition } = useLiquidityPosition({
+    accountId: params.accountId,
+    collateralType,
+  });
+
   const { data: systemToken } = useSystemToken();
+  const { data: systemTokenBalance } = useTokenBalance(systemToken?.address);
+
+  const { data: priceUpdateTx } = useCollateralPriceUpdates();
 
   const signer = useSigner();
   const { network } = useNetwork();
   const { gasSpeed } = useGasSpeed();
   const provider = useProvider();
 
+  const availableCollateral =
+    systemTokenBalance && liquidityPosition
+      ? systemTokenBalance.add(liquidityPosition.availableSystemToken)
+      : undefined;
+
+  const canRepay =
+    liquidityPosition &&
+    liquidityPosition.debt.gt(0) &&
+    availableCollateral &&
+    repayAmount &&
+    availableCollateral.gte(repayAmount);
+
+  const isReady =
+    repayAmount &&
+    repayAmount.gt(0) &&
+    canRepay &&
+    network &&
+    provider &&
+    signer &&
+    CoreProxy &&
+    AccountProxy &&
+    PositionManager &&
+    params.accountId &&
+    systemToken?.address &&
+    collateralType?.tokenAddress;
+
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: async () => {
-      if (!signer || !network || !provider) throw new Error('No signer or network');
-      if (!(CoreProxy && accountId && collateralTypeAddress && systemToken)) {
-        return;
-      }
-      if (debtChange.eq(0)) {
-        return;
-      }
-
-      const debtChangeAbs = debtChange.abs();
-      const amountToDeposit = debtChangeAbs.sub(availableUSDCollateral || ZEROWEI);
+      if (!isReady) throw new Error('Not ready');
 
       dispatch({ type: 'prompting' });
 
-      const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
-
-      // Only deposit if user doesn't have enough sUSD collateral
-      const deposit = amountToDeposit.lte(0)
-        ? undefined
-        : CoreProxyContract.populateTransaction.deposit(
-            ethers.BigNumber.from(accountId),
-            systemToken.address,
-            amountToDeposit.toBN() // only deposit what's needed
-          );
-
-      const burn = CoreProxyContract.populateTransaction.burnUsd(
-        ethers.BigNumber.from(accountId),
-        ethers.BigNumber.from(POOL_ID),
-        collateralTypeAddress,
-        debtChangeAbs.toBN()
+      const AccountProxyContract = new ethers.Contract(
+        AccountProxy.address,
+        AccountProxy.abi,
+        signer
+      );
+      const TokenContract = new ethers.Contract(
+        systemToken?.address,
+        ['function approve(address spender, uint256 amount) returns (bool)'],
+        signer
+      );
+      const PositionManagerContract = new ethers.Contract(
+        PositionManager.address,
+        PositionManager.abi,
+        signer
       );
 
-      const callsPromise = Promise.all([deposit, burn].filter(notNil));
-      const walletAddress = await signer.getAddress();
+      const approveAccountTx = AccountProxyContract.populateTransaction.approve(
+        PositionManager.address,
+        params.accountId
+      );
+      const approveUsdTx = TokenContract.populateTransaction.approve(
+        PositionManager.address,
+        repayAmount.toBN()
+      );
+      const repayTx = PositionManagerContract.populateTransaction.repay(
+        CoreProxy.address,
+        AccountProxy.address,
+        params.accountId,
+        POOL_ID,
+        collateralType.tokenAddress,
+        repayAmount.toBN()
+      );
 
+      const callsPromise = Promise.all([approveAccountTx, approveUsdTx, repayTx]);
       const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
-
       if (priceUpdateTx) {
         calls.unshift(priceUpdateTx as any);
       }
 
+      const walletAddress = await signer.getAddress();
       const { multicallTxn: erc7412Tx, gasLimit } = await withERC7412(
         provider,
         network,
@@ -129,10 +168,11 @@ export const useRepay = ({
     },
   });
   return {
+    isReady,
     mutation,
     txnState,
     settle: () => dispatch({ type: 'settled' }),
     isLoading: mutation.isPending,
     exec: mutation.mutateAsync,
   };
-};
+}
