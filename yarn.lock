@@ -5244,6 +5244,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/useAccountCollateral@workspace:liquidity/lib/useAccountCollateral":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useAccountCollateral@workspace:liquidity/lib/useAccountCollateral"
+  dependencies:
+    "@snx-v3/tsHelpers": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useCoreProxy": "workspace:*"
+    "@snx-v3/withERC7412": "workspace:*"
+    "@synthetixio/wei": "npm:^2.74.4"
+    "@tanstack/react-query": "npm:^5.8.3"
+    debug: "npm:^4.3.7"
+    ethers: "npm:^5.7.2"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/useAccountCollateralUnlockDate@workspace:*, @snx-v3/useAccountCollateralUnlockDate@workspace:liquidity/lib/useAccountCollateralUnlockDate":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useAccountCollateralUnlockDate@workspace:liquidity/lib/useAccountCollateralUnlockDate"

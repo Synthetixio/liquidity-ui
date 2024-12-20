@@ -13,6 +13,7 @@ import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
 import React from 'react';
+import { useAccountCollateral } from '../../../../lib/useAccountCollateral';
 
 export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: boolean }) {
   const [params] = useParams<PositionPageSchemaType>();
@@ -39,12 +40,24 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
   const { minutes, hours, isRunning } = useWithdrawTimer(params.accountId);
   const unlockDate = !isLoadingDate ? accountCollateralUnlockDate : null;
 
-  const maxWithdrawable =
-    network?.preset === 'andromeda' && liquidityPosition
-      ? liquidityPosition.availableCollateral.add(liquidityPosition.availableSystemToken)
-      : isDebtWithdrawal
-        ? liquidityPosition?.availableSystemToken
-        : liquidityPosition?.availableCollateral;
+  const { data: accountCollateral } = useAccountCollateral({
+    accountId: params.accountId,
+    tokenAddress: collateralType?.address,
+  });
+
+  const maxWithdrawable = React.useMemo(() => {
+    if (network?.preset === 'andromeda' && liquidityPosition) {
+      return liquidityPosition.availableCollateral.add(liquidityPosition.availableSystemToken);
+    }
+
+    if (network?.id === 1 && accountCollateral) {
+      return liquidityPosition?.availableCollateral.sub(accountCollateral.totalLocked);
+    }
+
+    return isDebtWithdrawal
+      ? liquidityPosition?.availableSystemToken
+      : liquidityPosition?.availableCollateral;
+  }, [accountCollateral, isDebtWithdrawal, liquidityPosition, network?.id, network?.preset]);
 
   return (
     <Flex flexDirection="column" data-cy="withdraw form">
@@ -66,7 +79,7 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
               <>
                 <Amount
                   prefix={isDebtWithdrawal ? 'Available: ' : 'Unlocked: '}
-                  value={maxWithdrawable}
+                  value={maxWithdrawable.gt(0) ? maxWithdrawable : ZEROWEI}
                 />
                 &nbsp;
                 {maxWithdrawable.gt(0) && (

@@ -7,6 +7,8 @@ import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { type Wei } from '@synthetixio/wei';
+import { useAccountCollateral } from '../../../../lib/useAccountCollateral';
+import { Amount } from '@snx-v3/Amount';
 
 export function CollateralStats({
   newCollateralAmount,
@@ -20,6 +22,10 @@ export function CollateralStats({
   const { data: liquidityPosition, isPending: isPendingLiquidityPosition } = useLiquidityPosition({
     accountId: params.accountId,
     collateralType,
+  });
+  const { data: accountCollateral } = useAccountCollateral({
+    accountId: params.accountId,
+    tokenAddress: collateralType?.address,
   });
 
   return (
@@ -67,7 +73,33 @@ export function CollateralStats({
             ) : null}
           </Flex>
         </Flex>
+
+        {accountCollateral?.totalLocked.gt(0) && (
+          <Flex mt={4} alignItems="center" gap={3}>
+            <Text color="gray.500" fontSize="sm" fontFamily="heading" lineHeight="16px">
+              Escrowed
+            </Text>
+            <Text
+              color="white"
+              fontSize="sm"
+              fontFamily="heading"
+              lineHeight="16px"
+              fontWeight={700}
+            >
+              <Amount
+                value={accountCollateral.totalLocked}
+                suffix={` ${collateralType?.displaySymbol}`}
+                showTooltip
+              />
+            </Text>
+          </Flex>
+        )}
       </Flex>
     </BorderBox>
   );
 }
+
+//totalAssigned
+302.8257661995;
+//
+302.8257661995;

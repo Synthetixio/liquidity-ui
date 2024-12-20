@@ -11,6 +11,7 @@ import { makeSearch, useParams } from '@snx-v3/useParams';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
 import { CRatioAmount } from '../CRatioBar/CRatioAmount';
 import { CRatioBadge } from '../CRatioBar/CRatioBadge';
+import { useAccountCollateral } from '../../../../lib/useAccountCollateral';
 
 export function PositionRow({
   liquidityPosition,
@@ -20,6 +21,10 @@ export function PositionRow({
   apr?: number;
 }) {
   const [params, setParams] = useParams();
+  useAccountCollateral({
+    accountId: params.accountId,
+    tokenAddress: liquidityPosition.collateralType.address,
+  });
   const { network } = useNetwork();
 
   const isStataUSDC = useIsSynthStataUSDC({
