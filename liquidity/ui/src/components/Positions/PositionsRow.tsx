@@ -11,6 +11,7 @@ import { makeSearch, useParams } from '@snx-v3/useParams';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
 import { CRatioAmount } from '../CRatioBar/CRatioAmount';
 import { CRatioBadge } from '../CRatioBar/CRatioBadge';
+import { useSystemToken } from '@snx-v3/useSystemToken';
 
 export function PositionRow({
   liquidityPosition,
@@ -30,6 +31,8 @@ export function PositionRow({
   const { minutes, hours, isRunning } = useWithdrawTimer(params.accountId);
   const { data: stataUSDCAPR } = useStataUSDCApr(network?.id, network?.preset);
   const stataUSDCAPRParsed = stataUSDCAPR || 0;
+
+  const { data: systemToken } = useSystemToken();
 
   return (
     <>
@@ -225,28 +228,56 @@ export function PositionRow({
         </Flex>
       </Td>
       {network?.preset === 'andromeda' ? null : (
-        <Td border="none">
-          <Fade in>
+        <>
+          <Td textAlign="right" border="none">
             <Flex flexDirection="column" alignItems="flex-end">
-              <Text color="white" fontSize="sm" lineHeight="1.25rem" fontFamily="heading">
-                <CRatioAmount value={liquidityPosition.cRatio.toNumber() * 100} />
+              <Text
+                display="flex"
+                gap={1.5}
+                alignItems="center"
+                color="white"
+                lineHeight="1.25rem"
+                fontFamily="heading"
+                fontSize="sm"
+              >
+                <Amount prefix="$" value={liquidityPosition?.availableSystemToken} />
+                {liquidityPosition.availableCollateral.gt(0) && isRunning && (
+                  <Tooltip label={`Withdrawal available in ${hours}H${minutes}M`}>
+                    <TimeIcon />
+                  </Tooltip>
+                )}
               </Text>
-              <CRatioBadge
-                cRatio={liquidityPosition.cRatio.toNumber() * 100}
-                liquidationCratio={
-                  liquidityPosition.collateralType.liquidationRatioD18
-                    ? liquidityPosition.collateralType.liquidationRatioD18.toNumber() * 100
-                    : 0
-                }
-                targetCratio={
-                  liquidityPosition.collateralType.issuanceRatioD18
-                    ? liquidityPosition.collateralType.issuanceRatioD18.toNumber() * 100
-                    : 0
-                }
-              />
+              <Text color="gray.500" fontFamily="heading" fontSize="0.75rem" lineHeight="1rem">
+                <Amount
+                  value={liquidityPosition?.availableSystemToken}
+                  suffix={` ${systemToken?.symbol}`}
+                />
+              </Text>
             </Flex>
-          </Fade>
-        </Td>
+          </Td>
+          <Td border="none">
+            <Fade in>
+              <Flex flexDirection="column" alignItems="flex-end">
+                <Text color="white" fontSize="sm" lineHeight="1.25rem" fontFamily="heading">
+                  <CRatioAmount value={liquidityPosition.cRatio.toNumber() * 100} />
+                </Text>
+                <CRatioBadge
+                  cRatio={liquidityPosition.cRatio.toNumber() * 100}
+                  liquidationCratio={
+                    liquidityPosition.collateralType.liquidationRatioD18
+                      ? liquidityPosition.collateralType.liquidationRatioD18.toNumber() * 100
+                      : 0
+                  }
+                  targetCratio={
+                    liquidityPosition.collateralType.issuanceRatioD18
+                      ? liquidityPosition.collateralType.issuanceRatioD18.toNumber() * 100
+                      : 0
+                  }
+                />
+              </Flex>
+            </Fade>
+          </Td>
+        </>
       )}
       <Td border="none" pr={0}>
         <Flex justifyContent="flex-end">
