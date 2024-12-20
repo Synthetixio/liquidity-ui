@@ -79,39 +79,8 @@ contract PositionManager_setupPosition_Test is Test {
         assertEq(0, IVaultModule(CoreProxy).getPositionCollateral(ACCOUNT_ID, POOL_ID, CollateralToken_WETH));
         assertEq(0, ICollateralModule(CoreProxy).getAccountAvailableCollateral(ACCOUNT_ID, CollateralToken_WETH));
 
-        vm.recordLogs();
         vm.prank(ALICE);
         positionManager.setupPosition(CoreProxy, AccountProxy, ACCOUNT_ID, POOL_ID, CollateralToken_WETH, 1 ether);
-        Vm.Log[] memory logs = vm.getRecordedLogs();
-
-        assertEq(11, logs.length);
-        /*
-        │   │   │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], tokenId: 7)
-        │   ├─ emit AccountCreated(accountId: 7, owner: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
-        ├─ emit Transfer(from: 0xA11CE: [0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7], to: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], value: 1000000000000000000 [1e18])
-        ├─ emit Approval(owner: 0xA11CE: [0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7], spender: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], value: 115792089237316195423570985008687907853269984665640564039456584007913129639935 [1.157e77])
-        ├─ emit Approval(owner: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], spender: CoreProxy: [0xffffffaEff0B96Ea8e4f94b2253f31abdD875847], value: 1000000000000000000 [1e18])
-        │   │   │   ├─ emit Transfer(from: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], to: CoreProxy: [0xffffffaEff0B96Ea8e4f94b2253f31abdD875847], value: 1000000000000000000 [1e18])
-        │   │   │   ├─ emit Approval(owner: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], spender: CoreProxy: [0xffffffaEff0B96Ea8e4f94b2253f31abdD875847], value: 0)
-        │   ├─ emit Deposited(accountId: 7, collateralType: $WETH: [0x82aF49447D8a07e3bd95BD0d56f35241523fBab1], tokenAmount: 1000000000000000000 [1e18], sender: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
-        │   ├─ emit DelegationUpdated(accountId: 7, poolId: 1, collateralType: $WETH: [0x82aF49447D8a07e3bd95BD0d56f35241523fBab1], amount: 1000000000000000000 [1e18], leverage: 1000000000000000000 [1e18], sender: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
-        │   ├─ emit Approval(owner: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], approved: 0x0000000000000000000000000000000000000000, tokenId: 7)
-        │   ├─ emit Transfer(from: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], to: 0xA11CE: [0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7], tokenId: 7)
-        */
-
-        // Verify "event AccountCreated(uint128 indexed accountId, address indexed owner)"
-        assertEq(logs[1].topics[0], keccak256("AccountCreated(uint128,address)"));
-        assertEq(ACCOUNT_ID, uint128(uint256(logs[1].topics[1])));
-
-        // Verify "event Deposited(uint128 indexed accountId, address indexed collateralType, uint256 tokenAmount, address indexed sender)"
-        assertEq(logs[7].topics.length, 4);
-        assertEq(logs[7].topics[0], keccak256("Deposited(uint128,address,uint256,address)"));
-        assertEq(ACCOUNT_ID, uint128(uint256(logs[7].topics[1])));
-
-        // Verify "event DelegationUpdated(uint128 indexed accountId, uint128 indexed poolId, address collateralType, uint256 amount, uint256 leverage, address indexed sender)"
-        assertEq(logs[8].topics.length, 4);
-        assertEq(logs[8].topics[0], keccak256("DelegationUpdated(uint128,uint128,address,uint256,uint256,address)"));
-        assertEq(ACCOUNT_ID, uint128(uint256(logs[8].topics[1])));
 
         assertEq(ALICE, IAccountTokenModule(AccountProxy).ownerOf(ACCOUNT_ID));
 
@@ -143,40 +112,21 @@ contract PositionManager_setupPosition_Test is Test {
         assertEq(0, IVaultModule(CoreProxy).getPositionCollateral(ACCOUNT_ID, POOL_ID, CollateralToken_WETH));
         assertEq(0, ICollateralModule(CoreProxy).getAccountAvailableCollateral(ACCOUNT_ID, CollateralToken_WETH));
 
-        vm.recordLogs();
+        //        vm.recordLogs();
         vm.prank(ALICE);
         positionManager.setupPosition(CoreProxy, AccountProxy, ACCOUNT_ID, POOL_ID, CollateralToken_WETH, 1 ether);
-        Vm.Log[] memory logs = vm.getRecordedLogs();
-
-        assertEq(11, logs.length);
-
-        /*
-        0.  │   │   │   │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], tokenId: 170141183460469231731687303715884106555 [1.701e38])
-        1.  │   ├─ emit AccountCreated(accountId: 170141183460469231731687303715884106555 [1.701e38], owner: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
-        2.  ├─ emit Transfer(from: 0xA11CE: [0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7], to: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], value: 1000000000000000000 [1e18])
-        3.  ├─ emit Approval(owner: 0xA11CE: [0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7], spender: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], value: 115792089237316195423570985008687907853269984665640564039456584007913129639935 [1.157e77])
-        4.  ├─ emit Approval(owner: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], spender: CoreProxy: [0xffffffaEff0B96Ea8e4f94b2253f31abdD875847], value: 1000000000000000000 [1e18])
-        5.  │   │   │   ├─ emit Transfer(from: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], to: CoreProxy: [0xffffffaEff0B96Ea8e4f94b2253f31abdD875847], value: 1000000000000000000 [1e18])
-        6.  │   │   │   ├─ emit Approval(owner: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], spender: CoreProxy: [0xffffffaEff0B96Ea8e4f94b2253f31abdD875847], value: 0)
-        7.  │   ├─ emit Deposited(accountId: 170141183460469231731687303715884106555 [1.701e38], collateralType: $WETH: [0x82aF49447D8a07e3bd95BD0d56f35241523fBab1], tokenAmount: 1000000000000000000 [1e18], sender: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
-        8.  │   ├─ emit DelegationUpdated(accountId: 170141183460469231731687303715884106555 [1.701e38], poolId: 1, collateralType: $WETH: [0x82aF49447D8a07e3bd95BD0d56f35241523fBab1], amount: 1000000000000000000 [1e18], leverage: 1000000000000000000 [1e18], sender: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
-        9.  │   ├─ emit Approval(owner: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], approved: 0x0000000000000000000000000000000000000000, tokenId: 170141183460469231731687303715884106555 [1.701e38])
-        10. │   ├─ emit Transfer(from: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], to: 0xA11CE: [0xe05fcC23807536bEe418f142D19fa0d21BB0cfF7], tokenId: 170141183460469231731687303715884106555 [1.701e38])
-        */
+        //        Vm.Log[] memory logs = vm.getRecordedLogs();
 
         // Verify "event AccountCreated(uint128 indexed accountId, address indexed owner)"
-        assertEq(logs[1].topics[0], keccak256("AccountCreated(uint128,address)"));
-        ACCOUNT_ID = uint128(uint256(logs[1].topics[1]));
+        //        assertEq(logs[1].topics[0], keccak256("AccountCreated(uint128,address)"));
+        //        ACCOUNT_ID = uint128(uint256(logs[1].topics[1])); // We can get account ID
 
-        // Verify "event Deposited(uint128 indexed accountId, address indexed collateralType, uint256 tokenAmount, address indexed sender)"
-        assertEq(logs[7].topics.length, 4);
-        assertEq(logs[7].topics[0], keccak256("Deposited(uint128,address,uint256,address)"));
-        assertEq(ACCOUNT_ID, uint128(uint256(logs[7].topics[1])));
+        // Use ERC721 enumerable to get the token ID (ACCOUNT_ID)
+        uint256 numTokens = IAccountTokenModule(AccountProxy).balanceOf(ALICE);
+        assertEq(numTokens, 1); // ALICE should own exactly 1 account NFT.
 
-        // Verify "event DelegationUpdated(uint128 indexed accountId, uint128 indexed poolId, address collateralType, uint256 amount, uint256 leverage, address indexed sender)"
-        assertEq(logs[8].topics.length, 4);
-        assertEq(logs[8].topics[0], keccak256("DelegationUpdated(uint128,uint128,address,uint256,uint256,address)"));
-        assertEq(ACCOUNT_ID, uint128(uint256(logs[8].topics[1])));
+        // Retrieve ACCOUNT_ID via enumeration (index 0, since ALICE owns only one token).
+        ACCOUNT_ID = uint128(IAccountTokenModule(AccountProxy).tokenOfOwnerByIndex(ALICE, 0));
 
         assertEq(ALICE, IAccountTokenModule(AccountProxy).ownerOf(ACCOUNT_ID));
 

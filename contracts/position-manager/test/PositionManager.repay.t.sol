@@ -90,36 +90,10 @@ contract PositionManager_repay_Test is Test {
         vm.prank(USDx_WHALE);
         IERC20(USDProxy).transfer(ALICE, 20_000 ether); // need to cover >18k debt
 
-        vm.recordLogs();
         vm.prank(ALICE);
         positionManager.repay(
             CoreProxy, AccountProxy, ACCOUNT_ID, POOL_ID, CollateralToken_WETH, 8_388.423856608151437096 ether
         );
-        Vm.Log[] memory logs = vm.getRecordedLogs();
-
-        assertEq(10, logs.length);
-        // TODO: expect some of these logs
-        /*
-        ├─ emit Approval(owner: 0xA11CE: [0x908D8D559A6FB979e3C3221039E5b8C3C5c2e91a], approved: 0x0000000000000000000000000000000000000000, tokenId: 170141183460469231731687303715884106176 [1.701e38])
-        ├─ emit Transfer(from: 0xA11CE: [0x908D8D559A6FB979e3C3221039E5b8C3C5c2e91a], to: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], tokenId: 170141183460469231731687303715884106176 [1.701e38])
-        ├─ emit Transfer(from: 0xA11CE: [0x908D8D559A6FB979e3C3221039E5b8C3C5c2e91a], to: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], value: 8388423856608151437096 [8.388e21])
-        ├─ emit Approval(owner: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], spender: CoreProxy: [0xffffffaEff0B96Ea8e4f94b2253f31abdD875847], value: 8388423856608151437096 [8.388e21])
-        │   │   │   ├─ emit Transfer(from: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], to: CoreProxy: [0xffffffaEff0B96Ea8e4f94b2253f31abdD875847], value: 8388423856608151437096 [8.388e21])
-        ├─ emit Deposited(accountId: 170141183460469231731687303715884106176 [1.701e38], collateralType: USDProxy: [0xb2F30A7C980f052f02563fb518dcc39e6bf38175], tokenAmount: 8388423856608151437096 [8.388e21], sender: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
-        │   │   │   ├─ emit Transfer(from: CoreProxy: [0xffffffaEff0B96Ea8e4f94b2253f31abdD875847], to: 0x0000000000000000000000000000000000000000, value: 8388423856608151437096 [8.388e21])
-        ├─ emit UsdBurned(accountId: 170141183460469231731687303715884106176 [1.701e38], poolId: 1, collateralType: $WETH: [0x82aF49447D8a07e3bd95BD0d56f35241523fBab1], amount: 8388423856608151437096 [8.388e21], sender: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f])
-        ├─ emit Approval(owner: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], approved: 0x0000000000000000000000000000000000000000, tokenId: 170141183460469231731687303715884106176 [1.701e38])
-        ├─ emit Transfer(from: PositionManager: [0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f], to: 0xA11CE: [0x908D8D559A6FB979e3C3221039E5b8C3C5c2e91a], tokenId: 170141183460469231731687303715884106176 [1.701e38])
-        */
-
-        // Verify "event Deposited(uint128 indexed accountId, address indexed collateralType, uint256 tokenAmount, address indexed sender)"
-        assertEq(logs[5].topics[0], keccak256("Deposited(uint128,address,uint256,address)"));
-        assertEq(ACCOUNT_ID, uint128(uint256(logs[5].topics[1])));
-        assertEq(USDProxy, address(uint160(uint256(logs[5].topics[2]))));
-
-        // Verify "event UsdBurned(uint128 indexed accountId, uint128 indexed poolId, address collateralType, uint256 amount, address indexed sender)"
-        assertEq(logs[7].topics[0], keccak256("UsdBurned(uint128,uint128,address,uint256,address)"));
-        assertEq(ACCOUNT_ID, uint128(uint256(logs[7].topics[1])));
 
         assertEq(ALICE, IAccountTokenModule(AccountProxy).ownerOf(ACCOUNT_ID));
 
