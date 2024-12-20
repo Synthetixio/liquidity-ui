@@ -50,7 +50,7 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
       return liquidityPosition.availableCollateral.add(liquidityPosition.availableSystemToken);
     }
 
-    if (network?.id === 1 && accountCollateral) {
+    if (accountCollateral) {
       const amount = liquidityPosition?.availableCollateral.sub(accountCollateral.totalLocked);
       return amount?.gt(0) ? amount : ZEROWEI;
     }
