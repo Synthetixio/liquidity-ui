@@ -13,6 +13,7 @@ import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
 import React from 'react';
+import { useAccountCollateral } from '../../../../lib/useAccountCollateral';
 
 export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: boolean }) {
   const [params] = useParams<PositionPageSchemaType>();
@@ -39,12 +40,28 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
   const { minutes, hours, isRunning } = useWithdrawTimer(params.accountId);
   const unlockDate = !isLoadingDate ? accountCollateralUnlockDate : null;
 
-  const maxWithdrawable =
-    network?.preset === 'andromeda' && liquidityPosition
-      ? liquidityPosition.availableCollateral.add(liquidityPosition.availableSystemToken)
-      : isDebtWithdrawal
-        ? liquidityPosition?.availableSystemToken
-        : liquidityPosition?.availableCollateral;
+  const { data: accountCollateral } = useAccountCollateral({
+    accountId: params.accountId,
+    tokenAddress: collateralType?.address,
+  });
+
+  const maxWithdrawable = React.useMemo(() => {
+    if (isDebtWithdrawal && liquidityPosition) {
+      return liquidityPosition.availableSystemToken;
+    }
+    if (!isDebtWithdrawal && liquidityPosition && accountCollateral) {
+      const unlockedCollateral = liquidityPosition.availableCollateral.sub(
+        accountCollateral.totalLocked
+      );
+      if (unlockedCollateral.lte(0)) {
+        // should not be possible but just in case
+        return ZEROWEI;
+      }
+      return network?.preset === 'andromeda'
+        ? unlockedCollateral.add(liquidityPosition.availableSystemToken)
+        : unlockedCollateral;
+    }
+  }, [accountCollateral, isDebtWithdrawal, liquidityPosition, network]);
 
   return (
     <Flex flexDirection="column" data-cy="withdraw form">
