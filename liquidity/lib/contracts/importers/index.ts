@@ -12,6 +12,7 @@ export * from './importMulticall3';
 export * from './importOracleManagerProxy';
 export * from './importPerpsAccountProxy';
 export * from './importPerpsMarketProxy';
+export * from './importPositionManager';
 export * from './importPythERC7412Wrapper';
 export * from './importPythFeeds';
 export * from './importPythVerfier';
