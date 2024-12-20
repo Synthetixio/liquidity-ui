@@ -108,21 +108,23 @@ export function PositionRow({
             fontSize="sm"
           >
             <Amount prefix="$" value={liquidityPosition.collateralValue} />
-            <Tooltip
-              label={
-                <>
-                  Including in &nbsp;
-                  <Amount
-                    value={accountCollateral?.totalLocked}
-                    suffix={` ${liquidityPosition.collateralType?.displaySymbol}`}
-                    showTooltip
-                  />
-                  &nbsp; Escrow that cannot be unlocked until the unlocking date has been reached
-                </>
-              }
-            >
-              <Image src={lockIcon} />
-            </Tooltip>
+            {accountCollateral && accountCollateral.totalLocked.gt(0) && (
+              <Tooltip
+                label={
+                  <>
+                    Including in &nbsp;
+                    <Amount
+                      value={accountCollateral?.totalLocked}
+                      suffix={` ${liquidityPosition.collateralType?.displaySymbol}`}
+                      showTooltip
+                    />
+                    &nbsp; Escrow that cannot be unlocked until the unlocking date has been reached
+                  </>
+                }
+              >
+                <Image src={lockIcon} />
+              </Tooltip>
+            )}
           </Text>
           <Text color="gray.500" fontFamily="heading" fontSize="0.75rem" lineHeight="1rem">
             <Amount
