@@ -24,7 +24,6 @@
     "@snx-v3/useSpotMarketProxy": "workspace:*",
     "@snx-v3/useSynthTokens": "workspace:*",
     "@snx-v3/useSystemToken": "workspace:*",
-    "@snx-v3/useTokenBalance": "workspace:*",
     "@xstate/react": "^3.2.2",
     "react": "^18.2.0",
     "xstate": "^4.38.3"

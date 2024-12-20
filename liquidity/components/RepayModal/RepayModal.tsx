@@ -18,7 +18,6 @@ import { useRepayBaseAndromeda } from '@snx-v3/useRepayBaseAndromeda';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { useSystemToken } from '@snx-v3/useSystemToken';
-import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useMachine } from '@xstate/react';
 import React from 'react';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
@@ -38,14 +37,9 @@ export function RepayModal({ onClose }: { onClose: () => void }) {
   });
 
   const { data: systemToken } = useSystemToken();
-  const { data: systemTokenBalance } = useTokenBalance(systemToken?.address);
 
   const { exec: execRepay, settle: settleRepay } = useRepay({
-    accountId: params.accountId,
-    collateralTypeAddress: collateralType?.tokenAddress,
-    debtChange,
-    availableUSDCollateral: liquidityPosition ? liquidityPosition.availableSystemToken : undefined,
-    balance: systemTokenBalance,
+    repayAmount: debtChange && debtChange.lt(0) ? debtChange.abs() : undefined,
   });
 
   const { exec: execRepayBaseAndromeda, settle: settleRepayBaseAndromeda } = useRepayBaseAndromeda({

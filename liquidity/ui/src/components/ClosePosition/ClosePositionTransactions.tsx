@@ -19,7 +19,6 @@ import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useRepay } from '@snx-v3/useRepay';
 import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { useSystemToken } from '@snx-v3/useSystemToken';
-import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useUndelegate } from '@snx-v3/useUndelegate';
 import { useUndelegateBaseAndromeda } from '@snx-v3/useUndelegateBaseAndromeda';
 import { useUSDC } from '@snx-v3/useUSDC';
@@ -52,7 +51,6 @@ export function ClosePositionTransactions({
   >([]);
   const { setCollateralChange, setDebtChange } = React.useContext(ManagePositionContext);
   const { data: systemToken } = useSystemToken();
-  const { data: balance } = useTokenBalance(systemToken?.address);
   const { data: CoreProxy } = useCoreProxy();
   const { network } = useNetwork();
   const toast = useToast({ isClosable: true, duration: 9000 });
@@ -86,13 +84,7 @@ export function ClosePositionTransactions({
         : undefined,
     spender: CoreProxy?.address,
   });
-  const { exec: execRepay } = useRepay({
-    accountId: params.accountId,
-    collateralTypeAddress: collateralType?.tokenAddress,
-    debtChange: liquidityPosition?.debt.mul(-1) || ZEROWEI,
-    availableUSDCollateral,
-    balance,
-  });
+  const { exec: execRepay } = useRepay({ repayAmount: liquidityPosition?.debt });
   const { exec: undelegate } = useUndelegate({
     accountId: params.accountId,
     collateralTypeAddress: collateralType?.tokenAddress,
