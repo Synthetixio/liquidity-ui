@@ -18,6 +18,7 @@ import { ManageAction } from '../components/Manage/ManageActions';
 import { ManageStats } from '../components/Manage/ManageStats';
 import { PositionTitle } from '../components/Manage/PositionTitle';
 import { StataDepositBanner } from '../components/Manage/StataDepositBanner';
+import { LockedCollateral } from '../components/Positions/LockedCollateral';
 
 export const Manage = () => {
   const [params, setParams] = useParams<PositionPageSchemaType>();
@@ -123,7 +124,29 @@ export const Manage = () => {
               </BorderBox>
             ) : null}
 
-            {params.manageAction !== 'close' ? (
+            {params.manageAction === 'locked' ? (
+              <BorderBox
+                flex={1}
+                maxW={['100%', '100%', '501px']}
+                p={6}
+                flexDirection="column"
+                bg="navy.700"
+                height="fit-content"
+              >
+                <LockedCollateral
+                  onClose={() =>
+                    setParams({
+                      page: 'position',
+                      collateralSymbol: params.collateralSymbol,
+                      manageAction: 'deposit',
+                      accountId: params.accountId,
+                    })
+                  }
+                />
+              </BorderBox>
+            ) : null}
+
+            {!['close', 'locked'].includes(params.manageAction) ? (
               <>
                 <BorderBox flex={1} p={6} flexDirection="column" bg="navy.700" height="fit-content">
                   <ManageAction setTxnModalOpen={setTxnModalOpen} txnModalOpen={txnModalOpen} />
