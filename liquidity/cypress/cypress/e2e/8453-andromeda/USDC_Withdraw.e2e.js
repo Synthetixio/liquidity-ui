@@ -3,17 +3,14 @@ import { makeSearch } from '@snx-v3/useParams';
 describe(__filename, () => {
   Cypress.env('chainId', '8453');
   Cypress.env('preset', 'andromeda');
-  Cypress.env('walletAddress', '0xDf29B49eDE0289ba00a507E900552C46deed0DAc');
-  Cypress.env('accountId', '1');
-
-  //  Cypress.env('walletAddress', '0xc77b0cd1B1E73F6De8f606685Fb09Ace95f614c3');
-  //  Cypress.env('accountId', '170141183460469231731687303715884105949');
+  Cypress.env('walletAddress', '0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345');
+  Cypress.env('accountId', '522433293696');
 
   beforeEach(() => {
     cy.task('startAnvil', {
       chainId: Cypress.env('chainId'),
       forkUrl: `https://base-mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '22991081',
+      block: '24030036',
     }).then(() => cy.log('Anvil started'));
 
     cy.on('window:before:load', (win) => {
@@ -29,6 +26,9 @@ describe(__filename, () => {
   it(__filename, () => {
     cy.setEthBalance({ balance: 100 });
     cy.getUSDC({ amount: 1000 });
+    cy.clearDebt({ symbol: 'USDC', poolId: 1 });
+    // Reduce delegation to 150
+    cy.delegateCollateral({ symbol: 'USDC', amount: 150, poolId: 1 });
 
     cy.visit(
       `?${makeSearch({
@@ -56,8 +56,16 @@ describe(__filename, () => {
     cy.get('[data-cy="withdraw confirm button"]').should('include.text', 'Execute Transaction');
     cy.get('[data-cy="withdraw confirm button"]').click();
 
+    cy.contains('[data-status="error"]', 'AccountActivityTimeoutPending').should('exist');
+    cy.get('[data-status="error"] [aria-label="Close"]').click();
+
+    cy.setWithdrawTimeout({ timeout: '0' });
+
+    cy.get('[data-cy="withdraw confirm button"]').should('include.text', 'Retry');
+    cy.get('[data-cy="withdraw confirm button"]').click();
+
     cy.contains('[data-status="success"]', 'Collateral successfully Withdrawn', {
-      timeout: 180_000,
+      timeout: 120_000,
     }).should('exist');
   });
 });
