@@ -31,9 +31,7 @@ export const useAccountCollateral = ({
       { tokenAddress },
       { contractsHash: contractsHash([CoreProxy]) },
     ],
-    enabled: Boolean(
-      network && provider && CoreProxy && accountId && tokenAddress && network.id === 1
-    ),
+    enabled: Boolean(network && provider && CoreProxy && accountId && tokenAddress),
     queryFn: async (): Promise<{
       totalDeposited: Wei;
       totalAssigned: Wei;
