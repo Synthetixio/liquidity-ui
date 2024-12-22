@@ -59,6 +59,20 @@ declare global {
         poolId: number;
       }) => Promise<void>;
 
+      delegateCollateralAndromeda: ({
+        address,
+        accountId,
+        symbol,
+        amount,
+        poolId,
+      }: {
+        address?: string;
+        accountId?: string;
+        symbol: string;
+        amount: number;
+        poolId: number;
+      }) => Promise<void>;
+
       depositCollateral: ({
         address,
         accountId,

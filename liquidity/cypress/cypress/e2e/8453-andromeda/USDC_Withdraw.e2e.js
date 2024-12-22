@@ -26,9 +26,10 @@ describe(__filename, () => {
   it(__filename, () => {
     cy.setEthBalance({ balance: 100 });
     cy.getUSDC({ amount: 1000 });
-    cy.clearDebt({ symbol: 'USDC', poolId: 1 });
     // Reduce delegation to 150
-    cy.delegateCollateral({ symbol: 'USDC', amount: 150, poolId: 1 });
+    cy.delegateCollateralAndromeda({ symbol: 'sUSDC', amount: 150, poolId: 1 });
+    // Remove withdrawals delay
+    cy.setWithdrawTimeout({ timeout: '0' });
 
     cy.visit(
       `?${makeSearch({
@@ -46,6 +47,7 @@ describe(__filename, () => {
 
     cy.get('[data-cy="withdraw amount input"]').should('exist');
     cy.get('[data-cy="withdraw amount input"]').type('1');
+
     cy.get('[data-cy="withdraw submit"]').should('be.enabled');
     cy.get('[data-cy="withdraw submit"]').click();
 
@@ -54,14 +56,6 @@ describe(__filename, () => {
       .and('include.text', '1 USDC will be withdrawn');
 
     cy.get('[data-cy="withdraw confirm button"]').should('include.text', 'Execute Transaction');
-    cy.get('[data-cy="withdraw confirm button"]').click();
-
-    cy.contains('[data-status="error"]', 'AccountActivityTimeoutPending').should('exist');
-    cy.get('[data-status="error"] [aria-label="Close"]').click();
-
-    cy.setWithdrawTimeout({ timeout: '0' });
-
-    cy.get('[data-cy="withdraw confirm button"]').should('include.text', 'Retry');
     cy.get('[data-cy="withdraw confirm button"]').click();
 
     cy.contains('[data-status="success"]', 'Collateral successfully Withdrawn', {

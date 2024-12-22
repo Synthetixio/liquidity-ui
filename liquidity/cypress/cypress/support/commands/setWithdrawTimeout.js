@@ -1,5 +1,6 @@
 import { importCoreProxy } from '@snx-v3/contracts';
 import { ethers } from 'ethers';
+import { setEthBalance } from './setEthBalance';
 
 export async function setWithdrawTimeout(timeout) {
   console.log('WithdrawTimeout', { timeout });
@@ -11,6 +12,8 @@ export async function setWithdrawTimeout(timeout) {
   const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
   const owner = await CoreProxyContract.owner();
   const signer = provider.getSigner(owner);
+
+  await setEthBalance({ address: owner, balance: 100 });
 
   const txn = await CoreProxyContract.connect(signer).setConfig(
     ethers.utils.formatBytes32String('accountTimeoutWithdraw'),
