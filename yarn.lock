@@ -6296,6 +6296,7 @@ __metadata:
   dependencies:
     "@chakra-ui/react": "npm:^2.8.2"
     "@snx-v3/ContractError": "workspace:*"
+    "@snx-v3/constants": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
