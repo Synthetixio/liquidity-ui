@@ -1,4 +1,5 @@
 import { useToast } from '@chakra-ui/react';
+import { D18 } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
@@ -51,17 +52,24 @@ export function useUnwrapAllSynths() {
         SpotMarketProxy.abi,
         signer
       );
-      synthBalances
-        .filter(({ balance }) => balance.gt(0))
-        .forEach(({ synth, balance }) => {
+      synthBalances.forEach(({ synth, balance }) => {
+        if (synth.token && balance.gt(0)) {
+          const minAmountReceived = balance
+            .toBN()
+            .sub(balance.toBN().div(100))
+            // Adjust precision for underlying token
+            .mul(ethers.utils.parseUnits('1', synth.token.decimals))
+            .div(D18);
+
           transactions.push(
             SpotMarketProxyContract.populateTransaction.unwrap(
               synth.synthMarketId,
               balance.toBN(),
-              balance.toBN().sub(balance.toBN().div(100))
+              minAmountReceived
             )
           );
-        });
+        }
+      });
 
       const [calls, gasPrices] = await Promise.all([
         Promise.all(transactions),
@@ -106,7 +114,7 @@ export function useUnwrapAllSynths() {
 
       toast.closeAll();
       toast({
-        title: 'Claiming failed',
+        title: 'Withdrawal failed',
         description: contractError ? (
           <ContractError contractError={contractError} />
         ) : (

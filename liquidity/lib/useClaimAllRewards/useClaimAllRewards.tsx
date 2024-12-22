@@ -58,20 +58,19 @@ export function useClaimAllRewards({ accountId }: { accountId?: string }) {
         signer
       );
 
-      rewards
-        .filter(({ claimableAmount }) => claimableAmount.gt(0))
-        .forEach(({ distributor, claimableAmount, claimMethod, args }) => {
+      rewards.forEach(({ distributor, claimableAmount, claimMethod, args }) => {
+        if (claimableAmount.gt(0)) {
           transactions.push(CoreProxyContract.populateTransaction[claimMethod](...args));
+
           const synthToken = synthTokens.find(
             (synth) => synth.address.toLowerCase() === distributor.payoutToken.address.toLowerCase()
           );
-          log('synthToken', synthToken);
-          log('claimableAmount', claimableAmount);
-          if (synthToken && claimableAmount && claimableAmount.gt(0)) {
+          if (synthToken && synthToken.token) {
             const minAmountReceived = claimableAmount
               .toBN()
               .sub(claimableAmount.toBN().div(100))
-              .mul(ethers.utils.parseUnits('1', synthToken.token?.decimals))
+              // Adjust precision for underlying token
+              .mul(ethers.utils.parseUnits('1', synthToken.token.decimals))
               .div(D18);
 
             transactions.push(
@@ -82,7 +81,8 @@ export function useClaimAllRewards({ accountId }: { accountId?: string }) {
               )
             );
           }
-        });
+        }
+      });
 
       const [calls, gasPrices] = await Promise.all([
         Promise.all(transactions),
