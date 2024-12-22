@@ -14,6 +14,7 @@ import { wrapEth } from './commands/wrapEth';
 import { setWithdrawTimeout } from './commands/setWithdrawTimeout';
 import { getSUSD } from './commands/getSUSD';
 import { getSystemToken } from './commands/getSystemToken';
+import { pythBypass } from './commands/pythBypass';
 
 installLogsCollector({
   enableExtendedCollector: true,
@@ -44,6 +45,7 @@ addTxnCommand('setEthBalance', setEthBalance, { timeout: 30_000 });
 addTxnCommand('setWithdrawTimeout', setWithdrawTimeout, { timeout: 60_000 });
 addTxnCommand('wrapCollateral', wrapCollateral, { timeout: 120_000 });
 addTxnCommand('wrapEth', wrapEth, { timeout: 60_000 });
+addTxnCommand('pythBypass', pythBypass);
 
 function subgraph(req) {
   const body = JSON.parse(req.body);

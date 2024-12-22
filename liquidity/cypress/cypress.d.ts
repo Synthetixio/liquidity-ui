@@ -94,6 +94,8 @@ declare global {
       getSUSD: ({ address, amount }: { address?: string; amount: number }) => Promise<void>;
 
       getSystemToken: ({ address, amount }: { address?: string; amount: number }) => Promise<void>;
+
+      pythBypass: () => Promise<void>;
     }
   }
 }

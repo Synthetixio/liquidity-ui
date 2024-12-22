@@ -12,6 +12,7 @@ describe(__filename, () => {
       forkUrl: `https://mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
       block: '21233424',
     }).then(() => cy.log('Anvil started'));
+    cy.pythBypass();
 
     cy.on('window:before:load', (win) => {
       win.localStorage.setItem('MAGIC_WALLET', Cypress.env('walletAddress'));
