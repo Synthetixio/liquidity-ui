@@ -1,4 +1,3 @@
-import { InfoIcon } from '@chakra-ui/icons';
 import { Flex, Link, Text } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';

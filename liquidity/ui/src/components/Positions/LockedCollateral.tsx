@@ -1,11 +1,11 @@
-import { ArrowBackIcon, ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import { ArrowBackIcon } from '@chakra-ui/icons';
 import { Button, Divider, Skeleton, Table, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react';
-import React from 'react';
+import { Amount } from '@snx-v3/Amount';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLocks } from '@snx-v3/useLocks';
 import { PositionPageSchemaType, useParams } from '@snx-v3/useParams';
-import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { wei } from '@synthetixio/wei';
-import { Amount } from '@snx-v3/Amount';
+import React from 'react';
 
 export const LockedCollateral: React.FC<{
   onClose: () => void;
