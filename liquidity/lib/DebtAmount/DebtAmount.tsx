@@ -18,7 +18,7 @@ export function getDebtColor(debt?: Wei) {
 
 export function PnlAmount({ debt, ...props }: TextProps & { debt?: Wei }) {
   return (
-    <Text {...props} color={getDebtColor(debt)}>
+    <Text as="span" {...props} color={getDebtColor(debt)}>
       <Amount prefix={`${debt && debt.gt(0) ? '-' : ''}$`} value={debt ? debt.abs() : ZEROWEI} />
     </Text>
   );
@@ -26,7 +26,7 @@ export function PnlAmount({ debt, ...props }: TextProps & { debt?: Wei }) {
 
 export function DebtAmount({ debt, ...props }: TextProps & { debt?: Wei }) {
   return (
-    <Text {...props} color={getDebtColor(debt)}>
+    <Text as="span" {...props} color={getDebtColor(debt)}>
       <Amount prefix={`${debt && debt.lt(0) ? '-' : ''}$`} value={debt ? debt.abs() : ZEROWEI} />
     </Text>
   );

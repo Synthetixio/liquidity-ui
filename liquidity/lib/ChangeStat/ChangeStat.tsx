@@ -50,6 +50,7 @@ export function ChangeStat({
       data-cy={dataCy}
     >
       <Text
+        as="div"
         data-cy="change stats current"
         textAlign="center"
         opacity={value && value.eq(0) ? '70%' : undefined}
@@ -61,6 +62,7 @@ export function ChangeStat({
         <Flex gap="1" alignItems="center" isTruncated>
           <ArrowForwardIcon />
           <Text
+            as="div"
             data-cy="change stats new"
             textAlign="center"
             opacity={newValue.eq(0) ? '70%' : undefined}

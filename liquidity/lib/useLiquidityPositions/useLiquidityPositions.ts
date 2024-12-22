@@ -18,7 +18,7 @@ export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => 
   const { data: CoreProxy } = useCoreProxy();
   const { data: collateralTypes } = useCollateralTypes();
   const { network } = useNetwork();
-  const provider = useProviderForChain(network!);
+  const provider = useProviderForChain(network);
   const { data: systemToken } = useSystemToken();
 
   const queryClient = useQueryClient();

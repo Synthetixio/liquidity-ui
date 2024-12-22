@@ -41,7 +41,7 @@ export function PnlStats({ newDebt, hasChanges }: { newDebt: Wei; hasChanges: bo
             value={liquidityPosition?.debt.mul(-1)}
             isPending={Boolean(params.accountId && isPendingLiquidityPosition)}
             newValue={newDebt.mul(-1)}
-            formatFn={(val?: Wei) => <PnlAmount debt={val ? val.mul(-1) : val} as="span" />}
+            formatFn={(val?: Wei) => <PnlAmount debt={val ? val.mul(-1) : val} />}
             hasChanges={hasChanges}
             data-cy="stats pnl"
           />
