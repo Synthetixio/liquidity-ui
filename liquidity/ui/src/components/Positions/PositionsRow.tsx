@@ -14,6 +14,7 @@ import {
 import { Amount } from '@snx-v3/Amount';
 import { DebtAmount, PnlAmount } from '@snx-v3/DebtAmount';
 import { TokenIcon } from '@snx-v3/TokenIcon';
+import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
@@ -22,7 +23,6 @@ import { makeSearch, useParams } from '@snx-v3/useParams';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
 import { CRatioAmount } from '../CRatioBar/CRatioAmount';
 import { CRatioBadge } from '../CRatioBar/CRatioBadge';
-import { useAccountCollateral } from '../../../../lib/useAccountCollateral';
 import lockIcon from './lock.svg';
 
 export function PositionRow({

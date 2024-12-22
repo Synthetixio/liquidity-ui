@@ -1,6 +1,6 @@
 import { ArrowUpIcon } from '@chakra-ui/icons';
 import { Button, Divider, Flex, Heading, Image, Link, Text } from '@chakra-ui/react';
-import SynthetixLogo from '../../lib/useBlockchain/SynthetixIcon.svg';
+import SynthetixLogo from '@snx-v3/useBlockchain/SynthetixIcon.svg';
 
 export function ClaimSuccessBanner({ onClose }: { onClose: () => void }) {
   return (
