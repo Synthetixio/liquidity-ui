@@ -86,17 +86,15 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
                   value={maxWithdrawable}
                 />
                 &nbsp;
-                {maxWithdrawable.gt(0) && (
-                  <Text
-                    as="span"
-                    cursor="pointer"
-                    onClick={() => setWithdrawAmount(maxWithdrawable)}
-                    color="cyan.500"
-                    fontWeight={700}
-                  >
-                    Max
-                  </Text>
-                )}
+                <Text
+                  as="span"
+                  cursor="pointer"
+                  onClick={() => setWithdrawAmount(maxWithdrawable)}
+                  color="cyan.500"
+                  fontWeight={700}
+                >
+                  Max
+                </Text>
               </>
             ) : null}
           </Text>
