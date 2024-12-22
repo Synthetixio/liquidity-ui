@@ -27,46 +27,50 @@ export function SynthsUnwrapModal({
   txnHash: string | null;
 }) {
   const { network } = useNetwork();
+  const { data: synthBalances } = useSynthBalances();
 
   const [isOpen, setIsOpen] = React.useState(false);
+  // This caching is necessary to keep initial values after success and not reset them to zeroes
+  const [cachedSynths, setCachedSynths] = React.useState<
+    { symbol: string; name: string; balance: Wei }[] | undefined
+  >();
+
+  const onClose = React.useCallback(() => {
+    setIsOpen(false);
+    setCachedSynths(undefined);
+  }, []);
+
   React.useEffect(() => {
     if (txnStatus === 'prompting') {
       setIsOpen(true);
     }
     if (txnStatus === 'error') {
+      setCachedSynths(undefined);
       setIsOpen(false);
     }
   }, [txnStatus]);
 
-  const { data: synthBalances } = useSynthBalances();
-  const filteredSynths = React.useMemo(() => {
-    if (!synthBalances || !synthBalances.length) {
-      return;
-    }
-    return synthBalances
-      .map(({ synth, balance }) => ({
-        balance,
-        symbol: synth.token ? synth.token.symbol : synth.symbol,
-        name: synth.token ? synth.token.name : synth.name,
-        ...tokenOverrides[synth.token ? synth.token.address : synth.address],
-      }))
-      .filter(({ balance }) => balance.gt(0))
-      .sort((a, b) => a.symbol.localeCompare(b.symbol))
-      .sort((a, b) => b.balance.toNumber() - a.balance.toNumber());
-  }, [synthBalances]);
-
-  // This caching is necessary to keep initial values after success and not reset them to zeroes
-  const [cachedSynths, setCachedSynths] = React.useState<
-    { symbol: string; name: string; balance: Wei }[] | undefined
-  >();
   React.useEffect(() => {
-    if (filteredSynths && !cachedSynths) {
-      setCachedSynths(filteredSynths);
+    if (isOpen && synthBalances) {
+      const filteredSynths = synthBalances
+        .map(({ synth, balance }) => ({
+          balance,
+          symbol: synth.token ? synth.token.symbol : synth.symbol,
+          name: synth.token ? synth.token.name : synth.name,
+          ...tokenOverrides[synth.token ? synth.token.address : synth.address],
+        }))
+        .filter(({ balance }) => balance.gt(0))
+        .sort((a, b) => a.symbol.localeCompare(b.symbol))
+        .sort((a, b) => b.balance.toNumber() - a.balance.toNumber());
+
+      if (!cachedSynths) {
+        setCachedSynths(filteredSynths);
+      }
     }
-  }, [filteredSynths, cachedSynths]);
+  }, [cachedSynths, isOpen, synthBalances]);
 
   return (
-    <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+    <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay bg="#06061B80" />
       <ModalContent
         bg="navy.700"
@@ -151,7 +155,7 @@ export function SynthsUnwrapModal({
               py={3}
               width="100%"
               textAlign="center"
-              onClick={() => setIsOpen(false)}
+              onClick={onClose}
             >
               Done
             </Button>

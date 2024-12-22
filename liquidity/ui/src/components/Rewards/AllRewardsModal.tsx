@@ -29,38 +29,41 @@ export function AllRewardsModal({
   txnHash: string | null;
 }) {
   const [params] = useParams<PositionPageSchemaType>();
+  const { network } = useNetwork();
   const { data: rewards } = useRewards({ accountId: params.accountId });
   const { data: synthTokens } = useSynthTokens();
-  const groupedRewards = React.useMemo(
-    () => groupRewardsBySymbol({ rewards, synthTokens }),
-    [rewards, synthTokens]
-  );
 
   const [isOpen, setIsOpen] = React.useState(false);
+  // This caching is necessary to keep initial values after success and not reset them to zeroes
+  const [cachedRewards, setCachedRewards] = React.useState<
+    { displaySymbol: string; claimableAmount: Wei }[] | undefined
+  >();
 
-  const { network } = useNetwork();
+  const onClose = React.useCallback(() => {
+    setIsOpen(false);
+    setCachedRewards(undefined);
+  }, []);
 
   React.useEffect(() => {
     if (txnStatus === 'prompting') {
       setIsOpen(true);
     }
     if (txnStatus === 'error') {
-      setIsOpen(false);
+      onClose();
     }
-  }, [txnStatus]);
+  }, [onClose, txnStatus]);
 
-  // This caching is necessary to keep initial values after success and not reset them to zeroes
-  const [cachedRewards, setCachedRewards] = React.useState<
-    { displaySymbol: string; claimableAmount: Wei }[] | undefined
-  >();
   React.useEffect(() => {
-    if (groupedRewards && !cachedRewards) {
-      setCachedRewards(groupedRewards);
+    if (isOpen && rewards && synthTokens) {
+      const groupedRewards = groupRewardsBySymbol({ rewards, synthTokens });
+      if (!cachedRewards) {
+        setCachedRewards(groupedRewards);
+      }
     }
-  }, [groupedRewards, cachedRewards]);
+  }, [isOpen, rewards, synthTokens, cachedRewards]);
 
   return (
-    <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+    <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay bg="#06061B80" />
       <ModalContent
         bg="navy.700"
@@ -144,7 +147,7 @@ export function AllRewardsModal({
               py={3}
               width="100%"
               textAlign="center"
-              onClick={() => setIsOpen(false)}
+              onClick={onClose}
             >
               Done
             </Button>
