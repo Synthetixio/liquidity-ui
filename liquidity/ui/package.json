@@ -111,6 +111,7 @@
     "@web3-onboard/react": "^2.10.0",
     "@web3-onboard/trezor": "^2.4.6",
     "@web3-onboard/walletconnect": "^2.6.1",
+    "date-fns": "^2.30.0",
     "debug": "^4.3.7",
     "ethers": "^5.7.2",
     "framer-motion": "^10.16.5",

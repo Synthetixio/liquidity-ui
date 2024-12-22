@@ -14,7 +14,6 @@ import {
 import { Amount } from '@snx-v3/Amount';
 import { DebtAmount, PnlAmount } from '@snx-v3/DebtAmount';
 import { TokenIcon } from '@snx-v3/TokenIcon';
-import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
@@ -33,16 +32,7 @@ export function PositionRow({
   apr?: number;
 }) {
   const [params, setParams] = useParams();
-  useAccountCollateral({
-    accountId: params.accountId,
-    tokenAddress: liquidityPosition.collateralType.address,
-  });
   const { network } = useNetwork();
-
-  const { data: accountCollateral } = useAccountCollateral({
-    accountId: params.accountId,
-    tokenAddress: liquidityPosition.collateralType?.address,
-  });
 
   const isStataUSDC = useIsSynthStataUSDC({
     tokenAddress: liquidityPosition.collateralType.tokenAddress,
@@ -52,6 +42,16 @@ export function PositionRow({
   const { minutes, hours, isRunning } = useWithdrawTimer(params.accountId);
   const { data: stataUSDCAPR } = useStataUSDCApr(network?.id, network?.preset);
   const stataUSDCAPRParsed = stataUSDCAPR || 0;
+
+  const collateralAmount = liquidityPosition
+    ? liquidityPosition.collateralAmount.add(liquidityPosition.totalLocked)
+    : undefined;
+
+  const collateralValue = liquidityPosition
+    ? liquidityPosition.collateralValue.add(
+        liquidityPosition.totalLocked.mul(liquidityPosition.collateralPrice)
+      )
+    : undefined;
 
   return (
     <>
@@ -107,28 +107,25 @@ export function PositionRow({
             fontFamily="heading"
             fontSize="sm"
           >
-            <Amount prefix="$" value={liquidityPosition.collateralValue} />
-            {accountCollateral && accountCollateral.totalLocked.gt(0) && (
+            <Amount prefix="$" value={collateralValue} />
+            {liquidityPosition.totalLocked.gt(0) ? (
               <Tooltip
                 label={
-                  <>
-                    Including in &nbsp;
-                    <Amount
-                      value={accountCollateral?.totalLocked}
-                      suffix={` ${liquidityPosition.collateralType?.displaySymbol}`}
-                      showTooltip
-                    />
-                    &nbsp; Escrow that cannot be unlocked until the unlocking date has been reached
-                  </>
+                  <Amount
+                    prefix="Including "
+                    value={liquidityPosition.totalLocked}
+                    suffix={` ${liquidityPosition.collateralType.displaySymbol} Escrow that cannot be unlocked until the unlocking date has been reached`}
+                    showTooltip
+                  />
                 }
               >
                 <Image src={lockIcon} />
               </Tooltip>
-            )}
+            ) : null}
           </Text>
           <Text color="gray.500" fontFamily="heading" fontSize="0.75rem" lineHeight="1rem">
             <Amount
-              value={liquidityPosition.collateralAmount}
+              value={collateralAmount}
               suffix={` ${liquidityPosition.collateralType.displaySymbol}`}
             />
           </Text>

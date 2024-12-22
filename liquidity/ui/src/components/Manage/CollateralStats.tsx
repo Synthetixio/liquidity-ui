@@ -4,7 +4,6 @@ import { BorderBox } from '@snx-v3/BorderBox';
 import { ChangeStat } from '@snx-v3/ChangeStat';
 import { ZEROWEI } from '@snx-v3/constants';
 import { currency } from '@snx-v3/format';
-import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { makeSearch, type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
@@ -22,10 +21,6 @@ export function CollateralStats({
   const { data: liquidityPosition, isPending: isPendingLiquidityPosition } = useLiquidityPosition({
     accountId: params.accountId,
     collateralType,
-  });
-  const { data: accountCollateral } = useAccountCollateral({
-    accountId: params.accountId,
-    tokenAddress: collateralType?.address,
   });
 
   return (
@@ -74,7 +69,7 @@ export function CollateralStats({
           </Flex>
         </Flex>
 
-        {accountCollateral ? (
+        {liquidityPosition ? (
           <Flex mt={4} alignItems="center" gap={2} alignContent="center">
             <Text color="gray.500" fontSize="sm" fontFamily="heading" lineHeight="16px">
               Escrowed
@@ -97,7 +92,7 @@ export function CollateralStats({
               }}
             >
               <Amount
-                value={accountCollateral.totalLocked}
+                value={liquidityPosition.totalLocked}
                 suffix={` ${collateralType?.displaySymbol}`}
                 showTooltip
               />

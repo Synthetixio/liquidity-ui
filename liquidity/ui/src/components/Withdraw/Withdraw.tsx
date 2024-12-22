@@ -5,7 +5,6 @@ import { ZEROWEI } from '@snx-v3/constants';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
 import { TokenIcon } from '@snx-v3/TokenIcon';
-import { useAccountCollateral } from '@snx-v3/useAccountCollateral';
 import { useAccountCollateralUnlockDate } from '@snx-v3/useAccountCollateralUnlockDate';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
@@ -40,28 +39,16 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
   const { minutes, hours, isRunning } = useWithdrawTimer(params.accountId);
   const unlockDate = !isLoadingDate ? accountCollateralUnlockDate : null;
 
-  const { data: accountCollateral } = useAccountCollateral({
-    accountId: params.accountId,
-    tokenAddress: collateralType?.address,
-  });
-
   const maxWithdrawable = React.useMemo(() => {
     if (isDebtWithdrawal && liquidityPosition) {
       return liquidityPosition.availableSystemToken;
     }
-    if (!isDebtWithdrawal && liquidityPosition && accountCollateral) {
-      const unlockedCollateral = liquidityPosition.availableCollateral.sub(
-        accountCollateral.totalLocked
-      );
-      if (unlockedCollateral.lte(0)) {
-        // should not be possible but just in case
-        return ZEROWEI;
-      }
+    if (!isDebtWithdrawal && liquidityPosition) {
       return network?.preset === 'andromeda'
-        ? unlockedCollateral.add(liquidityPosition.availableSystemToken)
-        : unlockedCollateral;
+        ? liquidityPosition.availableCollateral.add(liquidityPosition.availableSystemToken)
+        : liquidityPosition.availableCollateral;
     }
-  }, [accountCollateral, isDebtWithdrawal, liquidityPosition, network]);
+  }, [isDebtWithdrawal, liquidityPosition, network]);
 
   return (
     <Flex flexDirection="column" data-cy="withdraw form">

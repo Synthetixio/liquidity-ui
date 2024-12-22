@@ -63,8 +63,8 @@ export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => 
       const getCollateralPriceCallsPromised = collateralTypes.map((collateralType) =>
         CoreProxyContract.populateTransaction.getCollateralPrice(collateralType.tokenAddress)
       );
-      const getAccountAvailableCollateralCallsPromised = collateralTypes.map((collateralType) =>
-        CoreProxyContract.populateTransaction.getAccountAvailableCollateral(
+      const getAccountCollateralCallPromised = collateralTypes.map((collateralType) =>
+        CoreProxyContract.populateTransaction.getAccountCollateral(
           accountId,
           collateralType.tokenAddress
         )
@@ -74,7 +74,7 @@ export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => 
         ...getPositionCollateralCallsPromised,
         ...getPositionDebtCallsPromised,
         ...getCollateralPriceCallsPromised,
-        ...getAccountAvailableCollateralCallsPromised,
+        ...getAccountCollateralCallPromised,
       ]);
 
       return await erc7412Call(
@@ -107,20 +107,27 @@ export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => 
               encoded[1 + 2 * collateralTypes.length + i]
             );
 
-            const [accountAvailableCollateral] = CoreProxyContract.interface.decodeFunctionResult(
-              'getAccountAvailableCollateral',
-              encoded[1 + 3 * collateralTypes.length + i]
-            );
+            const [totalDepositedBigNumber, totalAssignedBigNumber, totalLockedBigNumber] =
+              CoreProxyContract.interface.decodeFunctionResult(
+                'getAccountCollateral',
+                encoded[1 + 3 * collateralTypes.length + i]
+              );
+
+            const totalDeposited = wei(totalDepositedBigNumber);
+            const totalAssigned = wei(totalAssignedBigNumber);
+            const totalLocked = wei(totalLockedBigNumber);
 
             log({
               collateralType,
               positionCollateral,
               positionDebt,
               collateralPriceRaw,
-              accountAvailableCollateral,
+              totalDeposited,
+              totalAssigned,
+              totalLocked,
             });
 
-            const availableCollateral = wei(accountAvailableCollateral);
+            const availableCollateral = wei(totalDeposited.sub(totalAssigned).sub(totalLocked));
             const availableSystemToken = wei(accountAvailableSystemToken);
 
             const collateralPrice = wei(collateralPriceRaw);
@@ -138,6 +145,9 @@ export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => 
               collateralValue,
               debt,
               cRatio,
+              totalDeposited,
+              totalAssigned,
+              totalLocked,
             };
           });
           log(liquidityPositions);
