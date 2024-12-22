@@ -68,21 +68,6 @@ export const LockedCollateral: React.FC<{
             </Th>
           </Tr>
         </Thead>
-        {isPendingLocks ? <Skeleton mt={4} width="100%" height="30px" rounded="sm" /> : null}
-        {!isPendingLocks && !locks?.length ? (
-          <Text
-            width="100%"
-            textAlign="center"
-            color="gray.500"
-            fontWeight={500}
-            fontSize="14px"
-            my="4"
-            pl="3"
-          >
-            No Escrowed {collateralType?.displaySymbol}
-          </Text>
-        ) : null}
-
         {!isPendingLocks && locks ? (
           <Tbody>
             {locks.map((lock) => (
@@ -106,6 +91,21 @@ export const LockedCollateral: React.FC<{
           </Tbody>
         ) : null}
       </Table>
+
+      {isPendingLocks ? <Skeleton mt={4} width="100%" height="30px" rounded="sm" /> : null}
+      {!isPendingLocks && !locks?.length ? (
+        <Text
+          width="100%"
+          textAlign="center"
+          color="gray.500"
+          fontWeight={500}
+          fontSize="14px"
+          my="4"
+          pl="3"
+        >
+          No Escrowed {collateralType?.displaySymbol}
+        </Text>
+      ) : null}
 
       <Button onClick={onClose} mt={6} width="100%" variant="outline" colorScheme="gray">
         Close
