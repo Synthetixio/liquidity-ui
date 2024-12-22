@@ -5,6 +5,7 @@ import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLocks } from '@snx-v3/useLocks';
 import { PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { wei } from '@synthetixio/wei';
+import { intlFormat } from 'date-fns';
 import React from 'react';
 
 export const LockedCollateral: React.FC<{
@@ -64,17 +65,17 @@ export const LockedCollateral: React.FC<{
               py={3}
               textAlign="right"
             >
-              {collateralType?.displaySymbol} Amount
+              {collateralType?.displaySymbol ?? params.collateralSymbol} Amount
             </Th>
           </Tr>
         </Thead>
-        {!isPendingLocks && locks ? (
+        {collateralType && !isPendingLocks && locks ? (
           <Tbody>
             {locks.map((lock) => (
               <Tr key={lock.timestamp.toString()} borderBottom="1px solid #2D2D38">
                 <Td px={4} py={5} border="none">
                   <Text fontWeight={500} color="white" fontSize="14px">
-                    {lock.expirationDate.toLocaleDateString('en-US', {
+                    {intlFormat(lock.expirationDate, {
                       year: 'numeric',
                       month: 'short',
                       day: 'numeric',
@@ -83,7 +84,7 @@ export const LockedCollateral: React.FC<{
                 </Td>
                 <Td px={4} py={5} textAlign="right" border="none">
                   <Text fontWeight={500} color="white" fontSize="14px">
-                    <Amount value={wei(lock.amount, Number(collateralType?.decimals), true)} />
+                    <Amount value={wei(lock.amount, Number(collateralType.decimals), true)} />
                   </Text>
                 </Td>
               </Tr>
@@ -103,7 +104,7 @@ export const LockedCollateral: React.FC<{
           my="4"
           pl="3"
         >
-          No Escrowed {collateralType?.displaySymbol}
+          No Escrowed {collateralType?.displaySymbol ?? params.collateralSymbol}
         </Text>
       ) : null}
 
