@@ -6,32 +6,17 @@ import { PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { wei } from '@synthetixio/wei';
 import { Amount } from '@snx-v3/Amount';
-import {
-  Pagination,
-  PaginationContainer,
-  PaginationNext,
-  PaginationPrevious,
-  usePagination,
-} from '@ajna/pagination';
 
-const PAGE_SIZE = 6;
 export const LockedCollateral: React.FC<{
   onClose: () => void;
 }> = ({ onClose }) => {
   const [params] = useParams<PositionPageSchemaType>();
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
-  const { data: locks, isPending } = useLocks(params?.accountId, collateralType?.address);
-
-  const pagesCount = Math.ceil((locks?.length || 0) / PAGE_SIZE);
-  const { currentPage, setCurrentPage } = usePagination({
-    pagesCount,
-    initialState: { currentPage: 1 },
-  });
-
-  const paginatedLocks = React.useMemo(() => {
-    return (locks || []).slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-  }, [currentPage, locks]);
+  const { data: locks, isPending: isPendingLocks } = useLocks(
+    params?.accountId,
+    collateralType?.address
+  );
 
   return (
     <div data-cy="deposit multistep">
@@ -83,60 +68,44 @@ export const LockedCollateral: React.FC<{
             </Th>
           </Tr>
         </Thead>
+        {isPendingLocks ? <Skeleton mt={4} width="100%" height="30px" rounded="sm" /> : null}
+        {!isPendingLocks && !locks?.length ? (
+          <Text
+            width="100%"
+            textAlign="center"
+            color="gray.500"
+            fontWeight={500}
+            fontSize="14px"
+            my="4"
+            pl="3"
+          >
+            No Escrowed {collateralType?.displaySymbol}
+          </Text>
+        ) : null}
 
-        <Tbody>
-          {paginatedLocks?.map((lock) => (
-            <Tr key={lock.timestamp.toString()} borderBottom="1px solid #2D2D38">
-              <Td px={4} py={5} border="none">
-                <Text fontWeight={500} color="white" fontSize="14px">
-                  {lock.expirationDate.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                </Text>
-              </Td>
-              <Td px={4} py={5} textAlign="right" border="none">
-                <Text fontWeight={500} color="white" fontSize="14px">
-                  <Amount value={wei(lock.amount, Number(collateralType?.decimals), true)} />
-                </Text>
-              </Td>
-            </Tr>
-          ))}
-        </Tbody>
+        {!isPendingLocks && locks ? (
+          <Tbody>
+            {locks.map((lock) => (
+              <Tr key={lock.timestamp.toString()} borderBottom="1px solid #2D2D38">
+                <Td px={4} py={5} border="none">
+                  <Text fontWeight={500} color="white" fontSize="14px">
+                    {lock.expirationDate.toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </Text>
+                </Td>
+                <Td px={4} py={5} textAlign="right" border="none">
+                  <Text fontWeight={500} color="white" fontSize="14px">
+                    <Amount value={wei(lock.amount, Number(collateralType?.decimals), true)} />
+                  </Text>
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        ) : null}
       </Table>
-
-      {!isPending && !locks?.length && (
-        <Text
-          width="100%"
-          textAlign="center"
-          color="gray.500"
-          fontWeight={500}
-          fontSize="14px"
-          my="4"
-          pl="3"
-        >
-          No Escrowed {collateralType?.displaySymbol}
-        </Text>
-      )}
-
-      {isPending && <Skeleton mt={4} width="100%" height="30px" rounded="sm" />}
-
-      {pagesCount > 0 && (
-        <Pagination pagesCount={pagesCount} currentPage={currentPage} onPageChange={setCurrentPage}>
-          <PaginationContainer display="flex" alignItems="center" justifyContent="flex-end" mt={4}>
-            <Text mr={4} color="gray.500" fontSize="14px">
-              {currentPage} of {pagesCount}
-            </Text>
-            <PaginationPrevious px={0} variant="outline" colorScheme="gray" border="none">
-              <ChevronLeftIcon />
-            </PaginationPrevious>
-            <PaginationNext px={0} variant="outline" colorScheme="gray" border="none">
-              <ChevronRightIcon />
-            </PaginationNext>
-          </PaginationContainer>
-        </Pagination>
-      )}
 
       <Button onClick={onClose} mt={6} width="100%" variant="outline" colorScheme="gray">
         Close

@@ -75,26 +75,18 @@ export function CollateralStats({
           </Flex>
         </Flex>
 
-        {accountCollateral?.totalLocked.gt(0) && (
-          <Flex mt={4} alignItems="center" gap={2}>
+        {accountCollateral ? (
+          <Flex mt={4} alignItems="center" gap={2} alignContent="center">
             <Text color="gray.500" fontSize="sm" fontFamily="heading" lineHeight="16px">
               Escrowed
             </Text>
-            <Text
+            <Link
               color="white"
               fontSize="sm"
               fontFamily="heading"
               lineHeight="16px"
               fontWeight={700}
               ml={1}
-            >
-              <Amount
-                value={accountCollateral.totalLocked}
-                suffix={` ${collateralType?.displaySymbol}`}
-                showTooltip
-              />
-            </Text>
-            <Link
               href={`?${makeSearch({
                 ...params,
                 page: 'position',
@@ -105,10 +97,14 @@ export function CollateralStats({
                 setParams({ ...params, page: 'position', manageAction: 'locked' });
               }}
             >
-              <InfoIcon fontSize={12} />
+              <Amount
+                value={accountCollateral.totalLocked}
+                suffix={` ${collateralType?.displaySymbol}`}
+                showTooltip
+              />
             </Link>
           </Flex>
-        )}
+        ) : null}
       </Flex>
     </BorderBox>
   );
