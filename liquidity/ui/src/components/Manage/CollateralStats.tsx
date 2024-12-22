@@ -98,8 +98,3 @@ export function CollateralStats({
     </BorderBox>
   );
 }
-
-//totalAssigned
-302.8257661995;
-//
-302.8257661995;
