@@ -10,7 +10,7 @@ describe(__filename, () => {
     cy.task('startAnvil', {
       chainId: Cypress.env('chainId'),
       forkUrl: `https://base-mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '24030036',
+      block: '24043002',
     }).then(() => cy.log('Anvil started'));
     cy.pythBypass();
     cy.on('window:before:load', (win) => {
@@ -26,9 +26,6 @@ describe(__filename, () => {
   it(__filename, () => {
     cy.setEthBalance({ balance: 100 });
     cy.getUSDC({ amount: 1000 });
-    // Reduce delegation to 150
-    cy.delegateCollateralAndromeda({ symbol: 'sUSDC', amount: 150, poolId: 1 });
-    // Remove withdrawals delay
     cy.setWithdrawTimeout({ timeout: '0' });
 
     cy.visit(
