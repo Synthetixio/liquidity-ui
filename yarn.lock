@@ -5521,6 +5521,7 @@ __metadata:
     "@snx-v3/contracts": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useSNX": "workspace:*"
     "@snx-v3/useSystemToken": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -6074,7 +6075,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/useSNX@workspace:liquidity/lib/contracts/useSNX":
+"@snx-v3/useSNX@workspace:*, @snx-v3/useSNX@workspace:liquidity/lib/contracts/useSNX":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useSNX@workspace:liquidity/lib/contracts/useSNX"
   dependencies:

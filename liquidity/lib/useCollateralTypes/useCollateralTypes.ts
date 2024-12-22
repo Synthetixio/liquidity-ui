@@ -1,7 +1,8 @@
 import { importCollateralTokens } from '@snx-v3/contracts';
 import { contractsHash } from '@snx-v3/tsHelpers';
-import { Network, useNetwork } from '@snx-v3/useBlockchain';
+import { Network, useNetwork, MAINNET, OPTIMISM } from '@snx-v3/useBlockchain';
 import { useSystemToken } from '@snx-v3/useSystemToken';
+import { useSNX } from '@snx-v3/useSNX';
 import { wei, Wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
@@ -54,17 +55,19 @@ export function useCollateralTypes(includeDelegationOff = false, customNetwork?:
   const { network: currentNetwork } = useNetwork();
   const network = customNetwork ?? currentNetwork;
   const { data: systemToken } = useSystemToken(customNetwork);
+  const { data: MainnetSNX } = useSNX(MAINNET);
+  const { data: OptimismSNX } = useSNX(OPTIMISM);
 
   return useQuery({
-    enabled: Boolean(network?.id && network?.preset && systemToken),
+    enabled: Boolean(network?.id && network?.preset && systemToken && MainnetSNX && OptimismSNX),
     queryKey: [
       `${network?.id}-${network?.preset}`,
       'CollateralTypes',
       { includeDelegationOff },
-      { contractsHash: contractsHash([systemToken]) },
+      { contractsHash: contractsHash([systemToken, MainnetSNX, OptimismSNX]) },
     ],
     queryFn: async () => {
-      if (!(network?.id && network?.preset && systemToken))
+      if (!(network?.id && network?.preset && systemToken && MainnetSNX && OptimismSNX))
         throw Error('useCollateralTypes should not be enabled when contracts missing');
 
       const collateralTypes = (await loadCollateralTypes(network.id, network.preset))
@@ -92,16 +95,18 @@ export function useCollateralTypes(includeDelegationOff = false, customNetwork?:
         })
         .filter((collateralType) => collateralType.tokenAddress !== systemToken.address);
 
-      if (includeDelegationOff) {
-        return collateralTypes.filter(({ depositingEnabled }) => depositingEnabled);
-      }
-
-      // Return collateral types that have minDelegationD18 < MaxUint256
-      // When minDelegationD18 === MaxUint256, delegation is effectively disabled
       return collateralTypes
-        .filter(({ depositingEnabled }) => depositingEnabled)
-        .filter((collateralType) =>
-          collateralType.minDelegationD18.lt(ethers.constants.MaxUint256)
+        .filter(
+          (collateralType) =>
+            collateralType.depositingEnabled ||
+            (network.id === MAINNET.id && collateralType.address === MainnetSNX.address) ||
+            (network.id === OPTIMISM.id && collateralType.address === OptimismSNX.address)
+        )
+        .filter(
+          (collateralType) =>
+            // Return collateral types that have minDelegationD18 < MaxUint256
+            // When minDelegationD18 === MaxUint256, delegation is effectively disabled
+            includeDelegationOff || collateralType.minDelegationD18.lt(ethers.constants.MaxUint256)
         );
     },
     // one hour in ms
