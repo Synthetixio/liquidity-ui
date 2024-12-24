@@ -1,20 +1,31 @@
-import { Alert, AlertIcon, AlertProps, Text } from '@chakra-ui/react';
-import Wei from '@synthetixio/wei';
+import { Alert, AlertIcon, AlertProps, Link, Text } from '@chakra-ui/react';
+import { makeSearch, type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
+import { type Wei } from '@synthetixio/wei';
 
-interface CollateralAlertProps extends AlertProps {
-  tokenBalance: Wei;
-}
-
-export const CollateralAlert = ({ tokenBalance, ...props }: CollateralAlertProps) => {
+export function CollateralAlert({ tokenBalance, ...props }: { tokenBalance: Wei } & AlertProps) {
+  const [, setParams] = useParams<PositionPageSchemaType>();
   return (
     <Alert borderLeftColor="cyan.500" borderRadius="6px" {...props}>
       <AlertIcon color="cyan.500" />
       <Text color="white" fontFamily="heading" fontSize="16px" lineHeight="24px">
-        You have a {tokenBalance.toString(2)} SNX active staking position on V2.
-        <Text as="span" color="cyan.500" cursor="pointer">
-          &nbsp;Migrate to V3
-        </Text>
+        You have a {tokenBalance.toString(2)} SNX active staking position on V2.{' '}
+        <Link
+          color="cyan.500"
+          href={`?${makeSearch({
+            page: 'dashboard',
+            migrate: 'snx',
+          })}`}
+          onClick={(e) => {
+            e.preventDefault();
+            setParams({
+              page: 'dashboard',
+              migrate: 'snx',
+            });
+          }}
+        >
+          Migrate to V3
+        </Link>
       </Text>
     </Alert>
   );
-};
+}

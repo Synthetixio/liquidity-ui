@@ -128,7 +128,7 @@ export function MigrationBanner({
             </>
           )}
 
-          {type === 'alert' && (
+          {type === 'alert' ? (
             <Alert mb={6} borderLeftColor="cyan.500" borderRadius="6px">
               <AlertIcon color="cyan.500" />
               <Text color="white" fontFamily="heading" fontSize="16px" lineHeight="24px">
@@ -136,13 +136,13 @@ export function MigrationBanner({
                 <Text as="span" textTransform="capitalize">
                   {network.name}
                 </Text>
-                .
+                .{' '}
                 <Text onClick={onClick} as="span" color="cyan.500" cursor="pointer">
-                  &nbsp;Migrate to V3
+                  Migrate to V3
                 </Text>
               </Text>
             </Alert>
-          )}
+          ) : null}
         </Fade>
       )}
     </>
