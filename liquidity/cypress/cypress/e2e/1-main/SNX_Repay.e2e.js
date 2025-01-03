@@ -11,7 +11,7 @@ describe(__filename, () => {
       chainId: Cypress.env('chainId'),
       forkUrl:
         Cypress.env('RPC_MAINNET') ?? `https://mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '21233424',
+      block: '21541800',
     }).then(() => cy.log('Anvil started'));
     cy.pythBypass();
 
@@ -26,14 +26,7 @@ describe(__filename, () => {
   afterEach(() => cy.task('stopAnvil').then(() => cy.log('Anvil stopped')));
 
   it(__filename, () => {
-    cy.setEthBalance({ balance: 100 });
-    cy.approveCollateral({ symbol: 'SNX', spender: 'CoreProxy' });
-    cy.getSNX({ amount: 2000 });
-    cy.depositCollateral({ symbol: 'SNX', amount: 150 });
-    cy.delegateCollateral({ symbol: 'SNX', amount: 150, poolId: 1 });
     cy.borrowUsd({ symbol: 'SNX', amount: 10, poolId: 1 });
-
-    cy.visit(`/#/positions/SNX/1?manageAction=repay&accountId=${Cypress.env('accountId')}`);
 
     cy.visit(
       `?${makeSearch({
@@ -44,23 +37,47 @@ describe(__filename, () => {
       })}`
     );
 
-    cy.get('[data-cy="repay amount input"]').should('exist');
-    cy.get('[data-cy="repay amount input"]').type('10');
+    cy.get('[data-cy="repay debt form"]').should('exist');
+    cy.get('[data-cy="current debt amount"]', { timeout: 180_000 })
+      .should('exist')
+      .and('include.text', 'Max');
 
-    cy.get('[data-cy="repay submit"]').should('be.enabled').and('include.text', 'Repay');
+    cy.get('[data-cy="stats collateral"] [data-cy="change stats current"]')
+      .should('exist')
+      .and('include.text', '125.98 SNX');
+    cy.get('[data-cy="stats debt"] [data-cy="change stats new"]').should('not.exist');
+    cy.get('[data-cy="stats debt"] [data-cy="change stats current"]')
+      .should('exist')
+      .and('include.text', '$8.85');
+
+    cy.get('[data-cy="repay amount input"]').type('5');
+
+    cy.get('[data-cy="stats debt"] [data-cy="change stats new"]')
+      .should('exist')
+      .and('include.text', '$3.85');
+
+    cy.get('[data-cy="repay submit"]').should('be.enabled');
     cy.get('[data-cy="repay submit"]').click();
 
-    cy.get('[data-cy="repay multistep"]')
+    cy.get('[data-cy="repay dialog"]')
       .should('exist')
-      .and('include.text', 'Manage Debt')
-      .and('include.text', 'Repay')
-      .and('include.text', 'Repay 10 sUSD');
+      .and('include.text', 'Repaying Debt')
+      .and('include.text', 'Repaying 5 sUSD');
 
-    cy.get('[data-cy="repay confirm button"]').should('include.text', 'Execute Transaction');
-    cy.get('[data-cy="repay confirm button"]').click();
-
-    cy.contains('[data-status="success"]', 'Debt successfully Updated', {
+    cy.contains('[data-status="success"]', 'Your debt has been repaid', {
       timeout: 180_000,
     }).should('exist');
+    cy.get('[data-cy="transaction hash"]').should('exist');
+
+    cy.get('[data-cy="repay dialog"]').should('exist').and('include.text', 'Repaid 5 sUSD');
+
+    cy.contains('[data-cy="repay dialog"] button', 'Done').click();
+
+    cy.get('[data-cy="stats debt"] [data-cy="change stats current"]', { timeout: 180_000 }).and(
+      'include.text',
+      '$3.85'
+    );
+
+    cy.get('[data-cy="repay submit"]').should('be.disabled');
   });
 });
