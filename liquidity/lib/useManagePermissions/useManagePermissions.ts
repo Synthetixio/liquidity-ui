@@ -80,7 +80,9 @@ export const useManagePermissions = ({
         const Multicall3Contract = new ethers.Contract(Multicall3.address, Multicall3.abi, signer);
         const txn = await Multicall3Contract.aggregate3([...grantCalls, ...revokeCalls]);
         log('txn', txn);
-        const receipt = await provider.waitForTransaction(txn.hash);
+        const receipt = log.enabled
+          ? await txn.wait()
+          : await provider.waitForTransaction(txn.hash);
         log('receipt', receipt);
       } catch (error: any) {
         throw error;

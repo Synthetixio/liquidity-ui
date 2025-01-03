@@ -1,9 +1,7 @@
 import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useAllowance } from '@snx-v3/useAllowance';
-import { useProvider, useSigner, useNetwork } from '@snx-v3/useBlockchain';
+import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
-import { getGasPrice } from '@snx-v3/useGasPrice';
-import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import debug from 'debug';
 import { ethers } from 'ethers';
@@ -28,7 +26,6 @@ export const useApprove = ({
 
   const { network } = useNetwork();
   const signer = useSigner();
-  const { gasSpeed } = useGasSpeed();
   const provider = useProvider();
 
   const queryClient = useQueryClient();
@@ -51,27 +48,16 @@ export const useApprove = ({
       const amountToApprove = infiniteApproval ? ethers.constants.MaxUint256 : amount;
       log(`amountToApprove`, amountToApprove);
 
-      const gasPricesPromised = getGasPrice({ provider });
       const gasLimitPromised = contract.estimateGas.approve(spender, amountToApprove);
       const populatedTxnPromised = contract.populateTransaction.approve(spender, amountToApprove);
-
-      const [gasPrices, gasLimit, populatedTxn] = await Promise.all([
-        gasPricesPromised,
-        gasLimitPromised,
-        populatedTxnPromised,
-      ]);
-
-      const gasOptionsForTransaction = formatGasPriceForTransaction({
-        gasLimit,
-        gasPrices,
-        gasSpeed,
-      });
+      const [gasLimit, populatedTxn] = await Promise.all([gasLimitPromised, populatedTxnPromised]);
+      const gasOptionsForTransaction = formatGasPriceForTransaction({ gasLimit });
 
       const txn = await signer.sendTransaction({ ...populatedTxn, ...gasOptionsForTransaction });
       log('txn', txn);
       dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 
-      const receipt = await provider.waitForTransaction(txn.hash);
+      const receipt = log.enabled ? await txn.wait() : await provider.waitForTransaction(txn.hash);
       log('receipt', receipt);
       dispatch({ type: 'success' });
       return receipt;

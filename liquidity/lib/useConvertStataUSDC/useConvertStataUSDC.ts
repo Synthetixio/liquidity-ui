@@ -70,7 +70,7 @@ export function useConvertStataUSDC({
       });
       log('txn', txn);
 
-      const receipt = await provider.waitForTransaction(txn.hash);
+      const receipt = log.enabled ? await txn.wait() : await provider.waitForTransaction(txn.hash);
       log('receipt', receipt);
 
       return receipt;

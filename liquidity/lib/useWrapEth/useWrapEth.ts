@@ -30,7 +30,7 @@ export const useWrapEth = () => {
       );
       const txn = await contract.deposit({ value: amount.toBN() });
       log('txn', txn);
-      const receipt = await provider.waitForTransaction(txn.hash);
+      const receipt = log.enabled ? await txn.wait() : await provider.waitForTransaction(txn.hash);
       log('receipt', receipt);
       return receipt;
     },
@@ -77,7 +77,7 @@ export const useUnWrapEth = () => {
       );
       const txn = await contract.withdraw(amount.toBN());
       log('txn', txn);
-      const receipt = await provider.waitForTransaction(txn.hash);
+      const receipt = log.enabled ? await txn.wait() : await provider.waitForTransaction(txn.hash);
       log('receipt', receipt);
       return receipt;
     },

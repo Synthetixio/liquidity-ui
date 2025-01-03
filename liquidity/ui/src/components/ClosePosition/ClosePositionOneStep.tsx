@@ -13,8 +13,6 @@ import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
-import { getGasPrice } from '@snx-v3/useGasPrice';
-import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { useMulticall3 } from '@snx-v3/useMulticall3';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
@@ -63,7 +61,6 @@ export function ClosePositionOneStep({
 
   const { data: priceUpdateTx } = useCollateralPriceUpdates();
 
-  const { gasSpeed } = useGasSpeed();
   const { network } = useNetwork();
   const signer = useSigner();
   const provider = useProvider();
@@ -141,7 +138,7 @@ export function ClosePositionOneStep({
         collateralType.tokenAddress
       );
       const callsPromise = Promise.all([approveAccountTx, approveUsdTx, closePositionTx]);
-      const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
+      const [calls] = await Promise.all([callsPromise]);
       if (priceUpdateTx) {
         calls.unshift(priceUpdateTx as any);
       }
@@ -155,15 +152,11 @@ export function ClosePositionOneStep({
         walletAddress
       );
 
-      const gasOptionsForTransaction = formatGasPriceForTransaction({
-        gasLimit,
-        gasPrices,
-        gasSpeed,
-      });
+      const gasOptionsForTransaction = formatGasPriceForTransaction({ gasLimit });
 
       const txn = await signer.sendTransaction({ ...erc7412Tx, ...gasOptionsForTransaction });
       log('txn', txn);
-      const receipt = await provider.waitForTransaction(txn.hash);
+      const receipt = log.enabled ? await txn.wait() : await provider.waitForTransaction(txn.hash);
       log('receipt', receipt);
       return receipt;
     },
