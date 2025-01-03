@@ -9,7 +9,8 @@ describe(__filename, () => {
   beforeEach(() => {
     cy.task('startAnvil', {
       chainId: Cypress.env('chainId'),
-      forkUrl: `https://mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
+      forkUrl:
+        Cypress.env('RPC_MAINNET') ?? `https://mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
       block: '21541800',
     }).then(() => cy.log('Anvil started'));
     cy.pythBypass();
