@@ -20,7 +20,7 @@ export const LockedCollateral: React.FC<{
   );
 
   return (
-    <div data-cy="deposit multistep">
+    <div>
       <Text color="gray.50" fontSize="20px" fontWeight={700}>
         <ArrowBackIcon cursor="pointer" onClick={onClose} mr={2} />
         Escrowed SNX
@@ -35,7 +35,7 @@ export const LockedCollateral: React.FC<{
         </Text>
       )}
 
-      <Table mt={2.5} variant="simple">
+      <Table data-cy="locked-collateral-table" mt={2.5} variant="simple">
         <Thead>
           <Tr borderBottom="1px solid #2D2D38">
             <Th
