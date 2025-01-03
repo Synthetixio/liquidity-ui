@@ -1,7 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
-import { ethers } from 'ethers';
-import { useNetwork, useProvider } from '@snx-v3/useBlockchain';
 import { feeSuggestion } from '@snx-v3/feeSuggestion';
+import { useNetwork, useProvider } from '@snx-v3/useBlockchain';
+import { useQuery } from '@tanstack/react-query';
+import debug from 'debug';
+import { ethers } from 'ethers';
+
+const log = debug('snx:useGasPrice');
 
 const getGasPriceFromProvider = async (provider: ethers.providers.BaseProvider) => {
   try {
@@ -17,6 +20,14 @@ const getGasPriceFromProvider = async (provider: ethers.providers.BaseProvider) 
 };
 
 export const getGasPrice = async ({ provider }: { provider: ethers.providers.JsonRpcProvider }) => {
+  if (log.enabled) {
+    // If we enable log we just rely on all the defaults
+    return {
+      fastest: { gasPrice: undefined },
+      fast: { gasPrice: undefined },
+      average: { gasPrice: undefined },
+    };
+  }
   try {
     const block = await provider.getBlock('latest');
     if (block.baseFeePerGas) {

@@ -1,7 +1,7 @@
-import type { GasPrices } from '@snx-v3/useGasPrice';
 import type { BigNumber } from '@ethersproject/bignumber';
+import { GAS_LIMIT_MULTIPLIER, GWEI_DECIMALS } from '@snx-v3/constants';
+import type { GasPrices } from '@snx-v3/useGasPrice';
 import { wei } from '@synthetixio/wei';
-import { GWEI_DECIMALS, GAS_LIMIT_MULTIPLIER } from '@snx-v3/constants';
 
 // Note it looks like gas limit estimation is coming in higher slightly higher than what gets used according to etherscan
 // Will try without a buffer, if we get user report of out of gas we can increase it again.
@@ -23,7 +23,7 @@ export function formatGasPriceForTransaction({
   gasLimit: BigNumber;
 }) {
   const gasPrice = gasPrices[gasSpeed];
-  if ('baseFeePerGas' in gasPrice) {
+  if (gasPrice && 'baseFeePerGas' in gasPrice) {
     const { baseFeePerGas: _baseFeePerGas, ...gasPriceToReturn } = gasPrice;
     return { ...gasPriceToReturn, gasLimit: addGasLimitBuffer(gasLimit) };
   }

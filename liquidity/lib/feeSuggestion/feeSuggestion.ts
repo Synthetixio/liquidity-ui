@@ -13,14 +13,15 @@
  * The other differences is that I also rely on our Wei library.
  *
  */
+import { GWEI_DECIMALS } from '@snx-v3/constants';
+import { wei, Wei } from '@synthetixio/wei';
 import { ethers } from 'ethers';
 import { ema } from './math';
 import { getOutlierBlocksToRemove, rewardsFilterOutliers } from './utils';
-import { wei, Wei } from '@synthetixio/wei';
-import { GWEI_DECIMALS } from '@snx-v3/constants';
 
 type Reward = string[];
 type GasUsedRatio = number[];
+
 interface FeeHistoryResponse {
   baseFeePerGas: string[];
   gasUsedRatio: GasUsedRatio;
@@ -50,24 +51,33 @@ const defaultForLocalProvider = () => {
     },
   };
 };
+
 export const feeSuggestion = async (
   provider: ethers.providers.JsonRpcProvider,
   fromBlock = 'latest'
 ) => {
-  const feeHistory = await provider
+  const { blocksRewards, baseFeePerGas } = await provider
     .send('eth_feeHistory', [
       ethers.utils.hexStripZeros(ethers.utils.hexlify(10)),
       fromBlock,
       [15, 30, 45],
     ])
-    .then((feeHistoryResponse: FeeHistoryResponse) => {
-      return {
-        baseFeePerGas: feeHistoryResponse.baseFeePerGas.map((x) => wei(x, GWEI_DECIMALS, true)),
-        reward: feeHistoryResponse.reward.map((x) => x.map((num) => wei(num, GWEI_DECIMALS, true))),
-      };
-    });
-  const blocksRewards = feeHistory.reward;
-  const baseFeePerGas = feeHistory.baseFeePerGas.at(-1);
+    .then(
+      (feeHistoryResponse: FeeHistoryResponse) => {
+        return {
+          blocksRewards: feeHistoryResponse.reward.map((x) =>
+            x.map((num) => wei(num, GWEI_DECIMALS, true))
+          ),
+          baseFeePerGas: feeHistoryResponse.baseFeePerGas
+            .map((x) => wei(x, GWEI_DECIMALS, true))
+            .at(-1),
+        };
+      },
+      () => ({
+        blocksRewards: [],
+        baseFeePerGas: undefined,
+      })
+    );
 
   if (!blocksRewards.length) {
     console.error(new Error('Error: block reward was empty'));
