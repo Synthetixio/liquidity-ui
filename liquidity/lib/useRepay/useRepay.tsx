@@ -5,9 +5,6 @@ import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
-import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
-import { getGasPrice } from '@snx-v3/useGasPrice';
-import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { usePositionManager } from '@snx-v3/usePositionManager';
@@ -45,7 +42,6 @@ export function useRepay({ repayAmount }: { repayAmount?: Wei }) {
 
   const signer = useSigner();
   const { network } = useNetwork();
-  const { gasSpeed } = useGasSpeed();
   const provider = useProvider();
 
   const availableCollateral =
@@ -115,7 +111,7 @@ export function useRepay({ repayAmount }: { repayAmount?: Wei }) {
       );
 
       const callsPromise = Promise.all([approveAccountTx, approveUsdTx, repayTx]);
-      const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
+      const [calls] = await Promise.all([callsPromise]);
       if (priceUpdateTx) {
         calls.unshift(priceUpdateTx as any);
       }
@@ -129,13 +125,10 @@ export function useRepay({ repayAmount }: { repayAmount?: Wei }) {
         walletAddress
       );
 
-      const gasOptionsForTransaction = formatGasPriceForTransaction({
-        gasLimit,
-        gasPrices,
-        gasSpeed,
+      const txn = await signer.sendTransaction({
+        ...erc7412Tx,
+        gasLimit: gasLimit.mul(15).div(10),
       });
-
-      const txn = await signer.sendTransaction({ ...erc7412Tx, ...gasOptionsForTransaction });
       log('txn', txn);
       dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 

@@ -6,9 +6,6 @@ import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
-import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
-import { getGasPrice } from '@snx-v3/useGasPrice';
-import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -33,7 +30,6 @@ export const useClearDebt = ({
 
   const signer = useSigner();
   const { network } = useNetwork();
-  const { gasSpeed } = useGasSpeed();
   const provider = useProvider();
 
   const { data: DebtRepayer } = useDebtRepayer();
@@ -80,8 +76,7 @@ export const useClearDebt = ({
       );
 
       const callsPromise = Promise.all([approveAccountTx, depositDebtToRepay]);
-
-      const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
+      const [calls] = await Promise.all([callsPromise]);
 
       if (priceUpdateTx) {
         calls.unshift(priceUpdateTx as any);
@@ -96,13 +91,10 @@ export const useClearDebt = ({
         walletAddress
       );
 
-      const gasOptionsForTransaction = formatGasPriceForTransaction({
-        gasLimit,
-        gasPrices,
-        gasSpeed,
+      const txn = await signer.sendTransaction({
+        ...erc7412Tx,
+        gasLimit: gasLimit.mul(15).div(10),
       });
-
-      const txn = await signer.sendTransaction({ ...erc7412Tx, ...gasOptionsForTransaction });
       log('txn', txn);
       dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 

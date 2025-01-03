@@ -6,10 +6,10 @@ import {
   importAllErrors,
   importClosePosition,
   importCoreProxy,
-  importTrustedMulticallForwarder,
   importPythERC7412Wrapper,
-  importPythVerfier,
+  importPythVerifier,
   importSpotMarketProxy,
+  importTrustedMulticallForwarder,
   importUSDProxy,
 } from '@snx-v3/contracts';
 import { extractErrorData, PYTH_ERRORS } from '@snx-v3/parseContractError';
@@ -131,7 +131,7 @@ export async function logMulticall({
   const PythERC7412Wrapper = await importPythERC7412Wrapper(network.id, network.preset).catch(
     () => undefined
   );
-  const PythVerfier = await importPythVerfier(network.id, network.preset);
+  const PythVerfier = await importPythVerifier(network.id, network.preset);
   const AllInterface = new ethers.utils.Interface(
     dedupedAbi([
       ...CoryProxyContract.abi,
@@ -233,7 +233,7 @@ export const withERC7412 = async (
   if (ClosePositionContract) {
     ClosePositionContract.abi.forEach((line) => AllErrorsContract.abi.push(line));
   }
-  const PythVerfier = await importPythVerfier(network.id, network.preset);
+  const PythVerfier = await importPythVerifier(network.id, network.preset);
 
   while (true) {
     try {
@@ -325,13 +325,16 @@ export async function erc7412Call<T>(
 ) {
   const log = debug(`snx:withERC7412:${label}`);
 
-  const Multicall3Contract = await importTrustedMulticallForwarder(network.id, network.preset);
+  const TrustedMulticallForwarder = await importTrustedMulticallForwarder(
+    network.id,
+    network.preset
+  );
 
   const from = getDefaultFromAddress(network.name);
 
   const {
     _calls: newCalls,
-    multicallTxn,
+    multicallTxn: erc7412Tx,
     gasLimit,
   } = await withERC7412(
     provider,
@@ -341,23 +344,26 @@ export async function erc7412Call<T>(
     from
   );
 
-  const res = await provider.call({ ...multicallTxn, gasLimit: gasLimit.mul(15).div(10) });
+  const res = await provider.call({
+    ...erc7412Tx,
+    gasLimit: gasLimit.mul(15).div(10),
+  });
   if (res === '0x') {
     throw new Error(`[${label}] Call returned 0x`);
   }
 
-  if (multicallTxn.to?.toLowerCase() === Multicall3Contract.address.toLowerCase()) {
+  if (erc7412Tx.to?.toLowerCase() === TrustedMulticallForwarder.address.toLowerCase()) {
     // If this was a multicall, decode and remove price updates.
     const decodedMultiCall: { returnData: string }[] = new ethers.utils.Interface(
-      Multicall3Contract.abi
+      TrustedMulticallForwarder.abi
     ).decodeFunctionResult('aggregate3Value', res)[0];
     log('multicall response', decodedMultiCall);
 
     // Remove the price updates
     const responseWithoutPriceUpdates: string[] = [];
-    const PythVerfier = await importPythVerfier(network.id, network.preset);
+    const PythVerifier = await importPythVerifier(network.id, network.preset);
     decodedMultiCall.forEach(({ returnData }, i) => {
-      if (newCalls?.[i]?.to !== PythVerfier.address) {
+      if (newCalls?.[i]?.to?.toLowerCase() !== PythVerifier.address?.toLowerCase()) {
         responseWithoutPriceUpdates.push(returnData);
       }
     });

@@ -14,7 +14,7 @@ export * from './importPerpsMarketProxy';
 export * from './importPositionManager';
 export * from './importPythERC7412Wrapper';
 export * from './importPythFeeds';
-export * from './importPythVerfier';
+export * from './importPythVerifier';
 export * from './importRewardsDistributors';
 export * from './importSNX';
 export * from './importSpotMarketProxy';

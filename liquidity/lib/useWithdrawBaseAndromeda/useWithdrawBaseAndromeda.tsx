@@ -6,9 +6,6 @@ import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
-import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
-import { getGasPrice } from '@snx-v3/useGasPrice';
-import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useGetUSDTokens } from '@snx-v3/useGetUSDTokens';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
@@ -41,7 +38,6 @@ export const useWithdrawBaseAndromeda = ({ amount }: { amount: Wei }) => {
   const { network } = useNetwork();
   const { data: usdTokens } = useGetUSDTokens();
 
-  const { gasSpeed } = useGasSpeed();
   const signer = useSigner();
   const provider = useProvider();
 
@@ -96,8 +92,6 @@ export const useWithdrawBaseAndromeda = ({ amount }: { amount: Wei }) => {
       log('sUSDC_amount', sUSDC_amount);
 
       dispatch({ type: 'prompting' });
-
-      const gasPricesPromised = getGasPrice({ provider });
 
       const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
       const USDProxyContract = new ethers.Contract(USDProxy.address, USDProxy.abi, signer);
@@ -164,7 +158,6 @@ export const useWithdrawBaseAndromeda = ({ amount }: { amount: Wei }) => {
           : undefined;
 
       const [
-        gasPrices,
         withdraw_collateral_txn,
         withdraw_snxUSD_txn,
         snxUSDApproval_txn,
@@ -172,7 +165,6 @@ export const useWithdrawBaseAndromeda = ({ amount }: { amount: Wei }) => {
         unwrapTxnPromised_txn,
         unwrapCollateralTxnPromised_txn,
       ] = await Promise.all([
-        gasPricesPromised,
         withdraw_collateral,
         withdraw_snxUSD,
         snxUSDApproval,
@@ -203,13 +195,10 @@ export const useWithdrawBaseAndromeda = ({ amount }: { amount: Wei }) => {
         walletAddress
       );
 
-      const gasOptionsForTransaction = formatGasPriceForTransaction({
-        gasLimit,
-        gasPrices,
-        gasSpeed,
+      const txn = await signer.sendTransaction({
+        ...erc7412Tx,
+        gasLimit: gasLimit.mul(15).div(10),
       });
-
-      const txn = await signer.sendTransaction({ ...erc7412Tx, ...gasOptionsForTransaction });
       log('txn', txn);
       dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 

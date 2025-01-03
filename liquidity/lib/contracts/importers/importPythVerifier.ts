@@ -75,7 +75,7 @@
 // ]
 const abi = ['function updatePriceFeeds(bytes[] updateData) payable'];
 
-export async function importPythVerfier(
+export async function importPythVerifier(
   chainId?: number,
   preset?: string
 ): Promise<{ address: string; abi: string[] }> {

@@ -8,9 +8,6 @@ import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
-import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
-import { getGasPrice } from '@snx-v3/useGasPrice';
-import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
@@ -41,7 +38,6 @@ export function useUndelegateBaseAndromeda({ collateralChange }: { collateralCha
   const { data: priceUpdateTx } = useCollateralPriceUpdates();
 
   const signer = useSigner();
-  const { gasSpeed } = useGasSpeed();
   const provider = useProvider();
   const { network } = useNetwork();
 
@@ -104,7 +100,7 @@ export function useUndelegateBaseAndromeda({ collateralChange }: { collateralCha
       const callsPromise: Promise<(ethers.PopulatedTransaction & { requireSuccess?: boolean })[]> =
         Promise.all([approveAccountTx, depositDebtToRepay, delegateTx].filter(notNil));
 
-      const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
+      const [calls] = await Promise.all([callsPromise]);
 
       if (priceUpdateTx) {
         calls.unshift(priceUpdateTx as any);
@@ -120,13 +116,10 @@ export function useUndelegateBaseAndromeda({ collateralChange }: { collateralCha
         walletAddress
       );
 
-      const gasOptionsForTransaction = formatGasPriceForTransaction({
-        gasLimit,
-        gasPrices,
-        gasSpeed,
+      const txn = await signer.sendTransaction({
+        ...erc7412Tx,
+        gasLimit: gasLimit.mul(15).div(10),
       });
-
-      const txn = await signer.sendTransaction({ ...erc7412Tx, ...gasOptionsForTransaction });
       log('txn', txn);
       dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 
