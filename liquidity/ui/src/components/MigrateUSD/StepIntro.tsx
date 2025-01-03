@@ -131,7 +131,7 @@ export const StepIntro = ({
         </Flex>
       </BorderBox>
 
-      <Collapse in={v2_balance?.lt(amount)} animateOpacity>
+      <Collapse in={v2_balance?.lt(amount)} animateOpacity unmountOnExit>
         <Alert borderRadius="6px" status="error">
           <AlertIcon />
           <AlertDescription>You cannot convert more than your v2 sUSD balance</AlertDescription>

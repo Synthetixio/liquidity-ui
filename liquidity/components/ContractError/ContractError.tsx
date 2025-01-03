@@ -21,7 +21,7 @@ export function ContractError({ contractError }: { contractError: ContractErrorT
           details...
         </Button>
       ) : null}
-      <Collapse in={isOpen} animateOpacity>
+      <Collapse in={isOpen} animateOpacity unmountOnExit>
         <Text fontStyle="italic" fontSize="0.8em">
           {contractError.name}
         </Text>

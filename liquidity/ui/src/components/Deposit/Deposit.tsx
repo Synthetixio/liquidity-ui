@@ -255,11 +255,11 @@ export function Deposit() {
         <CollateralAlert mb="6" tokenBalance={transferrableSnx.collateral} />
       ) : null}
 
-      <Collapse in={collateralChange.gt(0) && !overAvailableBalance} animateOpacity>
+      <Collapse in={collateralChange.gt(0) && !overAvailableBalance} animateOpacity unmountOnExit>
         <WithdrawIncrease />
       </Collapse>
 
-      <Collapse in={isStataUSDC} animateOpacity>
+      <Collapse in={isStataUSDC} animateOpacity unmountOnExit>
         <Alert mb={6} status="info" borderRadius="6px">
           <AlertIcon />
           <AlertDescription>
@@ -277,6 +277,7 @@ export function Deposit() {
               .lt(collateralType.minDelegationD18)
           }
           animateOpacity
+          unmountOnExit
         >
           <Alert mb={6} status="error" borderRadius="6px">
             <AlertIcon />
@@ -289,7 +290,7 @@ export function Deposit() {
         </Collapse>
       ) : null}
 
-      <Collapse in={overAvailableBalance} animateOpacity>
+      <Collapse in={overAvailableBalance} animateOpacity unmountOnExit>
         <Alert mb={6} status="error" borderRadius="6px">
           <AlertIcon />
           <AlertDescription>
@@ -308,6 +309,7 @@ export function Deposit() {
               .gte(collateralType.minDelegationD18)
           }
           animateOpacity
+          unmountOnExit
         >
           <TransactionSummary
             mb={6}

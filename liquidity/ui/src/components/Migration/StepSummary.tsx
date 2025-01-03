@@ -220,7 +220,7 @@ export const StepSummary = ({
       </Box>
 
       {data && snxCollateral ? (
-        <Collapse in={data.balance.lt(snxCollateral.minDelegationD18)} animateOpacity>
+        <Collapse in={data.balance.lt(snxCollateral.minDelegationD18)} animateOpacity unmountOnExit>
           <Alert mb={3.5} status="error" borderRadius="6px">
             <AlertIcon />
             <AlertDescription fontSize="16px">

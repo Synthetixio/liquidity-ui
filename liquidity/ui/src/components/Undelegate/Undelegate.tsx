@@ -166,7 +166,7 @@ export function Undelegate() {
         </Flex>
       </BorderBox>
 
-      <Collapse in={isInputDisabled} animateOpacity>
+      <Collapse in={isInputDisabled} animateOpacity unmountOnExit>
         <Alert mb={6} status="warning" borderRadius="6px">
           <AlertIcon />
           <Flex direction="column">
@@ -180,7 +180,7 @@ export function Undelegate() {
       </Collapse>
 
       {collateralType ? (
-        <Collapse in={!isValidLeftover && !collateralChange.eq(0)} animateOpacity>
+        <Collapse in={!isValidLeftover && !collateralChange.eq(0)} animateOpacity unmountOnExit>
           <Alert mb={6} status="info" borderRadius="6px">
             <AlertIcon />
             <Flex direction="column">
@@ -199,7 +199,11 @@ export function Undelegate() {
         </Collapse>
       ) : null}
 
-      <Collapse in={collateralChange.abs().gt(0) && isValidLeftover && isRunning} animateOpacity>
+      <Collapse
+        in={collateralChange.abs().gt(0) && isValidLeftover && isRunning}
+        animateOpacity
+        unmountOnExit
+      >
         <Alert status="warning" mb="6">
           <AlertIcon />
           <Text>
@@ -215,6 +219,7 @@ export function Undelegate() {
             collateralChange.abs().gt(0) && isValidLeftover && !isRunning && maxWithdrawable?.gt(0)
           }
           animateOpacity
+          unmountOnExit
         >
           <Alert status="info" mb="6" borderRadius="6px">
             <AlertIcon />
@@ -252,7 +257,7 @@ export function Undelegate() {
       ) : null}
 
       {network?.preset === 'andromeda' && liquidityPosition ? (
-        <Collapse in={liquidityPosition.debt.gt(0)} animateOpacity>
+        <Collapse in={liquidityPosition.debt.gt(0)} animateOpacity unmountOnExit>
           <Alert status="error" mb="6" borderRadius="6px">
             <AlertIcon />
             <Text>
@@ -288,7 +293,7 @@ export function Undelegate() {
       ) : null}
 
       {liquidityPosition ? (
-        <Collapse in={collateralChange.abs().gt(0)} animateOpacity>
+        <Collapse in={collateralChange.abs().gt(0)} animateOpacity unmountOnExit>
           <TransactionSummary
             mb={6}
             items={[
