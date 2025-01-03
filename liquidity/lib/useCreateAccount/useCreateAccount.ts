@@ -22,17 +22,19 @@ export function useCreateAccount() {
         const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
         const txn = await CoreProxyContract['createAccount()']();
         log('txn', txn);
-        const receipt = await provider.waitForTransaction(txn.hash);
+        const receipt: ethers.providers.TransactionReceipt = log.enabled
+          ? await txn.wait()
+          : await provider.waitForTransaction(txn.hash);
         log('receipt', receipt);
 
         let newAccountId;
 
-        receipt.logs.forEach((log) => {
-          if (log.topics[0] === CoreProxyContract.interface.getEventTopic('AccountCreated')) {
+        receipt.logs.forEach((txLog) => {
+          if (txLog.topics[0] === CoreProxyContract.interface.getEventTopic('AccountCreated')) {
             const [accountId] = CoreProxyContract.interface.decodeEventLog(
               'AccountCreated',
-              log.data,
-              log.topics
+              txLog.data,
+              txLog.topics
             );
             newAccountId = accountId;
           }

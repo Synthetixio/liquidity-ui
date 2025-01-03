@@ -24,7 +24,7 @@ export function useTransferAccountId(to: string, accountId: ethers.BigNumber) {
       );
       const txn = await AccountProxyContract.transferFrom(walletAddress, to, accountId);
       log('txn', txn);
-      const receipt = await provider.waitForTransaction(txn.hash);
+      const receipt = log.enabled ? await txn.wait() : await provider.waitForTransaction(txn.hash);
       log('receipt', receipt);
       return receipt;
     },

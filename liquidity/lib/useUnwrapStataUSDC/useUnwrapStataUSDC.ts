@@ -1,10 +1,8 @@
-import { ZEROWEI } from '@snx-v3/constants';
 import { useNetwork, useProvider, useSigner, useWallet } from '@snx-v3/useBlockchain';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
-import { wei } from '@synthetixio/wei';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import debug from 'debug';
 import { ethers } from 'ethers';
@@ -40,17 +38,17 @@ export function useUnwrapStataUSDC() {
         activeWallet?.address
       );
 
-      const gasLimit = await provider?.estimateGas(transaction);
+      const gasLimit = await provider.estimateGas(transaction);
 
       const gasOptionsForTransaction = formatGasPriceForTransaction({
-        gasLimit: wei(gasLimit || ZEROWEI).toBN(),
+        gasLimit,
         gasPrices,
         gasSpeed,
       });
 
       const txn = await signer.sendTransaction({ ...transaction, ...gasOptionsForTransaction });
       log('txn', txn);
-      const receipt = await provider.waitForTransaction(txn.hash);
+      const receipt = log.enabled ? await txn.wait() : await provider.waitForTransaction(txn.hash);
       log('receipt', receipt);
       return receipt;
     },

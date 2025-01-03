@@ -1,12 +1,10 @@
-import { ZEROWEI } from '@snx-v3/constants';
 import { extractErrorData } from '@snx-v3/parseContractError';
 import { contractsHash } from '@snx-v3/tsHelpers';
-import { useProvider, useNetwork, useSigner } from '@snx-v3/useBlockchain';
+import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useLegacyMarket } from '@snx-v3/useLegacyMarket';
-import { wei } from '@synthetixio/wei';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import debug from 'debug';
 import { ethers } from 'ethers';
@@ -55,7 +53,7 @@ export function useMigrate() {
 
         const gasPrices = await getGasPrice({ provider: signer.provider });
         const gasOptionsForTransaction = formatGasPriceForTransaction({
-          gasLimit: wei(gasLimit || ZEROWEI).toBN(),
+          gasLimit,
           gasPrices,
           gasSpeed,
         });
@@ -102,7 +100,7 @@ export function useMigrate() {
       const gasLimit = await provider?.estimateGas(populateTransaction);
 
       const gasOptionsForTransaction = formatGasPriceForTransaction({
-        gasLimit: wei(gasLimit || ZEROWEI).toBN(),
+        gasLimit,
         gasPrices,
         gasSpeed,
       });
@@ -112,7 +110,7 @@ export function useMigrate() {
       });
 
       log('txn', txn);
-      const receipt = await provider.waitForTransaction(txn.hash);
+      const receipt = log.enabled ? await txn.wait() : await provider.waitForTransaction(txn.hash);
       log('receipt', receipt);
 
       setIsLoading(false);

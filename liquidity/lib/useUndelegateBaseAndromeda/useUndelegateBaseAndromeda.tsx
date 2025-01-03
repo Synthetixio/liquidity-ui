@@ -130,7 +130,7 @@ export function useUndelegateBaseAndromeda({ collateralChange }: { collateralCha
       log('txn', txn);
       dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 
-      const receipt = await provider.waitForTransaction(txn.hash);
+      const receipt = log.enabled ? await txn.wait() : await provider.waitForTransaction(txn.hash);
       log('receipt', receipt);
       return receipt;
     },

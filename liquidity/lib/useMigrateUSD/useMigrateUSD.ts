@@ -1,15 +1,14 @@
-import { useProvider, useNetwork, useSigner } from '@snx-v3/useBlockchain';
-import { useLegacyMarket } from '@snx-v3/useLegacyMarket';
-import { useCallback, useState } from 'react';
-import { getGasPrice } from '@snx-v3/useGasPrice';
-import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
-import { ZEROWEI } from '@snx-v3/constants';
-import Wei, { wei } from '@synthetixio/wei';
-import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { extractErrorData } from '@snx-v3/parseContractError';
+import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
+import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
+import { getGasPrice } from '@snx-v3/useGasPrice';
+import { useGasSpeed } from '@snx-v3/useGasSpeed';
+import { useLegacyMarket } from '@snx-v3/useLegacyMarket';
+import Wei from '@synthetixio/wei';
 import { useQueryClient } from '@tanstack/react-query';
-import { ethers } from 'ethers';
 import debug from 'debug';
+import { ethers } from 'ethers';
+import { useCallback, useState } from 'react';
 
 const log = debug('snx:useMigrateUSD');
 
@@ -42,14 +41,14 @@ export function useMigrateUSD({ amount }: { amount: Wei }) {
       const gasLimit = await provider?.estimateGas(transaction);
 
       const gasOptionsForTransaction = formatGasPriceForTransaction({
-        gasLimit: wei(gasLimit || ZEROWEI).toBN(),
+        gasLimit,
         gasPrices,
         gasSpeed,
       });
 
       const txn = await signer.sendTransaction({ ...transaction, ...gasOptionsForTransaction });
       log('txn', txn);
-      const receipt = await provider.waitForTransaction(txn.hash);
+      const receipt = log.enabled ? await txn.wait() : await provider.waitForTransaction(txn.hash);
       log('receipt', receipt);
 
       setIsLoading(false);
