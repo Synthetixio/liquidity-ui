@@ -113,7 +113,11 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
         </Flex>
       </BorderBox>
 
-      <Collapse in={maxWithdrawable && maxWithdrawable.gt(0) && isRunning} animateOpacity>
+      <Collapse
+        in={maxWithdrawable && maxWithdrawable.gt(0) && isRunning}
+        animateOpacity
+        unmountOnExit
+      >
         <Alert status="warning" mb="6" borderRadius="6px">
           <AlertIcon />
           <Text>
@@ -123,14 +127,22 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
         </Alert>
       </Collapse>
 
-      <Collapse in={maxWithdrawable && maxWithdrawable.gt(0) && !isRunning} animateOpacity>
+      <Collapse
+        in={maxWithdrawable && maxWithdrawable.gt(0) && !isRunning}
+        animateOpacity
+        unmountOnExit
+      >
         <Alert status="success" mb="6" borderRadius="6px">
           <AlertIcon />
           <Amount prefix="You can now withdraw " value={maxWithdrawable} suffix={` ${symbol}`} />
         </Alert>
       </Collapse>
 
-      <Collapse in={maxWithdrawable && withdrawAmount.gt(maxWithdrawable)} animateOpacity>
+      <Collapse
+        in={maxWithdrawable && withdrawAmount.gt(maxWithdrawable)}
+        animateOpacity
+        unmountOnExit
+      >
         <Alert colorScheme="red" mb="6" borderRadius="6px">
           <AlertIcon />
           <Text>

@@ -177,6 +177,7 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
             .gte(liquidityPosition.debt)
         }
         animateOpacity
+        unmountOnExit
       >
         <Alert mb={6} status="error" borderRadius="6px">
           <AlertIcon />

@@ -105,7 +105,7 @@ export function Claim() {
           </Flex>
         </Flex>
       </BorderBox>
-      <Collapse in={debtChange.lte(0) && maxClaimble.gt(0)} animateOpacity>
+      <Collapse in={debtChange.lte(0) && maxClaimble.gt(0)} animateOpacity unmountOnExit>
         <Alert colorScheme="green" mb="6" borderRadius="6px">
           <AlertIcon />
           <Text>
@@ -127,7 +127,7 @@ export function Claim() {
           </Text>
         </Alert>
       </Collapse>
-      <Collapse in={debtChange.gt(0)} animateOpacity>
+      <Collapse in={debtChange.gt(0)} animateOpacity unmountOnExit>
         <Alert status="warning" mb="6" borderRadius="6px">
           <AlertIcon />
           <Text>
@@ -139,6 +139,7 @@ export function Claim() {
       <Collapse
         in={debtChange.lte(0) && network?.preset !== 'andromeda' && maxBorrowingCapacity.gt(0)}
         animateOpacity
+        unmountOnExit
       >
         <Alert colorScheme="blue" mb="6" borderRadius="6px">
           <AlertIcon />
@@ -168,6 +169,7 @@ export function Claim() {
           network?.preset !== 'andromeda'
         }
         animateOpacity
+        unmountOnExit
       >
         <Alert colorScheme="info" mb="6" borderRadius="6px">
           <AlertIcon />
