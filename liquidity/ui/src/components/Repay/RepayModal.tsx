@@ -1,4 +1,4 @@
-import { CheckIcon } from '@chakra-ui/icons';
+import { ArrowUpIcon, CheckIcon } from '@chakra-ui/icons';
 import {
   Button,
   CircularProgress,
@@ -19,7 +19,6 @@ import { useSystemToken } from '@snx-v3/useSystemToken';
 import { WithdrawIncrease } from '@snx-v3/WithdrawIncrease';
 import { Wei, wei } from '@synthetixio/wei';
 import React from 'react';
-import { ArrowUpIcon } from '@chakra-ui/icons';
 
 export function RepayModal({ txnStatus, txnHash }: { txnStatus: string; txnHash: string | null }) {
   const { debtChange, setCollateralChange, setDebtChange } =
@@ -62,7 +61,7 @@ export function RepayModal({ txnStatus, txnHash }: { txnStatus: string; txnHash:
         borderColor="gray.900"
         minWidth="384px"
       >
-        <ModalBody data-cy="claim rewards dialog" p={6}>
+        <ModalBody data-cy="repay dialog" p={6}>
           <Text color="gray.50" fontSize="20px" fontWeight={700}>
             Repaying Debt
           </Text>

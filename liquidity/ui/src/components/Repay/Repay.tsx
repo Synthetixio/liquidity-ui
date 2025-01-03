@@ -12,10 +12,10 @@ import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useRepay } from '@snx-v3/useRepay';
 import { useSystemToken } from '@snx-v3/useSystemToken';
+import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { wei } from '@synthetixio/wei';
 import React from 'react';
 import { RepayModal } from './RepayModal';
-import { useTokenBalance } from '@snx-v3/useTokenBalance';
 
 export function Repay() {
   const [params] = useParams<PositionPageSchemaType>();
@@ -26,7 +26,9 @@ export function Repay() {
     collateralType,
   });
   const { data: systemToken } = useSystemToken();
-  const { data: systemTokenBalance } = useTokenBalance(systemToken?.address);
+  const { data: systemTokenBalance, isPending: isPendingSystemTokenBalance } = useTokenBalance(
+    systemToken?.address
+  );
 
   const availableSystemToken =
     systemTokenBalance && liquidityPosition
@@ -106,8 +108,10 @@ export function Repay() {
               data-cy="current debt amount"
               whiteSpace="nowrap"
             >
-              {isPendingLiquidityPosition ? '~' : null}
-              {!isPendingLiquidityPosition && liquidityPosition && availableSystemToken ? (
+              {isPendingLiquidityPosition || isPendingSystemTokenBalance ? '~' : null}
+              {!(isPendingLiquidityPosition || isPendingSystemTokenBalance) &&
+              liquidityPosition &&
+              availableSystemToken ? (
                 <>
                   {liquidityPosition.debt.abs().gt(availableSystemToken) ? (
                     <>
