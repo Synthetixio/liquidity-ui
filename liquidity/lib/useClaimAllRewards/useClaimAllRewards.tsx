@@ -7,8 +7,6 @@ import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
-import { getGasPrice } from '@snx-v3/useGasPrice';
-import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useRewards } from '@snx-v3/useRewards';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { useSynthTokens } from '@snx-v3/useSynthTokens';
@@ -35,7 +33,6 @@ export function useClaimAllRewards({ accountId }: { accountId?: string }) {
   const { data: synthTokens } = useSynthTokens();
 
   const { data: priceUpdateTx } = useCollateralPriceUpdates();
-  const { gasSpeed } = useGasSpeed();
 
   const errorParser = useContractErrorParser();
 
@@ -84,10 +81,7 @@ export function useClaimAllRewards({ accountId }: { accountId?: string }) {
         }
       });
 
-      const [calls, gasPrices] = await Promise.all([
-        Promise.all(transactions),
-        getGasPrice({ provider }),
-      ]);
+      const calls = await Promise.all(transactions);
       log('calls', calls);
 
       if (priceUpdateTx) {
@@ -102,11 +96,7 @@ export function useClaimAllRewards({ accountId }: { accountId?: string }) {
         'useClaimAllRewards',
         walletAddress
       );
-      const gasOptionsForTransaction = formatGasPriceForTransaction({
-        gasLimit,
-        gasPrices,
-        gasSpeed,
-      });
+      const gasOptionsForTransaction = formatGasPriceForTransaction({ gasLimit });
 
       const txn = await signer.sendTransaction({ ...erc7412Tx, ...gasOptionsForTransaction });
       log('txn', txn);

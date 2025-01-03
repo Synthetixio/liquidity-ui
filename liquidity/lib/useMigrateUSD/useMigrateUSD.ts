@@ -1,8 +1,6 @@
 import { extractErrorData } from '@snx-v3/parseContractError';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
-import { getGasPrice } from '@snx-v3/useGasPrice';
-import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useLegacyMarket } from '@snx-v3/useLegacyMarket';
 import Wei from '@synthetixio/wei';
 import { useQueryClient } from '@tanstack/react-query';
@@ -17,7 +15,6 @@ export function useMigrateUSD({ amount }: { amount: Wei }) {
   const [isSuccess, setIsSuccess] = useState(false);
   const signer = useSigner();
   const { data: LegacyMarket } = useLegacyMarket();
-  const { gasSpeed } = useGasSpeed();
   const provider = useProvider();
   const queryClient = useQueryClient();
   const { network } = useNetwork();
@@ -29,7 +26,6 @@ export function useMigrateUSD({ amount }: { amount: Wei }) {
       }
       setIsLoading(true);
       setIsSuccess(false);
-      const gasPrices = await getGasPrice({ provider: signer.provider });
 
       const LegacyMarketContract = new ethers.Contract(
         LegacyMarket.address,
@@ -38,13 +34,9 @@ export function useMigrateUSD({ amount }: { amount: Wei }) {
       );
 
       const transaction = await LegacyMarketContract.populateTransaction.convertUSD(amount.toBN());
-      const gasLimit = await provider?.estimateGas(transaction);
+      const gasLimit = await provider.estimateGas(transaction);
 
-      const gasOptionsForTransaction = formatGasPriceForTransaction({
-        gasLimit,
-        gasPrices,
-        gasSpeed,
-      });
+      const gasOptionsForTransaction = formatGasPriceForTransaction({ gasLimit });
 
       const txn = await signer.sendTransaction({ ...transaction, ...gasOptionsForTransaction });
       log('txn', txn);
@@ -71,7 +63,7 @@ export function useMigrateUSD({ amount }: { amount: Wei }) {
       setIsLoading(false);
       throw error;
     }
-  }, [amount, gasSpeed, LegacyMarket, network?.id, network?.preset, provider, queryClient, signer]);
+  }, [amount, LegacyMarket, network?.id, network?.preset, provider, queryClient, signer]);
 
   return {
     migrate,

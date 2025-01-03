@@ -1,7 +1,5 @@
 import { useNetwork, useProvider, useSigner, useWallet } from '@snx-v3/useBlockchain';
 import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
-import { getGasPrice } from '@snx-v3/useGasPrice';
-import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import debug from 'debug';
@@ -15,7 +13,6 @@ export function useUnwrapStataUSDC() {
   const { network } = useNetwork();
 
   const { data: StaticAaveUSDC } = useStaticAaveUSDC();
-  const { gasSpeed } = useGasSpeed();
   const queryClient = useQueryClient();
   const { activeWallet } = useWallet();
 
@@ -30,8 +27,6 @@ export function useUnwrapStataUSDC() {
         signer
       );
 
-      const gasPrices = await getGasPrice({ provider: signer!.provider });
-
       const transaction = await StaticAaveUSDCContract.populateTransaction.withdraw(
         amount.toString(),
         activeWallet?.address,
@@ -39,12 +34,7 @@ export function useUnwrapStataUSDC() {
       );
 
       const gasLimit = await provider.estimateGas(transaction);
-
-      const gasOptionsForTransaction = formatGasPriceForTransaction({
-        gasLimit,
-        gasPrices,
-        gasSpeed,
-      });
+      const gasOptionsForTransaction = formatGasPriceForTransaction({ gasLimit });
 
       const txn = await signer.sendTransaction({ ...transaction, ...gasOptionsForTransaction });
       log('txn', txn);
