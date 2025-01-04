@@ -10,7 +10,7 @@ describe(__filename, () => {
     cy.task('startAnvil', {
       chainId: Cypress.env('chainId'),
       forkUrl: `https://mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '21233424',
+      block: '21541800',
     }).then(() => cy.log('Anvil started'));
     cy.pythBypass();
 
@@ -27,6 +27,7 @@ describe(__filename, () => {
   it(__filename, () => {
     cy.setEthBalance({ balance: 100 });
     cy.getSUSD({ amount: 100 });
+    cy.borrowUsd({ symbol: 'SNX', amount: 10, poolId: 1 }); // ensure we have debt
 
     cy.visit(
       `?${makeSearch({
