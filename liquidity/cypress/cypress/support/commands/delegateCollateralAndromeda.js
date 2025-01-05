@@ -3,7 +3,7 @@ import {
   importAllErrors,
   importCoreProxy,
   importDebtRepayer,
-  importMulticall3,
+  importTrustedMulticallForwarder,
   importSpotMarketProxy,
 } from '@snx-v3/contracts';
 import { parseContractError } from '@snx-v3/parseContractError';
@@ -25,7 +25,10 @@ export async function delegateCollateralAndromeda({
 
   const AllErrors = await importAllErrors(Cypress.env('chainId'), Cypress.env('preset'));
 
-  const Multicall3 = await importMulticall3(Cypress.env('chainId'), Cypress.env('preset'));
+  const Multicall3 = await importTrustedMulticallForwarder(
+    Cypress.env('chainId'),
+    Cypress.env('preset')
+  );
   const Multicall3Contract = new ethers.Contract(Multicall3.address, Multicall3.abi, signer);
 
   const CoreProxy = await importCoreProxy(Cypress.env('chainId'), Cypress.env('preset'));

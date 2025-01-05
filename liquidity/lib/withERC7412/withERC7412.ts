@@ -6,7 +6,7 @@ import {
   importAllErrors,
   importClosePosition,
   importCoreProxy,
-  importMulticall3,
+  importTrustedMulticallForwarder,
   importPythERC7412Wrapper,
   importPythVerfier,
   importSpotMarketProxy,
@@ -186,7 +186,7 @@ async function getMulticallTransaction(
   from: string,
   provider: ethers.providers.BaseProvider
 ) {
-  const Multicall3Contract = await importMulticall3(network.id, network.preset);
+  const Multicall3Contract = await importTrustedMulticallForwarder(network.id, network.preset);
   const Multicall3Interface = new ethers.utils.Interface(Multicall3Contract.abi);
 
   const multicallTxn = {
@@ -325,7 +325,7 @@ export async function erc7412Call<T>(
 ) {
   const log = debug(`snx:withERC7412:${label}`);
 
-  const Multicall3Contract = await importMulticall3(network.id, network.preset);
+  const Multicall3Contract = await importTrustedMulticallForwarder(network.id, network.preset);
 
   const from = getDefaultFromAddress(network.name);
 

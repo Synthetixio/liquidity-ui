@@ -4,7 +4,7 @@ import { contractsHash } from '@snx-v3/tsHelpers';
 import { useNetwork, useProvider } from '@snx-v3/useBlockchain';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
-import { useMulticall3 } from '@snx-v3/useMulticall3';
+import { useTrustedMulticallForwarder } from '@snx-v3/useTrustedMulticallForwarder';
 import { useRewardsDistributors } from '@snx-v3/useRewardsDistributors';
 import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { Wei, wei } from '@synthetixio/wei';
@@ -72,7 +72,7 @@ export function useRewards({ accountId }: { accountId?: string }) {
   const provider = useProvider();
   const { data: synthTokens } = useSynthTokens();
   const { data: collateralTypes } = useCollateralTypes();
-  const { data: Multicall3 } = useMulticall3(network);
+  const { data: Multicall3 } = useTrustedMulticallForwarder(network);
   const { data: CoreProxy } = useCoreProxy(network);
   // const { data: AllErrors } = useAllErrors(network);
   const { data: rewardsDistributors } = useRewardsDistributors(network);

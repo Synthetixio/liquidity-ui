@@ -5119,7 +5119,6 @@ __metadata:
     "@snx-v3/useManagePermissions": "workspace:*"
     "@snx-v3/useMigrate": "workspace:*"
     "@snx-v3/useMigrateUSD": "workspace:*"
-    "@snx-v3/useMulticall3": "workspace:*"
     "@snx-v3/useOraclePrice": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
     "@snx-v3/usePoolConfiguration": "workspace:*"
@@ -5139,6 +5138,7 @@ __metadata:
     "@snx-v3/useTokenPrice": "workspace:*"
     "@snx-v3/useTransferAccountId": "workspace:*"
     "@snx-v3/useTransferableSynthetix": "workspace:*"
+    "@snx-v3/useTrustedMulticallForwarder": "workspace:*"
     "@snx-v3/useUSDC": "workspace:*"
     "@snx-v3/useUSDProxy": "workspace:*"
     "@snx-v3/useUndelegate": "workspace:*"
@@ -5318,7 +5318,7 @@ __metadata:
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useAccountProxy": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useMulticall3": "workspace:*"
+    "@snx-v3/useTrustedMulticallForwarder": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
     debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
@@ -5799,7 +5799,7 @@ __metadata:
   dependencies:
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useMulticall3": "workspace:*"
+    "@snx-v3/useTrustedMulticallForwarder": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
     debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
@@ -5841,17 +5841,6 @@ __metadata:
     "@tanstack/react-query": "npm:^5.8.3"
     debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
-    react: "npm:^18.2.0"
-  languageName: unknown
-  linkType: soft
-
-"@snx-v3/useMulticall3@workspace:*, @snx-v3/useMulticall3@workspace:liquidity/lib/contracts/useMulticall3":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/useMulticall3@workspace:liquidity/lib/contracts/useMulticall3"
-  dependencies:
-    "@snx-v3/contracts": "workspace:*"
-    "@snx-v3/useBlockchain": "workspace:*"
-    "@tanstack/react-query": "npm:^5.8.3"
     react: "npm:^18.2.0"
   languageName: unknown
   linkType: soft
@@ -6067,9 +6056,9 @@ __metadata:
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useMulticall3": "workspace:*"
     "@snx-v3/useRewardsDistributors": "workspace:*"
     "@snx-v3/useSynthTokens": "workspace:*"
+    "@snx-v3/useTrustedMulticallForwarder": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     debug: "npm:^4.3.7"
@@ -6140,8 +6129,8 @@ __metadata:
   dependencies:
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useMulticall3": "workspace:*"
     "@snx-v3/useSynthTokens": "workspace:*"
+    "@snx-v3/useTrustedMulticallForwarder": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     debug: "npm:^4.3.7"
@@ -6230,6 +6219,17 @@ __metadata:
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     ethers: "npm:^5.7.2"
+  languageName: unknown
+  linkType: soft
+
+"@snx-v3/useTrustedMulticallForwarder@workspace:*, @snx-v3/useTrustedMulticallForwarder@workspace:liquidity/lib/contracts/useTrustedMulticallForwarder":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useTrustedMulticallForwarder@workspace:liquidity/lib/contracts/useTrustedMulticallForwarder"
+  dependencies:
+    "@snx-v3/contracts": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    react: "npm:^18.2.0"
   languageName: unknown
   linkType: soft
 
@@ -6352,7 +6352,7 @@ __metadata:
   dependencies:
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useMulticall3": "workspace:*"
+    "@snx-v3/useTrustedMulticallForwarder": "workspace:*"
     "@snx-v3/useV2xSynthetix": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"

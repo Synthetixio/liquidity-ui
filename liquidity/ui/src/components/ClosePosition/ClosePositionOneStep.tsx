@@ -16,7 +16,7 @@ import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
 import { getGasPrice } from '@snx-v3/useGasPrice';
 import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { useMulticall3 } from '@snx-v3/useMulticall3';
+import { useTrustedMulticallForwarder } from '@snx-v3/useTrustedMulticallForwarder';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { usePythFeeds } from '@snx-v3/usePythFeeds';
 import { usePythVerifier } from '@snx-v3/usePythVerifier';
@@ -54,7 +54,7 @@ export function ClosePositionOneStep({
   const errorParser = useContractErrorParser();
 
   const { data: CoreProxy } = useCoreProxy();
-  const { data: Multicall3 } = useMulticall3();
+  const { data: Multicall3 } = useTrustedMulticallForwarder();
   const { data: AccountProxy } = useAccountProxy();
   const { data: ClosePosition } = useClosePosition();
   const { data: PythVerfier } = usePythVerifier();

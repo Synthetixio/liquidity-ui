@@ -2,7 +2,7 @@ import { EvmPriceServiceConnection } from '@pythnetwork/pyth-evm-js';
 import { offchainMainnetEndpoint } from '@snx-v3/constants';
 import {
   importExtras,
-  importMulticall3,
+  importTrustedMulticallForwarder,
   importPythERC7412Wrapper,
   importPythFeeds,
   importPythVerfier,
@@ -168,10 +168,8 @@ export const useCollateralPriceUpdates = (customNetwork?: Network) => {
       }
 
       try {
-        const { address: multicallAddress, abi: multiCallAbi } = await importMulticall3(
-          network.id,
-          network.preset
-        );
+        const { address: multicallAddress, abi: multiCallAbi } =
+          await importTrustedMulticallForwarder(network.id, network.preset);
 
         const multicallInterface = new ethers.utils.Interface(multiCallAbi);
         const pythInterface = new ethers.utils.Interface([

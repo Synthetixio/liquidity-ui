@@ -2,14 +2,14 @@ import { useQuery } from '@tanstack/react-query';
 import { Network, useWallet, useProviderForChain } from '@snx-v3/useBlockchain';
 import { useV2xSynthetix } from '@snx-v3/useV2xSynthetix';
 import { wei } from '@synthetixio/wei';
-import { useMulticall3 } from '@snx-v3/useMulticall3';
+import { useTrustedMulticallForwarder } from '@snx-v3/useTrustedMulticallForwarder';
 import { contractsHash } from '@snx-v3/tsHelpers';
 import { ethers } from 'ethers';
 
 export function useV2Position(network: Network) {
   const { activeWallet } = useWallet();
   const provider = useProviderForChain(network);
-  const { data: Multicall3 } = useMulticall3(network);
+  const { data: Multicall3 } = useTrustedMulticallForwarder(network);
   const { data: V2xSynthetix } = useV2xSynthetix(network);
   const walletAddress = activeWallet?.address;
 

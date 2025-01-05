@@ -1,6 +1,6 @@
 import { contractsHash } from '@snx-v3/tsHelpers';
 import { useNetwork, useProvider, useWallet } from '@snx-v3/useBlockchain';
-import { useMulticall3 } from '@snx-v3/useMulticall3';
+import { useTrustedMulticallForwarder } from '@snx-v3/useTrustedMulticallForwarder';
 import { useSynthTokens } from '@snx-v3/useSynthTokens';
 import { wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
@@ -16,7 +16,7 @@ export function useSynthBalances() {
   const walletAddress = activeWallet?.address;
 
   const { data: synthTokens } = useSynthTokens();
-  const { data: Multicall3 } = useMulticall3();
+  const { data: Multicall3 } = useTrustedMulticallForwarder();
 
   return useQuery({
     enabled: Boolean(network && Multicall3 && synthTokens && walletAddress),

@@ -1,7 +1,7 @@
 import { contractsHash } from '@snx-v3/tsHelpers';
 import { useAccountProxy } from '@snx-v3/useAccountProxy';
 import { useNetwork, useProvider, useWallet } from '@snx-v3/useBlockchain';
-import { useMulticall3 } from '@snx-v3/useMulticall3';
+import { useTrustedMulticallForwarder } from '@snx-v3/useTrustedMulticallForwarder';
 import { useQuery } from '@tanstack/react-query';
 import debug from 'debug';
 import { ethers } from 'ethers';
@@ -13,7 +13,7 @@ export function useAccounts() {
   const { network } = useNetwork();
   const provider = useProvider();
   const { data: AccountProxy } = useAccountProxy();
-  const { data: Multicall3 } = useMulticall3();
+  const { data: Multicall3 } = useTrustedMulticallForwarder();
   const walletAddress = activeWallet?.address;
 
   return useQuery({
