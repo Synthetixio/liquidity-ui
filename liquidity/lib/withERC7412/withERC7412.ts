@@ -128,7 +128,9 @@ export async function logMulticall({
   const ClosePositionContract = await importClosePosition(network.id, network.preset).catch(
     () => undefined
   );
-  const PythERC7412Wrapper = await importPythERC7412Wrapper(network.id, network.preset);
+  const PythERC7412Wrapper = await importPythERC7412Wrapper(network.id, network.preset).catch(
+    () => undefined
+  );
   const PythVerfier = await importPythVerfier(network.id, network.preset);
   const AllInterface = new ethers.utils.Interface(
     dedupedAbi([
@@ -137,7 +139,7 @@ export async function logMulticall({
       ...AccountProxyContract.abi,
       ...USDProxyContract.abi,
       ...(ClosePositionContract ? ClosePositionContract.abi : []),
-      ...PythERC7412Wrapper.abi,
+      ...(PythERC7412Wrapper ? PythERC7412Wrapper.abi : []),
       ...PythVerfier.abi,
     ])
   );
@@ -220,6 +222,7 @@ export const withERC7412 = async (
   const log = debug(`snx:withERC7412:${label}`);
 
   if (!(await deploymentHasERC7412(network.id, network.preset))) {
+    await logMulticall({ network, calls, label });
     return await getMulticallTransaction(network, calls, from, provider);
   }
 
