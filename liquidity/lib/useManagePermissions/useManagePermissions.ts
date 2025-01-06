@@ -1,6 +1,6 @@
 import { useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
-import { useMulticall3 } from '@snx-v3/useMulticall3';
+import { useTrustedMulticallForwarder } from '@snx-v3/useTrustedMulticallForwarder';
 import { useMutation } from '@tanstack/react-query';
 import debug from 'debug';
 import { ethers } from 'ethers';
@@ -40,7 +40,7 @@ export const useManagePermissions = ({
   selected: Permissions;
 }) => {
   const { data: CoreProxy } = useCoreProxy();
-  const { data: Multicall3 } = useMulticall3();
+  const { data: Multicall3 } = useTrustedMulticallForwarder();
   const signer = useSigner();
   const provider = useProvider();
 

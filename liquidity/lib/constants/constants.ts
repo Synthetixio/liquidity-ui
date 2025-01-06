@@ -5,17 +5,11 @@ export const LOCAL_STORAGE_KEYS = {
   SHOW_TESTNETS: 'SHOW_TESTNETS',
 };
 export const ZEROWEI = new Wei(0);
-export const ONEWEI = new Wei(1);
-export const MAXUINT = new Wei(ethers.constants.MaxUint256);
 
 export const D6 = ethers.utils.parseUnits('1', 6);
 export const D18 = ethers.utils.parseUnits('1', 18);
 export const D27 = ethers.utils.parseUnits('1', 27);
 
-export const GWEI_DECIMALS = 9;
-export const GAS_LIMIT_MULTIPLIER = 1.5;
-
-export const DEFAULT_QUERY_REFRESH_INTERVAL = 600_000; // 10min
 export const DEFAULT_QUERY_STALE_TIME = 300_000; // 5min
 
 export const INFURA_KEY = process.env.INFURA_KEY || '8678fe160b1f4d45ad3f3f71502fc57b';

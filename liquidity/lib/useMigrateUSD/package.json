@@ -4,12 +4,8 @@
   "main": "index.ts",
   "version": "0.0.1",
   "dependencies": {
-    "@snx-v3/constants": "workspace:*",
     "@snx-v3/parseContractError": "workspace:*",
     "@snx-v3/useBlockchain": "workspace:*",
-    "@snx-v3/useGasOptions": "workspace:*",
-    "@snx-v3/useGasPrice": "workspace:*",
-    "@snx-v3/useGasSpeed": "workspace:*",
     "@snx-v3/useLegacyMarket": "workspace:*",
     "@synthetixio/wei": "^2.74.4",
     "@tanstack/react-query": "^5.8.3",

@@ -7,9 +7,6 @@ import { approveAbi } from '@snx-v3/useApprove';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
-import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
-import { getGasPrice } from '@snx-v3/useGasPrice';
-import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { useGetUSDTokens } from '@snx-v3/useGetUSDTokens';
 import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
 import { useSystemToken } from '@snx-v3/useSystemToken';
@@ -44,7 +41,6 @@ export const useRepayBaseAndromeda = ({
 
   const signer = useSigner();
   const { network } = useNetwork();
-  const { gasSpeed } = useGasSpeed();
   const provider = useProvider();
 
   const queryClient = useQueryClient();
@@ -134,7 +130,7 @@ export const useRepayBaseAndromeda = ({
         [wrap, synth_approval, sell_synth, sUSD_Approval, deposit, burn].filter(notNil)
       );
 
-      const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
+      const [calls] = await Promise.all([callsPromise]);
       if (priceUpdateTx) {
         calls.unshift(priceUpdateTx as any);
       }
@@ -148,13 +144,10 @@ export const useRepayBaseAndromeda = ({
         walletAddress
       );
 
-      const gasOptionsForTransaction = formatGasPriceForTransaction({
-        gasLimit,
-        gasPrices,
-        gasSpeed,
+      const txn = await signer.sendTransaction({
+        ...erc7412Tx,
+        gasLimit: gasLimit.mul(15).div(10),
       });
-
-      const txn = await signer.sendTransaction({ ...erc7412Tx, ...gasOptionsForTransaction });
       log('txn', txn);
       dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 

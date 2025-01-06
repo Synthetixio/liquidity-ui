@@ -9,8 +9,10 @@ describe(__filename, () => {
   beforeEach(() => {
     cy.task('startAnvil', {
       chainId: Cypress.env('chainId'),
-      forkUrl: `https://arbitrum-mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '271813668',
+      forkUrl:
+        Cypress.env('RPC_ARBITRUM_MAINNET') ??
+        `https://arbitrum-mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
+      block: '291378200',
     }).then(() => cy.log('Anvil started'));
     cy.pythBypass();
 

@@ -2,13 +2,13 @@ import { EvmPriceServiceConnection } from '@pythnetwork/pyth-evm-js';
 import { offchainMainnetEndpoint } from '@snx-v3/constants';
 import {
   importExtras,
-  importMulticall3,
   importPythERC7412Wrapper,
   importPythFeeds,
-  importPythVerfier,
+  importPythVerifier,
+  importTrustedMulticallForwarder,
 } from '@snx-v3/contracts';
 import { parseUnits } from '@snx-v3/format';
-import { Network, useProvider, useNetwork, useWallet } from '@snx-v3/useBlockchain';
+import { Network, useNetwork, useProvider, useWallet } from '@snx-v3/useBlockchain';
 import { networksOffline } from '@snx-v3/usePoolsList';
 import { wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
@@ -83,7 +83,7 @@ export const getPriceUpdates = async (priceIds: string[], network: Network) => {
   }
   const unique = Array.from(new Set(priceIds));
   const signedOffchainData = await priceService.getPriceFeedsUpdateData(unique);
-  const PythVerfier = await importPythVerfier(network.id, network.preset);
+  const PythVerfier = await importPythVerifier(network.id, network.preset);
 
   return {
     to: PythVerfier.address,
@@ -168,10 +168,8 @@ export const useCollateralPriceUpdates = (customNetwork?: Network) => {
       }
 
       try {
-        const { address: multicallAddress, abi: multiCallAbi } = await importMulticall3(
-          network.id,
-          network.preset
-        );
+        const { address: multicallAddress, abi: multiCallAbi } =
+          await importTrustedMulticallForwarder(network.id, network.preset);
 
         const multicallInterface = new ethers.utils.Interface(multiCallAbi);
         const pythInterface = new ethers.utils.Interface([

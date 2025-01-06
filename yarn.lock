@@ -2749,14 +2749,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cypress/code-coverage@npm:^3.12.39":
-  version: 3.12.39
-  resolution: "@cypress/code-coverage@npm:3.12.39"
+"@cypress/code-coverage@npm:^3.13.9":
+  version: 3.13.9
+  resolution: "@cypress/code-coverage@npm:3.13.9"
   dependencies:
     "@cypress/webpack-preprocessor": "npm:^6.0.0"
     chalk: "npm:4.1.2"
-    dayjs: "npm:1.11.10"
-    debug: "npm:4.3.4"
+    dayjs: "npm:1.11.13"
+    debug: "npm:4.3.7"
     execa: "npm:4.1.0"
     globby: "npm:11.1.0"
     istanbul-lib-coverage: "npm:^3.0.0"
@@ -2768,7 +2768,7 @@ __metadata:
     babel-loader: ^8.3 || ^9
     cypress: "*"
     webpack: ^4 || ^5
-  checksum: 10/f045265ab942aa6f48d9ecedc4626f85f8db863b7e52edc699f07276c4acf89eb619fbf2472ef2e12028dba21b743f8984bf41568cdc0ad1eff75387ba9afe65
+  checksum: 10/5c6fedd2e4e2ff4e221d440832cc00a9d7a420f2ada1a93ce1f68991397900f6179aa11730de018b785a452fdad18b4b69e6d695e1f2bfcbaa14e0b33dc3f8a3
   languageName: node
   linkType: hard
 
@@ -3980,14 +3980,14 @@ __metadata:
   linkType: hard
 
 "@motionone/animation@npm:^10.15.1, @motionone/animation@npm:^10.17.0":
-  version: 10.18.0
-  resolution: "@motionone/animation@npm:10.18.0"
+  version: 10.17.0
+  resolution: "@motionone/animation@npm:10.17.0"
   dependencies:
-    "@motionone/easing": "npm:^10.18.0"
-    "@motionone/types": "npm:^10.17.1"
-    "@motionone/utils": "npm:^10.18.0"
+    "@motionone/easing": "npm:^10.17.0"
+    "@motionone/types": "npm:^10.17.0"
+    "@motionone/utils": "npm:^10.17.0"
     tslib: "npm:^2.3.1"
-  checksum: 10/c7fc04dd10d6cade3d3b63d26f2532a2b2731233afc0454722e55ad8061fb3923d926db9cc09f1bcedb39f504fcee1e80adaab270523846998aad3017364a583
+  checksum: 10/85ac8a36f33b7510cec239b12d90eec38a8f191158e2686c95c7ba237b17cac0e14b1533748fb27e10c18b8f4f4ea9798bc0a9286cf854852ab957d290a09ba9
   languageName: node
   linkType: hard
 
@@ -4005,24 +4005,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@motionone/easing@npm:^10.18.0":
-  version: 10.18.0
-  resolution: "@motionone/easing@npm:10.18.0"
+"@motionone/easing@npm:^10.17.0":
+  version: 10.17.0
+  resolution: "@motionone/easing@npm:10.17.0"
   dependencies:
-    "@motionone/utils": "npm:^10.18.0"
+    "@motionone/utils": "npm:^10.17.0"
     tslib: "npm:^2.3.1"
-  checksum: 10/a455a06ccee907ce9da7b1dfe392060a473132733e3f92bbee3a99c36af7baa333cf3c6e38c6d44ad0f9878fdafca3c3f4bcfe55aaeb2a633e45d8e0429f8fa5
+  checksum: 10/69f0fc4999a209801b128586cbb328937d9db1c091bed26762d30d035ecc5c01b0cbdce610c6550f609c0be78c1ad03c808e6c61f15fc52621f614449ce10a86
   languageName: node
   linkType: hard
 
 "@motionone/generators@npm:^10.17.0":
-  version: 10.18.0
-  resolution: "@motionone/generators@npm:10.18.0"
+  version: 10.17.0
+  resolution: "@motionone/generators@npm:10.17.0"
   dependencies:
-    "@motionone/types": "npm:^10.17.1"
-    "@motionone/utils": "npm:^10.18.0"
+    "@motionone/types": "npm:^10.17.0"
+    "@motionone/utils": "npm:^10.17.0"
     tslib: "npm:^2.3.1"
-  checksum: 10/149720881e8db6a1ff38cea98349c3a00f72e5318b645459b68a2aeddb1f2be63ad2ae8978f6c4a63e2414f39e65f06de13a43fd35cf24dc3fb3e3c7f87526bc
+  checksum: 10/06bd6c16cdb3c9fbb3a3fca05d6941d5e756b6ce151e2e9cc4f49c3b021fb54a5b970b01e3ddae9d77175e58b66cacb00927ee829f545fafd0bbdbdc838933aa
   languageName: node
   linkType: hard
 
@@ -4036,21 +4036,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@motionone/types@npm:^10.15.1, @motionone/types@npm:^10.17.0, @motionone/types@npm:^10.17.1":
-  version: 10.17.1
-  resolution: "@motionone/types@npm:10.17.1"
-  checksum: 10/21d92d733ba30f810b72609fe04f2ef86125ba0160b826974605cc4cc5fbb6ab7bbf1640cbc64fd6298eb8d36fb920ad3ca646c76adf0e2c47a4920200616952
+"@motionone/types@npm:^10.15.1, @motionone/types@npm:^10.17.0":
+  version: 10.17.0
+  resolution: "@motionone/types@npm:10.17.0"
+  checksum: 10/9449991493f6e7be59261e4fc1a3d4a5b842da8962084d742905f964b4d3aad5fd6c37bd95d5ab51f65fda7b0c389a332c5f7c7eccd6be54eb765ee2fc6e7070
   languageName: node
   linkType: hard
 
-"@motionone/utils@npm:^10.15.1, @motionone/utils@npm:^10.17.0, @motionone/utils@npm:^10.18.0":
-  version: 10.18.0
-  resolution: "@motionone/utils@npm:10.18.0"
+"@motionone/utils@npm:^10.15.1, @motionone/utils@npm:^10.17.0":
+  version: 10.17.0
+  resolution: "@motionone/utils@npm:10.17.0"
   dependencies:
-    "@motionone/types": "npm:^10.17.1"
+    "@motionone/types": "npm:^10.17.0"
     hey-listen: "npm:^1.0.8"
     tslib: "npm:^2.3.1"
-  checksum: 10/0fa9232d132383880d6004522ded763d60f490946584e02bca7f64df98fae07421071f3a85de06aa6ecb52632a47a7586b4143e824e459a87cc852fab657e549
+  checksum: 10/030359d37a6edebf29e0477050e638340f3756fc993a75b877e923b31ed4f3092a61f9d2323494f4b561ada1afc5ea774fb34022e7afbe2ec449c215585ab392
   languageName: node
   linkType: hard
 
@@ -4073,12 +4073,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/curves@npm:1.6.0, @noble/curves@npm:^1.2.0, @noble/curves@npm:^1.4.0, @noble/curves@npm:^1.6.0, @noble/curves@npm:~1.6.0":
-  version: 1.6.0
-  resolution: "@noble/curves@npm:1.6.0"
+"@noble/curves@npm:1.7.0, @noble/curves@npm:^1.2.0, @noble/curves@npm:^1.4.0, @noble/curves@npm:^1.6.0, @noble/curves@npm:~1.7.0":
+  version: 1.7.0
+  resolution: "@noble/curves@npm:1.7.0"
   dependencies:
-    "@noble/hashes": "npm:1.5.0"
-  checksum: 10/9090b5a020b7e38c7b6d21506afaacd0c7557129d716a174334c1efc36385bf3ca6de16a543c216db58055e019c6a6c3bea8d9c0b79386e6bacff5c4c6b438a9
+    "@noble/hashes": "npm:1.6.0"
+  checksum: 10/2a11ef4895907d0b241bd3b72f9e6ebe56f0e705949bfd5efe003f25233549f620d287550df2d24ad56a1f953b82ec5f7cf4bd7cb78b1b2e76eb6dd516d44cf8
   languageName: node
   linkType: hard
 
@@ -4089,10 +4089,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/hashes@npm:1.5.0, @noble/hashes@npm:^1.2.0, @noble/hashes@npm:^1.3.2, @noble/hashes@npm:^1.4.0, @noble/hashes@npm:^1.5.0, @noble/hashes@npm:~1.5.0":
-  version: 1.5.0
-  resolution: "@noble/hashes@npm:1.5.0"
-  checksum: 10/da7fc7af52af7afcf59810a7eea6155075464ff462ffda2572dc6d57d53e2669b1ea2ec774e814f6273f1697e567f28d36823776c9bf7068cba2a2855140f26e
+"@noble/hashes@npm:1.6.0":
+  version: 1.6.0
+  resolution: "@noble/hashes@npm:1.6.0"
+  checksum: 10/b44b043b02adbecd33596adeed97d9f9864c24a2410f7ac3b847986c2ecf1f6f0df76024b3f1b14d6ea954932960d88898fe551fb9d39844a8b870e9f9044ea1
+  languageName: node
+  linkType: hard
+
+"@noble/hashes@npm:1.6.1, @noble/hashes@npm:^1.2.0, @noble/hashes@npm:^1.3.2, @noble/hashes@npm:^1.4.0, @noble/hashes@npm:^1.5.0, @noble/hashes@npm:~1.6.0":
+  version: 1.6.1
+  resolution: "@noble/hashes@npm:1.6.1"
+  checksum: 10/74d9ad7b1437a22ba3b877584add3367587fbf818113152f293025d20d425aa74c191d18d434797312f2270458bc9ab3241c34d14ec6115fb16438b3248f631f
   languageName: node
   linkType: hard
 
@@ -4518,10 +4525,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scure/base@npm:~1.1.0, @scure/base@npm:~1.1.7, @scure/base@npm:~1.1.8":
+"@scure/base@npm:~1.1.0":
   version: 1.1.9
   resolution: "@scure/base@npm:1.1.9"
   checksum: 10/f0ab7f687bbcdee2a01377fe3cd808bf63977999672751295b6a92625d5322f4754a96d40f6bd579bc367aad48ecf8a4e6d0390e70296e6ded1076f52adb16bb
+  languageName: node
+  linkType: hard
+
+"@scure/base@npm:~1.2.1":
+  version: 1.2.1
+  resolution: "@scure/base@npm:1.2.1"
+  checksum: 10/f7bdd17618ccae7a74c8cbe410a235e4adbe54aa8afe4e2fb1294338aa92f6fd04b1f1f5dea60552f638b5f5e3e74902b7baf59d3954e5e42c0a36c6baa2ebe0
   languageName: node
   linkType: hard
 
@@ -4536,14 +4550,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scure/bip32@npm:1.5.0, @scure/bip32@npm:^1.5.0":
-  version: 1.5.0
-  resolution: "@scure/bip32@npm:1.5.0"
+"@scure/bip32@npm:1.6.0, @scure/bip32@npm:^1.5.0":
+  version: 1.6.0
+  resolution: "@scure/bip32@npm:1.6.0"
   dependencies:
-    "@noble/curves": "npm:~1.6.0"
-    "@noble/hashes": "npm:~1.5.0"
-    "@scure/base": "npm:~1.1.7"
-  checksum: 10/17e296a782e09aec18ed27e2e8bb6a76072604c40997ec49a6840f223296421612dbe6b44275f04db9acd6da6cefb0322141110f5ac9dc686eb0c44d5bd868fa
+    "@noble/curves": "npm:~1.7.0"
+    "@noble/hashes": "npm:~1.6.0"
+    "@scure/base": "npm:~1.2.1"
+  checksum: 10/2efb81ed9a7b8d5d35233e10abebc114544a3783a2a32b9fb60e1e9a67965b272c9d17910e1649083b69c8ceb80241b05b59dbeb7a5b18ea34e497aed3f16709
   languageName: node
   linkType: hard
 
@@ -4557,13 +4571,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scure/bip39@npm:1.4.0, @scure/bip39@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "@scure/bip39@npm:1.4.0"
+"@scure/bip39@npm:1.5.0, @scure/bip39@npm:^1.4.0":
+  version: 1.5.0
+  resolution: "@scure/bip39@npm:1.5.0"
   dependencies:
-    "@noble/hashes": "npm:~1.5.0"
-    "@scure/base": "npm:~1.1.8"
-  checksum: 10/f86e0e79768c95bc684ed6de92892b1a6f228db0f8fab836f091c0ec0f6d1e291b8c4391cfbeaa9ea83f41045613535b1940cd10e7d780a5b73db163b1e7f151
+    "@noble/hashes": "npm:~1.6.0"
+    "@scure/base": "npm:~1.2.1"
+  checksum: 10/b795ee31ac4c10603bf3b726cc0e5cf43834a68f05a535e0baf2162772bac100de470b4c6cf7ddbecb95d7a3fb82b8a959badced406c329ab696cd89104194bc
   languageName: node
   linkType: hard
 
@@ -4815,7 +4829,6 @@ __metadata:
     "@snx-v3/useSpotMarketProxy": "workspace:*"
     "@snx-v3/useSynthTokens": "workspace:*"
     "@snx-v3/useSystemToken": "workspace:*"
-    "@snx-v3/useTokenBalance": "workspace:*"
     "@xstate/react": "npm:^3.2.2"
     react: "npm:^18.2.0"
     xstate: "npm:^4.38.3"
@@ -4946,7 +4959,6 @@ __metadata:
   resolution: "@snx-v3/contracts@workspace:liquidity/lib/contracts/importers"
   dependencies:
     "@synthetixio/v3-contracts": "npm:^7.1.0"
-    viem: "npm:^2.13.5"
   languageName: unknown
   linkType: soft
 
@@ -4961,16 +4973,6 @@ __metadata:
 "@snx-v3/etherscanLink@workspace:*, @snx-v3/etherscanLink@workspace:liquidity/lib/etherscanLink":
   version: 0.0.0-use.local
   resolution: "@snx-v3/etherscanLink@workspace:liquidity/lib/etherscanLink"
-  languageName: unknown
-  linkType: soft
-
-"@snx-v3/feeSuggestion@workspace:*, @snx-v3/feeSuggestion@workspace:liquidity/lib/feeSuggestion":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/feeSuggestion@workspace:liquidity/lib/feeSuggestion"
-  dependencies:
-    "@snx-v3/constants": "workspace:*"
-    "@synthetixio/wei": "npm:^2.74.4"
-    ethers: "npm:^5.7.2"
   languageName: unknown
   linkType: soft
 
@@ -5021,14 +5023,14 @@ __metadata:
   resolution: "@snx-v3/liquidity-cypress@workspace:liquidity/cypress"
   dependencies:
     "@chakra-ui/react": "npm:^2.8.2"
-    "@cypress/code-coverage": "npm:^3.12.39"
+    "@cypress/code-coverage": "npm:^3.13.9"
     "@snx-v3/contracts": "workspace:*"
     "@snx-v3/liquidity": "workspace:*"
     "@snx-v3/parseContractError": "workspace:*"
     "@snx-v3/theme": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
-    cypress: "npm:13.16.0"
-    cypress-terminal-report: "npm:^7.0.4"
+    cypress: "npm:13.17.0"
+    cypress-terminal-report: "npm:^7.1.0"
     ethers: "npm:^5.7.2"
     react-router-dom: "npm:^6.18.0"
   languageName: unknown
@@ -5094,9 +5096,6 @@ __metadata:
     "@snx-v3/useCreateAccount": "workspace:*"
     "@snx-v3/useDebtRepayer": "workspace:*"
     "@snx-v3/useEthBalance": "workspace:*"
-    "@snx-v3/useGasOptions": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/useIsSynthStataUSDC": "workspace:*"
     "@snx-v3/useLegacyMarket": "workspace:*"
     "@snx-v3/useLiquidityPosition": "workspace:*"
@@ -5106,7 +5105,6 @@ __metadata:
     "@snx-v3/useManagePermissions": "workspace:*"
     "@snx-v3/useMigrate": "workspace:*"
     "@snx-v3/useMigrateUSD": "workspace:*"
-    "@snx-v3/useMulticall3": "workspace:*"
     "@snx-v3/useOraclePrice": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
     "@snx-v3/usePoolConfiguration": "workspace:*"
@@ -5126,6 +5124,7 @@ __metadata:
     "@snx-v3/useTokenPrice": "workspace:*"
     "@snx-v3/useTransferAccountId": "workspace:*"
     "@snx-v3/useTransferableSynthetix": "workspace:*"
+    "@snx-v3/useTrustedMulticallForwarder": "workspace:*"
     "@snx-v3/useUSDC": "workspace:*"
     "@snx-v3/useUSDProxy": "workspace:*"
     "@snx-v3/useUndelegate": "workspace:*"
@@ -5305,7 +5304,7 @@ __metadata:
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useAccountProxy": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useMulticall3": "workspace:*"
+    "@snx-v3/useTrustedMulticallForwarder": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
     debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
@@ -5340,9 +5339,6 @@ __metadata:
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useAllowance": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useGasOptions": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@snx-v3/useGasSpeed": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
     debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
@@ -5407,9 +5403,6 @@ __metadata:
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useGasOptions": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -5431,9 +5424,6 @@ __metadata:
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useContractErrorParser": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useGasOptions": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/useRewards": "workspace:*"
     "@snx-v3/useSpotMarketProxy": "workspace:*"
     "@snx-v3/useSynthTokens": "workspace:*"
@@ -5457,9 +5447,6 @@ __metadata:
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useDebtRepayer": "workspace:*"
-    "@snx-v3/useGasOptions": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/useSpotMarketProxy": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -5600,9 +5587,6 @@ __metadata:
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useGasOptions": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -5624,9 +5608,6 @@ __metadata:
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useGasOptions": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/useSpotMarketProxy": "workspace:*"
     "@snx-v3/useSynthToken": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
@@ -5646,40 +5627,6 @@ __metadata:
     "@snx-v3/zod": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
-  languageName: unknown
-  linkType: soft
-
-"@snx-v3/useGasOptions@workspace:*, @snx-v3/useGasOptions@workspace:liquidity/lib/useGasOptions":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/useGasOptions@workspace:liquidity/lib/useGasOptions"
-  dependencies:
-    "@ethersproject/bignumber": "npm:^5.7.0"
-    "@snx-v3/constants": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@synthetixio/wei": "npm:^2.74.4"
-    react: "npm:^18.2.0"
-  languageName: unknown
-  linkType: soft
-
-"@snx-v3/useGasPrice@workspace:*, @snx-v3/useGasPrice@workspace:liquidity/lib/useGasPrice":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/useGasPrice@workspace:liquidity/lib/useGasPrice"
-  dependencies:
-    "@snx-v3/constants": "workspace:*"
-    "@snx-v3/feeSuggestion": "workspace:*"
-    "@snx-v3/useBlockchain": "workspace:*"
-    "@synthetixio/wei": "npm:^2.74.4"
-    "@tanstack/react-query": "npm:^5.8.3"
-    ethers: "npm:^5.7.2"
-    react: "npm:^18.2.0"
-  languageName: unknown
-  linkType: soft
-
-"@snx-v3/useGasSpeed@workspace:*, @snx-v3/useGasSpeed@workspace:liquidity/lib/useGasSpeed":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/useGasSpeed@workspace:liquidity/lib/useGasSpeed"
-  dependencies:
-    react: "npm:^18.2.0"
   languageName: unknown
   linkType: soft
 
@@ -5786,7 +5733,7 @@ __metadata:
   dependencies:
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useMulticall3": "workspace:*"
+    "@snx-v3/useTrustedMulticallForwarder": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
     debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
@@ -5797,15 +5744,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useMigrate@workspace:liquidity/lib/useMigrate"
   dependencies:
-    "@snx-v3/constants": "workspace:*"
     "@snx-v3/parseContractError": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useGasOptions": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/useLegacyMarket": "workspace:*"
-    "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
@@ -5817,28 +5759,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useMigrateUSD@workspace:liquidity/lib/useMigrateUSD"
   dependencies:
-    "@snx-v3/constants": "workspace:*"
     "@snx-v3/parseContractError": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useGasOptions": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/useLegacyMarket": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
-    react: "npm:^18.2.0"
-  languageName: unknown
-  linkType: soft
-
-"@snx-v3/useMulticall3@workspace:*, @snx-v3/useMulticall3@workspace:liquidity/lib/contracts/useMulticall3":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/useMulticall3@workspace:liquidity/lib/contracts/useMulticall3"
-  dependencies:
-    "@snx-v3/contracts": "workspace:*"
-    "@snx-v3/useBlockchain": "workspace:*"
-    "@tanstack/react-query": "npm:^5.8.3"
     react: "npm:^18.2.0"
   languageName: unknown
   linkType: soft
@@ -5949,7 +5876,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/usePositionManager@workspace:liquidity/lib/contracts/usePositionManager":
+"@snx-v3/usePositionManager@workspace:*, @snx-v3/usePositionManager@workspace:liquidity/lib/contracts/usePositionManager":
   version: 0.0.0-use.local
   resolution: "@snx-v3/usePositionManager@workspace:liquidity/lib/contracts/usePositionManager"
   dependencies:
@@ -5999,15 +5926,17 @@ __metadata:
   resolution: "@snx-v3/useRepay@workspace:liquidity/lib/useRepay"
   dependencies:
     "@snx-v3/constants": "workspace:*"
-    "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
+    "@snx-v3/useAccountProxy": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
+    "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useGasOptions": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@snx-v3/useGasSpeed": "workspace:*"
+    "@snx-v3/useLiquidityPosition": "workspace:*"
+    "@snx-v3/useParams": "workspace:*"
+    "@snx-v3/usePositionManager": "workspace:*"
     "@snx-v3/useSystemToken": "workspace:*"
+    "@snx-v3/useTokenBalance": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -6030,9 +5959,6 @@ __metadata:
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useGasOptions": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/useGetUSDTokens": "workspace:*"
     "@snx-v3/useSpotMarketProxy": "workspace:*"
     "@snx-v3/useSystemToken": "workspace:*"
@@ -6054,9 +5980,9 @@ __metadata:
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useMulticall3": "workspace:*"
     "@snx-v3/useRewardsDistributors": "workspace:*"
     "@snx-v3/useSynthTokens": "workspace:*"
+    "@snx-v3/useTrustedMulticallForwarder": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     debug: "npm:^4.3.7"
@@ -6127,8 +6053,8 @@ __metadata:
   dependencies:
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useMulticall3": "workspace:*"
     "@snx-v3/useSynthTokens": "workspace:*"
+    "@snx-v3/useTrustedMulticallForwarder": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     debug: "npm:^4.3.7"
@@ -6220,6 +6146,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/useTrustedMulticallForwarder@workspace:*, @snx-v3/useTrustedMulticallForwarder@workspace:liquidity/lib/contracts/useTrustedMulticallForwarder":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useTrustedMulticallForwarder@workspace:liquidity/lib/contracts/useTrustedMulticallForwarder"
+  dependencies:
+    "@snx-v3/contracts": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/useUSDC@workspace:*, @snx-v3/useUSDC@workspace:liquidity/lib/contracts/useUSDC":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useUSDC@workspace:liquidity/lib/contracts/useUSDC"
@@ -6250,9 +6187,6 @@ __metadata:
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useGasOptions": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -6276,9 +6210,6 @@ __metadata:
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useDebtRepayer": "workspace:*"
-    "@snx-v3/useGasOptions": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/useLiquidityPosition": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
     "@snx-v3/useSpotMarketProxy": "workspace:*"
@@ -6302,9 +6233,6 @@ __metadata:
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useContractErrorParser": "workspace:*"
-    "@snx-v3/useGasOptions": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/useSpotMarketProxy": "workspace:*"
     "@snx-v3/useSynthBalances": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
@@ -6319,13 +6247,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useUnwrapStataUSDC@workspace:liquidity/lib/useUnwrapStataUSDC"
   dependencies:
-    "@snx-v3/constants": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useGasOptions": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/useStaticAaveUSDC": "workspace:*"
-    "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     debug: "npm:^4.3.7"
     ethers: "npm:^5.7.2"
@@ -6339,7 +6262,7 @@ __metadata:
   dependencies:
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useMulticall3": "workspace:*"
+    "@snx-v3/useTrustedMulticallForwarder": "workspace:*"
     "@snx-v3/useV2xSynthetix": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -6411,9 +6334,6 @@ __metadata:
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useGasOptions": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -6435,9 +6355,6 @@ __metadata:
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useGasOptions": "workspace:*"
-    "@snx-v3/useGasPrice": "workspace:*"
-    "@snx-v3/useGasSpeed": "workspace:*"
     "@snx-v3/useGetUSDTokens": "workspace:*"
     "@snx-v3/useLiquidityPosition": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
@@ -6783,9 +6700,9 @@ __metadata:
   linkType: soft
 
 "@synthetixio/v3-contracts@npm:^7.1.0":
-  version: 7.18.0
-  resolution: "@synthetixio/v3-contracts@npm:7.18.0"
-  checksum: 10/0a45e707b377cfd8a12bb9bcb45e50eb4b0615c5dde8bba20b8a05b9d12ae26be77f9fd07dda4d39738b1b5a51a028de4664649e921b60fcf010406b7c282f3f
+  version: 7.14.0
+  resolution: "@synthetixio/v3-contracts@npm:7.14.0"
+  checksum: 10/27747eb816d7a65bf2933416b31feb58997001fbd0c71a87387260894e08b78725267d82250ee28a88cd1d20be073b511af55a14684317a529ccffc9eeb168bc
   languageName: node
   linkType: hard
 
@@ -8928,9 +8845,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"abitype@npm:1.0.6, abitype@npm:^1.0.6":
-  version: 1.0.6
-  resolution: "abitype@npm:1.0.6"
+"abitype@npm:1.0.7, abitype@npm:^1.0.6":
+  version: 1.0.7
+  resolution: "abitype@npm:1.0.7"
   peerDependencies:
     typescript: ">=5.0.4"
     zod: ^3 >=3.22.0
@@ -8939,7 +8856,7 @@ __metadata:
       optional: true
     zod:
       optional: true
-  checksum: 10/d04d58f90405c29a3c68353508502d7e870feb27418a6281ba9a13e6aaee42c26b2c5f08f648f058b8eaffac32927194b33f396d2451d18afeccfb654c7285c2
+  checksum: 10/6c2c3390a2f90186bf0df73f20cf257dfd9b62d1eb266de6ddf362030dcbd79cd113b4110e52f7802d7b042ea8fdb7ee2f113751b883787c2d9589d56fb4273b
   languageName: node
   linkType: hard
 
@@ -10008,16 +9925,16 @@ __metadata:
   linkType: hard
 
 "browserslist@npm:4":
-  version: 4.24.3
-  resolution: "browserslist@npm:4.24.3"
+  version: 4.24.2
+  resolution: "browserslist@npm:4.24.2"
   dependencies:
-    caniuse-lite: "npm:^1.0.30001688"
-    electron-to-chromium: "npm:^1.5.73"
-    node-releases: "npm:^2.0.19"
+    caniuse-lite: "npm:^1.0.30001669"
+    electron-to-chromium: "npm:^1.5.41"
+    node-releases: "npm:^2.0.18"
     update-browserslist-db: "npm:^1.1.1"
   bin:
     browserslist: cli.js
-  checksum: 10/f5b22757302a4c04036c4ed82ef82d8005c15b809fa006132765f306e8d8a5c02703479f6738db6640f27c0935ebecde4fa5ae3457fc7ad4805156430dba6bc7
+  checksum: 10/f8a9d78bbabe466c57ffd5c50a9e5582a5df9aa68f43078ca62a9f6d0d6c70ba72eca72d0a574dbf177cf55cdca85a46f7eb474917a47ae5398c66f8b76f7d1c
   languageName: node
   linkType: hard
 
@@ -10231,9 +10148,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:1":
-  version: 1.0.30001690
-  resolution: "caniuse-lite@npm:1.0.30001690"
-  checksum: 10/9fb4659eb09a298601b9593739072c481e2f5cc524bd0530e5e0f002e66246da5e866669854dfc0d53195ee36b201dab02f7933a7cdf60ccba7adb2d4a304caf
+  version: 1.0.30001688
+  resolution: "caniuse-lite@npm:1.0.30001688"
+  checksum: 10/2125e900af866ee211c66beca01220c98e72c8a91d25c87b8ab456d3916f56fb1be5feef72556bca746da7aa852fc0118a04669f5ec2e6511eb77c960479e1c0
   languageName: node
   linkType: hard
 
@@ -11097,9 +11014,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress-terminal-report@npm:^7.0.4":
-  version: 7.0.4
-  resolution: "cypress-terminal-report@npm:7.0.4"
+"cypress-terminal-report@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "cypress-terminal-report@npm:7.1.0"
   dependencies:
     chalk: "npm:^4.0.0"
     compare-versions: "npm:^6.1.1"
@@ -11108,13 +11025,13 @@ __metadata:
     superstruct: "npm:0.14.2"
   peerDependencies:
     cypress: ">=10.0.0"
-  checksum: 10/253e01855eb56b842e572e02635521e095e4ca250c4b8c03155d3a1953dfdcc9e496246a118642b9b7ea9137f67debaf6039a2081f377c39a1a483d17038fecd
+  checksum: 10/c8a01e618e04189e66629b4f875ef85c60b0b68b036e53ed4108f51cb004a995151f551ba84cc0e6feefa572ef8328c11a656cdb8bd90f4a54cfd3254f2b6c85
   languageName: node
   linkType: hard
 
-"cypress@npm:13.16.0":
-  version: 13.16.0
-  resolution: "cypress@npm:13.16.0"
+"cypress@npm:13.17.0":
+  version: 13.17.0
+  resolution: "cypress@npm:13.17.0"
   dependencies:
     "@cypress/request": "npm:^3.0.6"
     "@cypress/xvfb": "npm:^1.2.4"
@@ -11161,7 +11078,7 @@ __metadata:
     yauzl: "npm:^2.10.0"
   bin:
     cypress: bin/cypress
-  checksum: 10/f26f4aec806c0826e8fec457cf9d1c19414717b162912af8fd73901e11ae0f2c999779351738c9c61665938135e70685aa940cd6ca2bcd36245e0dba90990373
+  checksum: 10/6c548e2adf7ae127365570680aa32015dbeb94cad30ce4f8a92e2e58d8ef7033b7f0ece50579a0a13eb07061feede0c813ff8d1e50e0feb87520dece5be4ba95
   languageName: node
   linkType: hard
 
@@ -11227,10 +11144,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dayjs@npm:1.11.10, dayjs@npm:^1.10.4":
-  version: 1.11.10
-  resolution: "dayjs@npm:1.11.10"
-  checksum: 10/27e8f5bc01c0a76f36c656e62ab7f08c2e7b040b09e613cd4844abf03fb258e0350f0a83b02c887b84d771c1f11e092deda0beef8c6df2a1afbc3f6c1fade279
+"dayjs@npm:1.11.13, dayjs@npm:^1.10.4":
+  version: 1.11.13
+  resolution: "dayjs@npm:1.11.13"
+  checksum: 10/7374d63ab179b8d909a95e74790def25c8986e329ae989840bacb8b1888be116d20e1c4eee75a69ea0dfbae13172efc50ef85619d304ee7ca3c01d5878b704f5
   languageName: node
   linkType: hard
 
@@ -11250,7 +11167,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4, debug@npm:^4.3.7":
+"debug@npm:4, debug@npm:4.3.7, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4, debug@npm:^4.3.7":
   version: 4.3.7
   resolution: "debug@npm:4.3.7"
   dependencies:
@@ -11784,10 +11701,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron-to-chromium@npm:^1.5.73":
-  version: 1.5.76
-  resolution: "electron-to-chromium@npm:1.5.76"
-  checksum: 10/2e8ead6caf746385a8789ced87da8ed98629b3c6bcf19e50e1feb51c2cc5b501fd068c2fa9eefd6c513fb4f07c44d2bd7ead432c083c3798107dc920a3cda1d8
+"electron-to-chromium@npm:^1.5.41":
+  version: 1.5.47
+  resolution: "electron-to-chromium@npm:1.5.47"
+  checksum: 10/016857479decb4ff3c9716d6db81b66a2217451778d6ecbd56f7957ff2ced8b99d2da371ed6a65534fcffba258b76e1740a8b1b9a6952eaff93c9ae0d4cb3f03
   languageName: node
   linkType: hard
 
@@ -16488,10 +16405,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-releases@npm:^2.0.19":
-  version: 2.0.19
-  resolution: "node-releases@npm:2.0.19"
-  checksum: 10/c2b33b4f0c40445aee56141f13ca692fa6805db88510e5bbb3baadb2da13e1293b738e638e15e4a8eb668bb9e97debb08e7a35409b477b5cc18f171d35a83045
+"node-releases@npm:^2.0.18":
+  version: 2.0.18
+  resolution: "node-releases@npm:2.0.18"
+  checksum: 10/241e5fa9556f1c12bafb83c6c3e94f8cf3d8f2f8f904906ecef6e10bcaa1d59aa61212d4651bec70052015fc54bd3fdcdbe7fc0f638a17e6685aa586c076ec4e
   languageName: node
   linkType: hard
 
@@ -16817,9 +16734,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ox@npm:0.1.2":
-  version: 0.1.2
-  resolution: "ox@npm:0.1.2"
+"ox@npm:0.6.0":
+  version: 0.6.0
+  resolution: "ox@npm:0.6.0"
   dependencies:
     "@adraffy/ens-normalize": "npm:^1.10.1"
     "@noble/curves": "npm:^1.6.0"
@@ -16833,7 +16750,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10/cba00f13289599ff03cee3dbc19167c1d0f01829379d119f962b4e951ee2bf0d14491c7a45974e6a2a745117b13b22e9e4131d285e1f5247ea4e1cbc43c5c3d8
+  checksum: 10/b089b2d09035def8d3f6d17ab1dd792fd7f1a4d8e008aa96bc50a8cef24ddb8e608ec828f4d83cf959b080a7c854921449e4d061f45f6dee944f48bd0971e60f
   languageName: node
   linkType: hard
 
@@ -20335,16 +20252,16 @@ __metadata:
   linkType: hard
 
 "viem@npm:^2":
-  version: 2.21.45
-  resolution: "viem@npm:2.21.45"
+  version: 2.22.2
+  resolution: "viem@npm:2.22.2"
   dependencies:
-    "@noble/curves": "npm:1.6.0"
-    "@noble/hashes": "npm:1.5.0"
-    "@scure/bip32": "npm:1.5.0"
-    "@scure/bip39": "npm:1.4.0"
-    abitype: "npm:1.0.6"
+    "@noble/curves": "npm:1.7.0"
+    "@noble/hashes": "npm:1.6.1"
+    "@scure/bip32": "npm:1.6.0"
+    "@scure/bip39": "npm:1.5.0"
+    abitype: "npm:1.0.7"
     isows: "npm:1.0.6"
-    ox: "npm:0.1.2"
+    ox: "npm:0.6.0"
     webauthn-p256: "npm:0.0.10"
     ws: "npm:8.18.0"
   peerDependencies:
@@ -20352,7 +20269,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10/93428588882620de5ed442a5a568367762d39660bdb4ff9c430d5409da1dca085a3648bf0afedb6631bb219b410e58ccabf600ed26228ab9ae73a77a1031c576
+  checksum: 10/374b37fdd4b1344e3a864434b20263f3f64536eef3142d4866fb971a7d204bfb1a12dc42c042b622b088fda6344e7f92f30be1e54bdcddb2d561bf1fad6c1c42
   languageName: node
   linkType: hard
 

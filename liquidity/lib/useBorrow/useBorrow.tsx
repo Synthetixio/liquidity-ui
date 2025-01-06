@@ -3,9 +3,6 @@ import { initialState, reducer } from '@snx-v3/txnReducer';
 import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
-import { formatGasPriceForTransaction } from '@snx-v3/useGasOptions';
-import { getGasPrice } from '@snx-v3/useGasPrice';
-import { useGasSpeed } from '@snx-v3/useGasSpeed';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import Wei from '@synthetixio/wei';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -29,7 +26,6 @@ export const useBorrow = ({
   const { data: priceUpdateTx } = useCollateralPriceUpdates();
 
   const signer = useSigner();
-  const { gasSpeed } = useGasSpeed();
   const provider = useProvider();
   const { network } = useNetwork();
 
@@ -55,7 +51,7 @@ export const useBorrow = ({
       );
 
       const callsPromise = Promise.all([populatedTxnPromised]);
-      const [calls, gasPrices] = await Promise.all([callsPromise, getGasPrice({ provider })]);
+      const [calls] = await Promise.all([callsPromise]);
 
       if (priceUpdateTx) {
         calls.unshift(priceUpdateTx as any);
@@ -69,14 +65,10 @@ export const useBorrow = ({
         'useBorrow',
         walletAddress
       );
-
-      const gasOptionsForTransaction = formatGasPriceForTransaction({
-        gasLimit,
-        gasPrices,
-        gasSpeed,
+      const txn = await signer.sendTransaction({
+        ...erc7412Tx,
+        gasLimit: gasLimit.mul(15).div(10),
       });
-
-      const txn = await signer.sendTransaction({ ...erc7412Tx, ...gasOptionsForTransaction });
       log('txn', txn);
       dispatch({ type: 'pending', payload: { txnHash: txn.hash } });
 

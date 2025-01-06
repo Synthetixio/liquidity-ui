@@ -1,16 +1,14 @@
-import { useEffect } from 'react';
-import { BrowserRouter } from 'react-router-dom';
 import { ChakraProvider, extendTheme, useColorMode } from '@chakra-ui/react';
+import { DEFAULT_QUERY_STALE_TIME, SESSION_STORAGE_KEYS } from '@snx-v3/constants';
+import { TermsModal } from '@snx-v3/TermsModal';
 import { Fonts, theme } from '@snx-v3/theme';
-import { DEFAULT_QUERY_STALE_TIME } from '@snx-v3/constants';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { GasSpeedProvider } from '@snx-v3/useGasSpeed';
-import { TermsModal } from '@snx-v3/TermsModal';
-import { SESSION_STORAGE_KEYS } from '@snx-v3/constants';
-import { Router } from './Router';
 import { Web3OnboardProvider } from '@web3-onboard/react';
+import { useEffect } from 'react';
 import Head from 'react-helmet';
+import { BrowserRouter } from 'react-router-dom';
+import { Router } from './Router';
 import { onboard } from './utils/onboard';
 import { Progress } from './utils/theme';
 
@@ -85,14 +83,12 @@ export const App = () => {
           <ChakraProvider theme={extendedTheme}>
             <ColorMode />
             <Fonts />
-            <GasSpeedProvider>
-              <BrowserRouter>
-                <TermsModal
-                  defaultOpen={process.env.NODE_ENV !== 'development' && !TERMS_CONDITIONS_ACCEPTED}
-                />
-                <Router />
-              </BrowserRouter>
-            </GasSpeedProvider>
+            <BrowserRouter>
+              <TermsModal
+                defaultOpen={process.env.NODE_ENV !== 'development' && !TERMS_CONDITIONS_ACCEPTED}
+              />
+              <Router />
+            </BrowserRouter>
             <ReactQueryDevtools />
           </ChakraProvider>
         </Web3OnboardProvider>
