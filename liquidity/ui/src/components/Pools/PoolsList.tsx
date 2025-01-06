@@ -188,11 +188,11 @@ export function PoolsList() {
       <Flex minW="1200px" overflowX="auto" direction="column" gap={4}>
         <Divider width="100%" />
         <Flex flexDir="row" w="100%" gap={4} py={3} px={4} whiteSpace="nowrap">
-          <HeaderText width="240px" justifyContent="left">
+          <HeaderText width="260px" justifyContent="left">
             Collateral / Network
           </HeaderText>
           <HeaderLink
-            width="220px"
+            width="240px"
             href={`?${makeSearch(getSortParams('balance'))}`}
             onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
               e.preventDefault();
@@ -209,7 +209,7 @@ export function PoolsList() {
           </HeaderLink>
 
           <HeaderLink
-            width="220px"
+            width="240px"
             href={`?${makeSearch(getSortParams('tvl'))}`}
             onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
               e.preventDefault();
@@ -226,7 +226,7 @@ export function PoolsList() {
           </HeaderLink>
 
           <HeaderLink
-            width="144px"
+            width="164px"
             href={`?${makeSearch(getSortParams('apy'))}`}
             onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
               e.preventDefault();
@@ -241,8 +241,7 @@ export function PoolsList() {
             )}
             APY / APR
           </HeaderLink>
-          <HeaderText width="121px">Specifics</HeaderText>
-          <Flex minW="159px" flex="1" />
+          <Flex minW="210px" flex="1" />
         </Flex>
 
         {isPending && !filteredPools?.length ? <PoolCardsLoading /> : null}

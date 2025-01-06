@@ -16,8 +16,6 @@ import { useUSDC } from '@snx-v3/useUSDC';
 import { wei } from '@synthetixio/wei';
 import { ethers } from 'ethers';
 import React from 'react';
-import { Specifics } from './Specifics';
-
 interface CollateralTypeWithDeposited extends CollateralType {
   collateralDeposited: string;
 }
@@ -176,7 +174,7 @@ export function PoolRow({
             accountId: params.accountId,
           })}`}
           onClick={onClick}
-          width="240px"
+          width="260px"
           alignItems="center"
           textDecoration="none"
           _hover={{ textDecoration: 'none' }}
@@ -213,7 +211,7 @@ export function PoolRow({
           </Flex>
         </Flex>
 
-        <Flex width="220px" direction="column" alignItems="flex-end">
+        <Flex width="240px" direction="column" alignItems="flex-end">
           <Text
             fontFamily="heading"
             fontSize="14px"
@@ -228,7 +226,7 @@ export function PoolRow({
           </Text>
         </Flex>
 
-        <Flex width="220px" alignItems="center" justifyContent="flex-end">
+        <Flex width="240px" alignItems="center" justifyContent="flex-end">
           <Text
             fontFamily="heading"
             fontSize="14px"
@@ -251,7 +249,7 @@ export function PoolRow({
           </Text>
         </Flex>
 
-        <Flex width="144px" alignItems="center" justifyContent="flex-end">
+        <Flex width="164px" alignItems="center" justifyContent="flex-end">
           <Text
             fontFamily="heading"
             fontSize="14px"
@@ -288,10 +286,7 @@ export function PoolRow({
             </Tooltip>
           </Text>
         </Flex>
-        <Flex alignItems="center" justifyContent="flex-end" width="121px" textAlign="right">
-          <Specifics network={network} collateralType={collateralType} />
-        </Flex>
-        <Flex minW="159px" flex="1" justifyContent="flex-end">
+        <Flex minW="210px" flex="1" justifyContent="flex-end">
           <Button
             as={Link}
             href={`?${makeSearch({
