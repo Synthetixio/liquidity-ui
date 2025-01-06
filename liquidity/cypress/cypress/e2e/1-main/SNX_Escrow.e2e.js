@@ -34,12 +34,12 @@ describe(__filename, () => {
       })}`
     );
 
-    cy.get('[data-cy="locked-collateral"]')
+    cy.get('[data-cy="locked amount"]')
       .should('exist')
       .and('include.text', 'Escrowed11.22 SNX');
 
-    cy.get('[data-cy="locked-link"]').should('exist').click();
+    cy.get('[data-cy="locked amount link"]').should('exist').click();
 
-    cy.get('[data-cy="locked-collateral-table"]').should('exist');
+    cy.get('[data-cy="locked collateral table"]').should('exist');
   });
 });

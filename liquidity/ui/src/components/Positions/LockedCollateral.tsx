@@ -35,7 +35,7 @@ export const LockedCollateral: React.FC<{
         </Text>
       )}
 
-      <Table data-cy="locked-collateral-table" mt={2.5} variant="simple">
+      <Table data-cy="locked collateral table" mt={2.5} variant="simple">
         <Thead>
           <Tr borderBottom="1px solid #2D2D38">
             <Th
