@@ -5191,6 +5191,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/position-manager-andromeda@workspace:contracts/position-manager-andromeda":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/position-manager-andromeda@workspace:contracts/position-manager-andromeda"
+  dependencies:
+    "@synthetixio/core-contracts": "npm:^3.10.1"
+    "@synthetixio/core-modules": "npm:^3.10.1"
+    "@synthetixio/main": "npm:^3.10.1"
+    "@synthetixio/oracle-manager": "npm:^3.10.1"
+    "@synthetixio/pyth-erc7412-wrapper": "npm:^3.10.1"
+    "@synthetixio/spot-market": "npm:^3.10.1"
+    forge-std: "github:foundry-rs/forge-std"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/position-manager@workspace:contracts/position-manager":
   version: 0.0.0-use.local
   resolution: "@snx-v3/position-manager@workspace:contracts/position-manager"
@@ -6714,6 +6728,13 @@ __metadata:
     react: "npm:^18.2.0"
   languageName: unknown
   linkType: soft
+
+"@synthetixio/spot-market@npm:^3.10.1":
+  version: 3.10.1
+  resolution: "@synthetixio/spot-market@npm:3.10.1"
+  checksum: 10/391012b8f259d041b97b0020a1d471a220e41c5c95bce97a8679f6e95f9b32fff020c3593725bebcfef57270070ac3157552ff60bc076041d562110372d2bb95
+  languageName: node
+  linkType: hard
 
 "@synthetixio/v3-contracts@npm:^7.1.0":
   version: 7.18.0
@@ -18266,6 +18287,7 @@ __metadata:
     "@babel/preset-react": "npm:^7.24.6"
     "@babel/preset-typescript": "npm:^7.24.6"
     "@synthetixio/deps": "workspace:*"
+    "@synthetixio/spot-market": "npm:^3.10.1"
     "@tanstack/eslint-plugin-query": "npm:^5.8.3"
     "@types/big.js": "npm:^6.2.2"
     "@types/jest": "npm:^29.5.8"
