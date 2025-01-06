@@ -34,9 +34,7 @@ describe(__filename, () => {
       })}`
     );
 
-    cy.get('[data-cy="locked amount"]')
-      .should('exist')
-      .and('include.text', 'Escrowed 11.22 SNX');
+    cy.get('[data-cy="locked amount"]').should('exist').and('include.text', 'Escrowed 11.22 SNX');
 
     cy.get('[data-cy="locked amount link"]').should('exist').click();
 
