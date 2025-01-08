@@ -9,19 +9,17 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import debug from 'debug';
 import { ethers } from 'ethers';
 import { useReducer } from 'react';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
 
 const log = debug('snx:useBorrow');
 
-export const useBorrow = ({
-  accountId,
-  collateralTypeAddress,
-  debtChange,
-}: {
-  accountId?: string;
-  collateralTypeAddress?: string;
-  debtChange: Wei;
-}) => {
+export const useBorrow = ({ borrowAmount }: { borrowAmount?: Wei }) => {
+  const [params] = useParams<PositionPageSchemaType>();
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
+
   const [txnState, dispatch] = useReducer(reducer, initialState);
+
   const { data: CoreProxy } = useCoreProxy();
   const { data: priceUpdateTx } = useCollateralPriceUpdates();
 
@@ -30,24 +28,28 @@ export const useBorrow = ({
   const { network } = useNetwork();
 
   const queryClient = useQueryClient();
+
+  const isReady =
+    signer &&
+    CoreProxy &&
+    params.accountId &&
+    collateralType?.address &&
+    network &&
+    provider &&
+    !!borrowAmount;
+
   const mutation = useMutation({
     mutationFn: async () => {
-      if (!(signer && CoreProxy && accountId && collateralTypeAddress && network && provider)) {
-        return;
-      }
-
-      if (debtChange.eq(0)) {
-        return;
-      }
-
+      if (!isReady) throw new Error('Not ready');
       dispatch({ type: 'prompting' });
 
       const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
+
       const populatedTxnPromised = CoreProxyContract.populateTransaction.mintUsd(
-        ethers.BigNumber.from(accountId),
+        ethers.BigNumber.from(params.accountId),
         ethers.BigNumber.from(POOL_ID),
-        collateralTypeAddress,
-        debtChange.abs().toBN()
+        collateralType?.address,
+        borrowAmount.toBN()
       );
 
       const callsPromise = Promise.all([populatedTxnPromised]);
@@ -88,7 +90,6 @@ export const useBorrow = ({
           'TokenBalance',
           'SynthBalances',
           'EthBalance',
-          'Allowance',
           'TransferableSynthetix',
           'AccountCollateralUnlockDate',
         ].map((key) => queryClient.invalidateQueries({ queryKey: [deployment, key] }))
@@ -102,6 +103,7 @@ export const useBorrow = ({
     },
   });
   return {
+    isReady,
     mutation,
     txnState,
     settle: () => dispatch({ type: 'settled' }),

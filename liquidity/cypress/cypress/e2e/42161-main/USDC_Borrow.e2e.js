@@ -40,11 +40,11 @@ describe(__filename, () => {
       })}`
     );
 
-    cy.get('[data-cy="credit amount"]', { timeout: 180_000 })
+    cy.get('[data-cy="borrow form"]').should('exist');
+    cy.get('[data-cy="max borrow amount"]', { timeout: 180_000 })
       .should('exist')
       .and('include.text', 'Max');
 
-    cy.contains('[data-status="info"]', 'You can take an interest-free loan up to').should('exist');
     cy.get('[data-cy="stats collateral"] [data-cy="change stats current"]')
       .should('exist')
       .and('include.text', '249 USDC');
@@ -53,36 +53,37 @@ describe(__filename, () => {
       .should('exist')
       .and('include.text', '$1.28');
 
-    cy.get('[data-cy="claim amount input"]').type('10');
+    cy.get('[data-cy="borrow amount input"]').type('10');
 
     cy.get('[data-cy="stats debt"] [data-cy="change stats new"]')
       .should('exist')
       .and('include.text', '$11.28');
 
-    cy.contains(
-      '[data-status="warning"]',
-      'Assets will be available to withdraw 24 hours after your last interaction with this position.'
-    ).should('exist');
+    cy.get('[data-cy="borrow submit"]').should('be.enabled').and('include.text', 'Borrow');
+    cy.get('[data-cy="borrow submit"]').click();
 
-    cy.get('[data-cy="claim submit"]').should('be.enabled').and('include.text', 'Borrow');
-    cy.get('[data-cy="claim submit"]').click();
-
-    cy.get('[data-cy="claim multistep"]')
+    cy.get('[data-cy="borrow dialog"]')
       .should('exist')
-      .and('include.text', 'Manage Debt')
-      .and('include.text', 'Borrow')
-      .and('include.text', 'Borrow 10 USDx');
+      .and('include.text', 'Borrowing Debt')
+      .and('include.text', 'Borrowing 10 USDx');
 
-    cy.get('[data-cy="claim confirm button"]').should('include.text', 'Execute Transaction');
-    cy.get('[data-cy="claim confirm button"]').click();
+    cy.get('[data-cy="borrow confirm button"]').should('include.text', 'Execute Transaction');
+    cy.get('[data-cy="borrow confirm button"]').click();
 
-    cy.contains('[data-status="success"]', 'Debt successfully Updated', {
+    cy.contains('[data-status="success"]', 'Your debt has been increased', {
       timeout: 180_000,
     }).should('exist');
+    cy.get('[data-cy="transaction hash"]').should('exist');
 
-    cy.get('[data-cy="stats debt"] [data-cy="change stats new"]').should('not.exist');
-    cy.get('[data-cy="stats debt"] [data-cy="change stats current"]')
-      .should('exist')
-      .and('include.text', '$11.28');
+    cy.get('[data-cy="borrow dialog"]').should('exist').and('include.text', 'Borrowed 10 USDx');
+
+    cy.contains('[data-cy="borrow dialog"] button', 'Done').click();
+
+    cy.get('[data-cy="stats debt"] [data-cy="change stats current"]', { timeout: 180_000 }).and(
+      'include.text',
+      '$11.28'
+    );
+
+    cy.get('[data-cy="borrow submit"]').should('be.disabled');
   });
 });

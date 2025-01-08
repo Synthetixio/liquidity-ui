@@ -47,9 +47,7 @@ export function ClaimModal({ onClose }: { onClose: () => void }) {
     txnState,
     settle: settleBorrow,
   } = useBorrow({
-    accountId: params.accountId,
-    collateralTypeAddress: collateralType?.tokenAddress,
-    debtChange,
+    borrowAmount: debtChange.gt(0) ? debtChange.abs() : undefined,
   });
 
   const toast = useToast({ isClosable: true, duration: 9000 });

@@ -22,6 +22,7 @@ import React, { FormEvent, useCallback } from 'react';
 import { Claim } from '../Claim/Claim';
 import { Deposit } from '../Deposit/Deposit';
 import { Repay } from '../Repay/Repay';
+import { Borrow } from '../Borrow/Borrow';
 import { RepayAndromedaDebt } from '../Repay/RepayAndromedaDebt';
 import { Undelegate } from '../Undelegate/Undelegate';
 import { Withdraw } from '../Withdraw/Withdraw';
@@ -251,6 +252,10 @@ export const ManageAction = ({
             // These components do not set txnModalOpen
             <Flex direction="column">
               <Repay />
+            </Flex>
+          ) : manageAction === 'claim' && network?.preset !== 'andromeda' ? (
+            <Flex direction="column">
+              <Borrow />
             </Flex>
           ) : (
             <Flex direction="column" as="form" onSubmit={onSubmit}>
