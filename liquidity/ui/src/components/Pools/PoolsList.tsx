@@ -8,6 +8,22 @@ import React from 'react';
 import { PoolCardsLoading } from './PoolCardsLoading';
 import { PoolRow } from './PoolRow';
 
+function HeaderText({ ...props }) {
+  return (
+    <Flex
+      color="gray.600"
+      fontFamily="heading"
+      fontSize="12px"
+      lineHeight="16px"
+      letterSpacing={0.6}
+      fontWeight={700}
+      alignItems="center"
+      justifyContent="right"
+      {...props}
+    />
+  );
+}
+
 export function PoolsList() {
   const { data: poolsList, isPending: isPendingPoolsList } = usePoolsList();
   const { data: baseCollateralTypes, isPending: isPendingBaseCollateralTypes } = useCollateralTypes(
@@ -92,25 +108,34 @@ export function PoolsList() {
 
   return (
     <Flex mt={6} minW="1200px" overflowX="auto" direction="column" gap={4}>
-      {isPending && !filteredPools?.length ? <PoolCardsLoading /> : null}
-      <Flex direction="column-reverse" gap={4}>
-        {filteredPools?.length > 0
-          ? filteredPools.flatMap(
-              ({ network, poolInfo, apr, collateralTypes }) =>
-                collateralTypes?.map((collateralType) => (
-                  <PoolRow
-                    key={`${network.id}-${collateralType.address}`}
-                    pool={poolInfo?.[0]?.pool}
-                    network={network}
-                    apr={apr}
-                    collateralType={collateralType}
-                    collateralPrices={allCollateralPrices}
-                    sortBy="tvl"
-                  />
-                ))
-            )
-          : null}
+      <Flex flexDir="row" w="100%" gap={4} py={3} px={4} whiteSpace="nowrap">
+        <HeaderText width="260px" justifyContent="left">
+          Collateral / Network
+        </HeaderText>
+        <HeaderText width="240px">Wallet Balance</HeaderText>
+        <HeaderText width="240px">TVL</HeaderText>
+        <HeaderText width="164px">APY / APR</HeaderText>
+        <Flex minW="210px" flex="1" />
       </Flex>
+
+      {isPending ? <PoolCardsLoading /> : null}
+      {!isPending && filteredPools && allCollateralPrices ? (
+        <Flex direction="column-reverse" gap={4}>
+          {filteredPools.flatMap(
+            ({ network, poolInfo, apr, collateralTypes }) =>
+              collateralTypes?.map((collateralType) => (
+                <PoolRow
+                  key={`${network.id}-${collateralType.address}`}
+                  pool={poolInfo?.[0]?.pool}
+                  network={network}
+                  apr={apr}
+                  collateralType={collateralType}
+                  collateralPrices={allCollateralPrices}
+                />
+              ))
+          )}
+        </Flex>
+      ) : null}
     </Flex>
   );
 }
