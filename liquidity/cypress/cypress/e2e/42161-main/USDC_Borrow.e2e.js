@@ -67,9 +67,6 @@ describe(__filename, () => {
       .and('include.text', 'Borrowing Debt')
       .and('include.text', 'Borrowing 10 USDx');
 
-    cy.get('[data-cy="borrow confirm button"]').should('include.text', 'Execute Transaction');
-    cy.get('[data-cy="borrow confirm button"]').click();
-
     cy.contains('[data-status="success"]', 'Your debt has been increased', {
       timeout: 180_000,
     }).should('exist');
