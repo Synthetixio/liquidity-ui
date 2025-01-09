@@ -116,9 +116,7 @@ export function ClosePositionTransactions({
 
   //claim
   const { exec: execBorrow } = useBorrow({
-    accountId: params.accountId,
-    collateralTypeAddress: collateralType?.tokenAddress,
-    debtChange: liquidityPosition?.debt.mul(-1) || ZEROWEI,
+    borrowAmount: liquidityPosition?.debt.lt(0) ? liquidityPosition?.debt.abs() : undefined,
   });
 
   const getSteps = React.useCallback(() => {

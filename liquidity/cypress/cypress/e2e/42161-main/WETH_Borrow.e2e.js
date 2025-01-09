@@ -75,7 +75,7 @@ describe(__filename, () => {
       timeout: 180_000,
     }).should('exist');
     cy.get('[data-cy="transaction hash"]').should('exist');
-    cy.get('[data-cy="borrow dialog"]').should('exist').and('include.text', 'Borrowed 10 USDx');
+    cy.get('[data-cy="borrow dialog"]').should('exist').and('include.text', 'Borrowed 100 USDx');
 
     cy.contains('[data-cy="borrow dialog"] button', 'Done').click();
 
