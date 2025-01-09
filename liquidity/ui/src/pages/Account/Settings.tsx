@@ -5,8 +5,8 @@ export function Settings() {
   return (
     <>
       <Helmet>
-        <title>Account Settings</title>
-        <meta name="description" content="Account Settings" />
+        <title>Synthetix Account Settings</title>
+        <meta name="description" content="Synthetix Liquidity V3 - Account Settings" />
       </Helmet>
       <Flex flexDir="column" mb={16}>
         <Heading

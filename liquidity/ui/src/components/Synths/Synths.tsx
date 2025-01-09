@@ -13,6 +13,7 @@ import {
   Tr,
 } from '@chakra-ui/react';
 import { Tooltip } from '@snx-v3/Tooltip';
+import { useWallet } from '@snx-v3/useBlockchain';
 import { useSynthBalances } from '@snx-v3/useSynthBalances';
 import { useUnwrapAllSynths } from '@snx-v3/useUnwrapAllSynths';
 import React from 'react';
@@ -21,6 +22,9 @@ import { SynthsLoading } from './SynthsLoading';
 import { SynthsUnwrapModal } from './SynthsUnwrapModal';
 
 export function Synths() {
+  const { activeWallet } = useWallet();
+  const walletAddress = activeWallet?.address;
+
   const { data: synthBalances, isPending: isPendingSynthBalances } = useSynthBalances();
   const { exec: unwrapAll, txnState } = useUnwrapAllSynths();
 
@@ -95,7 +99,16 @@ export function Synths() {
           </Tr>
         </Thead>
         <Tbody>
-          {isPendingSynthBalances ? <SynthsLoading /> : null}
+          {!walletAddress ? (
+            <Tr>
+              <Td display="flex" alignItems="left" px={4} border="none" w="100%">
+                <Text color="gray.500" fontFamily="heading" fontSize="xs">
+                  Please connect wallet to view synths
+                </Text>
+              </Td>
+            </Tr>
+          ) : null}
+          {walletAddress && isPendingSynthBalances ? <SynthsLoading /> : null}
           {!isPendingSynthBalances && filteredSynths && filteredSynths.length === 0 ? (
             <Tr>
               <Td display="flex" alignItems="left" px={4} border="none" w="100%">

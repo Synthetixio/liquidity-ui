@@ -16,6 +16,7 @@ import { useUSDC } from '@snx-v3/useUSDC';
 import { wei } from '@synthetixio/wei';
 import { ethers } from 'ethers';
 import React from 'react';
+
 interface CollateralTypeWithDeposited extends CollateralType {
   collateralDeposited: string;
 }

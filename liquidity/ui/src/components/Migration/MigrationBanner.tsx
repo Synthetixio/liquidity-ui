@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { Network, useNetwork, useWallet } from '@snx-v3/useBlockchain';
-import { type DashboardPageSchemaType, useParams } from '@snx-v3/useParams';
+import { type HomePageSchemaType, useParams } from '@snx-v3/useParams';
 import { useV2Position } from '@snx-v3/useV2Position';
 import React from 'react';
 import { MigrateUSDModal } from '../MigrateUSD/MigrateUSDModal';
@@ -25,7 +25,7 @@ export function MigrationBanner({
   network: Network;
   type?: 'banner' | 'alert';
 }) {
-  const [params, setParams] = useParams<DashboardPageSchemaType>();
+  const [params, setParams] = useParams<HomePageSchemaType>();
 
   const [isOpen, setIsOpen] = React.useState(false);
   const [accountId, setAccountId] = React.useState('');

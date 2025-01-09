@@ -29,7 +29,7 @@ describe(__filename, () => {
   it(__filename, () => {
     cy.setEthBalance({ balance: 100 });
 
-    cy.visit(`?${makeSearch({ page: 'dashboard', accountId: Cypress.env('accountId') })}`);
+    cy.visit(`?${makeSearch({ accountId: Cypress.env('accountId') })}`);
 
     cy.get('[data-cy="unwrap synths submit"]', { timeout: 180_000 }).should('be.enabled');
     cy.get('[data-cy="unwrap synths submit"]').click();

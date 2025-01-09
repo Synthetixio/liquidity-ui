@@ -15,7 +15,7 @@ import React from 'react';
 import { StepSuccessFinal } from '../Migration/StepSuccessFinal';
 import { MigrateUSDTransaction } from './MigrateUSDTransaction';
 import { StepIntro } from './StepIntro';
-import { type DashboardPageSchemaType } from '@snx-v3/useParams';
+import { type HomePageSchemaType } from '@snx-v3/useParams';
 
 export function MigrateUSDModal({
   onClose,
@@ -30,7 +30,7 @@ export function MigrateUSDModal({
   type: 'migration' | 'convert';
   accountId?: string;
 }) {
-  const [_params, setParams] = useParams<DashboardPageSchemaType>();
+  const [_params, setParams] = useParams<HomePageSchemaType>();
 
   const [step, setStep] = React.useState(0);
   const [amount, setAmount] = React.useState(ZEROWEI);
@@ -85,7 +85,7 @@ export function MigrateUSDModal({
                 <StepSuccessFinal
                   network={network}
                   onConfirm={() => {
-                    setParams({ page: 'dashboard', accountId });
+                    setParams({ accountId });
                     onClose();
                   }}
                 />

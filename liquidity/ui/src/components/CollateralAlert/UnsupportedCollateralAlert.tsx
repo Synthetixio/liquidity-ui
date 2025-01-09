@@ -19,27 +19,21 @@ export const UnsupportedCollateralAlert = ({ isOpen }: { isOpen: boolean }) => {
         <ModalHeader p={0}>Collateral Not Supported</ModalHeader>
         <Divider my={6} />
         <Text color="white" fontFamily="heading" fontSize="14px" lineHeight="20px">
-          This collateral is not supported on this network. Go back to your dashboard to see your
-          active positions on this network.
+          This collateral is not supported on this network. Go back to home page to see your active
+          positions on this network.
         </Text>
         <Button
           as={Link}
-          href={`?${makeSearch({
-            page: 'dashboard',
-            accountId: params.accountId,
-          })}`}
+          href={`?${makeSearch({ accountId: params.accountId })}`}
           onClick={(e) => {
             e.preventDefault();
-            setParams({
-              page: 'dashboard',
-              accountId: params.accountId,
-            });
+            setParams({ accountId: params.accountId });
           }}
           mt={6}
           textDecoration="none"
           _hover={{ textDecoration: 'none' }}
         >
-          Back to Dashboard
+          Back
         </Button>
       </ModalContent>
     </Modal>
