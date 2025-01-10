@@ -73,7 +73,7 @@ export function StataDepositModal({
 
   const synthNeeded: ethers.BigNumber = liquidityPosition
     ? collateralChange.sub(liquidityPosition.availableCollateral).toBN()
-    : ethers.BigNumber.from(0);
+    : collateralChange.toBN();
   // log('synthNeeded (18 decimals)', synthNeeded, `${synthNeeded}`);
 
   const stataUSDCTokenBalanceD18: ethers.BigNumber = stataUSDCTokenBalance.div(D6).mul(D18);
