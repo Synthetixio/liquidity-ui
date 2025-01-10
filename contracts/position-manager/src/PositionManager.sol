@@ -10,6 +10,7 @@ import {IAccountModule} from "@synthetixio/main/contracts/interfaces/IAccountMod
 import {IAccountTokenModule} from "@synthetixio/main/contracts/interfaces/IAccountTokenModule.sol";
 import {IERC20} from "@synthetixio/core-contracts/contracts/interfaces/IERC20.sol";
 import {IERC721Receiver} from "@synthetixio/core-contracts/contracts/interfaces/IERC721Receiver.sol";
+import {IERC721Enumerable} from "@synthetixio/core-contracts/contracts/interfaces/IERC721Enumerable.sol";
 
 contract PositionManager {
     error NotEnoughAllowance(
@@ -257,4 +258,28 @@ contract PositionManager {
     function onERC721Received(address, address, uint256, bytes calldata) external pure returns (bytes4) {
         return IERC721Receiver.onERC721Received.selector;
     }
+
+    /**
+     * @notice Fetches all account tokens owned by the caller using accountProxyAddress
+     * @dev This function interacts with an ERC721Enumerable interface that must be implemented by the accountProxy contract
+     *      It retrieves all account token IDs for the caller and returns them in an array of type uint128
+     * @param accountProxyAddress The address of the ERC721Enumerable-compatible AccountProxy contract
+     * @return An array of uint128 representing the account token IDs owned by the caller
+     */
+    function getAccounts(address accountProxyAddress) public view returns (uint128[] memory) {
+        address msgSender = ERC2771Context._msgSender();
+        uint256 numberOfAccountTokens = IERC721Enumerable(accountProxyAddress).balanceOf(msgSender);
+        if (numberOfAccountTokens == 0) {
+            return new uint128[](0);
+        }
+        uint128[] memory accountIds = new uint128[](numberOfAccountTokens);
+        for (uint256 i = 0; i < numberOfAccountTokens; i++) {
+            // Retrieve the token/account ID at the index
+            uint256 accountId = IERC721Enumerable(accountProxyAddress).tokenOfOwnerByIndex(msgSender, i);
+            accountIds[i] = uint128(accountId); // Downcast to uint128, assuming IDs fit within uint128
+        }
+        return accountIds;
+    }
+
+
 }
