@@ -280,6 +280,4 @@ contract PositionManager {
         }
         return accountIds;
     }
-
-
 }
