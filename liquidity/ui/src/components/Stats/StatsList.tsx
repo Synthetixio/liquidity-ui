@@ -1,6 +1,6 @@
 import { Flex, Text } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
-import { DebtAmount, PnlAmount } from '@snx-v3/DebtAmount';
+import { PnlAmount } from '@snx-v3/DebtAmount';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralPrices } from '@snx-v3/useCollateralPrices';
 import { useLiquidityPositions } from '@snx-v3/useLiquidityPositions';
@@ -127,41 +127,21 @@ export const StatsList = () => {
         }
       />
 
-      {network?.preset === 'andromeda' ? (
-        <StatBox
-          title="Total PNL"
-          isLoading={Boolean(
-            params.accountId &&
-              isPendingLiquidityPositions &&
-              isPendingRewards &&
-              isPendingRewardsPrices
-          )}
-          value={<PnlAmount debt={totalDebt.sub(totalRewardsValue)} />}
-          label={
-            <Text textAlign="left">
-              Aggregated PNL of all your open Positions and combined value of all your Rewards
-            </Text>
-          }
-        />
-      ) : null}
-
-      {network?.preset !== 'andromeda' ? (
-        <StatBox
-          title="Total Debt"
-          isLoading={Boolean(
-            params.accountId &&
-              isPendingLiquidityPositions &&
-              isPendingRewards &&
-              isPendingRewardsPrices
-          )}
-          value={<DebtAmount debt={totalDebt.sub(totalRewardsValue)} />}
-          label={
-            <Text textAlign="left">
-              Aggregated value of all your Rewards minus your open Positions Debt
-            </Text>
-          }
-        />
-      ) : null}
+      <StatBox
+        title="Total PNL"
+        isLoading={Boolean(
+          params.accountId &&
+            isPendingLiquidityPositions &&
+            isPendingRewards &&
+            isPendingRewardsPrices
+        )}
+        value={<PnlAmount debt={totalDebt.sub(totalRewardsValue)} />}
+        label={
+          <Text textAlign="left">
+            Aggregated PNL of all your open Positions and combined value of all your Rewards
+          </Text>
+        }
+      />
     </Flex>
   );
 };
