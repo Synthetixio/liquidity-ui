@@ -5,7 +5,6 @@ import { Footer } from './Footer';
 import Header from './Header';
 import { Settings } from './pages/Account/Settings';
 import { Dashboard } from './pages/Dashboard';
-import { Home } from './pages/Home';
 import { Manage } from './pages/Manage';
 
 function Content() {
@@ -16,10 +15,7 @@ function Content() {
   if (params.page === 'position') {
     return <Manage />;
   }
-  if (params.page === 'dashboard') {
-    return <Dashboard />;
-  }
-  return <Home />;
+  return <Dashboard />;
 }
 
 export function Router() {

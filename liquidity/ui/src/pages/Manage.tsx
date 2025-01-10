@@ -19,6 +19,7 @@ import { ManageStats } from '../components/Manage/ManageStats';
 import { PositionTitle } from '../components/Manage/PositionTitle';
 import { StataDepositBanner } from '../components/Manage/StataDepositBanner';
 import { LockedCollateral } from '../components/Positions/LockedCollateral';
+import { Helmet } from 'react-helmet';
 
 export const Manage = () => {
   const [params, setParams] = useParams<PositionPageSchemaType>();
@@ -50,6 +51,17 @@ export const Manage = () => {
 
   return (
     <ManagePositionProvider>
+      <Helmet>
+        <title>
+          {`Synthetix ${collateralType?.displaySymbol ?? params.collateralSymbol} Position`}
+        </title>
+        <meta
+          name="description"
+          content={`Synthetix Liquidity V3 - ${
+            collateralType?.displaySymbol ?? params.collateralSymbol
+          } Position`}
+        />
+      </Helmet>
       <UnsupportedCollateralAlert isOpen={!isPendingCollateralType && !collateralType} />
       <Box mb={12} mt={8}>
         <Flex

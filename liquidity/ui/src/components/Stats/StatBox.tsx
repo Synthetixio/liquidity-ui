@@ -20,10 +20,10 @@ export const StatBox = ({ isLoading, title, label, value }: StatBoxProps) => {
       rounded="base"
       flexDir="column"
       alignItems="center"
-      justifyContent="space-between"
+      justifyContent="center"
       minWidth="200px"
       flex={1}
-      height="88px"
+      height="160px"
       px={6}
       py={4}
     >
@@ -37,7 +37,7 @@ export const StatBox = ({ isLoading, title, label, value }: StatBoxProps) => {
           </Tooltip>
         )}
       </Flex>
-      <Flex w="100%" justifyContent="center" height="36px" alignItems="center">
+      <Flex w="100%" justifyContent="center" alignItems="center">
         <SynthSkeleton
           isLoaded={!isLoading}
           height="24px"

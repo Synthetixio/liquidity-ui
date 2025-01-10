@@ -14,9 +14,7 @@ describe(__filename, () => {
   });
 
   it(__filename, () => {
-    cy.visit('?page=dashboard');
-
-    cy.contains('h2', 'Dashboard').should('exist');
+    cy.visit('?');
 
     cy.contains('[data-cy="connect wallet button"]', 'Connect Wallet').should('exist');
     cy.get('[data-cy="stats box"][data-title="Available to Lock"]').should('exist');

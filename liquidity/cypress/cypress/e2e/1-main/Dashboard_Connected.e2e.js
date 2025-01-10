@@ -26,7 +26,7 @@ describe(__filename, () => {
   it(__filename, () => {
     cy.setEthBalance({ balance: 100 });
 
-    cy.visit('?page=dashboard');
+    cy.visit('?');
 
     cy.get('[data-cy="short wallet address"]').contains(
       `${Cypress.env('walletAddress').substring(0, 6)}...${Cypress.env('walletAddress').substring(
@@ -34,7 +34,6 @@ describe(__filename, () => {
       )}`
     );
 
-    cy.contains('h2', 'Dashboard').should('exist');
     cy.get('[data-cy="stats box"][data-title="Available to Lock"]').contains('$0.00');
     cy.get('[data-cy="stats box"][data-title="Total Locked"]').contains('$0.00');
     cy.get('[data-cy="stats box"][data-title="Total Debt"]').contains('$0.00');

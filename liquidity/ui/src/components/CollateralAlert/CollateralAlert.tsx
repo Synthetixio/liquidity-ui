@@ -11,16 +11,10 @@ export function CollateralAlert({ tokenBalance, ...props }: { tokenBalance: Wei 
         You have a {tokenBalance.toString(2)} SNX active staking position on V2.{' '}
         <Link
           color="cyan.500"
-          href={`?${makeSearch({
-            page: 'dashboard',
-            migrate: 'snx',
-          })}`}
+          href={`?${makeSearch({ migrate: 'snx' })}`}
           onClick={(e) => {
             e.preventDefault();
-            setParams({
-              page: 'dashboard',
-              migrate: 'snx',
-            });
+            setParams({ migrate: 'snx' });
           }}
         >
           Migrate to V3

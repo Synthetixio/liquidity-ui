@@ -2,44 +2,25 @@ import React from 'react';
 import { createSearchParams, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 
-export const HomePageSchema = z.object({
-  page: z.literal('home').optional(),
-  accountId: z.string().optional(),
-  sort: z.string().optional(),
-  dir: z.string().optional(),
-});
-export type HomePageSchemaType = z.infer<typeof HomePageSchema>;
-
-export const DashboardPageSchema = z
+export const HomePageSchema = z
   .object({
-    page: z.literal('dashboard'),
+    page: z.literal('home').optional(),
     accountId: z.string().optional(),
     convert: z.literal('snxusd').optional(),
     migrate: z.literal('snx').optional(),
+    sort: z.string().optional(),
+    dir: z.string().optional(),
   })
   .refine((data) => !data.convert || !data.migrate, {
     message: "Cannot have both 'convert' and 'migrate' properties",
   });
-export type DashboardPageSchemaType = z.infer<typeof DashboardPageSchema>;
+export type HomePageSchemaType = z.infer<typeof HomePageSchema>;
 
 export const SettingsPageSchema = z.object({
   page: z.literal('settings'),
   accountId: z.string().optional(),
 });
 export type SettingsPageSchemaType = z.infer<typeof SettingsPageSchema>;
-
-export const PoolsPageSchema = z.object({
-  page: z.literal('pools'),
-  accountId: z.string().optional(),
-});
-export type PoolsPageSchemaType = z.infer<typeof PoolsPageSchema>;
-
-export const PoolPageSchema = z.object({
-  page: z.literal('pool'),
-  networkId: z.string(),
-  accountId: z.string().optional(),
-});
-export type PoolPageSchemaType = z.infer<typeof PoolPageSchema>;
 
 export const ManageActionSchema = z.union([
   z.literal('deposit'),
@@ -61,27 +42,13 @@ export const PositionPageSchema = z.object({
 });
 export type PositionPageSchemaType = z.infer<typeof PositionPageSchema>;
 
-const AllowedQueriesSchema = z.union([
-  HomePageSchema,
-  DashboardPageSchema,
-  SettingsPageSchema,
-  PoolsPageSchema,
-  PoolPageSchema,
-  PositionPageSchema,
-]);
+const AllowedQueriesSchema = z.union([HomePageSchema, SettingsPageSchema, PositionPageSchema]);
 type AllowedQueriesType = z.infer<typeof AllowedQueriesSchema>;
 
 export function searchParamsToObject(searchParams: URLSearchParams) {
   const params = Object.fromEntries(Array.from(searchParams));
 
-  for (const schema of [
-    HomePageSchema,
-    DashboardPageSchema,
-    SettingsPageSchema,
-    PoolsPageSchema,
-    PoolPageSchema,
-    PositionPageSchema,
-  ]) {
+  for (const schema of [HomePageSchema, SettingsPageSchema, PositionPageSchema]) {
     const parsed = schema.safeParse(params);
     if (parsed.success) {
       return parsed.data;

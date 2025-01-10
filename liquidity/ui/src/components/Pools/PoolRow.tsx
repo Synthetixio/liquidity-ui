@@ -16,6 +16,7 @@ import { useUSDC } from '@snx-v3/useUSDC';
 import { wei } from '@synthetixio/wei';
 import { ethers } from 'ethers';
 import React from 'react';
+
 interface CollateralTypeWithDeposited extends CollateralType {
   collateralDeposited: string;
 }
@@ -26,7 +27,6 @@ export function PoolRow({
   apr,
   collateralType,
   collateralPrices,
-  sortBy,
 }: {
   collateralType: CollateralTypeWithDeposited;
   pool: {
@@ -43,7 +43,6 @@ export function PoolRow({
     cumulativePnl: number;
     collateralAprs: any[];
   };
-  sortBy: string;
 }) {
   const [params, setParams] = useParams();
 
@@ -122,37 +121,17 @@ export function PoolRow({
 
   const buttonText = !currentNetwork ? 'Connect Wallet' : 'Deposit';
 
-  const order = React.useMemo(() => {
-    if (sortBy === 'tvl') {
-      return wei(collateralType.collateralDeposited, Number(collateralType.decimals), true)
+  const order = React.useMemo(
+    () =>
+      wei(collateralType.collateralDeposited, Number(collateralType.decimals), true)
         .mul(price)
         .toNumber()
-        .toFixed(0);
-    } else if (sortBy === 'balance') {
-      return balance.mul(price).toNumber().toFixed(0);
-    } else if (sortBy === 'apy') {
-      return isStataUSDC && stataUSDCApr
-        ? (apr7d * 100 + stataUSDCApr).toFixed(0)
-        : (apr7d * 100).toFixed(0);
-    }
-  }, [
-    apr7d,
-    balance,
-    collateralType.collateralDeposited,
-    collateralType.decimals,
-    isStataUSDC,
-    price,
-    sortBy,
-    stataUSDCApr,
-  ]);
+        .toFixed(0),
+    [collateralType.collateralDeposited, collateralType.decimals, price]
+  );
 
   return (
-    <Fade
-      in
-      style={{
-        order,
-      }}
-    >
+    <Fade in style={{ order }}>
       <Flex
         flexDir="row"
         w="100%"
@@ -194,7 +173,7 @@ export function PoolRow({
               fontSize="14px"
               color="white"
               fontWeight={700}
-              lineHeight="1.25rem"
+              lineHeight="28px"
               fontFamily="heading"
             >
               {collateralType.displaySymbol}
@@ -204,7 +183,7 @@ export function PoolRow({
               fontSize="xs"
               color="gray.500"
               fontFamily="heading"
-              lineHeight="1rem"
+              lineHeight="20px"
             >
               {network.name} Network
             </Text>

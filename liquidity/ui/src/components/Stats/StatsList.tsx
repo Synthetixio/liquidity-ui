@@ -54,7 +54,7 @@ export const StatsList = () => {
   );
 
   return (
-    <Flex flexWrap="wrap" w="100%" gap="4" mt={6}>
+    <Flex flexWrap="wrap" w="100%" gap="4">
       <StatBox
         title="Available to Lock"
         isLoading={Boolean(params.accountId && isPending)}
