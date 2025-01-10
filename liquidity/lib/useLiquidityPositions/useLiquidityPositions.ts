@@ -81,36 +81,32 @@ export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => 
         network,
         provider,
         calls,
-        (encoded) => {
-          if (!Array.isArray(encoded) || calls.length !== encoded.length) {
-            throw new Error('[useLiquidityPositions] Unexpected multicall response');
-          }
-
+        (decodedMulticall) => {
           const [accountAvailableSystemToken] = CoreProxyContract.interface.decodeFunctionResult(
             'getAccountAvailableCollateral',
-            encoded[0]
+            decodedMulticall[0].returnData
           );
 
           const liquidityPositions = collateralTypes.map((collateralType, i) => {
             const [positionCollateral] = CoreProxyContract.interface.decodeFunctionResult(
               'getPositionCollateral',
-              encoded[1 + 0 * collateralTypes.length + i]
+              decodedMulticall[1 + 0 * collateralTypes.length + i].returnData
             );
 
             const [positionDebt] = CoreProxyContract.interface.decodeFunctionResult(
               'getPositionDebt',
-              encoded[1 + 1 * collateralTypes.length + i]
+              decodedMulticall[1 + 1 * collateralTypes.length + i].returnData
             );
 
             const [collateralPriceRaw] = CoreProxyContract.interface.decodeFunctionResult(
               'getCollateralPrice',
-              encoded[1 + 2 * collateralTypes.length + i]
+              decodedMulticall[1 + 2 * collateralTypes.length + i].returnData
             );
 
             const [totalDepositedBigNumber, totalAssignedBigNumber, totalLockedBigNumber] =
               CoreProxyContract.interface.decodeFunctionResult(
                 'getAccountCollateral',
-                encoded[1 + 3 * collateralTypes.length + i]
+                decodedMulticall[1 + 3 * collateralTypes.length + i].returnData
               );
 
             const totalDeposited = wei(totalDepositedBigNumber);

@@ -93,41 +93,37 @@ export const useLiquidityPosition = ({
         network,
         provider,
         calls,
-        (encoded) => {
-          if (!Array.isArray(encoded) || calls.length !== encoded.length) {
-            throw new Error('[useLiquidityPositions] Unexpected multicall response');
-          }
-
+        (decodedMulticall) => {
           log('collateralType', collateralType);
 
           const [accountAvailableSystemToken] = CoreProxyContract.interface.decodeFunctionResult(
             'getAccountAvailableCollateral',
-            encoded[0]
+            decodedMulticall[0].returnData
           );
           log('accountAvailableSystemToken', accountAvailableSystemToken);
 
           const [positionCollateral] = CoreProxyContract.interface.decodeFunctionResult(
             'getPositionCollateral',
-            encoded[1]
+            decodedMulticall[1].returnData
           );
           log('positionCollateral', positionCollateral);
 
           const [positionDebt] = CoreProxyContract.interface.decodeFunctionResult(
             'getPositionDebt',
-            encoded[1 + 1]
+            decodedMulticall[1 + 1].returnData
           );
           log('positionDebt', positionDebt);
 
           const [collateralPriceRaw] = CoreProxyContract.interface.decodeFunctionResult(
             'getCollateralPrice',
-            encoded[1 + 2]
+            decodedMulticall[1 + 2].returnData
           );
           log('collateralPriceRaw', collateralPriceRaw);
 
           const [totalDepositedBigNumber, totalAssignedBigNumber, totalLockedBigNumber] =
             CoreProxyContract.interface.decodeFunctionResult(
               'getAccountCollateral',
-              encoded[1 + 3]
+              decodedMulticall[1 + 3].returnData
             );
 
           const totalDeposited = wei(totalDepositedBigNumber);

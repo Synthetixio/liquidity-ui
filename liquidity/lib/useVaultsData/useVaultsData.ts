@@ -13,7 +13,6 @@ import { z } from 'zod';
 const VaultCollateralSchema = z
   .object({ value: ZodBigNumber, amount: ZodBigNumber })
   .transform(({ value, amount }) => ({ value: wei(value), amount: wei(amount) }));
-const VaultDebtSchema = ZodBigNumber.transform((x) => wei(x));
 
 export const useVaultsData = (customNetwork?: Network) => {
   const { network } = useNetwork();
@@ -27,7 +26,7 @@ export const useVaultsData = (customNetwork?: Network) => {
   return useQuery({
     queryKey: [
       `${targetNetwork?.id}-${targetNetwork?.preset}`,
-      'VaultCollaterals',
+      'VaultsData',
       { contractsHash: contractsHash([CoreProxy, ...(collateralTypes ?? [])]) },
     ],
     enabled: Boolean(CoreProxy && collateralTypes && targetNetwork && provider),
@@ -35,9 +34,8 @@ export const useVaultsData = (customNetwork?: Network) => {
       if (!(CoreProxy && collateralTypes && targetNetwork && provider)) {
         throw Error('useVaultsData should not be enabled when missing data');
       }
-
       const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
-      const collateralCallsP = Promise.all(
+      const calls = await Promise.all(
         collateralTypes.map((collateralType) =>
           CoreProxyContract.populateTransaction.getVaultCollateral(
             POOL_ID,
@@ -46,39 +44,19 @@ export const useVaultsData = (customNetwork?: Network) => {
         )
       );
 
-      const debtCallsP = Promise.all(
-        collateralTypes.map((collateralType) =>
-          CoreProxyContract.populateTransaction.getVaultDebt(POOL_ID, collateralType.tokenAddress)
-        )
-      );
-
-      const allCalls = await Promise.all([collateralCallsP, debtCallsP]);
-
       return await erc7412Call(
         targetNetwork,
         provider,
-        allCalls.flat(),
-        (multicallResult) => {
-          if (!Array.isArray(multicallResult)) throw Error('Expected array');
-
-          const collateralResult = multicallResult.slice(0, collateralTypes.length);
-          const debtResult = multicallResult.slice(collateralTypes.length);
-
-          return collateralResult.map((bytes: string, i: number) => {
-            const debtBytes =
-              debtResult[i] || '0x0000000000000000000000000000000000000000000000000000000000000000';
-
+        calls,
+        (decodedMulticall) => {
+          return decodedMulticall.map(({ returnData }, i) => {
             const CoreProxyInterface = new ethers.utils.Interface(CoreProxy.abi);
-
-            const decodedDebt = CoreProxyInterface.decodeFunctionResult('getVaultDebt', debtBytes);
-            const decodedCollateral = CoreProxyInterface.decodeFunctionResult(
+            const vaultCollateral = CoreProxyInterface.decodeFunctionResult(
               'getVaultCollateral',
-              bytes
+              returnData
             );
-            const collateral = VaultCollateralSchema.parse({ ...decodedCollateral });
-            const debt = VaultDebtSchema.parse(decodedDebt[0]);
+            const collateral = VaultCollateralSchema.parse({ ...vaultCollateral });
             return {
-              debt,
               collateral,
               collateralType: collateralTypes[i],
             };
@@ -89,5 +67,3 @@ export const useVaultsData = (customNetwork?: Network) => {
     },
   });
 };
-
-export type VaultsDataType = ReturnType<typeof useVaultsData>['data'];

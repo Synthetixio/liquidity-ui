@@ -49,13 +49,10 @@ export const useAccountAvailableCollateral = ({
         network,
         provider,
         calls,
-        (encoded) => {
-          if (!Array.isArray(encoded) || calls.length !== encoded.length) {
-            throw new Error('[useLiquidityPositions] Unexpected multicall response');
-          }
+        (decodedMulticall) => {
           const [accountAvailableCollateral] = CoreProxyContract.interface.decodeFunctionResult(
             'getAccountAvailableCollateral',
-            encoded[0]
+            decodedMulticall[0].returnData
           );
           log({ tokenAddress, accountAvailableCollateral });
           return wei(accountAvailableCollateral);

@@ -21,8 +21,6 @@ export const PoolConfigurationSchema = z.object({
   isAnyMarketLocked: z.boolean(),
 });
 
-const isLockedSchema = z.boolean();
-
 export const usePoolConfiguration = () => {
   const { network } = useNetwork();
   const { data: CoreProxy } = useCoreProxy();
@@ -58,13 +56,14 @@ export const usePoolConfiguration = () => {
         network,
         provider,
         allCalls,
-        (encoded) => {
-          const result = Array.isArray(encoded) ? encoded : [encoded];
-          return result.map((x) =>
-            isLockedSchema.parse(
-              CoreProxyContract.interface.decodeFunctionResult('isMarketCapacityLocked', x)[0]
-            )
-          );
+        (decodedMulticall) => {
+          return decodedMulticall.map(({ returnData }) => {
+            const [isMarketCapacityLocked] = CoreProxyContract.interface.decodeFunctionResult(
+              'isMarketCapacityLocked',
+              returnData
+            );
+            return isMarketCapacityLocked;
+          });
         },
         'isMarketCapacityLocked'
       );

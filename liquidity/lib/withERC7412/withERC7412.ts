@@ -319,8 +319,8 @@ export const withERC7412 = async (
 export async function erc7412Call<T>(
   network: Network,
   provider: ethers.providers.BaseProvider,
-  calls: ethers.PopulatedTransaction[],
-  decode: (x: string[] | string) => T,
+  calls: (ethers.PopulatedTransaction & { requireSuccess?: boolean })[],
+  decode: (x: { success: boolean; returnData: string }[]) => T,
   label: string
 ) {
   const log = debug(`snx:withERC7412:${label}`);
@@ -352,28 +352,20 @@ export async function erc7412Call<T>(
     throw new Error(`[${label}] Call returned 0x`);
   }
 
-  if (erc7412Tx.to?.toLowerCase() === TrustedMulticallForwarder.address.toLowerCase()) {
-    // If this was a multicall, decode and remove price updates.
-    const decodedMultiCall: { returnData: string }[] = new ethers.utils.Interface(
-      TrustedMulticallForwarder.abi
-    ).decodeFunctionResult('aggregate3Value', res)[0];
-    log('multicall response', decodedMultiCall);
+  const decodedMulticall: { success: boolean; returnData: string }[] = new ethers.utils.Interface(
+    TrustedMulticallForwarder.abi
+  ).decodeFunctionResult('aggregate3Value', res)[0];
+  log('multicall response', decodedMulticall);
 
+  const PythVerifier = await importPythVerifier(network.id, network.preset);
+  const decodedMulticallWithoutPriceUpdates = decodedMulticall
     // Remove the price updates
-    const responseWithoutPriceUpdates: string[] = [];
-    const PythVerifier = await importPythVerifier(network.id, network.preset);
-    decodedMultiCall.forEach(({ returnData }, i) => {
-      if (newCalls?.[i]?.to?.toLowerCase() !== PythVerifier.address?.toLowerCase()) {
-        responseWithoutPriceUpdates.push(returnData);
-      }
-    });
+    .filter((_, i) => newCalls?.[i]?.to?.toLowerCase() !== PythVerifier.address?.toLowerCase());
 
-    const decoded = decode(responseWithoutPriceUpdates);
-    log(`multicall decoded`, decoded);
-    return decoded;
+  if (calls.length !== decodedMulticallWithoutPriceUpdates.length) {
+    throw new Error(`[${label}] Unexpected multicall response`);
   }
-
-  const decoded = decode(res);
-  log(`decoded`, decoded);
+  const decoded = decode(decodedMulticallWithoutPriceUpdates);
+  log(`multicall decoded`, decoded);
   return decoded;
 }

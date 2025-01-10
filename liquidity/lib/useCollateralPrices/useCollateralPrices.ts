@@ -48,17 +48,19 @@ export function useCollateralPrices(collateralAddresses: Set<string>, customNetw
       const prices = await erc7412Call(
         network,
         provider,
-        calls,
-        (encoded) => {
-          if (!Array.isArray(encoded) || calls.length !== encoded.length) {
-            throw new Error('[useCollateralPrices] Unexpected multicall response');
-          }
+        calls.map((txn: ethers.PopulatedTransaction & { requireSuccess?: boolean }) => {
+          txn.requireSuccess = false;
+          return txn;
+        }),
+        (decodedMulticall) => {
           return multicall.reduce((result, call, i) => {
-            const [price] = CoreProxyContract.interface.decodeFunctionResult(
-              'getCollateralPrice',
-              encoded[i]
-            );
-            result.set(call.address, price);
+            if (decodedMulticall[i].success) {
+              const [price] = CoreProxyContract.interface.decodeFunctionResult(
+                'getCollateralPrice',
+                decodedMulticall[i].returnData
+              );
+              result.set(call.address, price);
+            }
             return result;
           }, new Map());
         },

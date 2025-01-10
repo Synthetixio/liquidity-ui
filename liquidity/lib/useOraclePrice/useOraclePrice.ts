@@ -32,10 +32,10 @@ export async function fetchOraclePrice({
     targetNetwork,
     provider,
     calls,
-    (txs) => {
+    (decodedMulticall) => {
       const result = OracleManagerProxy.interface.decodeFunctionResult(
         'process',
-        Array.isArray(txs) ? txs[0] : txs
+        decodedMulticall[0].returnData
       );
       if (result?.node) {
         return {

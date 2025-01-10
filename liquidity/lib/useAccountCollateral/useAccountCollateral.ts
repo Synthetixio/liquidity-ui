@@ -50,13 +50,12 @@ export const useAccountCollateral = ({
         network,
         provider,
         calls,
-        (encoded) => {
-          if (!Array.isArray(encoded) || calls.length !== encoded.length) {
-            throw new Error('[useAccountCollateral] Unexpected multicall response');
-          }
-
+        (decodedMulticall) => {
           const [totalDeposited, totalAssigned, totalLocked] =
-            CoreProxyContract.interface.decodeFunctionResult('getAccountCollateral', encoded[0]);
+            CoreProxyContract.interface.decodeFunctionResult(
+              'getAccountCollateral',
+              decodedMulticall[0].returnData
+            );
 
           log({ totalDeposited, totalAssigned, totalLocked });
           return {

@@ -40,10 +40,10 @@ export function usePositionDebt({
         network,
         provider,
         calls,
-        ([positionDebtResult]) => {
+        (decodedMulticall) => {
           const [debt] = CoreProxyContract.interface.decodeFunctionResult(
             'getPositionDebt',
-            positionDebtResult
+            decodedMulticall[0].returnData
           );
           return wei(debt);
         },
