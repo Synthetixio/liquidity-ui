@@ -1,100 +1,71 @@
-import { contractsHash, stringToHash } from '@snx-v3/tsHelpers';
-import { Network, useProvider, useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
-import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
+import { contractsHash } from '@snx-v3/tsHelpers';
+import { Network, useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
-import { useGetUSDTokens } from '@snx-v3/useGetUSDTokens';
 import { erc7412Call } from '@snx-v3/withERC7412';
-import Wei, { wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
+import debug from 'debug';
 import { ethers } from 'ethers';
 
-export async function loadPrices({
-  CoreProxyContract,
-  collateralAddresses,
-}: {
-  CoreProxyContract: ethers.Contract;
-  collateralAddresses: string[];
-}) {
-  const calls = await Promise.all(
-    collateralAddresses.map((address) => {
-      return CoreProxyContract.populateTransaction.getCollateralPrice(address);
-    })
-  );
-  if (calls.length === 0) return { calls: [], decoder: () => [] };
-  const decoder = (multicallEncoded: string | string[]) => {
-    if (Array.isArray(multicallEncoded)) {
-      return multicallEncoded.map((encoded) => {
-        const [price] = CoreProxyContract.interface.decodeFunctionResult(
-          'getCollateralPrice',
-          encoded
-        );
-        return wei(price);
-      });
-    } else {
-      const [price] = CoreProxyContract.interface.decodeFunctionResult(
-        'getCollateralPrice',
-        multicallEncoded
-      );
-      return wei(price);
-    }
-  };
-  return { calls, decoder };
-}
+const log = debug('snx:useCollateralPrices');
 
-export const useCollateralPrices = (customNetwork?: Network) => {
+export function useCollateralPrices(collateralAddresses: Set<string>, customNetwork?: Network) {
   const { network: currentNetwork } = useNetwork();
   const network = customNetwork ?? currentNetwork;
+  const provider = useProviderForChain(network);
+
   const { data: CoreProxy } = useCoreProxy(customNetwork);
-  const { data: collateralData } = useCollateralTypes(false, customNetwork);
-  const { data: usdTokens } = useGetUSDTokens(customNetwork);
-
-  const collateralAddresses =
-    network?.preset === 'andromeda' && usdTokens?.sUSD
-      ? collateralData?.map((x) => x.tokenAddress).concat(usdTokens.sUSD)
-      : collateralData?.map((x) => x.tokenAddress);
-
-  const connectedProvider = useProvider();
-  const offlineProvider = useProviderForChain(customNetwork);
-
-  const provider = customNetwork ? offlineProvider : connectedProvider;
 
   return useQuery({
-    enabled: Boolean(
-      network && provider && CoreProxy && collateralAddresses && collateralAddresses.length > 0
-    ),
+    enabled: Boolean(network && provider && CoreProxy && collateralAddresses),
     queryKey: [
       `${network?.id}-${network?.preset}`,
       'CollateralPrices',
       {
-        collaterals: stringToHash(collateralAddresses?.sort().join()),
-        contractsHash: contractsHash([CoreProxy]),
+        contractsHash: contractsHash([
+          CoreProxy,
+          ...Array.from(collateralAddresses).map((address) => ({ address })),
+        ]),
       },
     ],
     queryFn: async () => {
-      if (
-        !(network && provider && CoreProxy && collateralAddresses && collateralAddresses.length > 0)
-      ) {
+      if (!(network && provider && CoreProxy && collateralAddresses)) {
         throw new Error('OMFG');
       }
-
       const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
-      const { calls, decoder } = await loadPrices({
-        CoreProxyContract,
-        collateralAddresses,
-      });
 
-      const allCalls = [...calls];
+      const multicall = Array.from(collateralAddresses).map((address) => ({
+        method: 'getCollateralPrice',
+        args: [address],
+        address,
+      }));
+      log('multicall', multicall);
 
-      const prices = await erc7412Call(network, provider, allCalls, decoder, 'useCollateralPrices');
+      const calls = await Promise.all(
+        multicall.map(({ method, args }) => CoreProxyContract.populateTransaction[method](...args))
+      );
+      log('calls', calls);
 
-      return collateralAddresses.reduce((acc: Record<string, Wei | undefined>, address, i) => {
-        if (Array.isArray(prices)) {
-          acc[address] = prices[i];
-        } else {
-          acc[address] = prices;
-        }
-        return acc;
-      }, {});
+      const prices = await erc7412Call(
+        network,
+        provider,
+        calls,
+        (encoded) => {
+          if (!Array.isArray(encoded) || calls.length !== encoded.length) {
+            throw new Error('[useCollateralPrices] Unexpected multicall response');
+          }
+          return multicall.reduce((result, call, i) => {
+            const [price] = CoreProxyContract.interface.decodeFunctionResult(
+              'getCollateralPrice',
+              encoded[i]
+            );
+            result.set(call.address, price);
+            return result;
+          }, new Map());
+        },
+        'useCollateralPrices'
+      );
+      log('prices', prices);
+      return prices;
     },
   });
-};
+}
