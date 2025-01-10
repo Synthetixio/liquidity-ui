@@ -149,11 +149,9 @@ export const useDepositBaseAndromeda = ({
         ethers.utils.parseEther('1')
       );
 
-      const callsPromise = Promise.all(
+      const calls = await Promise.all(
         [wrap, synthApproval, createAccount, deposit, delegate].filter(notNil)
       );
-
-      const [calls] = await Promise.all([callsPromise]);
 
       if (priceUpdateTx) {
         calls.unshift(priceUpdateTx as any);

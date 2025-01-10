@@ -115,10 +115,11 @@ export function StataDepositModal({
   //Preparing stataUSDC Done
 
   //Stata Approval
-  const stataApprovalNeeded =
-    liquidityPosition && liquidityPosition.availableCollateral.lt(collateralChange)
+  const stataApprovalNeeded = liquidityPosition
+    ? liquidityPosition.availableCollateral.lt(collateralChange)
       ? collateralChange.sub(liquidityPosition.availableCollateral)
-      : wei(0);
+      : wei(0)
+    : collateralChange;
   const { approve: approveStata, requireApproval: requireApprovalStata } = useApprove({
     contractAddress: synthToken?.token?.address,
     amount:
@@ -144,8 +145,8 @@ export function StataDepositModal({
     newAccountId,
     collateralTypeAddress: synthToken?.token?.address,
     collateralChange,
-    currentCollateral: liquidityPosition?.collateralAmount,
-    availableCollateral: liquidityPosition?.availableCollateral,
+    currentCollateral: liquidityPosition ? liquidityPosition.collateralAmount : wei(0),
+    availableCollateral: liquidityPosition ? liquidityPosition.availableCollateral : wei(0),
     collateralSymbol: params.collateralSymbol,
   });
   //Deposit done
@@ -257,10 +258,6 @@ export function StataDepositModal({
 
       [ServiceNames.executeDeposit]: async () => {
         try {
-          if (!liquidityPosition) {
-            throw Error('Deposit failed: not ready');
-          }
-
           toast.closeAll();
           toast({
             title: Boolean(params.accountId)
@@ -271,8 +268,8 @@ export function StataDepositModal({
           });
 
           setTxSummary({
-            currentCollateral: liquidityPosition.collateralAmount,
-            currentDebt: liquidityPosition.debt,
+            currentCollateral: liquidityPosition ? liquidityPosition.collateralAmount : wei(0),
+            currentDebt: liquidityPosition ? liquidityPosition.debt : wei(0),
             collateralChange,
           });
 
