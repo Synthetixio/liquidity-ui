@@ -33,41 +33,37 @@ export const StatsList = () => {
     network
   );
 
-  const totalRewardsValue = React.useMemo(
-    () =>
-      rewards
-        ? rewards.reduce(
-            (result, reward) =>
-              reward &&
-              rewardsTokenPrices &&
-              rewardsTokenPrices.has(reward.distributor.payoutToken.address)
-                ? result.add(
-                    reward.claimableAmount.mul(
-                      rewardsTokenPrices.get(reward.distributor.payoutToken.address)
-                    )
-                  )
-                : result,
-            wei(0)
-          )
-        : wei(0),
-    [rewards, rewardsTokenPrices]
-  );
+  const totalRewardsValue = React.useMemo(() => {
+    if (rewards) {
+      return rewards.reduce(
+        (result, reward) =>
+          reward &&
+          rewardsTokenPrices &&
+          rewardsTokenPrices.has(reward.distributor.payoutToken.address)
+            ? result.add(
+                reward.claimableAmount.mul(
+                  rewardsTokenPrices.get(reward.distributor.payoutToken.address)
+                )
+              )
+            : result,
+        wei(0)
+      );
+    }
+  }, [rewards, rewardsTokenPrices]);
 
   const { data: liquidityPositions, isPending: isPendingLiquidityPositions } =
     useLiquidityPositions({
       accountId: params.accountId,
     });
 
-  const totalDebt = React.useMemo(
-    () =>
-      liquidityPositions
-        ? liquidityPositions.reduce(
-            (result, liquidityPosition) => result.add(liquidityPosition.debt),
-            wei(0)
-          )
-        : wei(0),
-    [liquidityPositions]
-  );
+  const totalDebt = React.useMemo(() => {
+    if (liquidityPositions) {
+      return liquidityPositions.reduce(
+        (result, liquidityPosition) => result.add(liquidityPosition.debt),
+        wei(0)
+      );
+    }
+  }, [liquidityPositions]);
 
   const totalAssets = React.useMemo(
     () =>
@@ -99,7 +95,7 @@ export const StatsList = () => {
     <Flex flexWrap="wrap" w="100%" gap="4">
       <StatBox
         title="Available to Lock"
-        isLoading={Boolean(params.accountId && isPendingLiquidityPositions)}
+        isLoading={!(params.accountId && !isPendingLiquidityPositions)}
         value={<Amount prefix="$" value={wei(totalAssets || '0')} />}
         label={
           <>
@@ -114,7 +110,7 @@ export const StatsList = () => {
 
       <StatBox
         title="Total Locked"
-        isLoading={Boolean(params.accountId && isPendingLiquidityPositions)}
+        isLoading={!(params.accountId && !isPendingLiquidityPositions)}
         value={<Amount prefix="$" value={wei(totalLocked || '0')} />}
         label={
           <>
@@ -125,13 +121,19 @@ export const StatsList = () => {
 
       <StatBox
         title="Total PNL"
-        isLoading={Boolean(
-          params.accountId &&
-            isPendingLiquidityPositions &&
-            isPendingRewards &&
-            isPendingRewardsPrices
-        )}
-        value={<PnlAmount debt={totalDebt.sub(totalRewardsValue)} />}
+        isLoading={
+          !(
+            params.accountId &&
+            !isPendingLiquidityPositions &&
+            !isPendingRewards &&
+            !isPendingRewardsPrices
+          )
+        }
+        value={
+          totalDebt && totalRewardsValue ? (
+            <PnlAmount debt={totalDebt.sub(totalRewardsValue)} />
+          ) : null
+        }
         label={
           <Text textAlign="left">
             Aggregated PNL of all your open Positions and combined value of all your Rewards
