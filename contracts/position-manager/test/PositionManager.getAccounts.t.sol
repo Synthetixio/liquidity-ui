@@ -54,7 +54,7 @@ contract PositionManager_getAccounts_Test is Test {
     }
 
     function test_getAccounts_NoAccounts() public {
-        address ALICE = 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045; // Random address
+        address ALICE = vm.addr(0xA11CE);
 
         PositionManager positionManager = new PositionManager();
         vm.label(address(positionManager), "PositionManager");
