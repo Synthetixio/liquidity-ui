@@ -5110,6 +5110,7 @@ __metadata:
     "@snx-v3/usePoolConfiguration": "workspace:*"
     "@snx-v3/usePoolsList": "workspace:*"
     "@snx-v3/usePythFeeds": "workspace:*"
+    "@snx-v3/usePythPrice": "workspace:*"
     "@snx-v3/usePythVerifier": "workspace:*"
     "@snx-v3/useRates": "workspace:*"
     "@snx-v3/useRepay": "workspace:*"
@@ -5894,6 +5895,18 @@ __metadata:
     "@snx-v3/contracts": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
+  languageName: unknown
+  linkType: soft
+
+"@snx-v3/usePythPrice@workspace:*, @snx-v3/usePythPrice@workspace:liquidity/lib/usePythPrice":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/usePythPrice@workspace:liquidity/lib/usePythPrice"
+  dependencies:
+    "@pythnetwork/pyth-evm-js": "npm:^1.42.0"
+    "@snx-v3/constants": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    ethers: "npm:^5.7.2"
+    react: "npm:^18.2.0"
   languageName: unknown
   linkType: soft
 

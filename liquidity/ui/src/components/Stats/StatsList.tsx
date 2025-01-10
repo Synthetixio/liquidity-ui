@@ -5,6 +5,7 @@ import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralPrices } from '@snx-v3/useCollateralPrices';
 import { useLiquidityPositions } from '@snx-v3/useLiquidityPositions';
 import { useParams } from '@snx-v3/useParams';
+import { usePythPrice } from '@snx-v3/usePythPrice';
 import { useRewards } from '@snx-v3/useRewards';
 import { wei } from '@synthetixio/wei';
 import React from 'react';
@@ -18,11 +19,15 @@ export const StatsList = () => {
     accountId: params.accountId,
   });
 
+  const { data: snxPrice, isPending: isPendingSnxPrice } = usePythPrice('SNX');
+
   const rewardsTokens = React.useMemo(() => {
     const result: Set<string> = new Set();
     if (rewards) {
       for (const reward of rewards) {
-        result.add(reward.distributor.payoutToken.address);
+        if (reward.claimableAmount.gt(0)) {
+          result.add(reward.distributor.payoutToken.address);
+        }
       }
     }
     return result;
@@ -34,22 +39,23 @@ export const StatsList = () => {
   );
 
   const totalRewardsValue = React.useMemo(() => {
-    if (rewards) {
-      return rewards.reduce(
-        (result, reward) =>
-          reward &&
-          rewardsTokenPrices &&
-          rewardsTokenPrices.has(reward.distributor.payoutToken.address)
-            ? result.add(
-                reward.claimableAmount.mul(
-                  rewardsTokenPrices.get(reward.distributor.payoutToken.address)
-                )
-              )
-            : result,
-        wei(0)
-      );
+    if (rewards && rewardsTokenPrices && snxPrice) {
+      return rewards.reduce((result, reward) => {
+        // all rewards should have price except SNX as it is not a collateral on Base
+        if (reward.distributor.payoutToken.symbol === 'SNX') {
+          return result.add(reward.claimableAmount.mul(snxPrice));
+        }
+        if (rewardsTokenPrices.has(reward.distributor.payoutToken.address)) {
+          return result.add(
+            reward.claimableAmount.mul(
+              rewardsTokenPrices.get(reward.distributor.payoutToken.address)
+            )
+          );
+        }
+        return result;
+      }, wei(0));
     }
-  }, [rewards, rewardsTokenPrices]);
+  }, [rewards, rewardsTokenPrices, snxPrice]);
 
   const { data: liquidityPositions, isPending: isPendingLiquidityPositions } =
     useLiquidityPositions({
@@ -126,6 +132,7 @@ export const StatsList = () => {
             params.accountId &&
             !isPendingLiquidityPositions &&
             !isPendingRewards &&
+            !isPendingSnxPrice &&
             !isPendingRewardsPrices
           )
         }

@@ -1,0 +1,13 @@
+{
+  "name": "@snx-v3/usePythPrice",
+  "private": true,
+  "main": "index.ts",
+  "version": "0.0.2",
+  "dependencies": {
+    "@pythnetwork/pyth-evm-js": "^1.42.0",
+    "@snx-v3/constants": "workspace:*",
+    "@tanstack/react-query": "^5.8.3",
+    "ethers": "^5.7.2",
+    "react": "^18.2.0"
+  }
+}
