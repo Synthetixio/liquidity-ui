@@ -22,9 +22,7 @@ export const StatsList = () => {
     const result: Set<string> = new Set();
     if (rewards) {
       for (const reward of rewards) {
-        if (reward.collateralType) {
-          result.add(reward.collateralType.address);
-        }
+        result.add(reward.distributor.payoutToken.address);
       }
     }
     return result;
@@ -41,13 +39,11 @@ export const StatsList = () => {
         ? rewards.reduce(
             (result, reward) =>
               reward &&
-              reward.collateralType &&
-              reward.collateralType.address &&
               rewardsTokenPrices &&
-              rewardsTokenPrices.has(reward.collateralType.address)
+              rewardsTokenPrices.has(reward.distributor.payoutToken.address)
                 ? result.add(
                     reward.claimableAmount.mul(
-                      rewardsTokenPrices.get(reward.collateralType.address)
+                      rewardsTokenPrices.get(reward.distributor.payoutToken.address)
                     )
                   )
                 : result,

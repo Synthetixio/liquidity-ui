@@ -19,7 +19,7 @@ describe(__filename, () => {
     cy.contains('[data-cy="connect wallet button"]', 'Connect Wallet').should('exist');
     cy.get('[data-cy="stats box"][data-title="Available to Lock"]').should('exist');
     cy.get('[data-cy="stats box"][data-title="Total Locked"]').should('exist');
-    cy.get('[data-cy="stats box"][data-title="Total Debt"]').should('exist');
+    cy.get('[data-cy="stats box"][data-title="Total PNL"]').should('exist');
 
     cy.contains('h2', 'Positions').should('exist');
     cy.contains('p', 'Please connect wallet to view active positions').should('exist');
