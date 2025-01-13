@@ -22,9 +22,11 @@ import React from 'react';
 
 export function UndelegateModal({
   txnStatus,
+  approvalTxnStatus,
   txnHash,
 }: {
   txnStatus: string;
+  approvalTxnStatus?: string;
   txnHash: string | null;
 }) {
   const [params] = useParams<PositionPageSchemaType>();
@@ -35,13 +37,13 @@ export function UndelegateModal({
   const { network } = useNetwork();
 
   React.useEffect(() => {
-    if (txnStatus === 'prompting') {
+    if (txnStatus === 'prompting' || approvalTxnStatus === 'prompting') {
       setIsOpen(true);
     }
-    if (txnStatus === 'error') {
+    if (txnStatus === 'error' || approvalTxnStatus === 'error') {
       setIsOpen(false);
     }
-  }, [txnStatus]);
+  }, [approvalTxnStatus, txnStatus]);
 
   // This caching is necessary to keep initial values after success and not reset them to zeroes
   const [undelegateAmount, setUndelegateAmount] = React.useState<Wei | undefined>();

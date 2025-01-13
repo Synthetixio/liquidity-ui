@@ -14,7 +14,7 @@ import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { ChangeStat } from '@snx-v3/ChangeStat';
 import { ZEROWEI } from '@snx-v3/constants';
-import { currency } from '@snx-v3/format';
+import { currency, parseUnits } from '@snx-v3/format';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
 import { TokenIcon } from '@snx-v3/TokenIcon';
@@ -33,6 +33,10 @@ import { useUndelegate } from '@snx-v3/useUndelegate';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { ContractError } from '@snx-v3/ContractError';
 import { UndelegateModal } from './UndelegateModal';
+import { useUndelegateBaseAndromeda } from '@snx-v3/useUndelegateBaseAndromeda';
+import { useUSDC } from '@snx-v3/useUSDC';
+import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
+import { useApprove } from '@snx-v3/useApprove';
 
 export function Undelegate() {
   const [params, setParams] = useParams<PositionPageSchemaType>();
@@ -42,6 +46,8 @@ export function Undelegate() {
 
   const poolConfiguration = usePoolConfiguration();
   const { network } = useNetwork();
+  const { data: USDC } = useUSDC();
+  const { data: DebtRepayer } = useDebtRepayer();
 
   const { data: liquidityPosition, isPending: isPendingLiquidityPosition } = useLiquidityPosition({
     accountId: params.accountId,
@@ -60,13 +66,56 @@ export function Undelegate() {
   });
 
   const {
+    approve,
+    requireApproval,
+    txnState: approvalTxnState,
+  } = useApprove({
+    contractAddress: USDC?.address,
+    //slippage for approval
+    amount:
+      liquidityPosition && liquidityPosition.debt.gt(0)
+        ? parseUnits(liquidityPosition.debt.toString(), 6).mul(120).div(100)
+        : undefined,
+    spender: DebtRepayer?.address,
+  });
+
+  const {
     isReady: isUndelegateReady,
-    txnState,
+    txnState: undelegateTxnState,
     mutation: undelegate,
   } = useUndelegate({
     undelegateAmount:
       collateralChange && collateralChange.lt(0) ? collateralChange.abs() : undefined,
   });
+
+  const {
+    isReady: isUndelegateAndromedaReady,
+    txnState: undelegateAndromedaTxnState,
+    mutation: undelegateAndromeda,
+  } = useUndelegateBaseAndromeda({
+    undelegateAmount:
+      collateralChange && collateralChange.lt(0) ? collateralChange.abs() : undefined,
+  });
+
+  const { isReady, txnState } = React.useMemo(() => {
+    if (network?.preset === 'andromeda') {
+      return {
+        isReady: isUndelegateAndromedaReady,
+        txnState: undelegateAndromedaTxnState,
+      };
+    } else {
+      return {
+        isReady: isUndelegateReady,
+        txnState: undelegateTxnState,
+      };
+    }
+  }, [
+    isUndelegateAndromedaReady,
+    isUndelegateReady,
+    network?.preset,
+    undelegateAndromedaTxnState,
+    undelegateTxnState,
+  ]);
 
   const maxWithdrawable = liquidityPosition?.availableCollateral;
 
@@ -109,7 +158,7 @@ export function Undelegate() {
   const isInputDisabled = isAnyMarketLocked;
   const overAvailableBalance = max ? collateralChange.abs().gt(max) : false;
   const isSubmitDisabled =
-    !isUndelegateReady ||
+    !isReady ||
     isLoadingRequiredData ||
     isAnyMarketLocked ||
     collateralChange.gte(0) ||
@@ -127,7 +176,15 @@ export function Undelegate() {
         toast.closeAll();
         toast({ title: 'Undelegating...', variant: 'left-accent' });
 
-        await undelegate.mutateAsync();
+        if (network?.preset === 'andromeda') {
+          if (requireApproval) {
+            await approve(false);
+          }
+          await undelegateAndromeda.mutateAsync();
+        } else {
+          await undelegate.mutateAsync();
+        }
+
         setCollateralChange(ZEROWEI);
 
         toast.closeAll();
@@ -157,12 +214,25 @@ export function Undelegate() {
         throw Error('Undelegate failed', { cause: error });
       }
     },
-    [errorParser, setCollateralChange, toast, undelegate]
+    [
+      approve,
+      errorParser,
+      network?.preset,
+      requireApproval,
+      setCollateralChange,
+      toast,
+      undelegate,
+      undelegateAndromeda,
+    ]
   );
 
   return (
     <Flex flexDirection="column" data-cy="unlock collateral form">
-      <UndelegateModal txnStatus={txnState.txnStatus} txnHash={txnState.txnHash} />
+      <UndelegateModal
+        txnStatus={txnState.txnStatus}
+        txnHash={txnState.txnHash}
+        approvalTxnStatus={approvalTxnState.txnStatus}
+      />
       <Text color="gray./50" fontSize="sm" fontWeight="700" mb="3">
         Unlock Collateral
       </Text>

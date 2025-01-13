@@ -22,7 +22,6 @@ import { useSystemToken } from '@snx-v3/useSystemToken';
 import { useUndelegate } from '@snx-v3/useUndelegate';
 import { useUndelegateBaseAndromeda } from '@snx-v3/useUndelegateBaseAndromeda';
 import { useUSDC } from '@snx-v3/useUSDC';
-import { wei } from '@synthetixio/wei';
 import { ethers } from 'ethers';
 import React from 'react';
 import { LiquidityPositionUpdated } from '../Manage/LiquidityPositionUpdated';
@@ -110,7 +109,7 @@ export function ClosePositionTransactions({
   });
 
   const { exec: undelegateBaseAndromeda } = useUndelegateBaseAndromeda({
-    collateralChange: liquidityPosition?.collateralAmount.mul(-1) || wei(0),
+    undelegateAmount: liquidityPosition?.collateralAmount,
   });
 
   //claim

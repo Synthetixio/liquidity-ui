@@ -20,7 +20,7 @@ import React from 'react';
 
 const log = debug('snx:useUndelegateBaseAndromeda');
 
-export function useUndelegateBaseAndromeda({ collateralChange }: { collateralChange: Wei }) {
+export function useUndelegateBaseAndromeda({ undelegateAmount }: { undelegateAmount?: Wei }) {
   const [params] = useParams<PositionPageSchemaType>();
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
@@ -45,22 +45,29 @@ export function useUndelegateBaseAndromeda({ collateralChange }: { collateralCha
   const { data: DebtRepayer } = useDebtRepayer();
 
   const queryClient = useQueryClient();
+
+  const canUndelegate =
+    liquidityPosition &&
+    liquidityPosition.collateralAmount.gt(0) &&
+    undelegateAmount &&
+    liquidityPosition.collateralAmount.gte(undelegateAmount);
+
+  const isReady =
+    canUndelegate &&
+    undelegateAmount.gt(0) &&
+    network &&
+    provider &&
+    signer &&
+    CoreProxy &&
+    AccountProxy &&
+    DebtRepayer &&
+    SpotMarketProxy &&
+    params.accountId &&
+    !!collateralType?.tokenAddress;
+
   const mutation = useMutation({
     mutationFn: async () => {
-      if (!signer || !network || !provider) throw new Error('No signer or network');
-      if (
-        !(
-          CoreProxy &&
-          AccountProxy &&
-          DebtRepayer &&
-          params.accountId &&
-          collateralTypeAddress &&
-          SpotMarketProxy
-        )
-      )
-        return;
-      if (collateralChange.eq(0)) return;
-      if (currentCollateral.eq(0)) return;
+      if (!isReady) throw new Error('Not ready');
 
       dispatch({ type: 'prompting' });
 
@@ -93,7 +100,7 @@ export function useUndelegateBaseAndromeda({ collateralChange }: { collateralCha
         ethers.BigNumber.from(params.accountId),
         ethers.BigNumber.from(POOL_ID),
         collateralTypeAddress,
-        currentCollateral.add(collateralChange).toBN(),
+        currentCollateral.sub(undelegateAmount).toBN(),
         wei(1).toBN()
       );
 
@@ -157,5 +164,6 @@ export function useUndelegateBaseAndromeda({ collateralChange }: { collateralCha
     settle: () => dispatch({ type: 'settled' }),
     isLoading: mutation.isPending,
     exec: mutation.mutateAsync,
+    isReady,
   };
 }

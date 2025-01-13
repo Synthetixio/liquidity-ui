@@ -65,7 +65,10 @@ export function UndelegateModal({ onClose }: { onClose: () => void }) {
     spender: DebtRepayer?.address,
   });
 
-  const { exec: undelegateBaseAndromeda } = useUndelegateBaseAndromeda({ collateralChange });
+  const { exec: undelegateBaseAndromeda } = useUndelegateBaseAndromeda({
+    undelegateAmount:
+      collateralChange && collateralChange.lt(0) ? collateralChange.abs() : undefined,
+  });
 
   const errorParser = useContractErrorParser();
 
