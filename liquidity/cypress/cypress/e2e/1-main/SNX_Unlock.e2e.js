@@ -11,7 +11,7 @@ describe(__filename, () => {
       chainId: Cypress.env('chainId'),
       forkUrl:
         Cypress.env('RPC_MAINNET') ?? `https://mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '21233424',
+      block: '21491580',
     }).then(() => cy.log('Anvil started'));
     cy.pythBypass();
 
@@ -26,12 +26,6 @@ describe(__filename, () => {
   afterEach(() => cy.task('stopAnvil').then(() => cy.log('Anvil stopped')));
 
   it(__filename, () => {
-    cy.setEthBalance({ balance: 100 });
-    cy.getSNX({ amount: 2000 });
-    cy.approveCollateral({ symbol: 'SNX', spender: 'CoreProxy' });
-    cy.depositCollateral({ symbol: 'SNX', amount: 150 });
-    cy.delegateCollateral({ symbol: 'SNX', amount: 150, poolId: 1 });
-
     cy.visit(
       `?${makeSearch({
         page: 'position',
@@ -47,24 +41,24 @@ describe(__filename, () => {
       .and('include.text', 'Max');
 
     cy.get('[data-cy="undelegate amount input"]').should('exist');
-    cy.get('[data-cy="undelegate amount input"]').type('30');
+    cy.get('[data-cy="undelegate amount input"]').type('20');
     cy.get('[data-cy="undelegate submit"]').should('be.enabled');
     cy.get('[data-cy="undelegate submit"]').click();
 
-    cy.get('[data-cy="undelegate multistep"]')
+    cy.get('[data-cy="unlock dialog"]')
       .should('exist')
-      .and('include.text', '30 SNX will be unlocked from the pool.');
+      .and('include.text', 'Unlocking Collateral')
+      .and('include.text', 'Unlocking 20 SNX');
 
-    cy.get('[data-cy="undelegate confirm button"]').should('include.text', 'Execute Transaction');
-    cy.get('[data-cy="undelegate confirm button"]').click();
+    cy.contains('[data-status="success"]', 'Your collateral has been updated', {
+      timeout: 180_000,
+    }).should('exist');
+    cy.get('[data-cy="transaction hash"]').should('exist');
 
-    cy.contains('[data-status="error"]', 'Unlock collateral failed').should('exist');
-    cy.contains('[data-status="error"]', 'MinDelegationTimeoutPending').should('exist');
+    cy.get('[data-cy="unlock dialog"]').should('exist').and('include.text', 'Unlocked 20 SNX');
 
-    // TODO: update settings and allow to unlock without delay
-    //
-    //  cy.contains('[data-status="success"]', 'Your locked collateral amount has been updated.').should(
-    //    'exist'
-    //  );
+    cy.contains('[data-cy="unlock dialog"] button', 'Done').click();
+
+    cy.get('[data-cy="undelegate submit"]').should('be.disabled');
   });
 });

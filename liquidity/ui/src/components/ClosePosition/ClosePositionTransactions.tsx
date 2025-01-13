@@ -86,10 +86,9 @@ export function ClosePositionTransactions({
   });
   const { exec: execRepay } = useRepay({ repayAmount: liquidityPosition?.debt });
   const { exec: undelegate } = useUndelegate({
-    accountId: params.accountId,
-    collateralTypeAddress: collateralType?.tokenAddress,
-    collateralChange: liquidityPosition?.collateralAmount.mul(-1) || ZEROWEI,
-    currentCollateral: liquidityPosition?.collateralAmount || ZEROWEI,
+    undelegateAmount: liquidityPosition?.collateralAmount.gt(0)
+      ? liquidityPosition?.collateralAmount
+      : undefined,
   });
 
   const { data: DebtRepayer } = useDebtRepayer();

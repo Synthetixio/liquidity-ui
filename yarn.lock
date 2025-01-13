@@ -6199,7 +6199,10 @@ __metadata:
     "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
+    "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
+    "@snx-v3/useLiquidityPosition": "workspace:*"
+    "@snx-v3/useParams": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -6713,9 +6716,9 @@ __metadata:
   linkType: soft
 
 "@synthetixio/v3-contracts@npm:^7.1.0":
-  version: 7.14.0
-  resolution: "@synthetixio/v3-contracts@npm:7.14.0"
-  checksum: 10/27747eb816d7a65bf2933416b31feb58997001fbd0c71a87387260894e08b78725267d82250ee28a88cd1d20be073b511af55a14684317a529ccffc9eeb168bc
+  version: 7.18.0
+  resolution: "@synthetixio/v3-contracts@npm:7.18.0"
+  checksum: 10/0a45e707b377cfd8a12bb9bcb45e50eb4b0615c5dde8bba20b8a05b9d12ae26be77f9fd07dda4d39738b1b5a51a028de4664649e921b60fcf010406b7c282f3f
   languageName: node
   linkType: hard
 

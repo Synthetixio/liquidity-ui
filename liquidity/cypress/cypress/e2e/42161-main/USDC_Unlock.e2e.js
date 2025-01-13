@@ -48,16 +48,20 @@ describe(__filename, () => {
     cy.get('[data-cy="undelegate submit"]').should('be.enabled');
     cy.get('[data-cy="undelegate submit"]').click();
 
-    cy.get('[data-cy="undelegate multistep"]')
+    cy.get('[data-cy="unlock dialog"]')
       .should('exist')
-      .and('include.text', '0.5 USDC will be unlocked from the pool.');
+      .and('include.text', 'Unlocking Collateral')
+      .and('include.text', 'Unlocking 0.5 USDC');
 
-    cy.get('[data-cy="undelegate confirm button"]').should('include.text', 'Execute Transaction');
-    cy.get('[data-cy="undelegate confirm button"]').click();
+    cy.contains('[data-status="success"]', 'Your collateral has been updated', {
+      timeout: 180_000,
+    }).should('exist');
+    cy.get('[data-cy="transaction hash"]').should('exist');
 
-    cy.contains(
-      '[data-status="success"]',
-      'Your locked collateral amount has been updated.'
-    ).should('exist');
+    cy.get('[data-cy="unlock dialog"]').should('exist').and('include.text', 'Unlocked 0.5 USDC');
+
+    cy.contains('[data-cy="unlock dialog"] button', 'Done').click();
+
+    cy.get('[data-cy="undelegate submit"]').should('be.disabled');
   });
 });

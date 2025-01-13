@@ -49,18 +49,22 @@ describe(__filename, () => {
     cy.get('[data-cy="undelegate submit"]').should('be.enabled');
     cy.get('[data-cy="undelegate submit"]').click();
 
-    cy.get('[data-cy="undelegate multistep"]')
+    cy.get('[data-cy="unlock dialog"]')
       .should('exist')
-      .and('include.text', '1 Static aUSDC will be unlocked from the pool.');
+      .and('include.text', 'Unlocking Collateral')
+      .and('include.text', 'Unlocking 1 Static aUSDC');
 
-    cy.get('[data-cy="undelegate confirm button"]').should('include.text', 'Execute Transaction');
-    cy.get('[data-cy="undelegate confirm button"]').click();
-
-    // cy.contains('[data-status="error"]', 'Unlock collateral failed').should('exist');
-    // cy.contains('[data-status="error"]', 'MinDelegationTimeoutPending').should('exist');
-
-    cy.contains('[data-status="success"]', 'Your locked collateral amount has been updated.', {
+    cy.contains('[data-status="success"]', 'Your collateral has been updated', {
       timeout: 180_000,
     }).should('exist');
+    cy.get('[data-cy="transaction hash"]').should('exist');
+
+    cy.get('[data-cy="unlock dialog"]')
+      .should('exist')
+      .and('include.text', 'Unlocked 1 Static aUSDC');
+
+    cy.contains('[data-cy="unlock dialog"] button', 'Done').click();
+
+    cy.get('[data-cy="undelegate submit"]').should('be.disabled');
   });
 });

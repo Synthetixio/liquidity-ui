@@ -8,6 +8,7 @@ import {
   Flex,
   Link,
   Text,
+  useToast,
 } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
@@ -28,6 +29,10 @@ import Wei, { wei } from '@synthetixio/wei';
 import React from 'react';
 import { CRatioChangeStat } from '../CRatioBar/CRatioChangeStat';
 import { TransactionSummary } from '../TransactionSummary/TransactionSummary';
+import { useUndelegate } from '@snx-v3/useUndelegate';
+import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
+import { ContractError } from '@snx-v3/ContractError';
+import { UndelegateModal } from './UndelegateModal';
 
 export function Undelegate() {
   const [params, setParams] = useParams<PositionPageSchemaType>();
@@ -52,6 +57,15 @@ export function Undelegate() {
     debt: liquidityPosition?.debt,
     collateralChange: collateralChange,
     debtChange: debtChange,
+  });
+
+  const {
+    isReady: isUndelegateReady,
+    txnState,
+    mutation: undelegate,
+  } = useUndelegate({
+    undelegateAmount:
+      collateralChange && collateralChange.lt(0) ? collateralChange.abs() : undefined,
   });
 
   const maxWithdrawable = liquidityPosition?.availableCollateral;
@@ -95,14 +109,60 @@ export function Undelegate() {
   const isInputDisabled = isAnyMarketLocked;
   const overAvailableBalance = max ? collateralChange.abs().gt(max) : false;
   const isSubmitDisabled =
+    !isUndelegateReady ||
     isLoadingRequiredData ||
     isAnyMarketLocked ||
     collateralChange.gte(0) ||
     !isValidLeftover ||
     overAvailableBalance;
 
+  const toast = useToast({ isClosable: true, duration: 9000 });
+  const errorParser = useContractErrorParser();
+
+  const onSubmit = React.useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+
+      try {
+        toast.closeAll();
+        toast({ title: 'Undelegating...', variant: 'left-accent' });
+
+        await undelegate.mutateAsync();
+        setCollateralChange(ZEROWEI);
+
+        toast.closeAll();
+        toast({
+          title: 'Success',
+          description: 'Your collateral has been updated.',
+          status: 'success',
+          duration: 5000,
+          variant: 'left-accent',
+        });
+      } catch (error: any) {
+        const contractError = errorParser(error);
+        if (contractError) {
+          console.error(new Error(contractError.name), contractError);
+        }
+        toast({
+          title: 'Could not complete repaying',
+          description: contractError ? (
+            <ContractError contractError={contractError} />
+          ) : (
+            'Please try again.'
+          ),
+          status: 'error',
+          variant: 'left-accent',
+          duration: 3_600_000,
+        });
+        throw Error('Undelegate failed', { cause: error });
+      }
+    },
+    [errorParser, setCollateralChange, toast, undelegate]
+  );
+
   return (
     <Flex flexDirection="column" data-cy="unlock collateral form">
+      <UndelegateModal txnStatus={txnState.txnStatus} txnHash={txnState.txnHash} />
       <Text color="gray./50" fontSize="sm" fontWeight="700" mb="3">
         Unlock Collateral
       </Text>
@@ -331,7 +391,12 @@ export function Undelegate() {
         </Collapse>
       ) : null}
 
-      <Button data-cy="undelegate submit" type="submit" isDisabled={isSubmitDisabled}>
+      <Button
+        onClick={onSubmit}
+        data-cy="undelegate submit"
+        type="submit"
+        isDisabled={isSubmitDisabled}
+      >
         {collateralChange.gte(0) ? 'Enter Amount' : 'Unlock Collateral'}
       </Button>
     </Flex>

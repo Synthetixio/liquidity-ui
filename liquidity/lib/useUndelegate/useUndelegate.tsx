@@ -9,43 +9,61 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import debug from 'debug';
 import { ethers } from 'ethers';
 import { useReducer } from 'react';
+import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 
 const log = debug('snx:useUndelegate');
 
-export const useUndelegate = ({
-  accountId,
-  collateralTypeAddress,
-  collateralChange,
-  currentCollateral,
-}: {
-  accountId?: string;
-  collateralTypeAddress?: string;
-  currentCollateral: Wei;
-  collateralChange: Wei;
-}) => {
+export const useUndelegate = ({ undelegateAmount }: { undelegateAmount?: Wei }) => {
+  const [params] = useParams<PositionPageSchemaType>();
+
+  const { data: collateralType } = useCollateralType(params.collateralSymbol);
+
   const [txnState, dispatch] = useReducer(reducer, initialState);
+
+  const { data: liquidityPosition } = useLiquidityPosition({
+    accountId: params.accountId,
+    collateralType,
+  });
+
   const { data: CoreProxy } = useCoreProxy();
+
   const { data: priceUpdateTx } = useCollateralPriceUpdates();
+
   const signer = useSigner();
   const provider = useProvider();
   const { network } = useNetwork();
-
   const queryClient = useQueryClient();
+
+  const canUndelegate =
+    liquidityPosition &&
+    liquidityPosition.collateralAmount.gt(0) &&
+    undelegateAmount &&
+    liquidityPosition.collateralAmount.gte(undelegateAmount);
+
+  const isReady =
+    canUndelegate &&
+    undelegateAmount.gt(0) &&
+    network &&
+    provider &&
+    signer &&
+    CoreProxy &&
+    params.accountId &&
+    !!collateralType?.tokenAddress;
+
   const mutation = useMutation({
     mutationFn: async () => {
-      if (!signer || !network || !provider) throw new Error('No signer or network');
-      if (!(CoreProxy && collateralTypeAddress)) return;
-      if (collateralChange.eq(0)) return;
-      if (currentCollateral.eq(0)) return;
+      if (!isReady) throw new Error('Not ready');
 
       dispatch({ type: 'prompting' });
 
       const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
       const populatedTxnPromised = CoreProxyContract.populateTransaction.delegateCollateral(
-        ethers.BigNumber.from(accountId),
+        ethers.BigNumber.from(params.accountId),
         ethers.BigNumber.from(POOL_ID),
-        collateralTypeAddress,
-        currentCollateral.add(collateralChange).toBN(),
+        collateralType.tokenAddress,
+        liquidityPosition.collateralAmount.sub(undelegateAmount).toBN(),
         wei(1).toBN()
       );
 
@@ -102,6 +120,7 @@ export const useUndelegate = ({
     },
   });
   return {
+    isReady,
     mutation,
     txnState,
     settle: () => dispatch({ type: 'settled' }),

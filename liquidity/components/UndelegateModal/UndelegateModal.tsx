@@ -46,10 +46,8 @@ export function UndelegateModal({ onClose }: { onClose: () => void }) {
   const currentCollateral = liquidityPosition?.collateralAmount || wei(0);
 
   const { exec: execUndelegate } = useUndelegate({
-    accountId: params.accountId,
-    collateralTypeAddress: collateralType?.tokenAddress,
-    collateralChange,
-    currentCollateral: currentCollateral,
+    undelegateAmount:
+      collateralChange && collateralChange.lt(0) ? collateralChange.abs() : undefined,
   });
 
   const currentDebt =
