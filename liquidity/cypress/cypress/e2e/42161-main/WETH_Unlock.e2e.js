@@ -63,7 +63,9 @@ describe(__filename, () => {
     }).should('exist');
     cy.get('[data-cy="transaction hash"]').should('exist');
 
-    cy.get('[data-cy="undelegate dialog"]').should('exist').and('include.text', 'Unlocked 0.5 WETH');
+    cy.get('[data-cy="undelegate dialog"]')
+      .should('exist')
+      .and('include.text', 'Unlocked 0.5 WETH');
 
     cy.contains('[data-cy="undelegate dialog"] button', 'Done').click();
 
