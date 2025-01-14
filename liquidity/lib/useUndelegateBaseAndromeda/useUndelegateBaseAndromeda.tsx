@@ -54,7 +54,6 @@ export function useUndelegateBaseAndromeda({ undelegateAmount }: { undelegateAmo
 
   const isReady =
     canUndelegate &&
-    undelegateAmount.gt(0) &&
     network &&
     provider &&
     signer &&
@@ -63,7 +62,7 @@ export function useUndelegateBaseAndromeda({ undelegateAmount }: { undelegateAmo
     DebtRepayer &&
     SpotMarketProxy &&
     params.accountId &&
-    !!collateralType?.tokenAddress;
+    Boolean(collateralType);
 
   const mutation = useMutation({
     mutationFn: async () => {
