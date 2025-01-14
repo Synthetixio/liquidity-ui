@@ -273,7 +273,7 @@ export function Deposit() {
           in={
             collateralChange.gt(0) &&
             collateralChange
-              .add(liquidityPosition?.collateralAmount || ZEROWEI)
+              .add(liquidityPosition ? liquidityPosition.collateralAmount : ZEROWEI)
               .lt(collateralType.minDelegationD18)
           }
           animateOpacity
