@@ -97,25 +97,9 @@ export function Undelegate() {
       collateralChange && collateralChange.lt(0) ? collateralChange.abs() : undefined,
   });
 
-  const { isReady, txnState } = React.useMemo(() => {
-    if (network?.preset === 'andromeda') {
-      return {
-        isReady: isUndelegateAndromedaReady,
-        txnState: undelegateAndromedaTxnState,
-      };
-    } else {
-      return {
-        isReady: isUndelegateReady,
-        txnState: undelegateTxnState,
-      };
-    }
-  }, [
-    isUndelegateAndromedaReady,
-    isUndelegateReady,
-    network?.preset,
-    undelegateAndromedaTxnState,
-    undelegateTxnState,
-  ]);
+  const isReady = network?.preset === 'andromeda' ? isUndelegateAndromedaReady : isUndelegateReady;
+  const txnState =
+    network?.preset === 'andromeda' ? undelegateAndromedaTxnState : undelegateTxnState;
 
   const maxWithdrawable = liquidityPosition?.availableCollateral;
 
@@ -227,7 +211,7 @@ export function Undelegate() {
   );
 
   return (
-    <Flex flexDirection="column" data-cy="unlock collateral form">
+    <Flex flexDirection="column" data-cy="undelegate collateral form">
       <UndelegateModal
         txnStatus={txnState.txnStatus}
         txnHash={txnState.txnHash}

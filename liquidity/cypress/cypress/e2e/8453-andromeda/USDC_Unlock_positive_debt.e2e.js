@@ -39,7 +39,7 @@ describe(__filename, () => {
       })}`
     );
 
-    cy.get('[data-cy="unlock collateral form"]').should('exist');
+    cy.get('[data-cy="undelegate collateral form"]').should('exist');
     cy.get('[data-cy="locked amount"]', { timeout: 180_000 })
       .should('exist')
       .and('include.text', 'Max');
@@ -49,7 +49,7 @@ describe(__filename, () => {
     cy.get('[data-cy="undelegate submit"]').should('be.enabled');
     cy.get('[data-cy="undelegate submit"]').click();
 
-    cy.get('[data-cy="unlock dialog"]')
+    cy.get('[data-cy="undelegate dialog"]')
       .should('exist')
       .and('include.text', 'Unlocking Collateral')
       .and('include.text', 'Unlocking 30 USDC');
@@ -59,9 +59,9 @@ describe(__filename, () => {
     }).should('exist');
     cy.get('[data-cy="transaction hash"]').should('exist');
 
-    cy.get('[data-cy="unlock dialog"]').should('exist').and('include.text', 'Unlocked 30 USDC');
+    cy.get('[data-cy="undelegate dialog"]').should('exist').and('include.text', 'Unlocked 30 USDC');
 
-    cy.contains('[data-cy="unlock dialog"] button', 'Done').click();
+    cy.contains('[data-cy="undelegate dialog"] button', 'Done').click();
 
     cy.get('[data-cy="undelegate submit"]').should('be.disabled');
   });

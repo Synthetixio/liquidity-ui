@@ -70,7 +70,7 @@ export function UndelegateModal({
         borderColor="gray.900"
         minWidth="384px"
       >
-        <ModalBody data-cy="unlock dialog" p={6}>
+        <ModalBody data-cy="undelegate dialog" p={6}>
           <Text color="gray.50" fontSize="20px" fontWeight={700}>
             Unlocking Collateral
           </Text>
