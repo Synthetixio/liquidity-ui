@@ -268,12 +268,12 @@ export function Deposit() {
         </Alert>
       </Collapse>
 
-      {collateralType && liquidityPosition ? (
+      {collateralType && (liquidityPosition || !params.accountId) ? (
         <Collapse
           in={
             collateralChange.gt(0) &&
             collateralChange
-              .add(liquidityPosition.collateralAmount)
+              .add(liquidityPosition?.collateralAmount || ZEROWEI)
               .lt(collateralType.minDelegationD18)
           }
           animateOpacity
