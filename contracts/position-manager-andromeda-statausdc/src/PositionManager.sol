@@ -457,12 +457,14 @@ contract PositionManager {
         );
 
         // 5. Delegate synthStataUSDC to the Pool
+        uint256 currentPosition =
+            IVaultModule(coreProxyAddress).getPositionCollateral(accountId, poolId, statausdcSynthAddress);
         IVaultModule(coreProxyAddress).delegateCollateral(
             //
             accountId,
             poolId,
             statausdcSynthAddress,
-            synthAmount,
+            currentPosition + synthAmount,
             1e18
         );
     }

@@ -8,98 +8,139 @@ import {IAccountModule} from "@synthetixio/main/contracts/interfaces/IAccountMod
 import {IAccountTokenModule} from "@synthetixio/main/contracts/interfaces/IAccountTokenModule.sol";
 import {ICollateralConfigurationModule} from "@synthetixio/main/contracts/interfaces/ICollateralConfigurationModule.sol";
 import {IERC20} from "@synthetixio/core-contracts/contracts/interfaces/IERC20.sol";
-import {PositionManager} from "src/PositionManager.sol";
+import {PositionManager, IStaticAaveToken} from "src/PositionManager.sol";
 import {Test} from "forge-std/src/Test.sol";
 import {Vm} from "forge-std/src/Vm.sol";
 import {console} from "forge-std/src/console.sol";
 
 contract PositionManager_increasePosition_Test is Test {
-    address private USDProxy;
-    address private CoreProxy;
-    address private AccountProxy;
-    address private CollateralToken_WETH;
+    address private coreProxyAddress;
+    address private accountProxyAddress;
+    address private spotMarketProxyAddress;
 
-    address private constant WETH_WHALE = 0xe50fA9b3c56FfB159cB0FCA61F5c9D750e8128c8;
-    bytes32 private constant PYTH_FEED_ETH = 0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace;
+    address private $USDC;
+    address private $sUSDC;
+    address private $stataUSDC;
+    address private $sStataUSDC;
+
+    uint128 private poolId = 1;
+    uint128 private synthMarketId_sUSDC = 1;
+    uint128 private synthMarketId_sStataUSDC = 3;
+
+    address private constant AAVE_USDC_POOL = 0x4e65fE4DbA92790696d040ac24Aa414708F5c0AB; // Aave: aBasUSDC Token
+
+    uint256 private $USDC_Precision;
+    uint256 private $stataUSDC_Precision;
+    uint256 private $sStataUSDC_Precision;
 
     uint256 fork;
 
     constructor() {
         string memory root = vm.projectRoot();
         string memory metaPath =
-            string.concat(root, "/../../node_modules/@synthetixio/v3-contracts/42161-main/meta.json");
+            string.concat(root, "/../../node_modules/@synthetixio/v3-contracts/8453-andromeda/meta.json");
         string memory metaJson = vm.readFile(metaPath);
 
-        USDProxy = vm.parseJsonAddress(metaJson, ".contracts.USDProxy");
-        vm.label(USDProxy, "USDProxy");
+        coreProxyAddress = vm.parseJsonAddress(metaJson, ".contracts.CoreProxy");
+        vm.label(coreProxyAddress, "CoreProxy");
 
-        AccountProxy = vm.parseJsonAddress(metaJson, ".contracts.AccountProxy");
-        vm.label(AccountProxy, "AccountProxy");
+        accountProxyAddress = vm.parseJsonAddress(metaJson, ".contracts.AccountProxy");
+        vm.label(accountProxyAddress, "AccountProxy");
 
-        CoreProxy = vm.parseJsonAddress(metaJson, ".contracts.CoreProxy");
-        vm.label(CoreProxy, "CoreProxy");
+        spotMarketProxyAddress = vm.parseJsonAddress(metaJson, ".contracts.SpotMarketProxy");
+        vm.label(spotMarketProxyAddress, "SpotMarketProxy");
 
-        CollateralToken_WETH = vm.parseJsonAddress(metaJson, ".contracts.CollateralToken_WETH");
-        vm.label(CollateralToken_WETH, "$WETH");
+        $USDC = vm.parseJsonAddress(metaJson, ".contracts.CollateralToken_USDC");
+        vm.label($USDC, "$USDC");
+
+        $sUSDC = vm.parseJsonAddress(metaJson, ".contracts.CollateralToken_sUSDC");
+        vm.label($sUSDC, "$sUSDC");
+
+        $stataUSDC = vm.parseJsonAddress(metaJson, ".contracts.CollateralToken_stataBasUSDC");
+        vm.label($stataUSDC, "$stataUSDC");
+
+        $sStataUSDC = vm.parseJsonAddress(metaJson, ".contracts.CollateralToken_sStataUSDC");
+        vm.label($sStataUSDC, "$sStataUSDC");
+
+        vm.label(AAVE_USDC_POOL, "AAVE_USDC_POOL");
     }
 
     function setUp() public {
-        string memory forkUrl = string.concat("https://arbitrum-mainnet.infura.io/v3/", vm.envString("INFURA_KEY"));
-        fork = vm.createFork(forkUrl, 285545346);
+        string memory forkUrl = vm.envString("RPC_BASE_MAINNET");
+        fork = vm.createFork(forkUrl, 24976690);
         vm.selectFork(fork);
-
         // Verify fork
-        assertEq(block.number, 21419019);
+        assertEq(block.number, 24976690);
         assertEq(vm.activeFork(), fork);
 
         // Pyth bypass
         vm.etch(0x1234123412341234123412341234123412341234, "FORK");
+
+        $USDC_Precision = 10 ** IERC20($USDC).decimals();
+        $stataUSDC_Precision = 10 ** IERC20($stataUSDC).decimals();
+        $sStataUSDC_Precision = 10 ** IERC20($sStataUSDC).decimals();
     }
 
     function test_increasePosition() public {
-        uint128 ACCOUNT_ID = 170141183460469231731687303715884106176;
-        uint128 POOL_ID = 1;
-        address ALICE = IAccountTokenModule(AccountProxy).ownerOf(ACCOUNT_ID);
+        uint128 ACCOUNT_ID = 522433293696;
+        address ALICE = IAccountTokenModule(accountProxyAddress).ownerOf(ACCOUNT_ID);
         vm.label(ALICE, "0xA11CE");
         vm.deal(ALICE, 1 ether);
 
-        vm.prank(WETH_WHALE);
-        IERC20(CollateralToken_WETH).approve(address(this), UINT256_MAX);
+        vm.prank(AAVE_USDC_POOL);
+        IERC20($USDC).transfer(ALICE, 100_000 * $USDC_Precision);
 
-        vm.prank(WETH_WHALE);
-        IERC20(CollateralToken_WETH).transfer(ALICE, 10 ether);
+        // -780517508859281029
+        int256 currentDebt = IVaultModule(coreProxyAddress).getPositionDebt(ACCOUNT_ID, poolId, $sStataUSDC);
+        uint256 currentPosition = IVaultModule(coreProxyAddress).getPositionCollateral(ACCOUNT_ID, poolId, $sStataUSDC);
+        uint256 currentAvailable =
+            ICollateralModule(coreProxyAddress).getAccountAvailableCollateral(ACCOUNT_ID, $sStataUSDC);
 
-        // Current debt
-        assertEq(
-            18_388.423856608151437096 ether,
-            IVaultModule(CoreProxy).getPositionDebt(ACCOUNT_ID, POOL_ID, CollateralToken_WETH)
+        assertTrue(currentDebt < 0);
+        assertEq(110 * $sStataUSDC_Precision, currentPosition);
+        assertEq(0, currentAvailable);
+
+        PositionManager positionManager = new PositionManager(
+            coreProxyAddress,
+            accountProxyAddress,
+            spotMarketProxyAddress,
+            $USDC,
+            $sUSDC,
+            synthMarketId_sUSDC,
+            $stataUSDC,
+            $sStataUSDC,
+            synthMarketId_sStataUSDC,
+            poolId
         );
-        // Current liquidity position
-        assertEq(50 ether, IVaultModule(CoreProxy).getPositionCollateral(ACCOUNT_ID, POOL_ID, CollateralToken_WETH));
-        // Current available collateral
-        assertEq(0, ICollateralModule(CoreProxy).getAccountAvailableCollateral(ACCOUNT_ID, CollateralToken_WETH));
-
-        PositionManager positionManager = new PositionManager();
         vm.label(address(positionManager), "PositionManager");
 
         vm.prank(ALICE);
-        IERC20(CollateralToken_WETH).approve(address(positionManager), UINT256_MAX);
+        IERC20($USDC).approve(address(positionManager), UINT256_MAX);
 
-        vm.prank(ALICE);
-        IAccountTokenModule(AccountProxy).approve(address(positionManager), ACCOUNT_ID);
-
-        vm.prank(ALICE);
-        positionManager.increasePosition(CoreProxy, AccountProxy, ACCOUNT_ID, POOL_ID, CollateralToken_WETH, 5 ether);
-
-        assertEq(ALICE, IAccountTokenModule(AccountProxy).ownerOf(ACCOUNT_ID));
-        // Current debt
-        assertEq(
-            18_388.423856608151437096 ether,
-            IVaultModule(CoreProxy).getPositionDebt(ACCOUNT_ID, POOL_ID, CollateralToken_WETH)
+        // Not hardcoding the amount `827888191` based on test block `24976690` stata rate
+        // to make test more flexible about starting block.
+        // But rather preview deposit result to get the exact stata token amount
+        uint256 expectedStataTokenAmount = IStaticAaveToken($stataUSDC).previewDeposit(
+            //
+            888 * $USDC_Precision
         );
-        // Current liquidity position
-        assertEq(55 ether, IVaultModule(CoreProxy).getPositionCollateral(ACCOUNT_ID, POOL_ID, CollateralToken_WETH));
-        // Current available collateral
-        assertEq(0, ICollateralModule(CoreProxy).getAccountAvailableCollateral(ACCOUNT_ID, CollateralToken_WETH));
+        uint256 expectedStataSynthAmount = expectedStataTokenAmount * $sStataUSDC_Precision / $stataUSDC_Precision;
+
+        vm.prank(ALICE);
+        IAccountTokenModule(accountProxyAddress).approve(address(positionManager), ACCOUNT_ID);
+
+        vm.prank(ALICE);
+        positionManager.increasePosition(ACCOUNT_ID, 888 * $USDC_Precision);
+
+        assertEq(ALICE, IAccountTokenModule(accountProxyAddress).ownerOf(ACCOUNT_ID));
+
+        int256 newDebt = IVaultModule(coreProxyAddress).getPositionDebt(ACCOUNT_ID, poolId, $sStataUSDC);
+        uint256 newPosition = IVaultModule(coreProxyAddress).getPositionCollateral(ACCOUNT_ID, poolId, $sStataUSDC);
+        uint256 newAvailable =
+            ICollateralModule(coreProxyAddress).getAccountAvailableCollateral(ACCOUNT_ID, $sStataUSDC);
+
+        assertEq(currentDebt, newDebt);
+        assertEq(expectedStataSynthAmount + currentPosition, newPosition);
+        assertEq(0, newAvailable);
     }
 }
