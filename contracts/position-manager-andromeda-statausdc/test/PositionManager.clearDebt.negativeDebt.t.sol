@@ -5,6 +5,7 @@ import {IVaultModule} from "@synthetixio/main/contracts/interfaces/IVaultModule.
 import {IAccountTokenModule} from "@synthetixio/main/contracts/interfaces/IAccountTokenModule.sol";
 import {IERC20} from "@synthetixio/core-contracts/contracts/interfaces/IERC20.sol";
 import {PositionManagerTest} from "./lib/PositionManagerTest.sol";
+import {IMarketManagerModule} from "@synthetixio/main/contracts/interfaces/IMarketManagerModule.sol";
 
 contract PositionManager_clearDebt_negativeDebt_Test is PositionManagerTest {
     constructor() {
@@ -20,15 +21,23 @@ contract PositionManager_clearDebt_negativeDebt_Test is PositionManagerTest {
         vm.prank(AAVE_USDC_POOL);
         IERC20($USDC).transfer(ALICE, 100_000 * $USDCPrecision);
 
+        IERC20 usdToken = IMarketManagerModule(CoreProxy).getUsdToken();
+
         int256 currentDebt = IVaultModule(CoreProxy).getPositionDebt(ACCOUNT_ID, poolId, $synthStataUSDC);
         uint256 currentPosition = IVaultModule(CoreProxy).getPositionCollateral(ACCOUNT_ID, poolId, $synthStataUSDC);
         uint256 currentAvailable =
             ICollateralModule(CoreProxy).getAccountAvailableCollateral(ACCOUNT_ID, $synthStataUSDC);
+        uint256 currentAvailableSnxUSD = ICollateralModule(CoreProxy).getAccountAvailableCollateral(
+            //
+            ACCOUNT_ID,
+            address(usdToken)
+        );
 
         assertTrue(currentDebt < 0);
         // assertEq(-0.780517508859281029 ether, currentDebt);
         assertEq(110 ether, currentPosition);
         assertEq(0, currentAvailable);
+        assertEq(0, currentAvailableSnxUSD);
 
         vm.prank(ALICE);
         IAccountTokenModule(AccountProxy).approve(address(positionManager), ACCOUNT_ID);
@@ -41,9 +50,15 @@ contract PositionManager_clearDebt_negativeDebt_Test is PositionManagerTest {
         int256 newDebt = IVaultModule(CoreProxy).getPositionDebt(ACCOUNT_ID, poolId, $synthStataUSDC);
         uint256 newPosition = IVaultModule(CoreProxy).getPositionCollateral(ACCOUNT_ID, poolId, $synthStataUSDC);
         uint256 newAvailable = ICollateralModule(CoreProxy).getAccountAvailableCollateral(ACCOUNT_ID, $synthStataUSDC);
+        uint256 newAvailableSnxUSD = ICollateralModule(CoreProxy).getAccountAvailableCollateral(
+            //
+            ACCOUNT_ID,
+            address(usdToken)
+        );
 
         assertEq(0, newDebt);
         assertEq(currentPosition, newPosition);
         assertEq(0, newAvailable);
+        assertEq(uint256(-currentDebt), newAvailableSnxUSD); // debt -> minted snxUSD
     }
 }
