@@ -274,10 +274,10 @@ export function ClosePositionTransactions({
     return (
       <LiquidityPositionUpdated
         onClose={onClose}
-        title="Position successfully Closed"
+        title="Position successfully closed"
         subline={
           <>
-            Your position has been successfully closed, read more about it in the{' '}
+            Your position has been successfully closed. To learn more, visit the{' '}
             <Link
               href="https://docs.synthetix.io/v/synthetix-v3-user-documentation"
               target="_blank"
@@ -287,7 +287,7 @@ export function ClosePositionTransactions({
             </Link>
           </>
         }
-        alertText={<>Position successfully Closed</>}
+        alertText={<>Position successfully closed</>}
       />
     );
   }
