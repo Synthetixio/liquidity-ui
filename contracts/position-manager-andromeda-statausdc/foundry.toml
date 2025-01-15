@@ -13,5 +13,5 @@ fs_permissions = [
 ]
 optimizer = true
 optimizer_runs = 200
-compiler.version = "0.8.27+commit.40a35a09"
-evm_version = "paris"
+#compiler.version = "0.8.27+commit.40a35a09"
+#evm_version = "paris"

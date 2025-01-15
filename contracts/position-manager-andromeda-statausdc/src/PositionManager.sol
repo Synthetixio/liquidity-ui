@@ -12,11 +12,31 @@ import {IERC721Enumerable} from "@synthetixio/core-contracts/contracts/interface
 import {IERC721} from "@synthetixio/core-contracts/contracts/interfaces/IERC721.sol";
 import {IWrapperModule} from "@synthetixio/spot-market/contracts/interfaces/IWrapperModule.sol";
 import {IAtomicOrderModule} from "@synthetixio/spot-market/contracts/interfaces/IAtomicOrderModule.sol";
+import {Price} from "@synthetixio/spot-market/contracts/storage/Price.sol";
 
 interface IStaticAaveToken {
-    function previewWithdraw(uint256 assets) view returns (uint256);
-    function deposit(uint256 assets, address receiver, uint16 referralCode, bool depositToAave) returns (uint256);
-    function maxWithdraw(address owner) view returns (uint256);
+    function previewDeposit(
+        //
+        uint256 assets
+    ) external view returns (uint256);
+
+    function previewWithdraw(
+        //
+        uint256 assets
+    ) external view returns (uint256);
+
+    function deposit(
+        //
+        uint256 assets,
+        address receiver,
+        uint16 referralCode,
+        bool depositToAave
+    ) external returns (uint256);
+
+    function maxWithdraw(
+        //
+        address owner
+    ) external view returns (uint256);
 }
 
 contract PositionManager {
@@ -43,10 +63,10 @@ contract PositionManager {
         address spotMarketAddress_,
         address usdcTokenAddress_,
         address usdcSynthAddress_,
-        address usdcSynthId_,
+        uint128 usdcSynthId_,
         address statausdcTokenAddress_,
         address statausdcSynthAddress_,
-        address statausdcSynthId_,
+        uint128 statausdcSynthId_,
         uint128 poolId_
     ) {
         coreProxyAddress = coreProxyAddress_;
@@ -72,7 +92,7 @@ contract PositionManager {
         if (numberOfAccountTokens == 0) {
             return new uint128[](0);
         }
-        uint128[] memory accountIds = new uint128[](numberOfAccountTokens);
+        accountIds = new uint128[](numberOfAccountTokens);
         for (uint256 i = 0; i < numberOfAccountTokens; i++) {
             // Retrieve the token/account ID at the index
             uint256 accountId = IERC721Enumerable(accountProxyAddress).tokenOfOwnerByIndex(
@@ -351,7 +371,8 @@ contract PositionManager {
      */
     function _repay(uint128 accountId, uint256 debtAmount) internal {
         // 1. Calculate how much USDC we need (technically should be 1:1)
-        (uint256 synthAmount,) = IAtomicOrderModule(spotMarketAddress).quoteSellExactOut(usdcSynthId, debtAmount, 0);
+        (uint256 synthAmount,) =
+            IAtomicOrderModule(spotMarketAddress).quoteSellExactOut(usdcSynthId, debtAmount, Price.Tolerance.STRICT);
         uint256 usdcAmount = synthAmount * (10 ** IERC20(usdcTokenAddress).decimals()) / (10 ** 18);
 
         // 2. Transfer USDC tokens from the wallet
@@ -359,7 +380,6 @@ contract PositionManager {
 
         // 3. Wrap USDC tokens to synthUSDC
         IERC20(usdcTokenAddress).approve(spotMarketAddress, usdcAmount);
-        uint256 synthAmount = debtAmount * (10 ** 18) / (10 ** IERC20(usdcTokenAddress).decimals());
         IWrapperModule(spotMarketAddress).wrap(
             //
             usdcSynthId,
@@ -407,6 +427,7 @@ contract PositionManager {
         _transfer(usdcTokenAddress, usdcAmount);
 
         // 2. Deposit USDC to AAVE and get stataUSDC tokens
+        IERC20(usdcTokenAddress).approve(statausdcTokenAddress, usdcAmount);
         uint256 stataAmount = IStaticAaveToken(statausdcTokenAddress).deposit(
             //
             usdcAmount,
@@ -417,7 +438,7 @@ contract PositionManager {
 
         // 3. Wrap stataUSDC tokens to synthStataUSDC
         IWrapperModule spotMarket = IWrapperModule(spotMarketAddress);
-        IERC20(usdcTokenAddress).approve(spotMarketAddress, stataAmount);
+        IERC20(statausdcTokenAddress).approve(spotMarketAddress, stataAmount);
         uint256 synthAmount = stataAmount * (10 ** 18) / (10 ** IERC20(statausdcTokenAddress).decimals());
         spotMarket.wrap(
             //
