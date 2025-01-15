@@ -104,7 +104,7 @@ export function ClaimModal({ onClose }: { onClose: () => void }) {
           title="Debt successfully updated"
           subline={
             <>
-              Your <b>Debt</b> has been updated. To learn more, visit the{' '}
+              Your <b>debt</b> has been updated. To learn more, visit the{' '}
               <Link
                 href="https://docs.synthetix.io/v/synthetix-v3-user-documentation"
                 target="_blank"
