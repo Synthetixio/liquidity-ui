@@ -13,6 +13,7 @@ import {IERC721} from "@synthetixio/core-contracts/contracts/interfaces/IERC721.
 import {IWrapperModule} from "@synthetixio/spot-market/contracts/interfaces/IWrapperModule.sol";
 import {IAtomicOrderModule} from "@synthetixio/spot-market/contracts/interfaces/IAtomicOrderModule.sol";
 import {Price} from "@synthetixio/spot-market/contracts/storage/Price.sol";
+import {IMarketManagerModule} from "@synthetixio/main/contracts/interfaces/IMarketManagerModule.sol";
 
 interface IStaticAaveToken {
     function previewDeposit(
@@ -46,38 +47,42 @@ contract PositionManager {
     error NotEnoughBalance(address walletAddress, address tokenAddress, uint256 requiredAmount, uint256 availableAmount);
     error AccountExists();
 
-    address public coreProxyAddress;
-    address public accountProxyAddress;
-    address public spotMarketAddress;
-    address public usdcTokenAddress;
-    address public usdcSynthAddress;
-    uint128 public usdcSynthId;
-    address public statausdcTokenAddress;
-    address public statausdcSynthAddress;
-    uint128 public statausdcSynthId;
+    address public CoreProxy;
+    address public AccountProxy;
+    address public SpotMarketProxy;
+
+    address public $USDC;
+    address public $stataUSDC;
+
+    address public $synthUSDC;
+    address public $synthStataUSDC;
+
+    uint128 public synthIdUSDC;
+    uint128 public synthIdStataUSDC;
+
     uint128 public poolId;
 
     constructor(
-        address coreProxyAddress_,
-        address accountProxyAddress_,
-        address spotMarketAddress_,
-        address usdcTokenAddress_,
-        address usdcSynthAddress_,
-        uint128 usdcSynthId_,
-        address statausdcTokenAddress_,
-        address statausdcSynthAddress_,
-        uint128 statausdcSynthId_,
+        address CoreProxy_,
+        address AccountProxy_,
+        address SpotMarketProxy_,
+        address $USDC_,
+        address $stataUSDC_,
+        address $synthUSDC_,
+        address $synthStataUSDC_,
+        uint128 synthIdUSDC_,
+        uint128 synthIdStataUSDC_,
         uint128 poolId_
     ) {
-        coreProxyAddress = coreProxyAddress_;
-        accountProxyAddress = accountProxyAddress_;
-        spotMarketAddress = spotMarketAddress_;
-        usdcTokenAddress = usdcTokenAddress_;
-        usdcSynthAddress = usdcSynthAddress_;
-        usdcSynthId = usdcSynthId_;
-        statausdcTokenAddress = statausdcTokenAddress_;
-        statausdcSynthAddress = statausdcSynthAddress_;
-        statausdcSynthId = statausdcSynthId_;
+        CoreProxy = CoreProxy_;
+        AccountProxy = AccountProxy_;
+        SpotMarketProxy = SpotMarketProxy_;
+        $USDC = $USDC_;
+        $stataUSDC = $stataUSDC_;
+        $synthUSDC = $synthUSDC_;
+        $synthStataUSDC = $synthStataUSDC_;
+        synthIdUSDC = synthIdUSDC_;
+        synthIdStataUSDC = synthIdStataUSDC_;
         poolId = poolId_;
     }
 
@@ -88,14 +93,14 @@ contract PositionManager {
      */
     function getAccounts() public view returns (uint128[] memory accountIds) {
         address msgSender = ERC2771Context._msgSender();
-        uint256 numberOfAccountTokens = IERC721(accountProxyAddress).balanceOf(msgSender);
+        uint256 numberOfAccountTokens = IERC721(AccountProxy).balanceOf(msgSender);
         if (numberOfAccountTokens == 0) {
             return new uint128[](0);
         }
         accountIds = new uint128[](numberOfAccountTokens);
         for (uint256 i = 0; i < numberOfAccountTokens; i++) {
             // Retrieve the token/account ID at the index
-            uint256 accountId = IERC721Enumerable(accountProxyAddress).tokenOfOwnerByIndex(
+            uint256 accountId = IERC721Enumerable(AccountProxy).tokenOfOwnerByIndex(
                 //
                 msgSender,
                 i
@@ -111,13 +116,13 @@ contract PositionManager {
      */
     function setupPosition(uint256 usdcAmount) public {
         address msgSender = ERC2771Context._msgSender();
-        if (IERC721(accountProxyAddress).balanceOf(msgSender) > 0) {
+        if (IERC721(AccountProxy).balanceOf(msgSender) > 0) {
             // Do not allow to create more accounts
             revert AccountExists();
         }
-        uint128 accountId = IAccountModule(coreProxyAddress).createAccount();
+        uint128 accountId = IAccountModule(CoreProxy).createAccount();
         _increasePosition(accountId, usdcAmount);
-        IERC721(accountProxyAddress).safeTransferFrom(
+        IERC721(AccountProxy).safeTransferFrom(
             //
             address(this),
             msgSender,
@@ -132,14 +137,14 @@ contract PositionManager {
      */
     function increasePosition(uint128 accountId, uint256 usdcAmount) public {
         address msgSender = ERC2771Context._msgSender();
-        IERC721(accountProxyAddress).safeTransferFrom(
+        IERC721(AccountProxy).safeTransferFrom(
             //
             msgSender,
             address(this),
             uint256(accountId)
         );
         _increasePosition(accountId, usdcAmount);
-        IERC721(accountProxyAddress).safeTransferFrom(
+        IERC721(AccountProxy).safeTransferFrom(
             //
             address(this),
             msgSender,
@@ -156,7 +161,7 @@ contract PositionManager {
         address msgSender = ERC2771Context._msgSender();
 
         // 1. Transfer Account NFT from the wallet
-        IERC721(accountProxyAddress).safeTransferFrom(
+        IERC721(AccountProxy).safeTransferFrom(
             //
             msgSender,
             address(this),
@@ -167,28 +172,28 @@ contract PositionManager {
         _clearDebt(accountId);
 
         // 3. Calculate synthStataUSDC amount to undelegate
-        uint256 stataAmount = IStaticAaveToken(statausdcTokenAddress).previewWithdraw(usdcAmount);
-        uint256 synthAmount = stataAmount * (10 ** 18) / (10 ** IERC20(statausdcTokenAddress).decimals());
-        uint256 currentDelegatedAmount = IVaultModule(coreProxyAddress).getPositionCollateral(
+        uint256 stataAmount = IStaticAaveToken($stataUSDC).previewWithdraw(usdcAmount);
+        uint256 synthAmount = stataAmount * (10 ** 18) / (10 ** IERC20($stataUSDC).decimals());
+        uint256 currentDelegatedAmount = IVaultModule(CoreProxy).getPositionCollateral(
             //
             accountId,
             poolId,
-            statausdcSynthAddress
+            $synthStataUSDC
         );
         uint256 newDelegatedAmount = currentDelegatedAmount > synthAmount ? currentDelegatedAmount - synthAmount : 0;
 
         // 4. Reduce delegated amount of synthStataUSDC
-        IVaultModule(coreProxyAddress).delegateCollateral(
+        IVaultModule(CoreProxy).delegateCollateral(
             //
             accountId,
             poolId,
-            statausdcSynthAddress,
+            $synthStataUSDC,
             newDelegatedAmount,
             1e18
         );
 
         // 5. Transfer Account NFT back to the owner
-        IERC721(accountProxyAddress).safeTransferFrom(
+        IERC721(AccountProxy).safeTransferFrom(
             //
             address(this),
             msgSender,
@@ -204,7 +209,7 @@ contract PositionManager {
         address msgSender = ERC2771Context._msgSender();
 
         // 1. Transfer Account NFT from the wallet
-        IERC721(accountProxyAddress).safeTransferFrom(
+        IERC721(AccountProxy).safeTransferFrom(
             //
             msgSender,
             address(this),
@@ -212,34 +217,34 @@ contract PositionManager {
         );
 
         // 2. Get amount of available synth stataUSDC
-        uint256 statausdcSynthAvailable = ICollateralModule(coreProxyAddress).getAccountAvailableCollateral(
+        uint256 statausdcSynthAvailable = ICollateralModule(CoreProxy).getAccountAvailableCollateral(
             //
             accountId,
-            statausdcSynthAddress
+            $synthStataUSDC
         );
 
         // 3. Withdraw all the available synth stataUSDC
-        ICollateralModule(coreProxyAddress).withdraw(
+        ICollateralModule(CoreProxy).withdraw(
             //
             accountId,
-            statausdcSynthAddress,
+            $synthStataUSDC,
             statausdcSynthAvailable
         );
 
         // 4. Unwrap synth stataUSDC back to stataUSDC token
-        uint256 stataAmount = statausdcSynthAvailable * (10 ** IERC20(statausdcTokenAddress).decimals()) / (10 ** 18);
-        IWrapperModule(spotMarketAddress).unwrap(
+        uint256 stataAmount = statausdcSynthAvailable * (10 ** IERC20($stataUSDC).decimals()) / (10 ** 18);
+        IWrapperModule(SpotMarketProxy).unwrap(
             //
-            statausdcSynthId,
+            synthIdStataUSDC,
             statausdcSynthAvailable,
             stataAmount
         );
 
         // 5. Withdraw everything from AAVE
-        uint256 usdcAmount = IStaticAaveToken(statausdcTokenAddress).maxWithdraw(address(this));
+        uint256 usdcAmount = IStaticAaveToken($stataUSDC).maxWithdraw(address(this));
 
         // 6. Send all the USDC to the wallet
-        IERC20(usdcTokenAddress).transferFrom(
+        IERC20($USDC).transferFrom(
             //
             address(this),
             msgSender,
@@ -247,7 +252,7 @@ contract PositionManager {
         );
 
         // 7. Transfer Account NFT back to the owner
-        IERC721(accountProxyAddress).safeTransferFrom(
+        IERC721(AccountProxy).safeTransferFrom(
             //
             address(this),
             msgSender,
@@ -261,22 +266,22 @@ contract PositionManager {
      */
     function closePosition(uint128 accountId) public {
         address msgSender = ERC2771Context._msgSender();
-        IERC721(accountProxyAddress).safeTransferFrom(
+        IERC721(AccountProxy).safeTransferFrom(
             //
             msgSender,
             address(this),
             uint256(accountId)
         );
         _clearDebt(accountId);
-        IVaultModule(coreProxyAddress).delegateCollateral(
+        IVaultModule(CoreProxy).delegateCollateral(
             //
             accountId,
             poolId,
-            statausdcSynthAddress,
+            $synthStataUSDC,
             0,
             1e18
         );
-        IERC721(accountProxyAddress).safeTransferFrom(
+        IERC721(AccountProxy).safeTransferFrom(
             //
             address(this),
             msgSender,
@@ -291,14 +296,14 @@ contract PositionManager {
      */
     function repay(uint128 accountId, uint256 debtAmount) public {
         address msgSender = ERC2771Context._msgSender();
-        IERC721(accountProxyAddress).safeTransferFrom(
+        IERC721(AccountProxy).safeTransferFrom(
             //
             msgSender,
             address(this),
             uint256(accountId)
         );
         _repay(accountId, debtAmount);
-        IERC721(accountProxyAddress).safeTransferFrom(
+        IERC721(AccountProxy).safeTransferFrom(
             //
             address(this),
             msgSender,
@@ -312,14 +317,14 @@ contract PositionManager {
      */
     function clearDebt(uint128 accountId) public {
         address msgSender = ERC2771Context._msgSender();
-        IERC721(accountProxyAddress).safeTransferFrom(
+        IERC721(AccountProxy).safeTransferFrom(
             //
             msgSender,
             address(this),
             uint256(accountId)
         );
         _clearDebt(accountId);
-        IERC721(accountProxyAddress).safeTransferFrom(
+        IERC721(AccountProxy).safeTransferFrom(
             //
             address(this),
             msgSender,
@@ -372,38 +377,61 @@ contract PositionManager {
     function _repay(uint128 accountId, uint256 debtAmount) internal {
         // 1. Calculate how much USDC we need (technically should be 1:1)
         (uint256 synthAmount,) =
-            IAtomicOrderModule(spotMarketAddress).quoteSellExactOut(usdcSynthId, debtAmount, Price.Tolerance.STRICT);
-        uint256 usdcAmount = synthAmount * (10 ** IERC20(usdcTokenAddress).decimals()) / (10 ** 18);
+            IAtomicOrderModule(SpotMarketProxy).quoteSellExactOut(synthIdUSDC, debtAmount, Price.Tolerance.STRICT);
+
+        // Add 1 wei of USDC to cover for precision reduction
+        uint256 usdcAmount = synthAmount * (10 ** IERC20($USDC).decimals()) / (10 ** 18) + 1;
 
         // 2. Transfer USDC tokens from the wallet
-        _transfer(usdcTokenAddress, usdcAmount);
+        _transfer($USDC, usdcAmount);
 
         // 3. Wrap USDC tokens to synthUSDC
-        IERC20(usdcTokenAddress).approve(spotMarketAddress, usdcAmount);
-        IWrapperModule(spotMarketAddress).wrap(
+        IERC20($USDC).approve(SpotMarketProxy, usdcAmount);
+        (uint256 wrappedAmount,) = IWrapperModule(SpotMarketProxy).wrap(
             //
-            usdcSynthId,
+            synthIdUSDC,
             usdcAmount,
             synthAmount
         );
 
         // 4. Sell synthUSDC for snxUSD
-        IAtomicOrderModule(spotMarketAddress).sellExactOut(
+        IAtomicOrderModule(SpotMarketProxy).sellExactOut(
             //
-            usdcSynthId,
+            synthIdUSDC,
             debtAmount,
             synthAmount,
             address(0)
         );
 
-        // 5. Now we have more or exact amount of USD tokens deposited to repay the debt
-        IIssueUSDModule(coreProxyAddress).burnUsd(
+        // 5. Deposit snxUSD to the core
+        IERC20 usdToken = IMarketManagerModule(CoreProxy).getUsdToken();
+        usdToken.approve(CoreProxy, debtAmount);
+        ICollateralModule(CoreProxy).deposit(
+            //
+            accountId,
+            address(usdToken),
+            debtAmount
+        );
+
+        // 6. Now we have more or exact amount of USD tokens deposited to repay the debt
+        IIssueUSDModule(CoreProxy).burnUsd(
             //
             accountId,
             poolId,
-            statausdcSynthAddress,
+            $synthStataUSDC,
             debtAmount
         );
+
+        // 7. Send leftover precision conversion synth dust to the wallet
+        if (wrappedAmount > synthAmount) {
+            address msgSender = ERC2771Context._msgSender();
+            uint256 dustAmount = wrappedAmount - synthAmount;
+            IERC20($synthUSDC).transfer(
+                //
+                msgSender,
+                dustAmount
+            );
+        }
     }
 
     /**
@@ -412,23 +440,23 @@ contract PositionManager {
      */
     function _clearDebt(uint128 accountId) internal {
         // Get current debt for position
-        int256 debt = IVaultModule(coreProxyAddress).getPositionDebt(accountId, poolId, statausdcSynthAddress);
+        int256 debt = IVaultModule(CoreProxy).getPositionDebt(accountId, poolId, $synthStataUSDC);
         if (debt > 0) {
             uint256 debtAmount = uint256(debt);
             _repay(accountId, debtAmount);
         } else if (debt < 0) {
             // Claim negative debt
-            IIssueUSDModule(coreProxyAddress).mintUsd(accountId, poolId, statausdcSynthAddress, uint256(-debt));
+            IIssueUSDModule(CoreProxy).mintUsd(accountId, poolId, $synthStataUSDC, uint256(-debt));
         }
     }
 
     function _increasePosition(uint128 accountId, uint256 usdcAmount) internal {
         // 1. Transfer USDC tokens from the wallet
-        _transfer(usdcTokenAddress, usdcAmount);
+        _transfer($USDC, usdcAmount);
 
         // 2. Deposit USDC to AAVE and get stataUSDC tokens
-        IERC20(usdcTokenAddress).approve(statausdcTokenAddress, usdcAmount);
-        uint256 stataAmount = IStaticAaveToken(statausdcTokenAddress).deposit(
+        IERC20($USDC).approve($stataUSDC, usdcAmount);
+        uint256 stataAmount = IStaticAaveToken($stataUSDC).deposit(
             //
             usdcAmount,
             address(this),
@@ -437,33 +465,32 @@ contract PositionManager {
         );
 
         // 3. Wrap stataUSDC tokens to synthStataUSDC
-        IWrapperModule spotMarket = IWrapperModule(spotMarketAddress);
-        IERC20(statausdcTokenAddress).approve(spotMarketAddress, stataAmount);
-        uint256 synthAmount = stataAmount * (10 ** 18) / (10 ** IERC20(statausdcTokenAddress).decimals());
+        IWrapperModule spotMarket = IWrapperModule(SpotMarketProxy);
+        IERC20($stataUSDC).approve(SpotMarketProxy, stataAmount);
+        uint256 synthAmount = stataAmount * (10 ** 18) / (10 ** IERC20($stataUSDC).decimals());
         spotMarket.wrap(
             //
-            statausdcSynthId,
+            synthIdStataUSDC,
             stataAmount,
             synthAmount
         );
 
         // 4. Deposit synthStataUSDC to the Core
-        IERC20(statausdcSynthAddress).approve(coreProxyAddress, synthAmount);
-        ICollateralModule(coreProxyAddress).deposit(
+        IERC20($synthStataUSDC).approve(CoreProxy, synthAmount);
+        ICollateralModule(CoreProxy).deposit(
             //
             accountId,
-            statausdcSynthAddress,
+            $synthStataUSDC,
             synthAmount
         );
 
         // 5. Delegate synthStataUSDC to the Pool
-        uint256 currentPosition =
-            IVaultModule(coreProxyAddress).getPositionCollateral(accountId, poolId, statausdcSynthAddress);
-        IVaultModule(coreProxyAddress).delegateCollateral(
+        uint256 currentPosition = IVaultModule(CoreProxy).getPositionCollateral(accountId, poolId, $synthStataUSDC);
+        IVaultModule(CoreProxy).delegateCollateral(
             //
             accountId,
             poolId,
-            statausdcSynthAddress,
+            $synthStataUSDC,
             currentPosition + synthAmount,
             1e18
         );

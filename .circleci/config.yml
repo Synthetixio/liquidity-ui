@@ -338,8 +338,8 @@ workflows:
           working_directory: 'contracts/position-manager'
 
       - contract-test:
-          name: contract-position-manager-andromeda
-          working_directory: 'contracts/position-manager-andromeda'
+          name: contract-position-manager-andromeda-statausdc
+          working_directory: 'contracts/position-manager-andromeda-statausdc'
 
       #- cy
       - e2e:
