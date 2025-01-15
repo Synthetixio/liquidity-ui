@@ -26,6 +26,13 @@ interface IStaticAaveToken {
         uint256 assets
     ) external view returns (uint256);
 
+    function maxWithdraw(
+        //
+        address owner
+    ) external view returns (uint256);
+
+    function rate() external view returns (uint256);
+
     function deposit(
         //
         uint256 assets,
@@ -34,10 +41,12 @@ interface IStaticAaveToken {
         bool depositToAave
     ) external returns (uint256);
 
-    function maxWithdraw(
+    function withdraw(
         //
+        uint256 assets,
+        address receiver,
         address owner
-    ) external view returns (uint256);
+    ) external returns (uint256);
 }
 
 contract PositionManager {
@@ -242,11 +251,16 @@ contract PositionManager {
 
         // 5. Withdraw everything from AAVE
         uint256 usdcAmount = IStaticAaveToken($stataUSDC).maxWithdraw(address(this));
+        IStaticAaveToken($stataUSDC).withdraw(
+            //
+            usdcAmount,
+            address(this),
+            address(this)
+        );
 
         // 6. Send all the USDC to the wallet
-        IERC20($USDC).transferFrom(
+        IERC20($USDC).transfer(
             //
-            address(this),
             msgSender,
             usdcAmount
         );
