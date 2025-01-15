@@ -20,6 +20,8 @@ export const useUndelegate = ({ undelegateAmount }: { undelegateAmount?: Wei }) 
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
 
+  const collateralTypeAddress = collateralType?.tokenAddress;
+
   const [txnState, dispatch] = useReducer(reducer, initialState);
 
   const { data: liquidityPosition } = useLiquidityPosition({
@@ -49,7 +51,7 @@ export const useUndelegate = ({ undelegateAmount }: { undelegateAmount?: Wei }) 
     signer &&
     CoreProxy &&
     params.accountId &&
-    Boolean(collateralType);
+    collateralTypeAddress;
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -61,7 +63,7 @@ export const useUndelegate = ({ undelegateAmount }: { undelegateAmount?: Wei }) 
       const populatedTxnPromised = CoreProxyContract.populateTransaction.delegateCollateral(
         ethers.BigNumber.from(params.accountId),
         ethers.BigNumber.from(POOL_ID),
-        collateralType?.tokenAddress,
+        collateralTypeAddress,
         liquidityPosition.collateralAmount.sub(undelegateAmount).toBN(),
         wei(1).toBN()
       );
@@ -119,7 +121,7 @@ export const useUndelegate = ({ undelegateAmount }: { undelegateAmount?: Wei }) 
     },
   });
   return {
-    isReady,
+    isReady: Boolean(isReady),
     mutation,
     txnState,
     settle: () => dispatch({ type: 'settled' }),
