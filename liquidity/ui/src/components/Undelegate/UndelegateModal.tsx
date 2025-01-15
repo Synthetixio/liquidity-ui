@@ -110,7 +110,7 @@ export function UndelegateModal({
               alignItems="space-between"
               justifyContent="space-between"
               ml={2}
-              data-cy="unlock collateral info"
+              data-cy="undelegate collateral info"
             >
               {undelegateAmount ? (
                 <Text fontSize="14px" fontWeight={700} lineHeight="20px" color="white">
