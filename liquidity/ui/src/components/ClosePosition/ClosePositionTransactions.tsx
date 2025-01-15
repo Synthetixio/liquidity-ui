@@ -281,7 +281,7 @@ export function ClosePositionTransactions({
           <>
             Your position has been successfully closed. To learn more, visit the{' '}
             <Link
-              href="https://docs.synthetix.io/v/synthetix-v3-user-documentation"
+              href="https://docs.synthetix.io/"
               target="_blank"
               color="cyan.500"
             >
