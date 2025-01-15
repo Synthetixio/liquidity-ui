@@ -5191,9 +5191,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/position-manager-andromeda@workspace:contracts/position-manager-andromeda":
+"@snx-v3/position-manager-andromeda-statausdc@workspace:contracts/position-manager-andromeda-statausdc":
   version: 0.0.0-use.local
-  resolution: "@snx-v3/position-manager-andromeda@workspace:contracts/position-manager-andromeda"
+  resolution: "@snx-v3/position-manager-andromeda-statausdc@workspace:contracts/position-manager-andromeda-statausdc"
   dependencies:
     "@synthetixio/core-contracts": "npm:^3.10.1"
     "@synthetixio/core-modules": "npm:^3.10.1"
