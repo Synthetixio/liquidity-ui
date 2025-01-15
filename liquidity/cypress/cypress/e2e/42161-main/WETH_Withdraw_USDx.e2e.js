@@ -50,17 +50,14 @@ describe(__filename, () => {
 
     cy.get('[data-cy="withdraw amount input"]').should('exist');
     cy.get('[data-cy="withdraw amount input"]').type('50');
+
     cy.get('[data-cy="withdraw submit"]').should('be.enabled');
     cy.get('[data-cy="withdraw submit"]').click();
 
-    cy.get('[data-cy="withdraw multistep"]')
+    cy.get('[data-cy="withdraw dialog"]')
       .should('exist')
-      .and('include.text', 'Manage Debt')
-      .and('include.text', 'Withdraw')
-      .and('include.text', '50 USDx will be withdrawn');
-
-    cy.get('[data-cy="withdraw confirm button"]').should('include.text', 'Execute Transaction');
-    cy.get('[data-cy="withdraw confirm button"]').click();
+      .and('include.text', 'Withdrawing Collateral')
+      .and('include.text', 'Withdrawing 50 USDx');
 
     cy.contains('[data-status="error"]', 'Withdraw failed').should('exist');
     cy.contains('[data-status="error"]', 'AccountActivityTimeoutPending').should('exist');
@@ -68,11 +65,13 @@ describe(__filename, () => {
 
     cy.setWithdrawTimeout({ timeout: '0' });
 
-    cy.get('[data-cy="withdraw confirm button"]').should('include.text', 'Retry');
-    cy.get('[data-cy="withdraw confirm button"]').click();
-
-    cy.contains('[data-status="success"]', 'Debt successfully Withdrawn', {
+    cy.contains('[data-status="success"]', 'Withdrawal was successful', {
       timeout: 180_000,
     }).should('exist');
+    cy.get('[data-cy="transaction hash"]').should('exist');
+
+    cy.get('[data-cy="withdraw dialog"]').should('exist').and('include.text', 'Withdrew 5 sUSD');
+
+    cy.contains('[data-cy="withdraw dialog"] button', 'Done').click();
   });
 });

@@ -25,6 +25,7 @@ import { Repay } from '../Repay/Repay';
 import { Borrow } from '../Borrow/Borrow';
 import { RepayAndromedaDebt } from '../Repay/RepayAndromedaDebt';
 import { Undelegate } from '../Undelegate/Undelegate';
+import { WithdrawAndromeda } from '../Withdraw/WithdrawAndromeda';
 import { Withdraw } from '../Withdraw/Withdraw';
 import { COLLATERALACTIONS, DEBTACTIONS } from './actions';
 
@@ -256,11 +257,19 @@ export const ManageAction = ({
             <Flex direction="column">
               <Borrow />
             </Flex>
+          ) : manageAction === 'withdraw' && network?.preset !== 'andromeda' ? (
+            <Flex direction="column">
+              <Withdraw />
+            </Flex>
+          ) : manageAction === 'withdraw-debt' && network?.preset !== 'andromeda' ? (
+            <Flex direction="column">
+              <Withdraw isDebtWithdrawal />
+            </Flex>
           ) : (
             <Flex direction="column" as="form" onSubmit={onSubmit}>
               {manageAction === 'claim' ? <Claim /> : null}
-              {manageAction === 'withdraw' ? <Withdraw /> : null}
-              {manageAction === 'withdraw-debt' ? <Withdraw isDebtWithdrawal /> : null}
+              {manageAction === 'withdraw' ? <WithdrawAndromeda /> : null}
+              {manageAction === 'withdraw-debt' ? <WithdrawAndromeda isDebtWithdrawal /> : null}
               {manageAction === 'deposit' ? <Deposit /> : null}
               {manageAction === 'repay' && network?.preset === 'andromeda' ? (
                 <RepayAndromedaDebt />
@@ -317,7 +326,7 @@ export const ManageAction = ({
           }}
         />
       ) : null}
-      {txnModalOpen === 'withdraw' ? (
+      {txnModalOpen === 'withdraw' && network?.preset === 'andromeda' ? (
         <WithdrawModal
           onClose={() => {
             setCollateralChange(wei(0));
@@ -328,7 +337,7 @@ export const ManageAction = ({
         />
       ) : null}
 
-      {txnModalOpen === 'withdraw-debt' ? (
+      {txnModalOpen === 'withdraw-debt' && network?.preset === 'andromeda' ? (
         <WithdrawModal
           onClose={() => {
             setCollateralChange(wei(0));
