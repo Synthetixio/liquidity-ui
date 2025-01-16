@@ -12,6 +12,7 @@ export * from './importOracleManagerProxy';
 export * from './importPerpsAccountProxy';
 export * from './importPerpsMarketProxy';
 export * from './importPositionManager';
+export * from './importPositionManagerAndromedaStataUSDC';
 export * from './importPythERC7412Wrapper';
 export * from './importPythFeeds';
 export * from './importPythVerifier';

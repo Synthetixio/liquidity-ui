@@ -5918,6 +5918,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/usePositionManagerAndromedaStataUSDC@workspace:liquidity/lib/contracts/usePositionManagerAndromedaStataUSDC":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/usePositionManagerAndromedaStataUSDC@workspace:liquidity/lib/contracts/usePositionManagerAndromedaStataUSDC"
+  dependencies:
+    "@snx-v3/contracts": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/usePythFeeds@workspace:*, @snx-v3/usePythFeeds@workspace:liquidity/lib/contracts/usePythFeeds":
   version: 0.0.0-use.local
   resolution: "@snx-v3/usePythFeeds@workspace:liquidity/lib/contracts/usePythFeeds"
