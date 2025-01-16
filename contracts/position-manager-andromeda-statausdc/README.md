@@ -36,15 +36,15 @@ export BASESCAN_SEPOLIA_API_URL=https://api-sepolia.basescan.org/api
 
 # node_modules/@synthetixio/v3-contracts/8453-andromeda/meta.json
 # node_modules/@synthetixio/v3-contracts/8453-andromeda/spotMarkets.json
-export _coreProxyAddress="0x764F4C95FDA0D6f8114faC54f6709b1B45f919a1"
-export _accountProxyAddress="0x9EB560Cc26c2766929A41F8e46E87bd4b8b145d9"
-export _spotMarketAddress="0xaD2fE7cd224c58871f541DAE01202F93928FEF72"
-export _usdcTokenAddress="0xc43708f8987Df3f3681801e5e640667D86Ce3C30"
-export _usdcSynthAddress="0x8069c44244e72443722cfb22DcE5492cba239d39"
-export _usdcSynthId="1"
-export _statausdcTokenAddress="0xB3f05d39504dA95876EA0174D25Ae51Ac2422a70"
-export _statausdcSynthAddress="0xB94c6E4f5162717c6fAb1Eeab8f0296307F91528"
-export _statausdcSynthId="4"
+export _CoreProxy="0x764F4C95FDA0D6f8114faC54f6709b1B45f919a1"
+export _AccountProxy="0x9EB560Cc26c2766929A41F8e46E87bd4b8b145d9"
+export _SpotMarketProxy="0xaD2fE7cd224c58871f541DAE01202F93928FEF72"
+export _USDC="0xc43708f8987Df3f3681801e5e640667D86Ce3C30"
+export _stataUSDC="0xB3f05d39504dA95876EA0174D25Ae51Ac2422a70"
+export _synthUSDC="0x8069c44244e72443722cfb22DcE5492cba239d39"
+export _synthStataUSDC="0xB94c6E4f5162717c6fAb1Eeab8f0296307F91528"
+export _synthIdUSDC="1"
+export _synthIdStataUSDC="4"
 export _poolId=1
 
 forge create \
@@ -58,15 +58,15 @@ forge create \
   --verify \
   src/PositionManager.sol:PositionManager \
   --constructor-args \
-      $_coreProxyAddress \
-      $_accountProxyAddress \
-      $_spotMarketAddress \
-      $_usdcTokenAddress \
-      $_usdcSynthAddress \
-      $_usdcSynthId \
-      $_statausdcTokenAddress \
-      $_statausdcSynthAddress \
-      $_statausdcSynthId \
+      $_CoreProxy \
+      $_AccountProxy \
+      $_SpotMarketProxy \
+      $_USDC \
+      $_stataUSDC \
+      $_synthUSDC \
+      $_synthStataUSDC \
+      $_synthIdUSDC \
+      $_synthIdStataUSDC \
       $_poolId
 ```
 
@@ -78,15 +78,15 @@ export BASESCAN_API_URL=https://api.basescan.org/api
 
 # node_modules/@synthetixio/v3-contracts/8453-andromeda/meta.json
 # node_modules/@synthetixio/v3-contracts/8453-andromeda/spotMarkets.json
-export _coreProxyAddress="0x32C222A9A159782aFD7529c87FA34b96CA72C696"
-export _accountProxyAddress="0x63f4Dd0434BEB5baeCD27F3778a909278d8cf5b8"
-export _spotMarketAddress="0x18141523403e2595D31b22604AcB8Fc06a4CaA61"
-export _usdcTokenAddress="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-export _usdcSynthAddress="0xC74eA762cF06c9151cE074E6a569a5945b6302E7"
-export _usdcSynthId="1"
-export _statausdcTokenAddress="0x4EA71A20e655794051D1eE8b6e4A3269B13ccaCc"
-export _statausdcSynthAddress="0x729Ef31D86d31440ecBF49f27F7cD7c16c6616d2"
-export _statausdcSynthId="3"
+export _CoreProxy="0x32C222A9A159782aFD7529c87FA34b96CA72C696"
+export _AccountProxy="0x63f4Dd0434BEB5baeCD27F3778a909278d8cf5b8"
+export _SpotMarketProxy="0x18141523403e2595D31b22604AcB8Fc06a4CaA61"
+export _USDC="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+export _stataUSDC="0x4EA71A20e655794051D1eE8b6e4A3269B13ccaCc"
+export _synthUSDC="0xC74eA762cF06c9151cE074E6a569a5945b6302E7"
+export _synthStataUSDC="0x729Ef31D86d31440ecBF49f27F7cD7c16c6616d2"
+export _synthIdUSDC="1"
+export _synthIdStataUSDC="3"
 export _poolId=1
 
 forge create \
@@ -100,15 +100,15 @@ forge create \
   --verify \
   src/PositionManager.sol:PositionManager \
   --constructor-args \
-      $_coreProxyAddress \
-      $_accountProxyAddress \
-      $_spotMarketAddress \
-      $_usdcTokenAddress \
-      $_usdcSynthAddress \
-      $_usdcSynthId \
-      $_statausdcTokenAddress \
-      $_statausdcSynthAddress \
-      $_statausdcSynthId \
+      $_CoreProxy \
+      $_AccountProxy \
+      $_SpotMarketProxy \
+      $_USDC \
+      $_stataUSDC \
+      $_synthUSDC \
+      $_synthStataUSDC \
+      $_synthIdUSDC \
+      $_synthIdStataUSDC \
       $_poolId
 ```
 
