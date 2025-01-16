@@ -62,7 +62,7 @@ describe(__filename, () => {
 
     cy.get('[data-cy="close position confirm button"]').should('exist').click();
 
-    cy.contains('[data-status="success"]', 'Position successfully Closed', {
+    cy.contains('[data-status="success"]', 'Position successfully closed', {
       timeout: 180_000,
     }).should('exist');
   });
