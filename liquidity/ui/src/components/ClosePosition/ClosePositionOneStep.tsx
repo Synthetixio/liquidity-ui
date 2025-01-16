@@ -213,11 +213,7 @@ export function ClosePositionOneStep({
         subline={
           <>
             Your position has been successfully closed. To learn more, visit the{' '}
-            <Link
-              href="https://docs.synthetix.io/"
-              target="_blank"
-              color="cyan.500"
-            >
+            <Link href="https://docs.synthetix.io/" target="_blank" color="cyan.500">
               Synthetix V3 Documentation
             </Link>
           </>

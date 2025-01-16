@@ -302,13 +302,9 @@ export function InitialDeposit({
       {step === 1 && (
         <>
           <Text>
-            In order to open a position on Synthetix Liquidity, you must create an Account. Accounts are
-            represented as ERC-721 compliant tokens (NFTs). To learn more, visit the{' '}
-            <Link
-              href="https://docs.synthetix.io/"
-              target="_blank"
-              color="cyan.500"
-            >
+            In order to open a position on Synthetix Liquidity, you must create an Account. Accounts
+            are represented as ERC-721 compliant tokens (NFTs). To learn more, visit the{' '}
+            <Link href="https://docs.synthetix.io/" target="_blank" color="cyan.500">
               Synthetix V3 Documentation
             </Link>
           </Text>
