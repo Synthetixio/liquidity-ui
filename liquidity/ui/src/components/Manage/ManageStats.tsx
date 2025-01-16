@@ -1,13 +1,16 @@
 import { Flex, Text } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { calculateCRatio } from '@snx-v3/calculations';
+import { D27 } from '@snx-v3/constants';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
+import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
 import { validatePosition } from '@snx-v3/validatePosition';
-import { useContext } from 'react';
+import React from 'react';
 import { CRatioBar } from '../CRatioBar/CRatioBar';
 import { CollateralStats } from './CollateralStats';
 import { DebtStats } from './DebtStats';
@@ -17,7 +20,7 @@ export function ManageStats() {
   const [params] = useParams<PositionPageSchemaType>();
   const { network } = useNetwork();
 
-  const { debtChange, collateralChange } = useContext(ManagePositionContext);
+  const { debtChange, collateralChange } = React.useContext(ManagePositionContext);
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { data: liquidityPosition } = useLiquidityPosition({
@@ -25,14 +28,24 @@ export function ManageStats() {
     collateralType,
   });
 
+  const isStataUSDC = useIsSynthStataUSDC({ tokenAddress: collateralType?.tokenAddress });
+  const { data: stataRate } = useStaticAaveUSDCRate();
+  const adjustedCollateralChange = React.useMemo(() => {
+    // Temporary adjustment until UI fully moves to show only USDC and avoid stata conversion
+    if (isStataUSDC && stataRate) {
+      return collateralChange.div(stataRate).mul(D27);
+    }
+    return collateralChange;
+  }, [collateralChange, isStataUSDC, stataRate]);
+
   const cRatio = calculateCRatio(liquidityPosition?.debt, liquidityPosition?.collateralValue);
   const { newCRatio, newCollateralAmount, newDebt, hasChanges } = validatePosition({
     issuanceRatioD18: collateralType?.issuanceRatioD18,
     collateralAmount: liquidityPosition?.collateralAmount,
     collateralPrice: liquidityPosition?.collateralPrice,
     debt: liquidityPosition?.debt,
-    collateralChange: collateralChange,
-    debtChange: debtChange,
+    collateralChange: adjustedCollateralChange,
+    debtChange,
   });
 
   return (

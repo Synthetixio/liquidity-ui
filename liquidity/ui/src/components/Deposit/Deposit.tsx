@@ -23,14 +23,12 @@ import { useEthBalance } from '@snx-v3/useEthBalance';
 import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
-import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
-import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { useTransferableSynthetix } from '@snx-v3/useTransferableSynthetix';
 import { useUSDC } from '@snx-v3/useUSDC';
 import { DepositsIncreaseTimeout } from '@snx-v3/WithdrawIncrease';
-import { Wei, wei } from '@synthetixio/wei';
+import { Wei } from '@synthetixio/wei';
 import React from 'react';
 import { CollateralAlert } from '../CollateralAlert/CollateralAlert';
 import { CRatioChangeStat } from '../CRatioBar/CRatioChangeStat';
@@ -56,11 +54,10 @@ export function Deposit() {
   const { data: ethBalance } = useEthBalance();
 
   const price = useTokenPrice(collateralType?.symbol);
-  const { data: stataUSDCRate } = useStaticAaveUSDCRate();
   const { data: USDCToken } = useUSDC();
-  const { data: usdcBalance } = useTokenBalance(USDCToken?.address);
-  const { data: StaticAaveUSDC } = useStaticAaveUSDC();
-  const { data: stataBalance } = useTokenBalance(StaticAaveUSDC?.address);
+  const { data: usdcBalance, isPending: isPendingUsdcBalance } = useTokenBalance(
+    USDCToken?.address
+  );
 
   const maxAmount = React.useMemo(() => {
     if (collateralType?.symbol === 'SNX') {
@@ -86,14 +83,7 @@ export function Deposit() {
       return (
         ZEROWEI
           //
-          .add(
-            usdcBalance && stataUSDCRate
-              ? usdcBalance.div(wei(stataUSDCRate, 27)).mul(97).div(100) // Add 97% of wallet USDC
-              : ZEROWEI
-          )
-          .add(collateralBalance ?? ZEROWEI) // synth stata in wallet
-          .add(stataBalance ?? ZEROWEI) // stata in wallet
-          .add(liquidityPosition ? liquidityPosition.availableCollateral : ZEROWEI) // synth stata deposited
+          .add(usdcBalance ? usdcBalance : ZEROWEI)
       );
     }
 
@@ -120,8 +110,6 @@ export function Deposit() {
     ethBalance,
     isStataUSDC,
     usdcBalance,
-    stataBalance,
-    stataUSDCRate,
     network?.preset,
   ]);
 
@@ -152,57 +140,45 @@ export function Deposit() {
                 fontSize="xs"
                 color="whiteAlpha.700"
               >
-                {isPendingLiquidityPosition ? (
-                  'Unlocked Balance: ~'
-                ) : (
-                  <Amount
-                    prefix="Unlocked Balance: "
-                    value={liquidityPosition?.availableCollateral}
-                  />
-                )}
-
-                {!isStataUSDC ? (
-                  <Amount
-                    prefix="Wallet Balance: "
-                    value={
-                      collateralType?.symbol === 'SNX'
-                        ? transferrableSnx?.transferable
-                        : collateralType?.symbol === 'USDC' &&
-                            network?.preset === 'andromeda' &&
-                            collateralBalance &&
-                            usdcBalance
-                          ? collateralBalance.add(usdcBalance)
-                          : collateralBalance
-                    }
-                  />
-                ) : null}
-
-                {isStataUSDC &&
-                liquidityPosition &&
-                usdcBalance &&
-                stataBalance &&
-                collateralBalance &&
-                stataUSDCRate ? (
+                {isStataUSDC ? (
                   <>
-                    <Amount
-                      prefix="Static aUSDC Balance: "
-                      value={
-                        // synth stata deposited is shown above in Unlocked Balance
-                        stataBalance // stata in wallet
-                          .add(collateralBalance) // synth stata in wallet
-                      }
-                    />
-                    <Amount prefix="USDC Balance: " value={usdcBalance} />
-                    <Amount
-                      prefix="(~"
-                      value={usdcBalance.div(wei(stataUSDCRate, 27)).mul(97).div(100)} // Add 97% of wallet USDC
-                      suffix=" Static aUSDC)"
-                    />
+                    {isPendingUsdcBalance ? (
+                      'Wallet Balance: ~'
+                    ) : (
+                      <Amount prefix="Wallet Balance: " value={usdcBalance} />
+                    )}
                   </>
                 ) : null}
 
-                {collateralType?.symbol === 'WETH' ? (
-                  <Amount prefix="ETH Balance: " value={ethBalance} />
+                {!isStataUSDC ? (
+                  <>
+                    {isPendingLiquidityPosition ? (
+                      'Unlocked Balance: ~'
+                    ) : (
+                      <Amount
+                        prefix="Unlocked Balance: "
+                        value={liquidityPosition?.availableCollateral}
+                      />
+                    )}
+
+                    <Amount
+                      prefix="Wallet Balance: "
+                      value={
+                        collateralType?.symbol === 'SNX'
+                          ? transferrableSnx?.transferable
+                          : collateralType?.symbol === 'USDC' &&
+                              network?.preset === 'andromeda' &&
+                              collateralBalance &&
+                              usdcBalance
+                            ? collateralBalance.add(usdcBalance)
+                            : collateralBalance
+                      }
+                    />
+
+                    {collateralType?.symbol === 'WETH' ? (
+                      <Amount prefix="ETH Balance: " value={ethBalance} />
+                    ) : null}
+                  </>
                 ) : null}
               </Flex>
             }
@@ -317,7 +293,7 @@ export function Deposit() {
               ...(liquidityPosition
                 ? [
                     {
-                      label: `Locked ${collateralType?.symbol}`,
+                      label: `Locked ${collateralType?.displaySymbol ?? params.collateralSymbol}`,
                       value: (
                         <ChangeStat
                           value={liquidityPosition.collateralAmount}

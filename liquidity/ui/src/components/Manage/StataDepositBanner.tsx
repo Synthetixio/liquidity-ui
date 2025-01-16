@@ -1,6 +1,6 @@
 import { Button, Flex, Image, Link, Text } from '@chakra-ui/react';
-import CoinImage from './coin.png';
 import { BorderBox } from '@snx-v3/BorderBox';
+import CoinImage from './coin.png';
 
 export function StataDepositBanner() {
   return (
@@ -17,7 +17,7 @@ export function StataDepositBanner() {
           This position earns yield via Aave and Synthetix
         </Text>
         <Text color="white.600" fontSize="14px" fontWeight={300}>
-          Deposit USDC, and we’ll wrap it into static aUSDC for you. Watch your balance stay the
+          Deposit USDC, and we’ll wrap it into Static aUSDC for you. Watch your balance stay the
           same while the value grows, earning effortless yield through Aave and Synthetix.
         </Text>
         <Button
@@ -30,7 +30,7 @@ export function StataDepositBanner() {
           colorScheme="gray"
           w="fit-content"
         >
-          Read more about static aUSDC
+          Read more about Static aUSDC
         </Button>
       </Flex>
 

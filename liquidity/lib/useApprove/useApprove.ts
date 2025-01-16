@@ -4,7 +4,7 @@ import { useNetwork, useProvider, useSigner } from '@snx-v3/useBlockchain';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import debug from 'debug';
 import { ethers } from 'ethers';
-import { useReducer } from 'react';
+import React from 'react';
 
 const log = debug('snx:useApprove');
 
@@ -19,7 +19,7 @@ export const useApprove = ({
   amount?: ethers.BigNumber;
   spender?: string;
 }) => {
-  const [txnState, dispatch] = useReducer(reducer, initialState);
+  const [txnState, dispatch] = React.useReducer(reducer, initialState);
   const { data: allowance, refetch: refetchAllowance } = useAllowance({ contractAddress, spender });
   const sufficientAllowance = allowance && amount && allowance.gte(amount);
 
@@ -28,21 +28,21 @@ export const useApprove = ({
   const provider = useProvider();
 
   const queryClient = useQueryClient();
+  const isReady = network && provider && signer && contractAddress && spender && amount;
   const mutation = useMutation({
     mutationFn: async (infiniteApproval: boolean) => {
-      if (!signer || !contractAddress || !spender || !provider)
-        throw new Error('Signer, contract address or spender is not defined');
-      if (sufficientAllowance || !amount) {
+      log(`contractAddress`, contractAddress);
+      log(`spender`, spender);
+      log(`amount`, amount);
+      if (!isReady) {
+        throw new Error('Not ready');
+      }
+      if (sufficientAllowance) {
         dispatch({ type: 'success' });
         return;
       }
 
-      log(`contractAddress`, contractAddress);
-      log(`spender`, spender);
-      log(`amount`, amount);
-
       dispatch({ type: 'prompting' });
-
       const contract = new ethers.Contract(contractAddress, approveAbi, signer);
       const amountToApprove = infiniteApproval ? ethers.constants.MaxUint256 : amount;
       log(`amountToApprove`, amountToApprove);
@@ -60,7 +60,6 @@ export const useApprove = ({
 
       const receipt = await provider.waitForTransaction(txn.hash);
       log('receipt', receipt);
-      dispatch({ type: 'success' });
       return receipt;
     },
 
@@ -81,6 +80,7 @@ export const useApprove = ({
     },
   });
   return {
+    isReady: Boolean(isReady),
     mutation,
     txnState,
     isLoading: mutation.isPending,
