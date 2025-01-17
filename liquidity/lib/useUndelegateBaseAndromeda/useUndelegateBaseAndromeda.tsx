@@ -62,11 +62,15 @@ export function useUndelegateBaseAndromeda({ undelegateAmount }: { undelegateAmo
     DebtRepayer &&
     SpotMarketProxy &&
     params.accountId &&
-    collateralTypeAddress;
+    collateralTypeAddress &&
+    // Make it boolean
+    true;
 
   const mutation = useMutation({
     mutationFn: async () => {
-      if (!isReady) throw new Error('Not ready');
+      if (!isReady) {
+        throw new Error('Not ready');
+      }
 
       dispatch({ type: 'prompting' });
 
@@ -163,6 +167,6 @@ export function useUndelegateBaseAndromeda({ undelegateAmount }: { undelegateAmo
     settle: () => dispatch({ type: 'settled' }),
     isLoading: mutation.isPending,
     exec: mutation.mutateAsync,
-    isReady: Boolean(isReady),
+    isReady,
   };
 }

@@ -38,6 +38,7 @@ export function RepayAndromedaDebt() {
     approve,
     requireApproval,
     isLoading: approvalLoading,
+    isReady: isReadyApprove,
   } = useApprove({
     contractAddress: USDC?.address,
     // slippage for approval
@@ -94,7 +95,7 @@ export function RepayAndromedaDebt() {
                 collateral withdrawal.
               </Text>
               <Button
-                isDisabled={!hasEnoughBalance}
+                isDisabled={!hasEnoughBalance || !isReadyApprove}
                 isLoading={isLoading || approvalLoading}
                 onClick={submit}
                 data-cy="repay debt submit"

@@ -40,7 +40,9 @@ export const useBorrow = ({ borrowAmount }: { borrowAmount?: Wei }) => {
 
   const mutation = useMutation({
     mutationFn: async () => {
-      if (!isReady) throw new Error('Not ready');
+      if (!isReady) {
+        throw new Error('Not ready');
+      }
       dispatch({ type: 'prompting' });
 
       const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);

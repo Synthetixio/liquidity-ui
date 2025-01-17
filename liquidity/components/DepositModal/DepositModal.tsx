@@ -2,52 +2,37 @@ import { ArrowBackIcon } from '@chakra-ui/icons';
 import { Button, Divider, Link, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { ChangeStat } from '@snx-v3/ChangeStat';
-import { D18, ZEROWEI } from '@snx-v3/constants';
+import { ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
 import { currency } from '@snx-v3/format';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
 import { useApprove } from '@snx-v3/useApprove';
-import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { useDeposit } from '@snx-v3/useDeposit';
-import { useDepositBaseAndromeda } from '@snx-v3/useDepositBaseAndromeda';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
-import { useSpotMarketProxy } from '@snx-v3/useSpotMarketProxy';
-import { useSynthToken } from '@snx-v3/useSynthToken';
 import { useWrapEth } from '@snx-v3/useWrapEth';
 import { Wei, wei } from '@synthetixio/wei';
 import { useMachine } from '@xstate/react';
-import { ethers } from 'ethers';
 import React from 'react';
 import { CRatioChangeStat } from '../../ui/src/components/CRatioBar/CRatioChangeStat';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
 import { TransactionSummary } from '../../ui/src/components/TransactionSummary/TransactionSummary';
 import { DepositMachine, Events, ServiceNames, State } from './DepositMachine';
 
-export function DepositModal({
-  onClose,
-  title = 'Manage Collateral',
-}: {
-  onClose: () => void;
-  title?: string;
-}) {
+export function DepositModal({ onClose }: { onClose: () => void }) {
   const [params, setParams] = useParams<PositionPageSchemaType>();
-  const { network } = useNetwork();
   const { collateralChange, setCollateralChange } = React.useContext(ManagePositionContext);
   const { data: CoreProxy } = useCoreProxy();
-  const { data: SpotMarketProxy } = useSpotMarketProxy();
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const { data: liquidityPosition } = useLiquidityPosition({
     accountId: params.accountId,
     collateralType,
   });
-
-  const { data: synthToken } = useSynthToken(collateralType);
 
   const currentCollateral = liquidityPosition?.collateralAmount ?? ZEROWEI;
   const availableCollateral = liquidityPosition?.availableCollateral ?? ZEROWEI;
@@ -78,27 +63,22 @@ export function DepositModal({
   //Preparing wETH done
 
   //Collateral Approval
-  const { approve, requireApproval } = useApprove({
-    contractAddress:
-      network?.preset === 'andromeda' ? synthToken?.token?.address : collateralType?.tokenAddress,
-
+  const {
+    approve,
+    requireApproval,
+    isReady: isReadyApprove,
+  } = useApprove({
+    contractAddress: collateralType?.tokenAddress,
     amount: collateralChange.lte(availableCollateral)
       ? wei(0).toBN()
-      : network?.preset === 'andromeda' && synthToken && synthToken.token
-        ? collateralChange
-            .sub(availableCollateral)
-            .toBN()
-            // Reduce precision for approval of USDC on Andromeda
-            .mul(ethers.utils.parseUnits('1', synthToken.token.decimals))
-            .div(D18)
-        : collateralChange.sub(availableCollateral).toBN(),
-    spender: network?.preset === 'andromeda' ? SpotMarketProxy?.address : CoreProxy?.address,
+      : collateralChange.sub(availableCollateral).toBN(),
+    spender: CoreProxy?.address,
   });
   //Collateral Approval Done
 
   //Deposit
   const newAccountId = React.useMemo(() => `${Math.floor(Math.random() * 1000000000000)}`, []);
-  const { exec: execDeposit } = useDeposit({
+  const { exec: execDeposit, isReady: isReadyDeposit } = useDeposit({
     accountId: params.accountId,
     newAccountId,
     collateralTypeAddress: collateralType?.tokenAddress,
@@ -106,20 +86,9 @@ export function DepositModal({
     currentCollateral,
     availableCollateral,
   });
-  const { exec: depositBaseAndromeda } = useDepositBaseAndromeda({
-    accountId: params.accountId,
-    newAccountId,
-    collateralTypeAddress: synthToken?.token?.address,
-    collateralChange,
-    currentCollateral,
-    availableCollateral,
-    collateralSymbol: params.collateralSymbol,
-  });
   //Deposit done
 
   const toast = useToast({ isClosable: true, duration: 9000 });
-
-  // TODO: Update logic on new account id
 
   const errorParser = useContractErrorParser();
 
@@ -157,11 +126,7 @@ export function DepositModal({
           }
           toast({
             title: `Approve collateral for transfer`,
-            description: `Approve ${
-              network?.preset === 'andromeda'
-                ? synthToken?.token?.address
-                : collateralType?.tokenAddress
-            } transfer`,
+            description: `Approve ${collateralType?.displaySymbol} transfer`,
             status: 'info',
             variant: 'left-accent',
           });
@@ -205,11 +170,7 @@ export function DepositModal({
             collateralChange,
           });
 
-          if (network?.preset === 'andromeda') {
-            await depositBaseAndromeda();
-          } else {
-            await execDeposit();
-          }
+          await execDeposit();
 
           setCollateralChange(ZEROWEI);
 
@@ -306,10 +267,6 @@ export function DepositModal({
       },
     ];
 
-    if (network?.preset === 'andromeda') {
-      return items;
-    }
-
     return [
       ...items,
       {
@@ -332,7 +289,6 @@ export function DepositModal({
     txSummary.currentCollateral,
     txSummary.collateralChange,
     txSummary.currentDebt,
-    network?.preset,
     liquidityPosition?.collateralPrice,
   ]);
 
@@ -378,7 +334,7 @@ export function DepositModal({
     <div data-cy="deposit multistep">
       <Text color="gray.50" fontSize="20px" fontWeight={700}>
         <ArrowBackIcon cursor="pointer" onClick={onClose} mr={2} />
-        {title}
+        Manage Collateral
       </Text>
       <Divider my={4} />
       {isWETH ? (
@@ -491,7 +447,7 @@ export function DepositModal({
         }}
       />
       <Button
-        isDisabled={isProcessing}
+        isDisabled={isProcessing || !isReadyDeposit || !isReadyApprove}
         onClick={onSubmit}
         width="100%"
         mt="6"

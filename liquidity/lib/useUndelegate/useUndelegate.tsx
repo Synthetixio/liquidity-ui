@@ -51,11 +51,15 @@ export const useUndelegate = ({ undelegateAmount }: { undelegateAmount?: Wei }) 
     signer &&
     CoreProxy &&
     params.accountId &&
-    collateralTypeAddress;
+    collateralTypeAddress &&
+    // Make it boolean
+    true;
 
   const mutation = useMutation({
     mutationFn: async () => {
-      if (!isReady) throw new Error('Not ready');
+      if (!isReady) {
+        throw new Error('Not ready');
+      }
 
       dispatch({ type: 'prompting' });
 
@@ -121,7 +125,7 @@ export const useUndelegate = ({ undelegateAmount }: { undelegateAmount?: Wei }) 
     },
   });
   return {
-    isReady: Boolean(isReady),
+    isReady,
     mutation,
     txnState,
     settle: () => dispatch({ type: 'settled' }),

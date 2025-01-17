@@ -68,12 +68,16 @@ export function useRepay({ repayAmount }: { repayAmount?: Wei }) {
     PositionManager &&
     params.accountId &&
     systemToken?.address &&
-    collateralType?.tokenAddress;
+    collateralType?.tokenAddress &&
+    // Make it boolean
+    true;
 
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: async () => {
-      if (!isReady) throw new Error('Not ready');
+      if (!isReady) {
+        throw new Error('Not ready');
+      }
 
       dispatch({ type: 'prompting' });
 

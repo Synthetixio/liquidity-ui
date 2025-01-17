@@ -50,6 +50,7 @@ export function DepositModalAndromeda({ onClose }: { onClose: () => void }) {
     approve: approveUSDC,
     requireApproval: requireApprovalUSDC,
     txnState: txnStateApproveUSDC,
+    isReady: isReadyApproveUSDC,
   } = useApprove({
     contractAddress: USDC?.address,
     amount: collateralChange.toBN().mul(D6).div(D18),
@@ -64,7 +65,10 @@ export function DepositModalAndromeda({ onClose }: { onClose: () => void }) {
     PositionManager &&
     USDC?.address &&
     collateralType?.tokenAddress &&
-    collateralChange.gt(0);
+    collateralChange.gt(0) &&
+    isReadyApproveUSDC &&
+    // Make it boolean
+    true;
 
   const [txnStateDeposit, dispatch] = React.useReducer(reducer, initialState);
 

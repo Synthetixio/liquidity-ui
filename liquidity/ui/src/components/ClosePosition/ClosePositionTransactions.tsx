@@ -74,7 +74,11 @@ export function ClosePositionTransactions({
   const errorParser = useContractErrorParser();
 
   //repay approval
-  const { approve, requireApproval } = useApprove({
+  const {
+    approve,
+    requireApproval,
+    isReady: isReadyApprove,
+  } = useApprove({
     contractAddress: collateralAddress,
     amount:
       liquidityPosition && liquidityPosition.debt.abs().sub(availableUSDCollateral).gt(0)
@@ -98,6 +102,7 @@ export function ClosePositionTransactions({
     approve: approveUSDC,
     requireApproval: requireApprovalUSDC,
     isLoading,
+    isReady: isReadyApproveUSDC,
   } = useApprove({
     contractAddress: USDC?.address,
     // slippage for approval
@@ -316,6 +321,7 @@ export function ClosePositionTransactions({
 
       <Button
         data-cy="close position confirm button"
+        isDisabled={!isReadyApprove || !isReadyApproveUSDC}
         isLoading={txState.status === 'pending'}
         onClick={handleSubmit}
         mt="6"

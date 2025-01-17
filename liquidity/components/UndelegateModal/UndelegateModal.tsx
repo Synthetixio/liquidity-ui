@@ -55,7 +55,11 @@ export function UndelegateModal({ onClose }: { onClose: () => void }) {
   const { data: USDC } = useUSDC();
   const { data: DebtRepayer } = useDebtRepayer();
 
-  const { approve, requireApproval } = useApprove({
+  const {
+    approve,
+    requireApproval,
+    isReady: isReadyApprove,
+  } = useApprove({
     contractAddress: USDC?.address,
     //slippage for approval
     amount:
@@ -237,7 +241,7 @@ export function UndelegateModal({ onClose }: { onClose: () => void }) {
       />
 
       <Button
-        isDisabled={isProcessing}
+        isDisabled={isProcessing || !isReadyApprove}
         onClick={onSubmit}
         width="100%"
         mt="6"

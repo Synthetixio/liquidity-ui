@@ -37,22 +37,21 @@ export const useDeposit = ({
   const provider = useProvider();
 
   const queryClient = useQueryClient();
+  const isReady =
+    network &&
+    provider &&
+    signer &&
+    CoreProxy &&
+    collateralTypeAddress &&
+    availableCollateral &&
+    collateralChange.gt(0) &&
+    // Make it boolean
+    true;
+
   const mutation = useMutation({
     mutationFn: async () => {
-      if (
-        !(
-          network &&
-          provider &&
-          signer &&
-          CoreProxy &&
-          collateralTypeAddress &&
-          availableCollateral
-        )
-      ) {
-        return;
-      }
-      if (collateralChange.eq(0)) {
-        return;
+      if (!isReady) {
+        throw new Error('Not ready');
       }
 
       dispatch({ type: 'prompting' });
@@ -150,5 +149,6 @@ export const useDeposit = ({
     settle: () => dispatch({ type: 'settled' }),
     isLoading: mutation.isPending,
     exec: mutation.mutateAsync,
+    isReady,
   };
 };

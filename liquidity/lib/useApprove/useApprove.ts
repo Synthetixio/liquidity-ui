@@ -28,7 +28,16 @@ export const useApprove = ({
   const provider = useProvider();
 
   const queryClient = useQueryClient();
-  const isReady = network && provider && signer && contractAddress && spender && amount;
+  const isReady =
+    network &&
+    provider &&
+    signer &&
+    contractAddress &&
+    spender &&
+    amount &&
+    // Make it boolean
+    true;
+
   const mutation = useMutation({
     mutationFn: async (infiniteApproval: boolean) => {
       log(`contractAddress`, contractAddress);
@@ -80,7 +89,7 @@ export const useApprove = ({
     },
   });
   return {
-    isReady: Boolean(isReady),
+    isReady,
     mutation,
     txnState,
     isLoading: mutation.isPending,

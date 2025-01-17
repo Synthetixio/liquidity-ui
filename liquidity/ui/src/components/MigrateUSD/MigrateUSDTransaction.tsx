@@ -44,7 +44,12 @@ export function MigrateUSDTransaction({
     v3Balance: ZEROWEI,
   });
 
-  const { approve, refetchAllowance, requireApproval } = useApprove({
+  const {
+    approve,
+    refetchAllowance,
+    requireApproval,
+    isReady: isReadyApprove,
+  } = useApprove({
     contractAddress: v2_sUSD,
     amount: amount.toBN(),
     spender: legacyMarket?.address,
@@ -177,7 +182,12 @@ export function MigrateUSDTransaction({
         }}
       />
 
-      <Button isDisabled={txState.status === 'pending'} onClick={onSubmit} width="100%" mb={2}>
+      <Button
+        isDisabled={txState.status === 'pending' || !isReadyApprove}
+        onClick={onSubmit}
+        width="100%"
+        mb={2}
+      >
         {(() => {
           switch (true) {
             case txState.status === 'error':

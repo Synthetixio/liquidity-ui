@@ -69,7 +69,11 @@ export function RepayModal({ onClose }: { onClose: () => void }) {
 
   const collateralAddress = network?.preset === 'andromeda' ? wrapperToken : systemToken?.address;
 
-  const { approve, requireApproval } = useApprove({
+  const {
+    approve,
+    requireApproval,
+    isReady: isReadyApprove,
+  } = useApprove({
     contractAddress: collateralAddress,
     amount:
       network?.preset === 'andromeda'
@@ -246,7 +250,7 @@ export function RepayModal({ onClose }: { onClose: () => void }) {
       />
 
       <Button
-        isDisabled={state.matches(State.approve) || state.matches(State.repay)}
+        isDisabled={state.matches(State.approve) || state.matches(State.repay) || !isReadyApprove}
         onClick={onSubmit}
         width="100%"
         mt="6"

@@ -4743,20 +4743,15 @@ __metadata:
     "@snx-v3/constants": "workspace:*"
     "@snx-v3/format": "workspace:*"
     "@snx-v3/useApprove": "workspace:*"
-    "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useContractErrorParser": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useDeposit": "workspace:*"
-    "@snx-v3/useDepositBaseAndromeda": "workspace:*"
     "@snx-v3/useLiquidityPosition": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
-    "@snx-v3/useSpotMarketProxy": "workspace:*"
-    "@snx-v3/useSynthToken": "workspace:*"
     "@snx-v3/useWrapEth": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@xstate/react": "npm:^3.2.2"
-    ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
     xstate: "npm:^4.38.3"
   languageName: unknown
@@ -5652,29 +5647,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/useDepositBaseAndromeda@workspace:*, @snx-v3/useDepositBaseAndromeda@workspace:liquidity/lib/useDepositBaseAndromeda":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/useDepositBaseAndromeda@workspace:liquidity/lib/useDepositBaseAndromeda"
-  dependencies:
-    "@snx-v3/constants": "workspace:*"
-    "@snx-v3/tsHelpers": "workspace:*"
-    "@snx-v3/txnReducer": "workspace:*"
-    "@snx-v3/useApprove": "workspace:*"
-    "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useCollateralPriceUpdates": "workspace:*"
-    "@snx-v3/useCollateralTypes": "workspace:*"
-    "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useSpotMarketProxy": "workspace:*"
-    "@snx-v3/useSynthToken": "workspace:*"
-    "@snx-v3/withERC7412": "workspace:*"
-    "@synthetixio/wei": "npm:^2.74.4"
-    "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
-    ethers: "npm:^5.7.2"
-    react: "npm:^18.2.0"
-  languageName: unknown
-  linkType: soft
-
 "@snx-v3/useEthBalance@workspace:*, @snx-v3/useEthBalance@workspace:liquidity/lib/useEthBalance":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useEthBalance@workspace:liquidity/lib/useEthBalance"
@@ -6166,7 +6138,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/useSynthToken@workspace:*, @snx-v3/useSynthToken@workspace:liquidity/lib/useSynthToken":
+"@snx-v3/useSynthToken@workspace:liquidity/lib/useSynthToken":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useSynthToken@workspace:liquidity/lib/useSynthToken"
   dependencies:

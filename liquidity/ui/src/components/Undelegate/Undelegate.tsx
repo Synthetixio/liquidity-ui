@@ -69,6 +69,7 @@ export function Undelegate() {
     approve,
     requireApproval,
     txnState: approvalTxnState,
+    isReady: isReadyApprove,
   } = useApprove({
     contractAddress: USDC?.address,
     //slippage for approval
@@ -80,7 +81,7 @@ export function Undelegate() {
   });
 
   const {
-    isReady: isUndelegateReady,
+    isReady: isReadyUndelegate,
     txnState: undelegateTxnState,
     mutation: undelegate,
   } = useUndelegate({
@@ -89,7 +90,7 @@ export function Undelegate() {
   });
 
   const {
-    isReady: isUndelegateAndromedaReady,
+    isReady: isReadyUndelegateAndromeda,
     txnState: undelegateAndromedaTxnState,
     mutation: undelegateAndromeda,
   } = useUndelegateBaseAndromeda({
@@ -97,7 +98,9 @@ export function Undelegate() {
       collateralChange && collateralChange.lt(0) ? collateralChange.abs() : undefined,
   });
 
-  const isReady = network?.preset === 'andromeda' ? isUndelegateAndromedaReady : isUndelegateReady;
+  const isReady =
+    (network?.preset === 'andromeda' ? isReadyUndelegateAndromeda : isReadyUndelegate) &&
+    isReadyApprove;
   const txnState =
     network?.preset === 'andromeda' ? undelegateAndromedaTxnState : undelegateTxnState;
 
