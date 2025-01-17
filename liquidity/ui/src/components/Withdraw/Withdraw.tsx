@@ -2,27 +2,25 @@ import { Alert, AlertIcon, Button, Collapse, Flex, Text, useToast } from '@chakr
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { ZEROWEI } from '@snx-v3/constants';
+import { ContractError } from '@snx-v3/ContractError';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
 import { TokenIcon } from '@snx-v3/TokenIcon';
 import { useAccountCollateralUnlockDate } from '@snx-v3/useAccountCollateralUnlockDate';
-import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useSystemToken } from '@snx-v3/useSystemToken';
+import { useWithdraw } from '@snx-v3/useWithdraw';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
 import React from 'react';
 import { WithdrawModal } from './WithdrawModal';
-import { useWithdraw } from '@snx-v3/useWithdraw';
-import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
-import { ContractError } from '@snx-v3/ContractError';
 
 export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: boolean }) {
   const [params] = useParams<PositionPageSchemaType>();
   const { setWithdrawAmount, withdrawAmount } = React.useContext(ManagePositionContext);
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
-  const { network } = useNetwork();
 
   const { data: liquidityPosition, isPending: isPendingLiquidityPosition } = useLiquidityPosition({
     accountId: params.accountId,
@@ -34,18 +32,10 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
   const { data: accountCollateralUnlockDate, isLoading: isLoadingDate } =
     useAccountCollateralUnlockDate({ accountId: params.accountId });
 
-  const symbol =
-    network?.preset === 'andromeda'
-      ? 'USDC'
-      : isDebtWithdrawal
-        ? systemToken?.symbol
-        : collateralType?.symbol;
-  const displaySymbol =
-    network?.preset === 'andromeda'
-      ? 'USDC'
-      : isDebtWithdrawal
-        ? systemToken?.displaySymbol
-        : collateralType?.displaySymbol;
+  const symbol = isDebtWithdrawal ? systemToken?.symbol : collateralType?.symbol;
+  const displaySymbol = isDebtWithdrawal
+    ? systemToken?.displaySymbol
+    : collateralType?.displaySymbol;
   const { minutes, hours, isRunning } = useWithdrawTimer(params.accountId);
   const unlockDate = !isLoadingDate ? accountCollateralUnlockDate : null;
 
@@ -54,11 +44,9 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
       return liquidityPosition.availableSystemToken;
     }
     if (!isDebtWithdrawal && liquidityPosition) {
-      return network?.preset === 'andromeda'
-        ? liquidityPosition.availableCollateral.add(liquidityPosition.availableSystemToken)
-        : liquidityPosition.availableCollateral;
+      return liquidityPosition.availableCollateral;
     }
-  }, [isDebtWithdrawal, liquidityPosition, network]);
+  }, [isDebtWithdrawal, liquidityPosition]);
 
   const {
     mutation: withdraw,

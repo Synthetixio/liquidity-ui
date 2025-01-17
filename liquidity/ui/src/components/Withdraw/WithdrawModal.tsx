@@ -48,10 +48,10 @@ export function WithdrawModal({
   }, [txnStatus]);
 
   // This caching is necessary to keep initial values after success and not reset them to zeroes
-  const [withdrawalAmount, setWithdrawalAmout] = React.useState<Wei | undefined>();
+  const [cachedWithdrawAmount, setCachedWithdrawAmount] = React.useState<Wei | undefined>();
   React.useEffect(() => {
     if (withdrawAmount && withdrawAmount.gt(0)) {
-      setWithdrawalAmout(withdrawAmount.abs());
+      setCachedWithdrawAmount(withdrawAmount.abs());
     }
   }, [withdrawAmount]);
 
@@ -117,7 +117,7 @@ export function WithdrawModal({
                 <Text fontSize="14px" fontWeight={700} lineHeight="20px" color="white">
                   <Amount
                     prefix={txnStatus === 'success' ? 'Withdrew ' : 'Withdrawing '}
-                    value={withdrawalAmount}
+                    value={cachedWithdrawAmount}
                     suffix={` ${
                       isDebtWithdrawal ? systemToken?.displaySymbol : collateralType?.displaySymbol
                     }`}

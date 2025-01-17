@@ -16,17 +16,16 @@ import {
   useParams,
 } from '@snx-v3/useParams';
 import { validatePosition } from '@snx-v3/validatePosition';
-import { WithdrawModal } from '@snx-v3/WithdrawModal';
 import { wei } from '@synthetixio/wei';
 import React, { FormEvent, useCallback } from 'react';
+import { Borrow } from '../Borrow/Borrow';
 import { Claim } from '../Claim/Claim';
 import { Deposit } from '../Deposit/Deposit';
 import { Repay } from '../Repay/Repay';
-import { Borrow } from '../Borrow/Borrow';
 import { RepayAndromedaDebt } from '../Repay/RepayAndromedaDebt';
 import { Undelegate } from '../Undelegate/Undelegate';
-import { WithdrawAndromeda } from '../Withdraw/WithdrawAndromeda';
 import { Withdraw } from '../Withdraw/Withdraw';
+import { WithdrawAndromeda } from '../Withdraw/WithdrawAndromeda';
 import { COLLATERALACTIONS, DEBTACTIONS } from './actions';
 
 export const ManageAction = ({
@@ -39,7 +38,7 @@ export const ManageAction = ({
   const [params, setParams] = useParams<PositionPageSchemaType>();
   const { network } = useNetwork();
 
-  const { debtChange, collateralChange, setCollateralChange, setDebtChange, setWithdrawAmount } =
+  const { debtChange, collateralChange, setCollateralChange, setDebtChange } =
     React.useContext(ManagePositionContext);
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
@@ -257,6 +256,10 @@ export const ManageAction = ({
             <Flex direction="column">
               <Borrow />
             </Flex>
+          ) : manageAction === 'withdraw' && network?.preset === 'andromeda' ? (
+            <Flex direction="column">
+              <WithdrawAndromeda />
+            </Flex>
           ) : manageAction === 'withdraw' && network?.preset !== 'andromeda' ? (
             <Flex direction="column">
               <Withdraw />
@@ -268,8 +271,6 @@ export const ManageAction = ({
           ) : (
             <Flex direction="column" as="form" onSubmit={onSubmit}>
               {manageAction === 'claim' ? <Claim /> : null}
-              {manageAction === 'withdraw' ? <WithdrawAndromeda /> : null}
-              {manageAction === 'withdraw-debt' ? <WithdrawAndromeda isDebtWithdrawal /> : null}
               {manageAction === 'deposit' ? <Deposit /> : null}
               {manageAction === 'repay' && network?.preset === 'andromeda' ? (
                 <RepayAndromedaDebt />
@@ -324,28 +325,6 @@ export const ManageAction = ({
             setDebtChange(wei(0));
             setTxnModalOpen(undefined);
           }}
-        />
-      ) : null}
-      {txnModalOpen === 'withdraw' && network?.preset === 'andromeda' ? (
-        <WithdrawModal
-          onClose={() => {
-            setCollateralChange(wei(0));
-            setDebtChange(wei(0));
-            setWithdrawAmount(wei(0));
-            setTxnModalOpen(undefined);
-          }}
-        />
-      ) : null}
-
-      {txnModalOpen === 'withdraw-debt' && network?.preset === 'andromeda' ? (
-        <WithdrawModal
-          onClose={() => {
-            setCollateralChange(wei(0));
-            setDebtChange(wei(0));
-            setWithdrawAmount(wei(0));
-            setTxnModalOpen(undefined);
-          }}
-          isDebtWithdrawal
         />
       ) : null}
     </>

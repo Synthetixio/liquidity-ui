@@ -4924,32 +4924,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/WithdrawModal@workspace:*, @snx-v3/WithdrawModal@workspace:liquidity/components/WithdrawModal":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/WithdrawModal@workspace:liquidity/components/WithdrawModal"
-  dependencies:
-    "@chakra-ui/icons": "npm:^2.1.1"
-    "@chakra-ui/react": "npm:^2.8.2"
-    "@snx-v3/Amount": "workspace:*"
-    "@snx-v3/ContractError": "workspace:*"
-    "@snx-v3/ManagePositionContext": "workspace:*"
-    "@snx-v3/Multistep": "workspace:*"
-    "@snx-v3/constants": "workspace:*"
-    "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useCollateralTypes": "workspace:*"
-    "@snx-v3/useContractErrorParser": "workspace:*"
-    "@snx-v3/useIsAndromedaStataUSDC": "workspace:*"
-    "@snx-v3/useParams": "workspace:*"
-    "@snx-v3/useStaticAaveUSDC": "workspace:*"
-    "@snx-v3/useSystemToken": "workspace:*"
-    "@snx-v3/useUnwrapStataUSDC": "workspace:*"
-    "@snx-v3/useWithdraw": "workspace:*"
-    "@snx-v3/useWithdrawBaseAndromeda": "workspace:*"
-    ethers: "npm:^5.7.2"
-    react: "npm:^18.2.0"
-  languageName: unknown
-  linkType: soft
-
 "@snx-v3/assertAddressType@workspace:liquidity/lib/assertAddressType":
   version: 0.0.0-use.local
   resolution: "@snx-v3/assertAddressType@workspace:liquidity/lib/assertAddressType"
@@ -5092,7 +5066,6 @@ __metadata:
     "@snx-v3/Tooltip": "workspace:*"
     "@snx-v3/UndelegateModal": "workspace:*"
     "@snx-v3/WithdrawIncrease": "workspace:*"
-    "@snx-v3/WithdrawModal": "workspace:*"
     "@snx-v3/calculations": "workspace:*"
     "@snx-v3/constants": "workspace:*"
     "@snx-v3/etherscanLink": "workspace:*"
@@ -5100,6 +5073,7 @@ __metadata:
     "@snx-v3/formatters": "workspace:*"
     "@snx-v3/icons": "workspace:*"
     "@snx-v3/theme": "workspace:*"
+    "@snx-v3/txnReducer": "workspace:*"
     "@snx-v3/useAccountCollateralUnlockDate": "workspace:*"
     "@snx-v3/useAccountPermissions": "workspace:*"
     "@snx-v3/useAccountProxy": "workspace:*"
@@ -5132,6 +5106,7 @@ __metadata:
     "@snx-v3/useParams": "workspace:*"
     "@snx-v3/usePoolConfiguration": "workspace:*"
     "@snx-v3/usePoolsList": "workspace:*"
+    "@snx-v3/usePositionManagerForCollateral": "workspace:*"
     "@snx-v3/usePythFeeds": "workspace:*"
     "@snx-v3/usePythPrice": "workspace:*"
     "@snx-v3/usePythVerifier": "workspace:*"
@@ -6326,7 +6301,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/useUnwrapStataUSDC@workspace:*, @snx-v3/useUnwrapStataUSDC@workspace:liquidity/lib/useUnwrapStataUSDC":
+"@snx-v3/useUnwrapStataUSDC@workspace:liquidity/lib/useUnwrapStataUSDC":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useUnwrapStataUSDC@workspace:liquidity/lib/useUnwrapStataUSDC"
   dependencies:
@@ -6417,32 +6392,6 @@ __metadata:
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralPriceUpdates": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/withERC7412": "workspace:*"
-    "@synthetixio/wei": "npm:^2.74.4"
-    "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
-    ethers: "npm:^5.7.2"
-    react: "npm:^18.2.0"
-  languageName: unknown
-  linkType: soft
-
-"@snx-v3/useWithdrawBaseAndromeda@workspace:*, @snx-v3/useWithdrawBaseAndromeda@workspace:liquidity/lib/useWithdrawBaseAndromeda":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/useWithdrawBaseAndromeda@workspace:liquidity/lib/useWithdrawBaseAndromeda"
-  dependencies:
-    "@snx-v3/constants": "workspace:*"
-    "@snx-v3/isBaseAndromeda": "workspace:*"
-    "@snx-v3/tsHelpers": "workspace:*"
-    "@snx-v3/txnReducer": "workspace:*"
-    "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useCollateralPriceUpdates": "workspace:*"
-    "@snx-v3/useCollateralTypes": "workspace:*"
-    "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useGetUSDTokens": "workspace:*"
-    "@snx-v3/useLiquidityPosition": "workspace:*"
-    "@snx-v3/useParams": "workspace:*"
-    "@snx-v3/useSpotMarketProxy": "workspace:*"
-    "@snx-v3/useUSDProxy": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
