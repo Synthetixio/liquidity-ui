@@ -33,6 +33,7 @@ describe(__filename, () => {
     cy.depositCollateral({ symbol: 'WETH', amount: 10 });
     cy.delegateCollateral({ symbol: 'WETH', amount: 10, poolId: 1 });
     cy.borrowUsd({ symbol: 'WETH', amount: 100, poolId: 1 });
+    cy.setWithdrawTimeout({ timeout: '0' });
 
     cy.visit(
       `?${makeSearch({
@@ -62,8 +63,6 @@ describe(__filename, () => {
     cy.contains('[data-status="error"]', 'Withdraw failed').should('exist');
     cy.contains('[data-status="error"]', 'AccountActivityTimeoutPending').should('exist');
     cy.get('[data-status="error"] [aria-label="Close"]').click();
-
-    cy.setWithdrawTimeout({ timeout: '0' });
 
     cy.contains('[data-status="success"]', 'Withdrawal was successful', {
       timeout: 180_000,

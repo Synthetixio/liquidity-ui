@@ -96,6 +96,7 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
         if (contractError) {
           console.error(new Error(contractError.name), contractError);
         }
+        toast.closeAll();
         toast({
           title: 'Could not complete withdrawing',
           description: contractError ? (
@@ -107,7 +108,6 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
           variant: 'left-accent',
           duration: 3_600_000,
         });
-        throw Error('Withdraw failed', { cause: error });
       }
     },
     [errorParser, setWithdrawAmount, toast, withdraw]

@@ -29,6 +29,7 @@ describe(__filename, () => {
     cy.setEthBalance({ balance: 100 });
     cy.approveCollateral({ symbol: 'SNX', spender: 'CoreProxy' });
     cy.delegateCollateral({ symbol: 'SNX', amount: 100, poolId: 1 });
+    cy.setWithdrawTimeout({ timeout: '0' });
 
     cy.visit(
       `?${makeSearch({
@@ -55,23 +56,15 @@ describe(__filename, () => {
       .and('include.text', 'Withdrawing Collateral')
       .and('include.text', 'Withdrawing 10 SNX');
 
-    cy.contains('[data-status="error"]', 'Withdraw failed', {
-      timeout: 120_000,
-    }).should('exist');
-    cy.contains('[data-status="error"]', 'AccountActivityTimeoutPending').should('exist');
-    cy.get('[data-status="error"] [aria-label="Close"]').click();
-
-    cy.setWithdrawTimeout({ timeout: '0' });
-
-    cy.get('[data-cy="withdraw submit"]').should('be.enabled');
-    cy.get('[data-cy="withdraw submit"]').click();
-
     cy.contains('[data-status="success"]', 'Withdrawal was successful', {
       timeout: 180_000,
     }).should('exist');
     cy.get('[data-cy="transaction hash"]').should('exist');
 
-    cy.get('[data-cy="withdraw dialog"]').should('exist').and('include.text', 'Withdrew 5 sUSD');
+    cy.get('[data-cy="withdraw dialog"]')
+      .should('exist')
+      .and('include.text', 'Withdrawing')
+      .and('include.text', 'Withdrew 10 SNX');
 
     cy.contains('[data-cy="withdraw dialog"] button', 'Done').click();
   });

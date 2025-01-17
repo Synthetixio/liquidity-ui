@@ -119,7 +119,7 @@ export function WithdrawModal({
                     prefix={txnStatus === 'success' ? 'Withdrew ' : 'Withdrawing '}
                     value={withdrawalAmount}
                     suffix={` ${
-                      isDebtWithdrawal ? systemToken?.symbol : collateralType?.displaySymbol
+                      isDebtWithdrawal ? systemToken?.displaySymbol : collateralType?.displaySymbol
                     }`}
                   />
                 </Text>
