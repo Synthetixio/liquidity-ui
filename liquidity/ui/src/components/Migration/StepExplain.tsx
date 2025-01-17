@@ -118,7 +118,7 @@ export const StepExplain = ({
             </svg>
           </Flex>
           <Text flex={1}>
-            (optional) Conversion of your sUSD into V3 compatible sUSD. You can
+            (optional) Conversion of your V2 sUSD into V3 sUSD. You can
             <Link
               color="cyan.500"
               href={`?${makeSearch({ convert: 'snxusd', accountId: params.accountId })}`}
@@ -127,7 +127,7 @@ export const StepExplain = ({
                 setParams({ convert: 'snxusd', accountId: params.accountId });
               }}
             >
-              &nbsp;convert your sUSD&nbsp;
+              &nbsp;convert your V2 sUSD&nbsp;
             </Link>
             at anytime
           </Text>

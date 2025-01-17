@@ -271,10 +271,10 @@ export const appMetadata = {
 };
 
 export function useProviderForChain(customNetwork?: Network) {
-  const { network: activeNetwork } = useNetwork();
-  const network = customNetwork ?? activeNetwork;
+  const { network: currentNetwork } = useNetwork();
+  const network = customNetwork ?? currentNetwork;
   const isDefaultChain =
-    customNetwork?.id === activeNetwork?.id && customNetwork?.preset === activeNetwork?.preset;
+    customNetwork?.id === currentNetwork?.id && customNetwork?.preset === currentNetwork?.preset;
   const { data: provider } = useQuery({
     queryKey: [`${network?.id}-${network?.preset}`, 'ProviderForChain', { isDefaultChain }],
     enabled: Boolean(network),

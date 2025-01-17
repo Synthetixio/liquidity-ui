@@ -48,7 +48,7 @@ export function MigrateUSDModal({
       <ModalContent mt="100px" borderWidth="1px" borderColor="gray.900" bg="navy.900" color="white">
         <Flex justifyContent="space-between" p={6} alignItems="center">
           <Heading fontSize="20px">
-            {step === 2 ? 'Migration successful' : 'Convert your sUSD to V3 on Mainnet'}
+            {step === 2 ? 'Migration successful' : 'Convert your V2 sUSD to V3 sUSD on Mainnet'}
           </Heading>
           <CloseButton onClick={onClose} color="gray" />
         </Flex>

@@ -29,7 +29,7 @@ export const StepSuccess = ({
           <CheckIcon w="12px" h="12px" color="green.900" />
         </Flex>
         <Text fontSize="16px">
-          <b>sUSD</b> successfully converted
+          <b>V2 sUSD</b> successfully converted
         </Text>
       </Alert>
 
@@ -75,7 +75,7 @@ export const StepSuccess = ({
         colorScheme="gray"
         width="100%"
       >
-        Deposit sUSD to Curve
+        Deposit V3 sUSD to Curve
         <ArrowUpIcon transform="rotate(45deg)" />
       </Button>
     </VStack>

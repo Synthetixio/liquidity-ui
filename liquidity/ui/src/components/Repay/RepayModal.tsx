@@ -108,7 +108,7 @@ export function RepayModal({ txnStatus, txnHash }: { txnStatus: string; txnHash:
                   <Amount
                     prefix={txnStatus === 'success' ? 'Repaid ' : 'Repaying '}
                     value={repayAmount}
-                    suffix={` ${systemToken?.symbol}`}
+                    suffix={` ${systemToken?.displaySymbol}`}
                   />
                 </Text>
               ) : (

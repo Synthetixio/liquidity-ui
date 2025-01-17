@@ -1,8 +1,10 @@
 import { ArrowUpIcon } from '@chakra-ui/icons';
 import { Button, Divider, Flex, Heading, Image, Link, Text } from '@chakra-ui/react';
 import SynthetixLogo from '@snx-v3/useBlockchain/SynthetixIcon.svg';
+import { useSystemToken } from '@snx-v3/useSystemToken';
 
 export function ClaimSuccessBanner({ onClose }: { onClose: () => void }) {
+  const { data: systemToken } = useSystemToken();
   return (
     <Flex
       data-cy="claim success"
@@ -13,7 +15,7 @@ export function ClaimSuccessBanner({ onClose }: { onClose: () => void }) {
       height="fit-content"
     >
       <Heading color="gray.50" fontSize="20px" fontWeight={700}>
-        What can you do with your sUSD?
+        What can you do with your {systemToken?.displaySymbol}?
       </Heading>
       <Divider />
 

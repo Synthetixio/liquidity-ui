@@ -13,6 +13,7 @@ import {
   Tr,
 } from '@chakra-ui/react';
 import { Tooltip } from '@snx-v3/Tooltip';
+import { useNetwork } from '@snx-v3/useBlockchain';
 import { useClaimAllRewards } from '@snx-v3/useClaimAllRewards';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { groupRewardsBySymbol, useRewards } from '@snx-v3/useRewards';
@@ -29,10 +30,15 @@ export function Rewards() {
   });
   const { exec: claimAll, txnState } = useClaimAllRewards({ accountId: params.accountId });
 
+  const { network } = useNetwork();
+
   const { data: synthTokens } = useSynthTokens();
   const groupedRewards = React.useMemo(
-    () => groupRewardsBySymbol({ rewards, synthTokens }),
-    [rewards, synthTokens]
+    () =>
+      network && rewards && synthTokens
+        ? groupRewardsBySymbol({ network, rewards, synthTokens })
+        : undefined,
+    [network, rewards, synthTokens]
   );
 
   return (

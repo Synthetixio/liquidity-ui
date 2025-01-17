@@ -54,7 +54,6 @@ export function ClosePositionTransactions({
   const { network } = useNetwork();
   const toast = useToast({ isClosable: true, duration: 9000 });
 
-  const debtSymbol = network?.preset === 'andromeda' ? collateralType?.symbol : systemToken?.symbol;
   const collateralSymbol = collateralType?.displaySymbol;
 
   const [txState, setTxState] = React.useState({
@@ -133,7 +132,7 @@ export function ClosePositionTransactions({
       if (liquidityPosition?.debt.gt(0)) {
         if (requireApproval) {
           transactions.push({
-            title: `Approve ${systemToken?.symbol} transfer`,
+            title: `Approve ${systemToken?.displaySymbol} transfer`,
             cb: () => approve(false),
           });
         }
@@ -143,7 +142,7 @@ export function ClosePositionTransactions({
             <Amount
               prefix="Repay "
               value={liquidityPosition?.debt.abs()}
-              suffix={` ${systemToken?.symbol}`}
+              suffix={` ${systemToken?.displaySymbol}`}
             />
           ),
           cb: () => execRepay(),
@@ -155,7 +154,7 @@ export function ClosePositionTransactions({
             <Amount
               prefix="Claim "
               value={liquidityPosition?.debt.abs()}
-              suffix={` ${systemToken?.symbol}`}
+              suffix={` ${systemToken?.displaySymbol}`}
             />
           ),
           cb: () => execBorrow(),
@@ -175,7 +174,9 @@ export function ClosePositionTransactions({
     } else {
       if (liquidityPosition?.debt.gt(-0.00001) && requireApprovalUSDC) {
         transactions.push({
-          title: `Approve ${debtSymbol} transfer`,
+          title: `Approve ${
+            network?.preset === 'andromeda' ? collateralType?.symbol : systemToken?.symbol
+          } transfer`,
           cb: () => approveUSDC(false),
         });
       }
@@ -195,19 +196,20 @@ export function ClosePositionTransactions({
     return transactions;
   }, [
     ClosePositionContract,
-    approve,
-    approveUSDC,
-    collateralSymbol,
-    debtSymbol,
-    execBorrow,
-    execRepay,
     network?.preset,
-    liquidityPosition?.collateralAmount,
     liquidityPosition?.debt,
+    liquidityPosition?.collateralAmount,
+    collateralSymbol,
     requireApproval,
-    requireApprovalUSDC,
+    systemToken?.displaySymbol,
     systemToken?.symbol,
+    approve,
+    execRepay,
+    execBorrow,
     undelegate,
+    requireApprovalUSDC,
+    collateralType?.symbol,
+    approveUSDC,
     undelegateBaseAndromeda,
   ]);
 

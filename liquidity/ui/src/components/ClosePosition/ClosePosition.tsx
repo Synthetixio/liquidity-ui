@@ -72,9 +72,9 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
         <Flex alignItems="center">
           <Flex alignItems="flex-start" flexDir="column" gap={1}>
             <BorderBox display="flex" justifyContent="center" alignItems="center" py={1.5} px={2.5}>
-              <Text display="flex" gap={2} alignItems="center" fontWeight="600">
+              <Text display="flex" gap={2} alignItems="center" fontWeight="600" whiteSpace="nowrap">
                 <TokenIcon symbol={debtSymbol} width={16} height={16} />
-                {debtSymbol}
+                {network?.preset === 'andromeda' ? 'USDC' : systemToken?.displaySymbol}
               </Text>
             </BorderBox>
             <Text fontSize="12px" whiteSpace="nowrap" data-cy="debt amount">
@@ -124,7 +124,7 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
         <Flex alignItems="center">
           <Flex alignItems="flex-start" flexDir="column" gap={1}>
             <BorderBox display="flex" justifyContent="center" alignItems="center" py={1.5} px={2.5}>
-              <Text display="flex" gap={2} alignItems="center" fontWeight="600">
+              <Text display="flex" gap={2} alignItems="center" fontWeight="600" whiteSpace="nowrap">
                 <TokenIcon symbol={collateralSymbol} width={16} height={16} />
                 {collateralSymbol}
               </Text>
@@ -182,7 +182,7 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
         <Alert mb={6} status="error" borderRadius="6px">
           <AlertIcon />
           <AlertDescription>
-            <Text>You do not have enough {systemToken?.symbol} to repay debt</Text>
+            <Text>You do not have enough {systemToken?.displaySymbol} to repay debt</Text>
             <Text>
               <Amount
                 prefix="Available: "
@@ -191,7 +191,7 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
                   liquidityPosition &&
                   systemTokenBalance.add(liquidityPosition.availableSystemToken)
                 }
-                suffix={` ${systemToken?.symbol}`}
+                suffix={` ${systemToken?.displaySymbol}`}
               />
             </Text>
           </AlertDescription>

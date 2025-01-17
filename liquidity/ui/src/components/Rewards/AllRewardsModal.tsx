@@ -54,13 +54,13 @@ export function AllRewardsModal({
   }, [onClose, txnStatus]);
 
   React.useEffect(() => {
-    if (isOpen && rewards && synthTokens) {
-      const groupedRewards = groupRewardsBySymbol({ rewards, synthTokens });
+    if (isOpen && rewards && synthTokens && network) {
+      const groupedRewards = groupRewardsBySymbol({ network, rewards, synthTokens });
       if (!cachedRewards) {
         setCachedRewards(groupedRewards);
       }
     }
-  }, [isOpen, rewards, synthTokens, cachedRewards]);
+  }, [isOpen, rewards, synthTokens, cachedRewards, network]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>

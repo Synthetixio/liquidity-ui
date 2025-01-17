@@ -37,7 +37,7 @@ export function Amount({
       label={
         <>
           {isMaxUint ? (
-            'You cannot borrow sUSD against this collateral'
+            'You cannot borrow against this collateral'
           ) : (
             <>
               {prefix}

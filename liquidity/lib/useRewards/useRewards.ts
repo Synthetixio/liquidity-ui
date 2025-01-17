@@ -1,24 +1,25 @@
-import { POOL_ID } from '@snx-v3/constants';
+import { POOL_ID, tokenOverrides } from '@snx-v3/constants';
 import { contractsHash } from '@snx-v3/tsHelpers';
 // import { useAllErrors } from '@snx-v3/useAllErrors';
-import { useNetwork, useProvider } from '@snx-v3/useBlockchain';
+import { type Network, useNetwork, useProvider } from '@snx-v3/useBlockchain';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
-import { useTrustedMulticallForwarder } from '@snx-v3/useTrustedMulticallForwarder';
 import { useRewardsDistributors } from '@snx-v3/useRewardsDistributors';
 import { useSynthTokens } from '@snx-v3/useSynthTokens';
+import { useTrustedMulticallForwarder } from '@snx-v3/useTrustedMulticallForwarder';
 import { Wei, wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
 import debug from 'debug';
 import { ethers } from 'ethers';
-import { tokenOverrides } from '@snx-v3/constants';
 
 const log = debug('snx:useRewards');
 
 export function groupRewardsBySymbol({
+  network,
   rewards,
   synthTokens,
 }: {
+  network: Network;
   rewards?: {
     distributor: {
       payoutToken: {
@@ -50,7 +51,9 @@ export function groupRewardsBySymbol({
           (synth) => synth.address.toLowerCase() === distributor.payoutToken.address.toLowerCase()
         );
         const token = synthToken && synthToken.token ? synthToken.token : distributor.payoutToken;
-        const displaySymbol = tokenOverrides[token.address] ?? token.symbol;
+        const displaySymbol =
+          tokenOverrides[`${network.id}-${network.preset}`]?.[token.address]?.symbol ??
+          token.symbol;
         if (map.has(displaySymbol)) {
           map.set(displaySymbol, map.get(displaySymbol).add(claimableAmount));
         } else {

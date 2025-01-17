@@ -108,7 +108,7 @@ export function BorrowModal({ txnStatus, txnHash }: { txnStatus: string; txnHash
                   <Amount
                     prefix={txnStatus === 'success' ? 'Borrowed ' : 'Borrowing '}
                     value={borrowAmount}
-                    suffix={` ${systemToken?.symbol}`}
+                    suffix={` ${systemToken?.displaySymbol}`}
                   />
                 </Text>
               ) : null}

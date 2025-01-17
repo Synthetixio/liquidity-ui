@@ -145,13 +145,13 @@ export function MigrateUSDTransaction({
       <Multistep
         width="100%"
         step={1}
-        title="Approve sUSD transfer"
+        title="Approve V2 sUSD transfer"
         status={{
           failed: txState.step === 1 && txState.status === 'error',
           success: txState.step > 1,
           loading: txState.step === 1 && txState.status === 'pending',
         }}
-        checkboxLabel="Approve unlimited sUSD transfers to Synthetix"
+        checkboxLabel="Approve unlimited V2 sUSD transfers to Synthetix"
         checkboxProps={{
           isChecked: infiniteApproval,
           onChange: (e) => setInfiniteApproval(e.target.checked),
@@ -162,7 +162,7 @@ export function MigrateUSDTransaction({
       <Multistep
         width="100%"
         step={2}
-        title="Convert sUSD"
+        title="Convert V2 sUSD"
         mb={4}
         mt={4}
         subtitle={

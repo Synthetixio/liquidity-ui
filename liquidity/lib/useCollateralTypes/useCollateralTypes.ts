@@ -1,8 +1,9 @@
+import { tokenOverrides } from '@snx-v3/constants';
 import { importCollateralTokens } from '@snx-v3/contracts';
 import { contractsHash } from '@snx-v3/tsHelpers';
-import { Network, useNetwork, MAINNET, OPTIMISM } from '@snx-v3/useBlockchain';
-import { useSystemToken } from '@snx-v3/useSystemToken';
+import { MAINNET, Network, OPTIMISM, useNetwork } from '@snx-v3/useBlockchain';
 import { useSNX } from '@snx-v3/useSNX';
+import { useSystemToken } from '@snx-v3/useSystemToken';
 import { wei, Wei } from '@synthetixio/wei';
 import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
@@ -88,9 +89,14 @@ export function useCollateralTypes(includeDelegationOff = false, customNetwork?:
               name: 'Static aUSDC',
             };
           }
+
           return {
             ...collateralType,
-            displaySymbol: collateralType.displaySymbol ?? collateralType.symbol,
+            displaySymbol:
+              tokenOverrides[`${network.id}-${network.preset}`]?.[collateralType.address]
+                ?.displaySymbol ??
+              collateralType.displaySymbol ??
+              collateralType.symbol,
           };
         })
         .filter((collateralType) => collateralType.tokenAddress !== systemToken.address);

@@ -77,6 +77,7 @@ export function PositionRow({
             alignItems="center"
             textDecoration="none"
             _hover={{ textDecoration: 'none' }}
+            whiteSpace="nowrap"
           >
             <TokenIcon symbol={liquidityPosition.collateralType.symbol} />
             <Flex flexDirection="column" ml={3}>

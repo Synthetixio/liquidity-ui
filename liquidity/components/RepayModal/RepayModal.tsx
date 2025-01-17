@@ -83,7 +83,7 @@ export function RepayModal({ onClose }: { onClose: () => void }) {
       [ServiceNames.approveSUSD]: async () => {
         try {
           toast({
-            title: `Approve ${systemToken?.symbol} for transfer`,
+            title: `Approve ${systemToken?.displaySymbol} for transfer`,
             description: 'The next transaction will repay your debt.',
             status: 'info',
             variant: 'left-accent',
@@ -172,7 +172,7 @@ export function RepayModal({ onClose }: { onClose: () => void }) {
     send(Events.RUN);
   }, [onClose, send, state]);
 
-  const symbol = network?.preset === 'andromeda' ? 'USDC' : systemToken?.symbol;
+  const symbol = network?.preset === 'andromeda' ? 'USDC' : systemToken?.displaySymbol;
 
   if (state.matches(State.success)) {
     return (

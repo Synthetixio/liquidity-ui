@@ -41,7 +41,7 @@ export function MigrateUSDButton({ network }: { network: Network }) {
         onClick={() => setIsOpen(true)}
       >
         <TokenIcon width={24} height={24} symbol="susd" />
-        Convert sUSD
+        Convert V2 sUSD
       </Button>
     </>
   );

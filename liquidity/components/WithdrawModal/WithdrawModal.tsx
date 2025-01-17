@@ -179,7 +179,7 @@ export function WithdrawModal({
           <Amount
             value={withdrawAmount}
             suffix={` ${
-              isDebtWithdrawal ? systemToken?.symbol : collateralType?.displaySymbol
+              isDebtWithdrawal ? systemToken?.displaySymbol : collateralType?.displaySymbol
             } will be withdrawn`}
           />
         }

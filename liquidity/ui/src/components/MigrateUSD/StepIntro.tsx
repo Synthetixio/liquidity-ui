@@ -49,8 +49,8 @@ export const StepIntro = ({
   return (
     <VStack gap={2.5}>
       <Text width="100%" textAlign="left" fontSize="14px">
-        Convert your sUSD on Ethereum Mainnet to V3 compatible sUSD. You will need V3 compatible
-        sUSD to interact with the new Synthetix products.
+        Convert your V2 sUSD on Ethereum Mainnet to V3 sUSD. You will need V3 sUSD to interact with
+        the new Synthetix products.
       </Text>
 
       <BorderBox width="100%" display="flex" flexDirection="column" p={3}>
@@ -65,7 +65,13 @@ export const StepIntro = ({
                 px={2.5}
                 width="fit-content"
               >
-                <Text display="flex" gap={2} alignItems="center" fontWeight="600">
+                <Text
+                  display="flex"
+                  gap={2}
+                  alignItems="center"
+                  fontWeight="600"
+                  whiteSpace="nowrap"
+                >
                   <TokenIcon symbol="susd" width={16} height={16} />
                   V2 sUSD
                 </Text>
@@ -116,7 +122,7 @@ export const StepIntro = ({
               px={2.5}
               width="fit-content"
             >
-              <Text display="flex" gap={2} alignItems="center" fontWeight="600">
+              <Text display="flex" gap={2} alignItems="center" fontWeight="600" whiteSpace="nowrap">
                 <TokenIcon symbol="susd" width={16} height={16} />
                 V3 sUSD
               </Text>

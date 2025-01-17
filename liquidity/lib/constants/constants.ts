@@ -60,16 +60,34 @@ export const offchainTestnetEndpoint =
   'https://hermes-mainnet.rpc.extrnode.com/9b85d7db-f562-48e2-ab56-79c01f212582';
 
 export const tokenOverrides: {
-  [key: string]:
-    | {
-        symbol: string;
-        name: string;
-      }
-    | undefined;
+  [key: `${number}-${string}`]: {
+    [key: string]:
+      | {
+          symbol: string;
+          displaySymbol: string;
+          name: string;
+        }
+      | undefined;
+  };
 } = {
-  '0x4EA71A20e655794051D1eE8b6e4A3269B13ccaCc': {
-    symbol: 'stataUSDC',
-    name: 'Static aUSDC',
+  '8453-andromeda': {
+    '0x4EA71A20e655794051D1eE8b6e4A3269B13ccaCc': {
+      symbol: 'stataUSDC',
+      displaySymbol: 'Static aUSDC',
+      name: 'Static aUSDC',
+    },
+  },
+  '1-main': {
+    '0x10A5F7D9D65bCc2734763444D4940a31b109275f': {
+      symbol: 'sUSD',
+      displaySymbol: 'V2 sUSD',
+      name: 'V2 sUSD',
+    },
+    '0xb2F30A7C980f052f02563fb518dcc39e6bf38175': {
+      symbol: 'sUSD',
+      displaySymbol: 'V3 sUSD',
+      name: 'V3 sUSD',
+    },
   },
 };
 

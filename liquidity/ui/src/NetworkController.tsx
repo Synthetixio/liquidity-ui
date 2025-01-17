@@ -34,7 +34,7 @@ export function NetworkController() {
 
   const [toolTipLabel, setTooltipLabel] = React.useState('Copy');
   const { activeWallet, walletsInfo, connect, disconnect } = useWallet();
-  const { network: activeNetwork, setNetwork } = useNetwork();
+  const { network: currentNetwork, setNetwork } = useNetwork();
   const { data: accounts, isPending: isPendingAccounts } = useAccounts();
   const createAccount = useCreateAccount();
   const [showTestnets, setShowTestnets] = useLocalStorage(LOCAL_STORAGE_KEYS.SHOW_TESTNETS, false);
@@ -78,7 +78,7 @@ export function NetworkController() {
   }, [connect]);
 
   const notConnected = !activeWallet;
-  const notSupported = activeWallet && !activeNetwork;
+  const notSupported = activeWallet && !currentNetwork;
 
   if (!activeWallet) {
     return (
@@ -96,7 +96,7 @@ export function NetworkController() {
   }
   return (
     <Flex>
-      {activeNetwork ? (
+      {currentNetwork ? (
         <Menu>
           <MenuButton
             as={Button}
@@ -107,11 +107,11 @@ export function NetworkController() {
             px={3}
           >
             <NetworkIcon
-              filter={activeNetwork.isTestnet ? 'grayscale(1)' : ''}
-              networkId={notConnected ? 8453 : notSupported ? 0 : activeNetwork.id}
+              filter={currentNetwork.isTestnet ? 'grayscale(1)' : ''}
+              networkId={notConnected ? 8453 : notSupported ? 0 : currentNetwork.id}
             />
             <Text variant="nav" ml={2} display={{ base: 'none', md: 'inline-block' }}>
-              {activeNetwork.label}
+              {currentNetwork.label}
             </Text>
           </MenuButton>
           <MenuList border="1px" borderColor="gray.900">

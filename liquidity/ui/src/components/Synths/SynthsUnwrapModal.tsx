@@ -51,13 +51,15 @@ export function SynthsUnwrapModal({
   }, [txnStatus]);
 
   React.useEffect(() => {
-    if (isOpen && synthBalances) {
+    if (isOpen && synthBalances && network) {
       const filteredSynths = synthBalances
         .map(({ synth, balance }) => ({
           balance,
           symbol: synth.token ? synth.token.symbol : synth.symbol,
           name: synth.token ? synth.token.name : synth.name,
-          ...tokenOverrides[synth.token ? synth.token.address : synth.address],
+          ...tokenOverrides[`${network.id}-${network.preset}`]?.[
+            synth.token ? synth.token.address : synth.address
+          ],
         }))
         .filter(({ balance }) => balance.gt(0))
         .sort((a, b) => a.symbol.localeCompare(b.symbol))
@@ -67,7 +69,7 @@ export function SynthsUnwrapModal({
         setCachedSynths(filteredSynths);
       }
     }
-  }, [cachedSynths, isOpen, synthBalances]);
+  }, [cachedSynths, isOpen, network, synthBalances]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>

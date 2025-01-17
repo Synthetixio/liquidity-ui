@@ -61,11 +61,18 @@ export function Claim() {
       <BorderBox display="flex" p={3} mb="6">
         <Flex alignItems="flex-start" flexDir="column" gap="1">
           <BorderBox display="flex" py={1.5} px={2.5}>
-            <Text display="flex" gap={2} fontSize="16px" alignItems="center" fontWeight="600">
+            <Text
+              display="flex"
+              gap={2}
+              fontSize="16px"
+              alignItems="center"
+              fontWeight="600"
+              whiteSpace="nowrap"
+            >
               <TokenIcon symbol={symbol} width={16} height={16} />
               {network?.preset === 'andromeda'
                 ? collateralType?.displaySymbol
-                : systemToken?.symbol}
+                : systemToken?.displaySymbol}
             </Text>
           </BorderBox>
           <Flex fontSize="12px" gap="1" data-cy="credit amount">

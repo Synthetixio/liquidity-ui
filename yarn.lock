@@ -5536,6 +5536,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useCollateralTypes@workspace:liquidity/lib/useCollateralTypes"
   dependencies:
+    "@snx-v3/constants": "workspace:*"
     "@snx-v3/contracts": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
@@ -6146,6 +6147,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/useSystemToken@workspace:liquidity/lib/contracts/useSystemToken"
   dependencies:
+    "@snx-v3/constants": "workspace:*"
     "@snx-v3/contracts": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"

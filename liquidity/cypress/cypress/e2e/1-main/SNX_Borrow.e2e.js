@@ -66,7 +66,7 @@ describe(__filename, () => {
     cy.get('[data-cy="borrow dialog"]')
       .should('exist')
       .and('include.text', 'Borrowing Debt')
-      .and('include.text', 'Borrowing 10 sUSD');
+      .and('include.text', 'Borrowing 10 V3 sUSD');
 
     cy.contains('[data-status="success"]', 'Your debt has been increased', {
       timeout: 180_000,
@@ -74,7 +74,7 @@ describe(__filename, () => {
 
     cy.get('[data-cy="transaction hash"]').should('exist');
 
-    cy.get('[data-cy="borrow dialog"]').should('exist').and('include.text', 'Borrowed 10 sUSD');
+    cy.get('[data-cy="borrow dialog"]').should('exist').and('include.text', 'Borrowed 10 V3 sUSD');
 
     cy.contains('[data-cy="borrow dialog"] button', 'Done').click();
 

@@ -78,7 +78,7 @@ export function ClaimModal({ onClose }: { onClose: () => void }) {
   }, [execBorrow, setDebtChange, errorParser, toast, isBorrow]);
 
   const symbol =
-    network?.preset === 'andromeda' ? collateralType?.displaySymbol : systemToken?.symbol;
+    network?.preset === 'andromeda' ? collateralType?.displaySymbol : systemToken?.displaySymbol;
 
   if (txnState.txnStatus === 'success') {
     if (showClaimBanner) {

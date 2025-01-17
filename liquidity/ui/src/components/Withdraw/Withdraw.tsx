@@ -36,6 +36,12 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
       : isDebtWithdrawal
         ? systemToken?.symbol
         : collateralType?.symbol;
+  const displaySymbol =
+    network?.preset === 'andromeda'
+      ? 'USDC'
+      : isDebtWithdrawal
+        ? systemToken?.displaySymbol
+        : collateralType?.displaySymbol;
   const { minutes, hours, isRunning } = useWithdrawTimer(params.accountId);
   const unlockDate = !isLoadingDate ? accountCollateralUnlockDate : null;
 
@@ -58,9 +64,16 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
       <BorderBox display="flex" p={3} mb="6">
         <Flex alignItems="flex-start" flexDir="column" gap="1">
           <BorderBox display="flex" py={1.5} px={2.5}>
-            <Text display="flex" gap={2} fontSize="16px" alignItems="center" fontWeight="600">
+            <Text
+              display="flex"
+              gap={2}
+              fontSize="16px"
+              alignItems="center"
+              fontWeight="600"
+              whiteSpace="nowrap"
+            >
               <TokenIcon symbol={symbol} width={16} height={16} />
-              {isDebtWithdrawal ? systemToken?.symbol : collateralType?.displaySymbol}
+              {isDebtWithdrawal ? systemToken?.displaySymbol : collateralType?.displaySymbol}
             </Text>
           </BorderBox>
           <Text fontSize="12px" whiteSpace="nowrap" data-cy="withdraw amount">
@@ -134,7 +147,11 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
       >
         <Alert status="success" mb="6" borderRadius="6px">
           <AlertIcon />
-          <Amount prefix="You can now withdraw " value={maxWithdrawable} suffix={` ${symbol}`} />
+          <Amount
+            prefix="You can now withdraw "
+            value={maxWithdrawable}
+            suffix={` ${displaySymbol}`}
+          />
         </Alert>
       </Collapse>
 

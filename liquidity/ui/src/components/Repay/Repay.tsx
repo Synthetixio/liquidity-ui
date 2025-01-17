@@ -95,9 +95,16 @@ export function Repay() {
       <BorderBox display="flex" p={3} mb="6">
         <Flex alignItems="flex-start" flexDir="column" gap="1">
           <BorderBox display="flex" py={1.5} px={2.5}>
-            <Text display="flex" gap={2} fontSize="16px" alignItems="center" fontWeight="600">
+            <Text
+              display="flex"
+              gap={2}
+              fontSize="16px"
+              alignItems="center"
+              fontWeight="600"
+              whiteSpace="nowrap"
+            >
               <TokenIcon symbol={systemToken?.symbol} width={16} height={16} />
-              {systemToken?.symbol}
+              {systemToken?.displaySymbol}
             </Text>
           </BorderBox>
           <Flex fontSize="12px" gap="1">

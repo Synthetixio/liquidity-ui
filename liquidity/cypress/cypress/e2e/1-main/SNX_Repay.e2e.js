@@ -62,14 +62,14 @@ describe(__filename, () => {
     cy.get('[data-cy="repay dialog"]')
       .should('exist')
       .and('include.text', 'Repaying Debt')
-      .and('include.text', 'Repaying 5 sUSD');
+      .and('include.text', 'Repaying 5 V3 sUSD');
 
     cy.contains('[data-status="success"]', 'Your debt has been repaid', {
       timeout: 180_000,
     }).should('exist');
     cy.get('[data-cy="transaction hash"]').should('exist');
 
-    cy.get('[data-cy="repay dialog"]').should('exist').and('include.text', 'Repaid 5 sUSD');
+    cy.get('[data-cy="repay dialog"]').should('exist').and('include.text', 'Repaid 5 V3 sUSD');
 
     cy.contains('[data-cy="repay dialog"] button', 'Done').click();
 

@@ -56,7 +56,7 @@ describe(__filename, () => {
       .should('exist')
       .and('include.text', 'Manage Debt')
       .and('include.text', 'Withdraw')
-      .and('include.text', '5 sUSD will be withdrawn');
+      .and('include.text', '5 V3 sUSD will be withdrawn');
 
     cy.get('[data-cy="withdraw confirm button"]').should('include.text', 'Execute Transaction');
     cy.get('[data-cy="withdraw confirm button"]').click();
