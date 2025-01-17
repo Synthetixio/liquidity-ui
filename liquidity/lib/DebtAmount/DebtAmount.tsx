@@ -8,7 +8,7 @@ export function getDebtColor(debt?: Wei) {
     return 'gray.50';
   }
   if (debt.gt(0)) {
-    return 'red.500';
+    return 'white.500';
   }
   if (debt.lt(0)) {
     return 'green.500';
