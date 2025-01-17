@@ -16,7 +16,7 @@ import { DebtAmount, PnlAmount } from '@snx-v3/DebtAmount';
 import { TokenIcon } from '@snx-v3/TokenIcon';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import { useNetwork } from '@snx-v3/useBlockchain';
-import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
+import { useIsAndromedaStataUSDC } from '@snx-v3/useIsAndromedaStataUSDC';
 import { type LiquidityPositionType } from '@snx-v3/useLiquidityPosition';
 import { makeSearch, useParams } from '@snx-v3/useParams';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
@@ -34,7 +34,7 @@ export function PositionRow({
   const [params, setParams] = useParams();
   const { network } = useNetwork();
 
-  const isStataUSDC = useIsSynthStataUSDC({
+  const isAndromedaStataUSDC = useIsAndromedaStataUSDC({
     tokenAddress: liquidityPosition.collateralType.tokenAddress,
     customNetwork: network,
   });
@@ -192,7 +192,7 @@ export function PositionRow({
           <Flex flexDirection="column" alignItems="flex-end">
             <Text color="white" lineHeight="1.25rem" fontFamily="heading" fontSize="sm">
               {apr && apr > 0
-                ? (isStataUSDC ? apr + stataUSDCAPRParsed : apr).toFixed(2).concat('%')
+                ? (isAndromedaStataUSDC ? apr + stataUSDCAPRParsed : apr).toFixed(2).concat('%')
                 : '-'}
             </Text>
           </Flex>

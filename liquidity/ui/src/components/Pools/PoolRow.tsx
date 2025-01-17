@@ -7,7 +7,7 @@ import { Tooltip } from '@snx-v3/Tooltip';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import { Network, NetworkIcon, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { CollateralType } from '@snx-v3/useCollateralTypes';
-import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
+import { useIsAndromedaStataUSDC } from '@snx-v3/useIsAndromedaStataUSDC';
 import { makeSearch, useParams } from '@snx-v3/useParams';
 import { useStaticAaveUSDCRate } from '@snx-v3/useStaticAaveUSDCRate';
 import { useSynthTokens } from '@snx-v3/useSynthTokens';
@@ -69,20 +69,20 @@ export function PoolRow({
   const { network: currentNetwork, setNetwork } = useNetwork();
   const { connect } = useWallet();
 
-  const isStataUSDC = useIsSynthStataUSDC({
+  const isAndromedaStataUSDC = useIsAndromedaStataUSDC({
     tokenAddress: collateralType?.tokenAddress,
     customNetwork: network,
   });
 
   const balance = React.useMemo(() => {
-    if (!isStataUSDC || !stataUSDCRate) {
+    if (!isAndromedaStataUSDC || !stataUSDCRate) {
       return tokenBalance || ZEROWEI;
     }
 
     return ((usdcBalance || ZEROWEI).div(wei(stataUSDCRate, 27)) || ZEROWEI).add(
       tokenBalance || ZEROWEI
     );
-  }, [isStataUSDC, stataUSDCRate, tokenBalance, usdcBalance]);
+  }, [isAndromedaStataUSDC, stataUSDCRate, tokenBalance, usdcBalance]);
 
   const price = wei(
     collateralPrices?.find(
@@ -236,7 +236,7 @@ export function PoolRow({
             fontWeight={500}
             color="white"
           >
-            {isStataUSDC && stataUSDCApr
+            {isAndromedaStataUSDC && stataUSDCApr
               ? formatApr(apr7d * 100 + stataUSDCApr)
               : formatApr(apr7d * 100)}
             <Tooltip

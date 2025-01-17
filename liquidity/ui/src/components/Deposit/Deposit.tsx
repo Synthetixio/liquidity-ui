@@ -20,7 +20,7 @@ import { TokenIcon } from '@snx-v3/TokenIcon';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useEthBalance } from '@snx-v3/useEthBalance';
-import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
+import { useIsAndromedaStataUSDC } from '@snx-v3/useIsAndromedaStataUSDC';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useTokenBalance } from '@snx-v3/useTokenBalance';
@@ -47,7 +47,9 @@ export function Deposit() {
   });
   const { data: transferrableSnx } = useTransferableSynthetix();
 
-  const isStataUSDC = useIsSynthStataUSDC({ tokenAddress: collateralType?.tokenAddress });
+  const isAndromedaStataUSDC = useIsAndromedaStataUSDC({
+    tokenAddress: collateralType?.tokenAddress,
+  });
 
   const { data: collateralBalance } = useTokenBalance(collateralType?.tokenAddress);
 
@@ -79,20 +81,11 @@ export function Deposit() {
       );
     }
 
-    if (isStataUSDC) {
+    if (network?.preset === 'andromeda') {
       return (
         ZEROWEI
           //
           .add(usdcBalance ? usdcBalance : ZEROWEI)
-      );
-    }
-
-    if (collateralType?.symbol === 'USDC' && network?.preset === 'andromeda') {
-      return (
-        ZEROWEI
-          //
-          .add(usdcBalance ?? ZEROWEI)
-          .add(liquidityPosition ? liquidityPosition.availableCollateral : ZEROWEI)
       );
     }
 
@@ -108,7 +101,6 @@ export function Deposit() {
     transferrableSnx,
     collateralBalance,
     ethBalance,
-    isStataUSDC,
     usdcBalance,
     network?.preset,
   ]);
@@ -140,7 +132,7 @@ export function Deposit() {
                 fontSize="xs"
                 color="whiteAlpha.700"
               >
-                {isStataUSDC ? (
+                {network?.preset === 'andromeda' ? (
                   <>
                     {isPendingUsdcBalance ? (
                       'Wallet Balance: ~'
@@ -150,7 +142,7 @@ export function Deposit() {
                   </>
                 ) : null}
 
-                {!isStataUSDC ? (
+                {network?.preset !== 'andromeda' ? (
                   <>
                     {isPendingLiquidityPosition ? (
                       'Unlocked Balance: ~'
@@ -166,12 +158,7 @@ export function Deposit() {
                       value={
                         collateralType?.symbol === 'SNX'
                           ? transferrableSnx?.transferable
-                          : collateralType?.symbol === 'USDC' &&
-                              network?.preset === 'andromeda' &&
-                              collateralBalance &&
-                              usdcBalance
-                            ? collateralBalance.add(usdcBalance)
-                            : collateralBalance
+                          : collateralBalance
                       }
                     />
 
@@ -235,7 +222,7 @@ export function Deposit() {
         <DepositsIncreaseTimeout />
       </Collapse>
 
-      <Collapse in={isStataUSDC} animateOpacity unmountOnExit>
+      <Collapse in={isAndromedaStataUSDC} animateOpacity unmountOnExit>
         <Alert mb={6} status="info" borderRadius="6px">
           <AlertIcon />
           <AlertDescription>

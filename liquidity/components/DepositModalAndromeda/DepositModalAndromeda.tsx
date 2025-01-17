@@ -13,7 +13,7 @@ import { useCollateralPriceUpdates } from '@snx-v3/useCollateralPriceUpdates';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
-import { usePositionManagerAndromedaStataUSDC } from '@snx-v3/usePositionManagerAndromedaStataUSDC';
+import { usePositionManagerForCollateral } from '@snx-v3/usePositionManagerForCollateral';
 import { useUSDC } from '@snx-v3/useUSDC';
 import { withERC7412 } from '@snx-v3/withERC7412';
 import { Wei } from '@synthetixio/wei';
@@ -22,9 +22,9 @@ import debug from 'debug';
 import { ethers } from 'ethers';
 import React from 'react';
 
-const log = debug('snx:StataDepositModal');
+const log = debug('snx:DepositModalAndromeda');
 
-export function StataDepositModal({ onClose }: { onClose: () => void }) {
+export function DepositModalAndromeda({ onClose }: { onClose: () => void }) {
   const [params] = useParams<PositionPageSchemaType>();
 
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
@@ -38,7 +38,7 @@ export function StataDepositModal({ onClose }: { onClose: () => void }) {
 
   const { data: USDC } = useUSDC();
   const { data: AccountProxy } = useAccountProxy();
-  const { data: PositionManagerAndromedaStataUSDC } = usePositionManagerAndromedaStataUSDC();
+  const { data: PositionManager } = usePositionManagerForCollateral({ collateralType });
 
   const { data: priceUpdateTx } = useCollateralPriceUpdates();
 
@@ -53,7 +53,7 @@ export function StataDepositModal({ onClose }: { onClose: () => void }) {
   } = useApprove({
     contractAddress: USDC?.address,
     amount: collateralChange.toBN().mul(D6).div(D18),
-    spender: PositionManagerAndromedaStataUSDC?.address,
+    spender: PositionManager?.address,
   });
 
   const isReady =
@@ -61,7 +61,7 @@ export function StataDepositModal({ onClose }: { onClose: () => void }) {
     provider &&
     signer &&
     AccountProxy &&
-    PositionManagerAndromedaStataUSDC &&
+    PositionManager &&
     USDC?.address &&
     collateralType?.tokenAddress &&
     collateralChange.gt(0);
@@ -97,30 +97,28 @@ export function StataDepositModal({ onClose }: { onClose: () => void }) {
           signer
         );
         const approveAccountTx = AccountProxyContract.populateTransaction.approve(
-          PositionManagerAndromedaStataUSDC.address,
+          PositionManager.address,
           params.accountId
         );
         callsPromises.push(approveAccountTx);
       }
 
-      const PositionManagerAndromedaStataUSDCContract = new ethers.Contract(
-        PositionManagerAndromedaStataUSDC.address,
-        PositionManagerAndromedaStataUSDC.abi,
+      const PositionManagerContract = new ethers.Contract(
+        PositionManager.address,
+        PositionManager.abi,
         signer
       );
 
       if (params.accountId) {
-        const increasePositionTx =
-          PositionManagerAndromedaStataUSDCContract.populateTransaction.increasePosition(
-            params.accountId,
-            collateralChange.toBN().mul(D6).div(D18)
-          );
+        const increasePositionTx = PositionManagerContract.populateTransaction.increasePosition(
+          params.accountId,
+          collateralChange.toBN().mul(D6).div(D18)
+        );
         callsPromises.push(increasePositionTx);
       } else {
-        const setupPositionTx =
-          PositionManagerAndromedaStataUSDCContract.populateTransaction.setupPosition(
-            collateralChange.toBN().mul(D6).div(D18)
-          );
+        const setupPositionTx = PositionManagerContract.populateTransaction.setupPosition(
+          collateralChange.toBN().mul(D6).div(D18)
+        );
         callsPromises.push(setupPositionTx);
       }
 
@@ -133,7 +131,7 @@ export function StataDepositModal({ onClose }: { onClose: () => void }) {
         provider,
         network,
         calls,
-        'useDepositAndromedaStataUSDC',
+        'useDepositAndromeda',
         walletAddress
       );
 

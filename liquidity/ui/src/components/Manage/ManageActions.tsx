@@ -1,12 +1,12 @@
 import { Box, Flex, Link, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
 import { ClaimModal } from '@snx-v3/ClaimModal';
-import { DepositModal, StataDepositModal } from '@snx-v3/DepositModal';
+import { DepositModal } from '@snx-v3/DepositModal';
+import { DepositModalAndromeda } from '@snx-v3/DepositModalAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { RepayModal } from '@snx-v3/RepayModal';
 import { UndelegateModal } from '@snx-v3/UndelegateModal';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
-import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import {
   makeSearch,
@@ -46,7 +46,6 @@ export const ManageAction = ({
     accountId: params.accountId,
     collateralType,
   });
-  const isStataUSDC = useIsSynthStataUSDC({ tokenAddress: collateralType?.tokenAddress });
 
   const { isValid } = validatePosition({
     issuanceRatioD18: collateralType?.issuanceRatioD18,
@@ -291,7 +290,7 @@ export const ManageAction = ({
           }}
         />
       ) : null}
-      {txnModalOpen === 'deposit' && !isStataUSDC ? (
+      {txnModalOpen === 'deposit' && network?.preset !== 'andromeda' ? (
         <DepositModal
           onClose={() => {
             setCollateralChange(wei(0));
@@ -300,8 +299,8 @@ export const ManageAction = ({
           }}
         />
       ) : null}
-      {txnModalOpen === 'deposit' && isStataUSDC ? (
-        <StataDepositModal
+      {txnModalOpen === 'deposit' && network?.preset === 'andromeda' ? (
+        <DepositModalAndromeda
           onClose={() => {
             setCollateralChange(wei(0));
             setDebtChange(wei(0));

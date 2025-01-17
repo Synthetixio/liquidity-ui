@@ -1,3 +1,4 @@
+/*
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import {
   Alert,
@@ -64,24 +65,24 @@ export function InitialDeposit({
   const { data: USDCToken } = useUSDC(network);
   const { data: usdcBalance } = useTokenBalance(USDCToken?.address, network);
 
-  const isStataUSDC = useIsSynthStataUSDC({
+  const isAndromedaStataUSDC = useIsSynthStataUSDC({
     tokenAddress: collateralType?.tokenAddress,
     customNetwork: network,
   });
 
   const stataUSDCBalance = React.useMemo(() => {
-    if (!isStataUSDC || !stataUSDCRate) {
+    if (!isAndromedaStataUSDC || !stataUSDCRate) {
       return ZEROWEI;
     }
 
     return usdcBalance?.div(stataUSDCRate) || ZEROWEI;
-  }, [isStataUSDC, stataUSDCRate, usdcBalance]);
+  }, [isAndromedaStataUSDC, stataUSDCRate, usdcBalance]);
 
   const combinedTokenBalance = React.useMemo(() => {
     if (collateralType?.symbol === 'SNX') {
       return transferrableSnx?.transferable || ZEROWEI;
     }
-    if (isStataUSDC) {
+    if (isAndromedaStataUSDC) {
       return (tokenBalance || ZEROWEI).add(stataUSDCBalance);
     }
     if (collateralType?.symbol !== 'WETH') {
@@ -93,7 +94,7 @@ export function InitialDeposit({
     return tokenBalance.add(ethBalance);
   }, [
     collateralType?.symbol,
-    isStataUSDC,
+    isAndromedaStataUSDC,
     tokenBalance,
     ethBalance,
     transferrableSnx?.transferable,
@@ -168,7 +169,7 @@ export function InitialDeposit({
                         />
                       </Flex>
 
-                      {isStataUSDC && (
+                      {isAndromedaStataUSDC && (
                         <Flex gap="1">
                           <Text>USDC Balance:</Text>
                           <Amount value={usdcBalance} />
@@ -242,7 +243,7 @@ export function InitialDeposit({
           >
             <DepositsIncreaseTimeout />
           </Collapse>
-          <Collapse in={isStataUSDC} animateOpacity unmountOnExit>
+          <Collapse in={isAndromedaStataUSDC} animateOpacity unmountOnExit>
             <Alert mb={6} status="info" borderRadius="6px">
               <AlertIcon />
               <AlertDescription>
@@ -330,3 +331,4 @@ export function InitialDeposit({
     </Flex>
   );
 }
+*/

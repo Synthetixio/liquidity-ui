@@ -1,5 +1,5 @@
 {
-  "name": "@snx-v3/useIsSynthStataUSDC",
+  "name": "@snx-v3/useIsAndromedaStataUSDC",
   "private": true,
   "main": "index.ts",
   "version": "0.0.2",

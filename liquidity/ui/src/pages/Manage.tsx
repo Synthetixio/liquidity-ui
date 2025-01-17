@@ -7,7 +7,7 @@ import { Tooltip } from '@snx-v3/Tooltip';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
-import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
+import { useIsAndromedaStataUSDC } from '@snx-v3/useIsAndromedaStataUSDC';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type ManageActionType, type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { usePool } from '@snx-v3/usePoolsList';
@@ -36,7 +36,7 @@ export const Manage = () => {
   const { data: stataUSDCAPR } = useStataUSDCApr(network?.id, network?.preset);
   const stataUSDCAPRParsed = stataUSDCAPR || 0;
 
-  const isStataUSDC = useIsSynthStataUSDC({
+  const isAndromedaStataUSDC = useIsAndromedaStataUSDC({
     tokenAddress: collateralType?.tokenAddress,
     customNetwork: network,
   });
@@ -92,7 +92,7 @@ export const Manage = () => {
                 ? '~'
                 : formatApr(
                     positionApr?.apr7d > 0
-                      ? positionApr.apr7d * 100 + (isStataUSDC ? stataUSDCAPRParsed : 0)
+                      ? positionApr.apr7d * 100 + (isAndromedaStataUSDC ? stataUSDCAPRParsed : 0)
                       : undefined
                   )}
             </Text>
@@ -103,9 +103,9 @@ export const Manage = () => {
             <BorderBox gap={4} p={6} flexDirection="column" bg="navy.700">
               <ManageStats />
             </BorderBox>
-            {isStataUSDC && liquidityPosition && liquidityPosition.collateralAmount.eq(0) && (
-              <StataDepositBanner />
-            )}
+            {isAndromedaStataUSDC &&
+              liquidityPosition &&
+              liquidityPosition.collateralAmount.eq(0) && <StataDepositBanner />}
           </Flex>
           <Flex
             maxWidth={['100%', '100%', '501px']}

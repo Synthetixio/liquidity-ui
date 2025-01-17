@@ -8,7 +8,7 @@ import { Multistep } from '@snx-v3/Multistep';
 import { useNetwork, useProvider, useWallet } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
-import { useIsSynthStataUSDC } from '@snx-v3/useIsSynthStataUSDC';
+import { useIsAndromedaStataUSDC } from '@snx-v3/useIsAndromedaStataUSDC';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useStaticAaveUSDC } from '@snx-v3/useStaticAaveUSDC';
 import { useSystemToken } from '@snx-v3/useSystemToken';
@@ -42,7 +42,9 @@ export function WithdrawModal({
   const { data: collateralType } = useCollateralType(params.collateralSymbol);
   const errorParser = useContractErrorParser();
 
-  const isStataUSDC = useIsSynthStataUSDC({ tokenAddress: collateralType?.tokenAddress });
+  const isAndromedaStataUSDC = useIsAndromedaStataUSDC({
+    tokenAddress: collateralType?.tokenAddress,
+  });
 
   const { data: systemToken } = useSystemToken();
 
@@ -78,7 +80,7 @@ export function WithdrawModal({
           await withdrawMain.mutateAsync();
         }
 
-        if (isStataUSDC) {
+        if (isAndromedaStataUSDC) {
           step = 2;
           setState({
             step: 2,
@@ -189,7 +191,7 @@ export function WithdrawModal({
           loading: state.step === 1 && state.status === 'pending',
         }}
       />
-      {isStataUSDC && (
+      {isAndromedaStataUSDC && (
         <Multistep
           step={2}
           title="Unwrap"
