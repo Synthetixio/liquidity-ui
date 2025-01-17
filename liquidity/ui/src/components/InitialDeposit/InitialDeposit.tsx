@@ -32,7 +32,7 @@ import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { useTransferableSynthetix } from '@snx-v3/useTransferableSynthetix';
 import { useUSDC } from '@snx-v3/useUSDC';
-import { WithdrawIncrease } from '@snx-v3/WithdrawIncrease';
+import { DepositsIncreaseTimeout } from '@snx-v3/WithdrawIncrease';
 import React from 'react';
 import { MigrationBanner } from '../Migration/MigrationBanner';
 
@@ -240,7 +240,7 @@ export function InitialDeposit({
             animateOpacity
             unmountOnExit
           >
-            <WithdrawIncrease />
+            <DepositsIncreaseTimeout />
           </Collapse>
           <Collapse in={isStataUSDC} animateOpacity unmountOnExit>
             <Alert mb={6} status="info" borderRadius="6px">

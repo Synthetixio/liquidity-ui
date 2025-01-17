@@ -29,7 +29,7 @@ import { useTokenBalance } from '@snx-v3/useTokenBalance';
 import { useTokenPrice } from '@snx-v3/useTokenPrice';
 import { useTransferableSynthetix } from '@snx-v3/useTransferableSynthetix';
 import { useUSDC } from '@snx-v3/useUSDC';
-import { WithdrawIncrease } from '@snx-v3/WithdrawIncrease';
+import { DepositsIncreaseTimeout } from '@snx-v3/WithdrawIncrease';
 import { Wei, wei } from '@synthetixio/wei';
 import React from 'react';
 import { CollateralAlert } from '../CollateralAlert/CollateralAlert';
@@ -256,7 +256,7 @@ export function Deposit() {
       ) : null}
 
       <Collapse in={collateralChange.gt(0) && !overAvailableBalance} animateOpacity unmountOnExit>
-        <WithdrawIncrease />
+        <DepositsIncreaseTimeout />
       </Collapse>
 
       <Collapse in={isStataUSDC} animateOpacity unmountOnExit>
