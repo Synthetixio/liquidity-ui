@@ -334,11 +334,15 @@ workflows:
       - tests
 
       - contract-test:
-          name: contract-position-manager
+          name: pm-universal
           working_directory: 'contracts/position-manager'
 
       - contract-test:
-          name: contract-position-manager-andromeda-statausdc
+          name: pm-usdc-andromeda
+          working_directory: 'contracts/position-manager-andromeda-usdc'
+
+      - contract-test:
+          name: pm-statausdc-andromeda
           working_directory: 'contracts/position-manager-andromeda-statausdc'
 
       #- cy

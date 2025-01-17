@@ -1,0 +1,40 @@
+{
+  "name": "@snx-v3/position-manager-andromeda-usdc",
+  "version": "0.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "index.js",
+  "files": [
+    "src",
+    "*.toml"
+  ],
+  "repository": "Synthetixio/liquidity-ui",
+  "author": "Synthetix",
+  "license": "MIT",
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test -vvvvv",
+    "cov": "./cov.sh"
+  },
+  "devDependencies": {
+    "@synthetixio/core-contracts": "^3.10.1",
+    "@synthetixio/core-modules": "^3.10.1",
+    "@synthetixio/main": "^3.10.1",
+    "@synthetixio/oracle-manager": "^3.10.1",
+    "@synthetixio/pyth-erc7412-wrapper": "^3.10.1",
+    "@synthetixio/spot-market": "^3.10.1",
+    "forge-std": "github:foundry-rs/forge-std"
+  },
+  "depcheck": {
+    "ignoreMatches": [
+      "@synthetixio/core-contracts",
+      "@synthetixio/core-modules",
+      "@synthetixio/spot-market",
+      "@synthetixio/main",
+      "@synthetixio/oracle-manager",
+      "@synthetixio/pyth-erc7412-wrapper",
+      "forge-std"
+    ]
+  }
+}
