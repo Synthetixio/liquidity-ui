@@ -25,6 +25,7 @@
     "@snx-v3/useUndelegateBaseAndromeda": "workspace:*",
     "@synthetixio/wei": "^2.74.4",
     "@xstate/react": "^3.2.2",
+    "ethers": "^5.7.2",
     "react": "^18.2.0",
     "xstate": "^4.38.3"
   }

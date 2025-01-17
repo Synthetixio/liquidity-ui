@@ -2,9 +2,9 @@ import { ArrowBackIcon } from '@chakra-ui/icons';
 import { Button, Divider, Link, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { ChangeStat } from '@snx-v3/ChangeStat';
-import { ZEROWEI } from '@snx-v3/constants';
+import { D18, D6, ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
-import { currency, parseUnits } from '@snx-v3/format';
+import { currency } from '@snx-v3/format';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
 import { useApprove } from '@snx-v3/useApprove';
@@ -19,6 +19,7 @@ import { useUndelegateBaseAndromeda } from '@snx-v3/useUndelegateBaseAndromeda';
 import { useUSDC } from '@snx-v3/useUSDC';
 import { Wei, wei } from '@synthetixio/wei';
 import { useMachine } from '@xstate/react';
+import { ethers } from 'ethers';
 import React from 'react';
 import { CRatioChangeStat } from '../../ui/src/components/CRatioBar/CRatioChangeStat';
 import { LiquidityPositionUpdated } from '../../ui/src/components/Manage/LiquidityPositionUpdated';
@@ -45,34 +46,41 @@ export function UndelegateModal({ onClose }: { onClose: () => void }) {
 
   const currentCollateral = liquidityPosition?.collateralAmount || wei(0);
 
-  const { exec: execUndelegate } = useUndelegate({
+  const { exec: execUndelegate, isReady: isReadyUndelegate } = useUndelegate({
     undelegateAmount:
       collateralChange && collateralChange.lt(0) ? collateralChange.abs() : undefined,
   });
 
-  const currentDebt =
-    liquidityPosition && liquidityPosition.debt.gt(0) ? liquidityPosition.debt : wei(0);
+  // Andromeda debt repayment
   const { data: USDC } = useUSDC();
   const { data: DebtRepayer } = useDebtRepayer();
-
+  const approveAndromedaUSDCAmount = React.useMemo(() => {
+    if (network?.preset !== 'andromeda') {
+      return ethers.BigNumber.from(0);
+    }
+    if (!liquidityPosition) {
+      return undefined;
+    }
+    if (liquidityPosition.debt.lte(0)) {
+      return ethers.BigNumber.from(0);
+    }
+    return liquidityPosition.debt.toBN().mul(D6).div(D18).mul(110).div(100);
+  }, [liquidityPosition, network?.preset]);
   const {
     approve,
     requireApproval,
-    isReady: isReadyApprove,
+    isReady: isReadyApproveAndromedaUSDC,
   } = useApprove({
     contractAddress: USDC?.address,
-    //slippage for approval
-    amount:
-      liquidityPosition && liquidityPosition.debt.gt(0)
-        ? parseUnits(currentDebt.toString(), 6).mul(120).div(100)
-        : undefined,
+    amount: approveAndromedaUSDCAmount,
     spender: DebtRepayer?.address,
   });
-
-  const { exec: undelegateBaseAndromeda } = useUndelegateBaseAndromeda({
-    undelegateAmount:
-      collateralChange && collateralChange.lt(0) ? collateralChange.abs() : undefined,
-  });
+  const { exec: undelegateBaseAndromeda, isReady: isReadyUndelegateAndromeda } =
+    useUndelegateBaseAndromeda({
+      undelegateAmount:
+        collateralChange && collateralChange.lt(0) ? collateralChange.abs() : undefined,
+    });
+  // End of Andromeda debt repayment
 
   const errorParser = useContractErrorParser();
 
@@ -216,6 +224,13 @@ export function UndelegateModal({ onClose }: { onClose: () => void }) {
     );
   }
 
+  const isReady =
+    !isProcessing &&
+    ((network?.preset === 'andromeda' &&
+      isReadyApproveAndromedaUSDC &&
+      isReadyUndelegateAndromeda) ||
+      (network?.preset !== 'andromeda' && isReadyUndelegate));
+
   return (
     <div data-cy="undelegate multistep">
       <Text color="gray.50" fontSize="20px" fontWeight={700}>
@@ -241,7 +256,7 @@ export function UndelegateModal({ onClose }: { onClose: () => void }) {
       />
 
       <Button
-        isDisabled={isProcessing || !isReadyApprove}
+        isDisabled={!isReady}
         onClick={onSubmit}
         width="100%"
         mt="6"

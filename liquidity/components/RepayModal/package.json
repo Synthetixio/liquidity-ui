@@ -11,7 +11,6 @@
     "@snx-v3/ManagePositionContext": "workspace:*",
     "@snx-v3/Multistep": "workspace:*",
     "@snx-v3/constants": "workspace:*",
-    "@snx-v3/format": "workspace:*",
     "@snx-v3/useApprove": "workspace:*",
     "@snx-v3/useBlockchain": "workspace:*",
     "@snx-v3/useCollateralTypes": "workspace:*",

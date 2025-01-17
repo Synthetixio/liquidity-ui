@@ -1,9 +1,8 @@
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import { Button, Divider, Link, Text, useToast } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
-import { ZEROWEI } from '@snx-v3/constants';
+import { D18, D6, ZEROWEI } from '@snx-v3/constants';
 import { ContractError } from '@snx-v3/ContractError';
-import { parseUnits } from '@snx-v3/format';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Multistep } from '@snx-v3/Multistep';
 import { useApprove } from '@snx-v3/useApprove';
@@ -77,7 +76,7 @@ export function RepayModal({ onClose }: { onClose: () => void }) {
     contractAddress: collateralAddress,
     amount:
       network?.preset === 'andromeda'
-        ? parseUnits(amountToDeposit.toString(), 6) // On Base we use USDC and it has 6 decimals
+        ? amountToDeposit.toBN().mul(D6).div(D18) // On Base we use USDC and it has 6 decimals
         : amountToDeposit.toBN(),
     spender: network?.preset === 'andromeda' ? SpotMarketProxy?.address : CoreProxy?.address,
   });

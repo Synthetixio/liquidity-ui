@@ -13,30 +13,31 @@ import {
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { ChangeStat } from '@snx-v3/ChangeStat';
-import { ZEROWEI } from '@snx-v3/constants';
-import { currency, parseUnits } from '@snx-v3/format';
+import { D18, D6, ZEROWEI } from '@snx-v3/constants';
+import { ContractError } from '@snx-v3/ContractError';
+import { currency } from '@snx-v3/format';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { NumberInput } from '@snx-v3/NumberInput';
 import { TokenIcon } from '@snx-v3/TokenIcon';
+import { useApprove } from '@snx-v3/useApprove';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
+import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { makeSearch, type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { usePoolConfiguration } from '@snx-v3/usePoolConfiguration';
+import { useUndelegate } from '@snx-v3/useUndelegate';
+import { useUndelegateBaseAndromeda } from '@snx-v3/useUndelegateBaseAndromeda';
+import { useUSDC } from '@snx-v3/useUSDC';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
 import { validatePosition } from '@snx-v3/validatePosition';
 import Wei, { wei } from '@synthetixio/wei';
+import { ethers } from 'ethers';
 import React from 'react';
 import { CRatioChangeStat } from '../CRatioBar/CRatioChangeStat';
 import { TransactionSummary } from '../TransactionSummary/TransactionSummary';
-import { useUndelegate } from '@snx-v3/useUndelegate';
-import { useContractErrorParser } from '@snx-v3/useContractErrorParser';
-import { ContractError } from '@snx-v3/ContractError';
 import { UndelegateModal } from './UndelegateModal';
-import { useUndelegateBaseAndromeda } from '@snx-v3/useUndelegateBaseAndromeda';
-import { useUSDC } from '@snx-v3/useUSDC';
-import { useDebtRepayer } from '@snx-v3/useDebtRepayer';
-import { useApprove } from '@snx-v3/useApprove';
 
 export function Undelegate() {
   const [params, setParams] = useParams<PositionPageSchemaType>();
@@ -65,18 +66,26 @@ export function Undelegate() {
     debtChange: debtChange,
   });
 
+  const approveAndromedaUSDCAmount = React.useMemo(() => {
+    if (network?.preset !== 'andromeda') {
+      return ethers.BigNumber.from(0);
+    }
+    if (!liquidityPosition) {
+      return undefined;
+    }
+    if (liquidityPosition.debt.lte(0)) {
+      return ethers.BigNumber.from(0);
+    }
+    return liquidityPosition.debt.toBN().mul(D6).div(D18).mul(110).div(100);
+  }, [liquidityPosition, network?.preset]);
   const {
     approve,
     requireApproval,
     txnState: approvalTxnState,
-    isReady: isReadyApprove,
+    isReady: isReadyApproveAndromedaUSDC,
   } = useApprove({
     contractAddress: USDC?.address,
-    //slippage for approval
-    amount:
-      liquidityPosition && liquidityPosition.debt.gt(0)
-        ? parseUnits(liquidityPosition.debt.toString(), 6).mul(120).div(100)
-        : undefined,
+    amount: approveAndromedaUSDCAmount,
     spender: DebtRepayer?.address,
   });
 
@@ -99,8 +108,11 @@ export function Undelegate() {
   });
 
   const isReady =
-    (network?.preset === 'andromeda' ? isReadyUndelegateAndromeda : isReadyUndelegate) &&
-    isReadyApprove;
+    (network?.preset === 'andromeda' &&
+      isReadyApproveAndromedaUSDC &&
+      isReadyUndelegateAndromeda) ||
+    (network?.preset !== 'andromeda' && isReadyUndelegate);
+
   const txnState =
     network?.preset === 'andromeda' ? undelegateAndromedaTxnState : undelegateTxnState;
 
