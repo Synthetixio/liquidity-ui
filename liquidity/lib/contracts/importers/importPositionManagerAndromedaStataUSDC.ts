@@ -34,6 +34,10 @@ export async function importPositionManagerAndromedaStataUSDC(
       // https://basescan.org/address/0xb37ab3b7a0d1aec9f1232db3deae3b5a35ef933e#code
       return { address: '0xb37ab3b7a0d1aec9f1232db3deae3b5a35ef933e', abi };
     }
+    case '84532-andromeda': {
+      // https://sepolia.basescan.org/address/0xb1df92eeb77e2ee1487323bebf44469005cdf4d5#code
+      return { address: '0xb1df92eeb77e2ee1487323bebf44469005cdf4d5', abi };
+    }
     default: {
       throw new Error(`Unsupported deployment ${deployment} for PositionManagerAndromedaStataUSDC`);
     }
