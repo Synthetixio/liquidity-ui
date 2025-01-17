@@ -62,7 +62,10 @@ describe(__filename, () => {
     }).should('exist');
     cy.get('[data-cy="transaction hash"]').should('exist');
 
-    cy.get('[data-cy="withdraw dialog"]').should('exist').and('include.text', 'Withdrew 5 sUSD');
+    cy.get('[data-cy="withdraw dialog"]')
+      .should('exist')
+      .and('include.text', 'Withdrawing')
+      .and('include.text', 'Withdrew 1 WETH');
 
     cy.contains('[data-cy="withdraw dialog"] button', 'Done').click();
   });

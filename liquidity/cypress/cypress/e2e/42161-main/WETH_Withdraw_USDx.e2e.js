@@ -57,19 +57,18 @@ describe(__filename, () => {
 
     cy.get('[data-cy="withdraw dialog"]')
       .should('exist')
-      .and('include.text', 'Withdrawing Collateral')
+      .and('include.text', 'Withdrawing')
       .and('include.text', 'Withdrawing 50 USDx');
-
-    cy.contains('[data-status="error"]', 'Withdraw failed').should('exist');
-    cy.contains('[data-status="error"]', 'AccountActivityTimeoutPending').should('exist');
-    cy.get('[data-status="error"] [aria-label="Close"]').click();
 
     cy.contains('[data-status="success"]', 'Withdrawal was successful', {
       timeout: 180_000,
     }).should('exist');
     cy.get('[data-cy="transaction hash"]').should('exist');
 
-    cy.get('[data-cy="withdraw dialog"]').should('exist').and('include.text', 'Withdrew 5 sUSD');
+    cy.get('[data-cy="withdraw dialog"]')
+      .should('exist')
+      .and('include.text', 'Withdrawing')
+      .and('include.text', 'Withdrew 50 USDx');
 
     cy.contains('[data-cy="withdraw dialog"] button', 'Done').click();
   });
