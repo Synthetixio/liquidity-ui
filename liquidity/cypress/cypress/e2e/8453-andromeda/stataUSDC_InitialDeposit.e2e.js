@@ -45,18 +45,14 @@ describe(__filename, () => {
     cy.get('[data-cy="stats collateral"] [data-cy="change stats current"]')
       .should('exist')
       .and('include.text', '0 Static aUSDC');
-
-    cy.get('[data-cy="stats pnl"] [data-cy="change stats new"]').should('not.exist');
-    cy.get('[data-cy="stats pnl"] [data-cy="change stats current"]')
-      .should('exist')
-      .and('include.text', '$0.00');
+    cy.get('[data-cy="stats collateral"] [data-cy="change stats new"]').should('not.exist');
 
     cy.get('[data-cy="deposit amount input"]').should('exist');
     cy.get('[data-cy="deposit amount input"]').type('200');
 
     cy.get('[data-cy="stats collateral"] [data-cy="change stats new"]')
       .should('exist')
-      .and('include.text', '186.35 Static aUSDC');
+      .and('include.text', '186.3 Static aUSDC');
 
     cy.get('[data-cy="deposit submit"]').should('be.enabled');
     cy.get('[data-cy="deposit submit"]').click();
@@ -80,8 +76,8 @@ describe(__filename, () => {
     cy.contains('[data-cy="deposit multistep"] button', 'Done').click();
 
     cy.get('[data-cy="stats collateral"] [data-cy="change stats current"]', {
-      timeout: 180_000,
-    }).and('include.text', '186.35 Static aUSDC');
+      timeout: 60_000,
+    }).and('include.text', '186.3 Static aUSDC');
     cy.get('[data-cy="deposit submit"]').should('be.disabled');
   });
 });

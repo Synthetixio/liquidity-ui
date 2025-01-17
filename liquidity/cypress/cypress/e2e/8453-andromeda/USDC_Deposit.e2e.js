@@ -28,7 +28,7 @@ describe(__filename, () => {
 
   it(__filename, () => {
     cy.setEthBalance({ balance: 100 });
-    cy.getUSDC({ amount: 500 });
+    cy.getUSDC({ amount: 1000 });
 
     cy.visit(
       `?${makeSearch({
@@ -44,16 +44,30 @@ describe(__filename, () => {
       .should('exist')
       .and('include.text', 'Max');
 
+    cy.get('[data-cy="stats collateral"] [data-cy="change stats current"]')
+      .should('exist')
+      .and('include.text', '120 USDC');
+
+    cy.get('[data-cy="stats collateral"] [data-cy="change stats new"]').should('not.exist');
+
     cy.get('[data-cy="deposit amount input"]').should('exist');
-    cy.get('[data-cy="deposit amount input"]').type('101');
+    cy.get('[data-cy="deposit amount input"]').type('5');
+
+    cy.get('[data-cy="stats collateral"] [data-cy="change stats new"]')
+      .should('exist')
+      .and('include.text', '125 USDC');
+
     cy.get('[data-cy="deposit submit"]').should('be.enabled');
     cy.get('[data-cy="deposit submit"]').click();
 
     cy.get('[data-cy="deposit multistep"]')
       .should('exist')
-      .and('include.text', 'Approve USDC transfer')
+      .and('include.text', 'Manage Collateral')
+      .and('include.text', 'Approve USDC')
+      .and('include.text', 'Approve spending of 5 USDC.')
       .and('include.text', 'Deposit and Lock USDC')
-      .and('include.text', 'This will deposit and lock 101 USDC.');
+      .and('include.text', 'Approve update position on behalf')
+      .and('include.text', 'Deposit and lock 5 USDC.');
 
     cy.get('[data-cy="deposit confirm button"]').should('include.text', 'Execute Transaction');
     cy.get('[data-cy="deposit confirm button"]').click();
@@ -61,5 +75,12 @@ describe(__filename, () => {
     cy.contains('[data-status="success"]', 'Your locked collateral amount has been updated.', {
       timeout: 180_000,
     }).should('exist');
+
+    cy.contains('[data-cy="deposit multistep"] button', 'Done').click();
+
+    cy.get('[data-cy="stats collateral"] [data-cy="change stats current"]', {
+      timeout: 60_000,
+    }).and('include.text', '125 USDC');
+    cy.get('[data-cy="deposit submit"]').should('be.disabled');
   });
 });

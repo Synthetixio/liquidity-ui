@@ -125,7 +125,25 @@ beforeEach(() => {
   cy.intercept(`http://127.0.0.1:8545`, { log: false });
   //  cy.intercept(`https://api.synthetix.io/**`, { statusCode: 400 }).as('api');
   cy.intercept(`https://api.synthetix.io/**`, { log: false });
-
+  cy.intercept(
+    'https://gateway.thegraph.com/api/f55095f3203bcba72cbee045322be46c/subgraphs/id/GQFbb95cE6d8mV989mL5figjaGaKCQB3xqYrr1bRyXqF',
+    (req) => {
+      return req.reply({
+        data: {
+          reserves: [
+            {
+              liquidityRate: '64596984541073909523456726',
+              underlyingAsset: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
+            },
+          ],
+        },
+      });
+    }
+  ).as('stata-apy');
+  cy.intercept(
+    'https://gateway.thegraph.com/api/f55095f3203bcba72cbee045322be46c/subgraphs/id/GQFbb95cE6d8mV989mL5figjaGaKCQB3xqYrr1bRyXqF',
+    { log: false }
+  );
   cy.on('window:before:load', (win) => {
     //    win.console.log = () => {};
     //    win.console.error = () => {};
