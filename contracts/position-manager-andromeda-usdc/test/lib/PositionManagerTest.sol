@@ -7,9 +7,10 @@ import {IVaultModule} from "@synthetixio/main/contracts/interfaces/IVaultModule.
 import {IAccountModule} from "@synthetixio/main/contracts/interfaces/IAccountModule.sol";
 import {IAccountTokenModule} from "@synthetixio/main/contracts/interfaces/IAccountTokenModule.sol";
 import {ICollateralConfigurationModule} from "@synthetixio/main/contracts/interfaces/ICollateralConfigurationModule.sol";
+import {IMarketManagerModule} from "@synthetixio/main/contracts/interfaces/IMarketManagerModule.sol";
 import {AccessError} from "@synthetixio/core-contracts/contracts/errors/AccessError.sol";
 import {IERC20} from "@synthetixio/core-contracts/contracts/interfaces/IERC20.sol";
-import {PositionManager} from "src/PositionManager.sol";
+import {PositionManagerAndromedaUSDC} from "src/PositionManager.sol";
 import {Test} from "forge-std/src/Test.sol";
 import {Vm} from "forge-std/src/Vm.sol";
 import {console} from "forge-std/src/console.sol";
@@ -21,8 +22,10 @@ contract PositionManagerTest is Test {
 
     address internal $USDC;
     address internal $synthUSDC;
+    address internal $snxUSD;
 
     uint128 internal synthIdUSDC = 1;
+    uint128 internal synthIdSnxUSD = 0;
 
     uint128 internal poolId = 1;
 
@@ -30,11 +33,12 @@ contract PositionManagerTest is Test {
 
     uint256 internal $USDCPrecision;
     uint256 internal $synthUSDCPrecision;
+    uint256 internal $snxUSDPrecision;
 
     uint256 internal fork;
     uint256 internal forkBlockNumber;
 
-    PositionManager internal positionManager;
+    PositionManagerAndromedaUSDC internal positionManager;
 
     constructor() {
         string memory root = vm.projectRoot();
@@ -75,8 +79,14 @@ contract PositionManagerTest is Test {
         $USDCPrecision = 10 ** IERC20($USDC).decimals();
         $synthUSDCPrecision = 10 ** IERC20($synthUSDC).decimals();
 
-        positionManager =
-            new PositionManager(CoreProxy, AccountProxy, SpotMarketProxy, $USDC, $synthUSDC, synthIdUSDC, poolId);
+        positionManager = new PositionManagerAndromedaUSDC(
+            CoreProxy, AccountProxy, SpotMarketProxy, $USDC, $synthUSDC, synthIdUSDC, poolId
+        );
         vm.label(address(positionManager), "PositionManager");
+
+        IERC20 usdToken = IMarketManagerModule(CoreProxy).getUsdToken();
+        $snxUSD = address(usdToken);
+        vm.label($snxUSD, "$snxUSD");
+        $snxUSDPrecision = 10 ** usdToken.decimals();
     }
 }

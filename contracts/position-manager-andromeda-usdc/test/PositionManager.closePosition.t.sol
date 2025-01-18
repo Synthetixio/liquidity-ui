@@ -21,8 +21,6 @@ contract PositionManager_closePosition_Test is PositionManagerTest {
         vm.prank(AAVE_USDC_POOL);
         IERC20($USDC).transfer(ALICE, 100_000 * $USDCPrecision);
 
-        IERC20 usdToken = IMarketManagerModule(CoreProxy).getUsdToken();
-
         int256 currentDebt = IVaultModule(CoreProxy).getPositionDebt(ACCOUNT_ID, poolId, $synthUSDC);
         uint256 current$synthUSDCPosition =
             IVaultModule(CoreProxy).getPositionCollateral(ACCOUNT_ID, poolId, $synthUSDC);
@@ -32,7 +30,7 @@ contract PositionManager_closePosition_Test is PositionManagerTest {
         uint256 currentAvailableSnxUSD = ICollateralModule(CoreProxy).getAccountAvailableCollateral(
             //
             ACCOUNT_ID,
-            address(usdToken)
+            $snxUSD
         );
 
         assertTrue(currentDebt < 0);
@@ -56,7 +54,7 @@ contract PositionManager_closePosition_Test is PositionManagerTest {
         uint256 new$snxUSDAvailable = ICollateralModule(CoreProxy).getAccountAvailableCollateral(
             //
             ACCOUNT_ID,
-            address(usdToken)
+            $snxUSD
         );
 
         assertEq(0, newDebt);

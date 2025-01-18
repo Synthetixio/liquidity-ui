@@ -17,6 +17,18 @@ contract PositionManager_withdraw_Test is PositionManagerTest {
         vm.label(ALICE, "0xA11CE");
         vm.deal(ALICE, 1 ether);
 
+        // ALICE deposits some snxUSD to test they are withdrawn too
+        assertTrue(IERC20($snxUSD).balanceOf(CoreProxy) > 1000 ether);
+        vm.prank(CoreProxy);
+        IERC20($snxUSD).transfer(ALICE, 1000 ether);
+        assertEq(1000 ether, IERC20($snxUSD).balanceOf(ALICE));
+        vm.prank(ALICE);
+        IERC20($snxUSD).approve(CoreProxy, 1000 ether);
+        vm.prank(ALICE);
+        ICollateralModule(CoreProxy).deposit(ACCOUNT_ID, $snxUSD, 1000 ether);
+        assertEq(1000 ether, ICollateralModule(CoreProxy).getAccountAvailableCollateral(ACCOUNT_ID, $snxUSD));
+        // ALICE account now should have 1000 snxUSD
+
         uint256 current$USDCBalance = IERC20($USDC).balanceOf(ALICE);
         assertEq(479546, current$USDCBalance); // 0.479546 USDC
 
@@ -36,7 +48,8 @@ contract PositionManager_withdraw_Test is PositionManagerTest {
             ICollateralModule(CoreProxy).getAccountAvailableCollateral(ACCOUNT_ID, $synthUSDC);
         assertEq(0, new$synthUSDCAvailable);
 
-        uint256 expected$USDCWithdrawn = current$synthUSDCAvailable * $USDCPrecision / $synthUSDCPrecision;
+        uint256 expected$USDCWithdrawn = current$synthUSDCAvailable * $USDCPrecision / $synthUSDCPrecision
+            + 1000 ether * $USDCPrecision / $snxUSDPrecision;
 
         uint256 new$USDCBalance = IERC20($USDC).balanceOf(ALICE);
         assertEq(current$USDCBalance + expected$USDCWithdrawn, new$USDCBalance);

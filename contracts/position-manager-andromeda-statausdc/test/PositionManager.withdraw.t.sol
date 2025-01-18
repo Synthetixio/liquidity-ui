@@ -18,6 +18,18 @@ contract PositionManager_withdraw_Test is PositionManagerTest {
         vm.label(ALICE, "0xA11CE");
         vm.deal(ALICE, 1 ether);
 
+        // ALICE deposits some snxUSD to test they are withdrawn too
+        assertTrue(IERC20($snxUSD).balanceOf(CoreProxy) > 1000 ether);
+        vm.prank(CoreProxy);
+        IERC20($snxUSD).transfer(ALICE, 1000 ether);
+        assertEq(1000 ether, IERC20($snxUSD).balanceOf(ALICE));
+        vm.prank(ALICE);
+        IERC20($snxUSD).approve(CoreProxy, 1000 ether);
+        vm.prank(ALICE);
+        ICollateralModule(CoreProxy).deposit(ACCOUNT_ID, $snxUSD, 1000 ether);
+        assertEq(1000 ether, ICollateralModule(CoreProxy).getAccountAvailableCollateral(ACCOUNT_ID, $snxUSD));
+        // ALICE account now should have 1000 snxUSD
+
         uint256 currentBalance = IERC20($USDC).balanceOf(ALICE);
         assertEq(479546, currentBalance); // 0.479546 USDC
 

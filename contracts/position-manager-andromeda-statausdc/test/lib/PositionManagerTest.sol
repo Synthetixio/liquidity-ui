@@ -7,9 +7,10 @@ import {IVaultModule} from "@synthetixio/main/contracts/interfaces/IVaultModule.
 import {IAccountModule} from "@synthetixio/main/contracts/interfaces/IAccountModule.sol";
 import {IAccountTokenModule} from "@synthetixio/main/contracts/interfaces/IAccountTokenModule.sol";
 import {ICollateralConfigurationModule} from "@synthetixio/main/contracts/interfaces/ICollateralConfigurationModule.sol";
+import {IMarketManagerModule} from "@synthetixio/main/contracts/interfaces/IMarketManagerModule.sol";
 import {AccessError} from "@synthetixio/core-contracts/contracts/errors/AccessError.sol";
 import {IERC20} from "@synthetixio/core-contracts/contracts/interfaces/IERC20.sol";
-import {PositionManager, IStaticAaveToken} from "src/PositionManager.sol";
+import {PositionManagerAndromedaStataUSDC, IStaticAaveToken} from "src/PositionManager.sol";
 import {Test} from "forge-std/src/Test.sol";
 import {Vm} from "forge-std/src/Vm.sol";
 import {console} from "forge-std/src/console.sol";
@@ -21,12 +22,14 @@ contract PositionManagerTest is Test {
 
     address internal $USDC;
     address internal $stataUSDC;
+    address internal $snxUSD;
 
     address internal $synthUSDC;
     address internal $synthStataUSDC;
 
     uint128 internal synthIdUSDC = 1;
     uint128 internal synthIdStataUSDC = 3;
+    uint128 internal synthIdSnxUSD = 0;
 
     uint128 internal poolId = 1;
 
@@ -36,11 +39,12 @@ contract PositionManagerTest is Test {
     uint256 internal $stataUSDCPrecision;
     uint256 internal $synthUSDCPrecision;
     uint256 internal $synthStataUSDCPrecision;
+    uint256 internal $snxUSDPrecision;
 
     uint256 internal fork;
     uint256 internal forkBlockNumber;
 
-    PositionManager internal positionManager;
+    PositionManagerAndromedaStataUSDC internal positionManager;
 
     constructor() {
         string memory root = vm.projectRoot();
@@ -89,7 +93,7 @@ contract PositionManagerTest is Test {
         $synthUSDCPrecision = 10 ** IERC20($synthUSDC).decimals();
         $synthStataUSDCPrecision = 10 ** IERC20($synthStataUSDC).decimals();
 
-        positionManager = new PositionManager(
+        positionManager = new PositionManagerAndromedaStataUSDC(
             CoreProxy,
             AccountProxy,
             SpotMarketProxy,
@@ -102,5 +106,10 @@ contract PositionManagerTest is Test {
             poolId
         );
         vm.label(address(positionManager), "PositionManager");
+
+        IERC20 usdToken = IMarketManagerModule(CoreProxy).getUsdToken();
+        $snxUSD = address(usdToken);
+        vm.label($snxUSD, "$snxUSD");
+        $snxUSDPrecision = 10 ** usdToken.decimals();
     }
 }

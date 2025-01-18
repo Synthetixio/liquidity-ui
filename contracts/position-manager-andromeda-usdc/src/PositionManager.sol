@@ -15,7 +15,7 @@ import {IAtomicOrderModule} from "@synthetixio/spot-market/contracts/interfaces/
 import {Price} from "@synthetixio/spot-market/contracts/storage/Price.sol";
 import {IMarketManagerModule} from "@synthetixio/main/contracts/interfaces/IMarketManagerModule.sol";
 
-contract PositionManager {
+contract PositionManagerAndromedaUSDC {
     error NotEnoughAllowance(
         address walletAddress, address tokenAddress, uint256 requiredAllowance, uint256 availableAllowance
     );
@@ -145,7 +145,7 @@ contract PositionManager {
         );
         uint256 newDelegatedAmount = currentDelegatedAmount > synthAmount ? currentDelegatedAmount - synthAmount : 0;
 
-        // 4. Reduce delegated amount of synth USDC
+        // 4. Reduce delegated amount of synthUSDC
         IVaultModule(CoreProxy).delegateCollateral(
             //
             accountId,
@@ -179,14 +179,44 @@ contract PositionManager {
             uint256(accountId)
         );
 
-        // 2. Get amount of available synth USDC
+        // 2. Get amount of available snxUSD
+        IERC20 usdToken = IMarketManagerModule(CoreProxy).getUsdToken();
+        uint256 usdTokenAvailable = ICollateralModule(CoreProxy).getAccountAvailableCollateral(
+            //
+            accountId,
+            address(usdToken)
+        );
+
+        uint256 usdcSynthBought = 0;
+        if (usdTokenAvailable > 0) {
+            // 3. Withdraw all the available snxUSD
+            ICollateralModule(CoreProxy).withdraw(
+                //
+                accountId,
+                address(usdToken),
+                usdTokenAvailable
+            );
+
+            // 4. Calculate how much synthUSDC we will get (technically should be 1:1)
+            (uint256 usdSynthQuoted,) = IAtomicOrderModule(SpotMarketProxy).quoteBuyExactIn(
+                synthIdUSDC, usdTokenAvailable, Price.Tolerance.STRICT
+            );
+
+            // 5. Sell all the snxUSD for synthUSDC
+            usdToken.approve(SpotMarketProxy, usdTokenAvailable);
+            (usdcSynthBought,) = IAtomicOrderModule(SpotMarketProxy).buyExactIn(
+                synthIdUSDC, usdTokenAvailable, usdSynthQuoted, address(0)
+            );
+        }
+
+        // 6. Get amount of available synthUSDC
         uint256 usdcSynthAvailable = ICollateralModule(CoreProxy).getAccountAvailableCollateral(
             //
             accountId,
             $synthUSDC
         );
 
-        // 3. Withdraw all the available synth USDC
+        // 7. Withdraw all the available synthUSDC
         ICollateralModule(CoreProxy).withdraw(
             //
             accountId,
@@ -194,23 +224,23 @@ contract PositionManager {
             usdcSynthAvailable
         );
 
-        // 4. Unwrap synth USDC back to USDC token
-        uint256 usdcAmount = usdcSynthAvailable * (10 ** IERC20($USDC).decimals()) / (10 ** 18);
+        // 8. Unwrap ALL synthUSDC back to USDC token
+        uint256 usdcAmount = (usdcSynthAvailable + usdcSynthBought) * (10 ** IERC20($USDC).decimals()) / (10 ** 18);
         IWrapperModule(SpotMarketProxy).unwrap(
             //
             synthIdUSDC,
-            usdcSynthAvailable,
+            usdcSynthAvailable + usdcSynthBought,
             usdcAmount
         );
 
-        // 5. Send all the USDC to the wallet
+        // 9. Send all the USDC to the wallet
         IERC20($USDC).transfer(
             //
             msgSender,
             usdcAmount
         );
 
-        // 7. Transfer Account NFT back to the owner
+        // 10. Transfer Account NFT back to the owner
         IERC721(AccountProxy).safeTransferFrom(
             //
             address(this),

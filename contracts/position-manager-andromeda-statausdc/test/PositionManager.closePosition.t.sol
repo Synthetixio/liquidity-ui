@@ -21,24 +21,22 @@ contract PositionManager_closePosition_Test is PositionManagerTest {
         vm.prank(AAVE_USDC_POOL);
         IERC20($USDC).transfer(ALICE, 100_000 * $USDCPrecision);
 
-        IERC20 usdToken = IMarketManagerModule(CoreProxy).getUsdToken();
-
         int256 currentDebt = IVaultModule(CoreProxy).getPositionDebt(ACCOUNT_ID, poolId, $synthStataUSDC);
-        uint256 currentPosition = IVaultModule(CoreProxy).getPositionCollateral(ACCOUNT_ID, poolId, $synthStataUSDC);
-        uint256 currentAvailable =
+        uint256 current$synthStataUSDCPosition =
+            IVaultModule(CoreProxy).getPositionCollateral(ACCOUNT_ID, poolId, $synthStataUSDC);
+        uint256 current$synthStataUSDCAvailable =
             ICollateralModule(CoreProxy).getAccountAvailableCollateral(ACCOUNT_ID, $synthStataUSDC);
-
-        uint256 currentAvailableSnxUSD = ICollateralModule(CoreProxy).getAccountAvailableCollateral(
+        uint256 current$snxUSDAvailable = ICollateralModule(CoreProxy).getAccountAvailableCollateral(
             //
             ACCOUNT_ID,
-            address(usdToken)
+            $snxUSD
         );
 
         assertTrue(currentDebt < 0);
         // assertEq(-0.780517508859281029 ether, currentDebt);
-        assertEq(110 ether, currentPosition);
-        assertEq(0, currentAvailable);
-        assertEq(0, currentAvailableSnxUSD);
+        assertEq(110 ether, current$synthStataUSDCPosition);
+        assertEq(0, current$synthStataUSDCAvailable);
+        assertEq(0, current$snxUSDAvailable);
 
         vm.prank(ALICE);
         IAccountTokenModule(AccountProxy).approve(address(positionManager), ACCOUNT_ID);
@@ -54,12 +52,12 @@ contract PositionManager_closePosition_Test is PositionManagerTest {
         uint256 newAvailableSnxUSD = ICollateralModule(CoreProxy).getAccountAvailableCollateral(
             //
             ACCOUNT_ID,
-            address(usdToken)
+            $snxUSD
         );
 
         assertEq(0, newDebt);
         assertEq(0, newPosition);
-        assertEq(currentPosition, newAvailable);
+        assertEq(current$synthStataUSDCPosition, newAvailable);
         assertEq(uint256(-currentDebt), newAvailableSnxUSD); // debt -> minted snxUSD
     }
 }

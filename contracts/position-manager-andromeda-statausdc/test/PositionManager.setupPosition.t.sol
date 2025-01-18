@@ -14,7 +14,6 @@ contract PositionManager_setupPosition_Test is PositionManagerTest {
 
     function test_setupPosition() public {
         uint128 ACCOUNT_ID = 0;
-        uint128 POOL_ID = 1;
         address ALICE = vm.addr(0xA11CE);
         vm.label(ALICE, "0xA11CE");
         vm.deal(ALICE, 1 ether);
@@ -26,8 +25,8 @@ contract PositionManager_setupPosition_Test is PositionManagerTest {
         vm.prank(AAVE_USDC_POOL);
         IERC20($USDC).transfer(ALICE, 100_000 * $USDC_Precision);
 
-        assertEq(0, IVaultModule(CoreProxy).getPositionDebt(ACCOUNT_ID, POOL_ID, $synthStataUSDC));
-        assertEq(0, IVaultModule(CoreProxy).getPositionCollateral(ACCOUNT_ID, POOL_ID, $synthStataUSDC));
+        assertEq(0, IVaultModule(CoreProxy).getPositionDebt(ACCOUNT_ID, poolId, $synthStataUSDC));
+        assertEq(0, IVaultModule(CoreProxy).getPositionCollateral(ACCOUNT_ID, poolId, $synthStataUSDC));
         assertEq(0, ICollateralModule(CoreProxy).getAccountAvailableCollateral(ACCOUNT_ID, $synthStataUSDC));
 
         vm.prank(ALICE);
@@ -50,10 +49,9 @@ contract PositionManager_setupPosition_Test is PositionManagerTest {
 
         assertEq(ALICE, IAccountTokenModule(AccountProxy).ownerOf(ACCOUNT_ID));
 
-        assertEq(0, IVaultModule(CoreProxy).getPositionDebt(ACCOUNT_ID, POOL_ID, $synthStataUSDC));
+        assertEq(0, IVaultModule(CoreProxy).getPositionDebt(ACCOUNT_ID, poolId, $synthStataUSDC));
         assertEq(
-            expectedStataSynthAmount,
-            IVaultModule(CoreProxy).getPositionCollateral(ACCOUNT_ID, POOL_ID, $synthStataUSDC)
+            expectedStataSynthAmount, IVaultModule(CoreProxy).getPositionCollateral(ACCOUNT_ID, poolId, $synthStataUSDC)
         );
         assertEq(0, ICollateralModule(CoreProxy).getAccountAvailableCollateral(ACCOUNT_ID, $synthStataUSDC));
     }
