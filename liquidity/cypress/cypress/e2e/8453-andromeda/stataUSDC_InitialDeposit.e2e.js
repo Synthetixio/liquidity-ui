@@ -11,7 +11,7 @@ describe(__filename, () => {
       forkUrl:
         Cypress.env('RPC_BASE_MAINNET') ??
         `https://base-mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '25160443',
+      block: '25229684',
     }).then(() => cy.log('Anvil started'));
     cy.pythBypass();
 
@@ -48,11 +48,11 @@ describe(__filename, () => {
     cy.get('[data-cy="stats collateral"] [data-cy="change stats new"]').should('not.exist');
 
     cy.get('[data-cy="deposit amount input"]').should('exist');
-    cy.get('[data-cy="deposit amount input"]').type('200');
+    cy.get('[data-cy="deposit amount input"]').type('500');
 
     cy.get('[data-cy="stats collateral"] [data-cy="change stats new"]')
       .should('exist')
-      .and('include.text', '186.3 Static aUSDC');
+      .and('include.text', '465.62 Static aUSDC');
 
     cy.get('[data-cy="deposit submit"]').should('be.enabled');
     cy.get('[data-cy="deposit submit"]').click();
@@ -61,10 +61,10 @@ describe(__filename, () => {
       .should('exist')
       .and('include.text', 'Open Liquidity Position')
       .and('include.text', 'Approve USDC')
-      .and('include.text', 'Approve spending of 200 USDC.')
+      .and('include.text', 'Approve spending of 500 USDC.')
       .and('include.text', 'Deposit and Lock USDC')
       .and('include.text', 'Create new account')
-      .and('include.text', 'Deposit and lock 200 USDC.');
+      .and('include.text', 'Deposit and lock 500 USDC.');
 
     cy.get('[data-cy="deposit confirm button"]').should('include.text', 'Execute Transaction');
     cy.get('[data-cy="deposit confirm button"]').click();
@@ -77,7 +77,7 @@ describe(__filename, () => {
 
     cy.get('[data-cy="stats collateral"] [data-cy="change stats current"]', {
       timeout: 60_000,
-    }).and('include.text', '186.3 Static aUSDC');
+    }).and('include.text', '465.62 Static aUSDC');
     cy.get('[data-cy="deposit submit"]').should('be.disabled');
   });
 });

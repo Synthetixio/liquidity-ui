@@ -3,8 +3,7 @@ import { makeSearch } from '@snx-v3/useParams';
 describe(__filename, () => {
   Cypress.env('chainId', '8453');
   Cypress.env('preset', 'andromeda');
-  Cypress.env('walletAddress', '0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345');
-  Cypress.env('accountId', '522433293696');
+  Cypress.env('walletAddress', '0xaaaa6c341C4Df916d9f0583Ba9Ea953618e5f008');
 
   beforeEach(() => {
     cy.task('startAnvil', {
@@ -12,7 +11,7 @@ describe(__filename, () => {
       forkUrl:
         Cypress.env('RPC_BASE_MAINNET') ??
         `https://base-mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '25160443',
+      block: '25229684',
     }).then(() => cy.log('Anvil started'));
     cy.pythBypass();
 
@@ -29,13 +28,13 @@ describe(__filename, () => {
   it(__filename, () => {
     cy.setEthBalance({ balance: 100 });
     cy.getUSDC({ amount: 1000 });
+    cy.pmSetupPosition({ symbol: 'USDC', amount: 500 });
 
     cy.visit(
       `?${makeSearch({
         page: 'position',
         collateralSymbol: 'USDC',
         manageAction: 'deposit',
-        accountId: Cypress.env('accountId'),
       })}`
     );
 
@@ -46,16 +45,16 @@ describe(__filename, () => {
 
     cy.get('[data-cy="stats collateral"] [data-cy="change stats current"]')
       .should('exist')
-      .and('include.text', '120 USDC');
+      .and('include.text', '500 USDC');
 
     cy.get('[data-cy="stats collateral"] [data-cy="change stats new"]').should('not.exist');
 
     cy.get('[data-cy="deposit amount input"]').should('exist');
-    cy.get('[data-cy="deposit amount input"]').type('5');
+    cy.get('[data-cy="deposit amount input"]').type('200');
 
     cy.get('[data-cy="stats collateral"] [data-cy="change stats new"]')
       .should('exist')
-      .and('include.text', '125 USDC');
+      .and('include.text', '700 USDC');
 
     cy.get('[data-cy="deposit submit"]').should('be.enabled');
     cy.get('[data-cy="deposit submit"]').click();
@@ -64,10 +63,10 @@ describe(__filename, () => {
       .should('exist')
       .and('include.text', 'Manage Collateral')
       .and('include.text', 'Approve USDC')
-      .and('include.text', 'Approve spending of 5 USDC.')
+      .and('include.text', 'Approve spending of 200 USDC.')
       .and('include.text', 'Deposit and Lock USDC')
       .and('include.text', 'Approve update position on behalf')
-      .and('include.text', 'Deposit and lock 5 USDC.');
+      .and('include.text', 'Deposit and lock 200 USDC.');
 
     cy.get('[data-cy="deposit confirm button"]').should('include.text', 'Execute Transaction');
     cy.get('[data-cy="deposit confirm button"]').click();
@@ -80,7 +79,7 @@ describe(__filename, () => {
 
     cy.get('[data-cy="stats collateral"] [data-cy="change stats current"]', {
       timeout: 60_000,
-    }).and('include.text', '125 USDC');
+    }).and('include.text', '700 USDC');
     cy.get('[data-cy="deposit submit"]').should('be.disabled');
   });
 });
