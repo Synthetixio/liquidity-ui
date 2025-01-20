@@ -5,20 +5,16 @@ import {
   importAccountProxy,
   importClosePosition,
   importCoreProxy,
+  importPositionManager,
+  importPositionManagerAndromedaStataUSDC,
+  importPositionManagerAndromedaUSDC,
   importPythERC7412Wrapper,
   importPythVerifier,
   importSpotMarketProxy,
   importTrustedMulticallForwarder,
-  importPositionManager,
-  importPositionManagerAndromedaUSDC,
-  importPositionManagerAndromedaStataUSDC,
   importUSDProxy,
 } from '@snx-v3/contracts';
-import {
-  extractErrorData,
-  importAllContractErrors,
-  parseErrorData,
-} from '@snx-v3/parseContractError';
+import { extractErrorData } from '@snx-v3/parseContractError';
 import { notNil } from '@snx-v3/tsHelpers';
 import { deploymentHasERC7412, Network } from '@snx-v3/useBlockchain';
 import debug from 'debug';
@@ -36,33 +32,6 @@ async function fetchOffchainData({
   );
   const signedOffchainData = await priceService.getPriceFeedsUpdateData(priceIds);
   return signedOffchainData;
-}
-
-function parseError(
-  errorData: any,
-  abiErrors: `error ${string}`[]
-): { name: string; args: any } | undefined {
-  if (`${errorData}`.startsWith('0x08c379a0')) {
-    const content = `0x${errorData.substring(10)}`;
-    // reason: string; for standard revert error string
-    const reason = ethers.utils.defaultAbiCoder.decode(['string'], content);
-    console.error(reason);
-    return {
-      name: `Revert ${reason[0]}`,
-      args: [],
-    };
-  }
-
-  let flatErrorsData = errorData;
-  // let's cleanup nested Errors[]
-  if (`${errorData}`.startsWith('0x0b42fd17')) {
-    const [lastChunk] = errorData.split('0b42fd17').slice(-1);
-    flatErrorsData = `0x0b42fd17${lastChunk}`;
-  }
-  const parsedError = parseErrorData({ errorData: flatErrorsData, abi: abiErrors });
-  return parsedError
-    ? { name: parsedError.name, args: parsedError.args }
-    : { name: 'Unknown', args: [] };
 }
 
 // simulate w/ wETH contract because it will have eth balance
@@ -165,19 +134,6 @@ export async function logMulticall({
   );
 }
 
-function extractPriceId(parsedError: { name: string; args: string[] }) {
-  try {
-    const [_oracleAddress, oracleQuery] = parsedError.args;
-    const [_updateType, _stalenessTolerance, [priceId]] = ethers.utils.defaultAbiCoder.decode(
-      ['uint8', 'uint64', 'bytes32[]'],
-      oracleQuery
-    );
-    return priceId;
-  } catch {
-    // whatever
-  }
-}
-
 async function getMulticallTransaction(
   network: Network,
   calls: (ethers.PopulatedTransaction & { requireSuccess?: boolean })[],
@@ -224,7 +180,6 @@ export const withERC7412 = async (
     return await getMulticallTransaction(network, calls, from, provider);
   }
 
-  const abiAllErrors = await importAllContractErrors(network.id, network.preset);
   const PythVerfier = await importPythVerifier(network.id, network.preset);
 
   while (true) {
@@ -252,35 +207,23 @@ export const withERC7412 = async (
       }
       log('errorData', errorData);
 
-      const parsedError = parseError(errorData, abiAllErrors);
-      if (!parsedError) {
-        throw error;
-      }
-      log('parsedError', parsedError);
-
       // Collect all the price IDs that require updates
-      const missingPriceUpdates = [];
-      if (parsedError.name === 'OracleDataRequired') {
-        missingPriceUpdates.push(extractPriceId(parsedError));
-      }
-      if (parsedError.name === 'Errors') {
-        for (const err of parsedError?.args?.[0] ?? []) {
-          try {
-            const parsedErr = parseError(err, abiAllErrors);
-            if (parsedErr?.name === 'OracleDataRequired') {
-              missingPriceUpdates.push(extractPriceId(parsedErr));
-            }
-          } catch {
-            // whatever
-          }
-        }
-      }
-      const missingPriceUpdatesUnique = Array.from(new Set(missingPriceUpdates));
-      log('missingPriceUpdates', missingPriceUpdatesUnique);
-      if (missingPriceUpdatesUnique.length < 1) {
+      const missingPriceUpdates: string[] = errorData
+        // Signature of OracleDataRequired
+        .split('cf2cabdf')
+        // Skip all the data before the first signature of OracleDataRequired
+        .slice(1)
+        // Full OracleDataRequired without signature is 512 bytes
+        .map((s: string) => s.slice(0, 512))
+        // Price feed is the last and has 64 bytes, prefix with 0x
+        .map((s: string) => `0x${s.slice(-64)}`);
+      if (missingPriceUpdates.length < 1) {
         // some other kind of error that's not related to price
         throw error;
       }
+
+      const missingPriceUpdatesUnique = Array.from(new Set(missingPriceUpdates));
+      log('missingPriceUpdates', missingPriceUpdatesUnique);
 
       const signedOffchainData = await fetchOffchainData({
         priceIds: missingPriceUpdatesUnique,
