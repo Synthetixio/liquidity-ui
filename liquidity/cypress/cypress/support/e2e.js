@@ -16,6 +16,8 @@ import { setWithdrawTimeout } from './commands/setWithdrawTimeout';
 import { getSUSD } from './commands/getSUSD';
 import { getSystemToken } from './commands/getSystemToken';
 import { pythBypass } from './commands/pythBypass';
+import { pmSetupPosition } from './commands/pmSetupPosition';
+import { pmDecreasePosition } from './commands/pmDecreasePosition';
 
 installLogsCollector({
   enableExtendedCollector: true,
@@ -48,6 +50,9 @@ addTxnCommand('setWithdrawTimeout', setWithdrawTimeout, { timeout: 60_000 });
 addTxnCommand('wrapCollateral', wrapCollateral, { timeout: 120_000 });
 addTxnCommand('wrapEth', wrapEth, { timeout: 60_000 });
 addTxnCommand('pythBypass', pythBypass);
+
+addTxnCommand('pmSetupPosition', pmSetupPosition);
+addTxnCommand('pmDecreasePosition', pmDecreasePosition, { timeout: 180_000 });
 
 function subgraph(req) {
   const body = JSON.parse(req.body);

@@ -21,6 +21,8 @@ export async function startAnvil({ chainId, forkUrl, block }) {
     '0',
     '--fork-block-number',
     block,
+    '--timeout',
+    '120000',
     '--memory-limit',
     '6442450944', // 6G
   ];

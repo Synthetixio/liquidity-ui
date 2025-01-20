@@ -85,6 +85,16 @@ declare global {
         amount: number;
       }) => Promise<void>;
 
+      depositSystemToken: ({
+        address,
+        accountId,
+        amount,
+      }: {
+        address?: string;
+        accountId?: string;
+        amount: number;
+      }) => Promise<void>;
+
       getSNX: ({ address, amount }: { address?: string; amount: number }) => Promise<void>;
 
       getUSDC: ({ address, amount }: { address?: string; amount: number }) => Promise<void>;
@@ -110,6 +120,28 @@ declare global {
       getSystemToken: ({ address, amount }: { address?: string; amount: number }) => Promise<void>;
 
       pythBypass: () => Promise<void>;
+
+      pmSetupPosition: ({
+        address,
+        symbol,
+        amount,
+      }: {
+        address?: string;
+        symbol: 'USDC' | 'stataUSDC';
+        amount: number;
+      }) => Promise<void>;
+
+      pmDecreasePosition: ({
+        address,
+        accountId,
+        symbol,
+        amount,
+      }: {
+        address?: string;
+        accountId?: string;
+        symbol: 'USDC' | 'stataUSDC';
+        amount: number;
+      }) => Promise<void>;
     }
   }
 }
