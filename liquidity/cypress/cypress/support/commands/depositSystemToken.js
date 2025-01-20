@@ -14,6 +14,17 @@ export async function depositSystemToken({
   const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
   const signer = provider.getSigner(address);
 
+  const TokenContract = new ethers.Contract(
+    systemToken.address,
+    ['function approve(address spender, uint256 amount) returns (bool)'],
+    signer
+  );
+  const txnApprove = await TokenContract.approve(CoreProxy.address, ethers.constants.MaxUint256);
+  const receiptApprove = await txnApprove.wait();
+  console.log('depositSystemToken approve', {
+    txEvents: receiptApprove.events.filter((e) => Boolean(e.event)),
+  });
+
   const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, signer);
 
   const args = [

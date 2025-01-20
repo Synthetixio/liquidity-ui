@@ -23,7 +23,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import debug from 'debug';
 import { ethers } from 'ethers';
 import React, { useReducer } from 'react';
-import { WithdrawModal } from './WithdrawModal';
+import { WithdrawModalAndromeda } from './WithdrawModalAndromeda';
 
 const log = debug('snx:WithdrawAndromeda');
 
@@ -44,17 +44,11 @@ export function WithdrawAndromeda() {
   const { minutes, hours, isRunning } = useWithdrawTimer(params.accountId);
   const unlockDate = !isLoadingDate ? accountCollateralUnlockDate : null;
 
-  // const isAndromedaStataUSDC = useIsAndromedaStataUSDC({
-  //   tokenAddress: collateralType?.tokenAddress,
-  // });
-  // const { data: stataRate } = useStaticAaveUSDCRate();
   const maxWithdrawable = React.useMemo(() => {
     if (liquidityPosition) {
-      // Temporary adjustment until UI fully moves to show only USDC and avoid stata conversion
-      // return isAndromedaStataUSDC
-      // ? liquidityPosition.availableCollateral.mul(stataRate).div(D27)
-      // : liquidityPosition.availableCollateral;
-      return liquidityPosition.availableCollateral;
+      return liquidityPosition.availableCollateral
+        .mul(liquidityPosition.collateralPrice)
+        .add(liquidityPosition.availableSystemToken);
     }
   }, [liquidityPosition]);
 
@@ -241,7 +235,7 @@ export function WithdrawAndromeda() {
 
   return (
     <Flex flexDirection="column" data-cy="withdraw form" as="form" onSubmit={onSubmit}>
-      <WithdrawModal txnStatus={txnState.txnStatus} txnHash={txnState.txnHash} />
+      <WithdrawModalAndromeda txnStatus={txnState.txnStatus} txnHash={txnState.txnHash} />
       <Text color="gray./50" fontSize="sm" fontWeight="700" mb="3">
         Withdraw Collateral
       </Text>
@@ -263,13 +257,7 @@ export function WithdrawAndromeda() {
           <Text fontSize="12px" whiteSpace="nowrap" data-cy="withdraw amount">
             {isPendingLiquidityPosition ? 'Unlocked: ~' : null}
             {maxWithdrawable ? (
-              <>
-                <Amount prefix="Unlocked: " value={maxWithdrawable} />
-                &nbsp;
-                <Text as="span" color="cyan.500" fontWeight={700}>
-                  Max
-                </Text>
-              </>
+              <Amount prefix="Unlocked: " value={maxWithdrawable} suffix={` ${symbol}`} />
             ) : null}
           </Text>
         </Flex>
@@ -288,17 +276,8 @@ export function WithdrawAndromeda() {
           />
           <Flex fontSize="xs" color="whiteAlpha.700" alignSelf="flex-end" gap="1">
             {isPendingLiquidityPosition ? '~' : null}
-            {!isPendingLiquidityPosition &&
-            liquidityPosition &&
-            liquidityPosition.collateralPrice.gt(0) ? (
-              <Amount
-                prefix="$"
-                value={
-                  maxWithdrawable
-                    ? maxWithdrawable.abs().mul(liquidityPosition.collateralPrice)
-                    : ZEROWEI
-                }
-              />
+            {!isPendingLiquidityPosition && maxWithdrawable ? (
+              <Amount prefix="$" value={maxWithdrawable ? maxWithdrawable : ZEROWEI} />
             ) : null}
           </Flex>
         </Flex>
@@ -330,7 +309,9 @@ export function WithdrawAndromeda() {
       </Collapse>
 
       <Button
-        isDisabled={!isReady || isRunning || !unlockDate}
+        isDisabled={
+          !isReady || isRunning || !unlockDate || !(maxWithdrawable && maxWithdrawable.gt(0))
+        }
         data-cy="withdraw submit"
         type="submit"
       >
