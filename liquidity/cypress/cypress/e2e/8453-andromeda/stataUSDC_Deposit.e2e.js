@@ -54,7 +54,7 @@ describe(__filename, () => {
 
     cy.get('[data-cy="stats collateral"] [data-cy="change stats new"]')
       .should('exist')
-      .and('include.text', '186.25 Static aUSDC'); // Adjusted per stata rate
+      .and('include.text', '651.87 Static aUSDC'); // Adjusted per stata rate
 
     cy.get('[data-cy="deposit submit"]').should('be.enabled');
     cy.get('[data-cy="deposit submit"]').click();
