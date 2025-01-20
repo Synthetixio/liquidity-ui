@@ -1,6 +1,13 @@
+import {
+  importAllErrors,
+  importClosePosition,
+  importPositionManager,
+  importPositionManagerAndromedaStataUSDC,
+  importPositionManagerAndromedaUSDC,
+} from '@snx-v3/contracts';
 import { ethers } from 'ethers';
 
-const ERC721_ERRORS = [
+const ERC721_ERRORS: `error ${string}`[] = [
   'error CannotSelfApprove(address addr)',
   'error InvalidTransferRecipient(address addr)',
   'error InvalidOwner(address addr)',
@@ -15,7 +22,7 @@ export type ContractErrorType = {
   args: Record<string, any>;
 };
 
-export const PYTH_ERRORS = [
+export const PYTH_ERRORS: `error ${string}`[] = [
   // Function arguments are invalid (e.g., the arguments lengths mismatch)
   // Signature: 0xa9cb9e0d
   'error InvalidArgument()',
@@ -76,21 +83,41 @@ export function extractErrorData(error: Error | any) {
   );
 }
 
-export function parseContractError({
-  error,
-  AllErrors,
-  extraAbi,
-}: {
-  error?: any;
-  AllErrors?: { abi: string[] };
-  extraAbi?: string[];
-}): ContractErrorType | void {
-  const errorData = extractErrorData(error);
-  if (!errorData) {
-    console.error({ error }); // intentional logging as object so we can inspect all properties
-    return;
-  }
+export function dedupeErrors(abiErrors: `error ${string}`[]) {
+  const unique = new Set();
+  const uniqueAbiErrors: string[] = [];
+  abiErrors.forEach((errorLine) => {
+    const fragment = ethers.utils.Fragment.from(errorLine);
+    const sighash = fragment.format(ethers.utils.FormatTypes.sighash);
+    if (!unique.has(sighash)) {
+      uniqueAbiErrors.push(fragment.format(ethers.utils.FormatTypes.full));
+      unique.add(sighash);
+    }
+  });
+  return uniqueAbiErrors;
+}
 
+export function combineErrors(contracts: ({ abi: string[] } | undefined)[]) {
+  const abiErrors: `error ${string}`[] = [];
+  contracts.forEach((contract) => {
+    if (contract) {
+      contract.abi.forEach((line) => {
+        if (line.startsWith('error ')) {
+          abiErrors.push(line as `error ${string}`);
+        }
+      });
+    }
+  });
+  return abiErrors;
+}
+
+export function parseErrorData({
+  errorData,
+  abi,
+}: {
+  errorData?: any;
+  abi?: `error ${string}`[];
+}): ContractErrorType | void {
   if (`${errorData}`.startsWith('0x08c379a0')) {
     const content = `0x${errorData.substring(10)}`;
     // reason: string; for standard revert error string
@@ -105,12 +132,9 @@ export function parseContractError({
   }
 
   try {
-    const AllErrorsInterface = new ethers.utils.Interface([
-      ...(AllErrors ? AllErrors.abi : []),
-      ...PYTH_ERRORS,
-      ...ERC721_ERRORS,
-      ...(extraAbi ? extraAbi : []),
-    ]);
+    const AllErrorsInterface = new ethers.utils.Interface(
+      dedupeErrors([...(abi ? abi : []), ...PYTH_ERRORS, ...ERC721_ERRORS])
+    );
 
     const errorParsed = AllErrorsInterface.parseError(errorData);
     const errorArgs = Object.fromEntries(
@@ -151,4 +175,33 @@ export function parseContractError({
   } catch (error) {
     console.error(`Error parsing failure: ${error}`);
   }
+}
+
+export function parseContractError({
+  error,
+  abi,
+}: {
+  error?: any;
+  abi?: `error ${string}`[];
+}): ContractErrorType | void {
+  const errorData = extractErrorData(error);
+  if (!errorData) {
+    console.error({ error }); // intentional logging as object so we can inspect all properties
+    return;
+  }
+  return parseErrorData({ errorData, abi });
+}
+
+export async function importAllContractErrors(chainId?: number, preset?: string) {
+  return chainId && preset
+    ? combineErrors(
+        await Promise.all([
+          importAllErrors(chainId, preset).catch(() => undefined),
+          importClosePosition(chainId, preset).catch(() => undefined),
+          importPositionManager(chainId, preset).catch(() => undefined),
+          importPositionManagerAndromedaUSDC(chainId, preset).catch(() => undefined),
+          importPositionManagerAndromedaStataUSDC(chainId, preset).catch(() => undefined),
+        ])
+      )
+    : [];
 }

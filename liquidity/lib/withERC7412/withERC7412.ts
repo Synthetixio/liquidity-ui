@@ -3,16 +3,22 @@ import { EvmPriceServiceConnection } from '@pythnetwork/pyth-evm-js';
 import { offchainMainnetEndpoint, offchainTestnetEndpoint } from '@snx-v3/constants';
 import {
   importAccountProxy,
-  importAllErrors,
   importClosePosition,
   importCoreProxy,
   importPythERC7412Wrapper,
   importPythVerifier,
   importSpotMarketProxy,
   importTrustedMulticallForwarder,
+  importPositionManager,
+  importPositionManagerAndromedaUSDC,
+  importPositionManagerAndromedaStataUSDC,
   importUSDProxy,
 } from '@snx-v3/contracts';
-import { extractErrorData, PYTH_ERRORS } from '@snx-v3/parseContractError';
+import {
+  extractErrorData,
+  importAllContractErrors,
+  parseErrorData,
+} from '@snx-v3/parseContractError';
 import { notNil } from '@snx-v3/tsHelpers';
 import { deploymentHasERC7412, Network } from '@snx-v3/useBlockchain';
 import debug from 'debug';
@@ -34,7 +40,7 @@ async function fetchOffchainData({
 
 function parseError(
   errorData: any,
-  AllErrors: { abi: string[] }
+  abiErrors: `error ${string}`[]
 ): { name: string; args: any } | undefined {
   if (`${errorData}`.startsWith('0x08c379a0')) {
     const content = `0x${errorData.substring(10)}`;
@@ -53,18 +59,10 @@ function parseError(
     const [lastChunk] = errorData.split('0b42fd17').slice(-1);
     flatErrorsData = `0x0b42fd17${lastChunk}`;
   }
-  try {
-    const AllErrorsInterface = new ethers.utils.Interface(
-      Array.from(new Set([...AllErrors.abi, ...PYTH_ERRORS]))
-    );
-    return AllErrorsInterface.parseError(flatErrorsData);
-  } catch (error) {
-    console.error(`Error parsing failure: ${error}`);
-    return {
-      name: 'Unknown',
-      args: [],
-    };
-  }
+  const parsedError = parseErrorData({ errorData: flatErrorsData, abi: abiErrors });
+  return parsedError
+    ? { name: parsedError.name, args: parsedError.args }
+    : { name: 'Unknown', args: [] };
 }
 
 // simulate w/ wETH contract because it will have eth balance
@@ -92,19 +90,21 @@ export const getDefaultFromAddress = (chainName: string) => {
   }
 };
 
-function dedupedAbi(abi: string[]) {
+function dedupedFunctions(abi: string[]) {
   const deduped = new Set();
   const readableAbi: string[] = [];
-  abi.forEach((line: string) => {
-    const fragment = ethers.utils.Fragment.from(line);
-    if (fragment && (fragment.type === 'error' || fragment.type === 'function')) {
-      const minimal = fragment.format(ethers.utils.FormatTypes.sighash);
-      if (!deduped.has(minimal)) {
-        readableAbi.push(fragment.format(ethers.utils.FormatTypes.full));
-        deduped.add(minimal);
+  abi
+    .filter((line: string) => line.startsWith('function '))
+    .forEach((line: string) => {
+      const fragment = ethers.utils.Fragment.from(line);
+      if (fragment) {
+        const minimal = fragment.format(ethers.utils.FormatTypes.sighash);
+        if (!deduped.has(minimal)) {
+          readableAbi.push(fragment.format(ethers.utils.FormatTypes.full));
+          deduped.add(minimal);
+        }
       }
-    }
-  });
+    });
   return readableAbi;
 }
 
@@ -121,27 +121,25 @@ export async function logMulticall({
   if (!log.enabled) {
     return;
   }
-  const CoryProxyContract = await importCoreProxy(network.id, network.preset);
-  const SpotMarketProxy = await importSpotMarketProxy(network.id, network.preset);
-  const AccountProxyContract = await importAccountProxy(network.id, network.preset);
-  const USDProxyContract = await importUSDProxy(network.id, network.preset);
-  const ClosePositionContract = await importClosePosition(network.id, network.preset).catch(
-    () => undefined
-  );
-  const PythERC7412Wrapper = await importPythERC7412Wrapper(network.id, network.preset).catch(
-    () => undefined
-  );
-  const PythVerfier = await importPythVerifier(network.id, network.preset);
   const AllInterface = new ethers.utils.Interface(
-    dedupedAbi([
-      ...CoryProxyContract.abi,
-      ...SpotMarketProxy.abi,
-      ...AccountProxyContract.abi,
-      ...USDProxyContract.abi,
-      ...(ClosePositionContract ? ClosePositionContract.abi : []),
-      ...(PythERC7412Wrapper ? PythERC7412Wrapper.abi : []),
-      ...PythVerfier.abi,
-    ])
+    dedupedFunctions(
+      (
+        await Promise.all([
+          importCoreProxy(network.id, network.preset).catch(() => ({ abi: [] })),
+          importSpotMarketProxy(network.id, network.preset).catch(() => ({ abi: [] })),
+          importAccountProxy(network.id, network.preset).catch(() => ({ abi: [] })),
+          importUSDProxy(network.id, network.preset).catch(() => ({ abi: [] })),
+          importClosePosition(network.id, network.preset).catch(() => ({ abi: [] })),
+          importPythERC7412Wrapper(network.id, network.preset).catch(() => ({ abi: [] })),
+          importPythVerifier(network.id, network.preset).catch(() => ({ abi: [] })),
+          importPositionManager(network.id, network.preset).catch(() => ({ abi: [] })),
+          importPositionManagerAndromedaUSDC(network.id, network.preset).catch(() => ({ abi: [] })),
+          importPositionManagerAndromedaStataUSDC(network.id, network.preset).catch(() => ({
+            abi: [],
+          })),
+        ])
+      ).flatMap((c) => (c ? c.abi : []))
+    )
   );
   log(
     'multicall calls',
@@ -226,13 +224,7 @@ export const withERC7412 = async (
     return await getMulticallTransaction(network, calls, from, provider);
   }
 
-  const AllErrorsContract = await importAllErrors(network.id, network.preset);
-  const ClosePositionContract = await importClosePosition(network.id, network.preset).catch(
-    () => undefined
-  );
-  if (ClosePositionContract) {
-    ClosePositionContract.abi.forEach((line) => AllErrorsContract.abi.push(line));
-  }
+  const abiAllErrors = await importAllContractErrors(network.id, network.preset);
   const PythVerfier = await importPythVerifier(network.id, network.preset);
 
   while (true) {
@@ -260,7 +252,7 @@ export const withERC7412 = async (
       }
       log('errorData', errorData);
 
-      const parsedError = parseError(errorData, AllErrorsContract);
+      const parsedError = parseError(errorData, abiAllErrors);
       if (!parsedError) {
         throw error;
       }
@@ -274,7 +266,7 @@ export const withERC7412 = async (
       if (parsedError.name === 'Errors') {
         for (const err of parsedError?.args?.[0] ?? []) {
           try {
-            const parsedErr = parseError(err, AllErrorsContract);
+            const parsedErr = parseError(err, abiAllErrors);
             if (parsedErr?.name === 'OracleDataRequired') {
               missingPriceUpdates.push(extractPriceId(parsedErr));
             }
