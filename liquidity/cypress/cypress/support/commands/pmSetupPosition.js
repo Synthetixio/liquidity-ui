@@ -1,9 +1,8 @@
 import {
-  importAllErrors,
   importPositionManagerAndromedaStataUSDC,
   importPositionManagerAndromedaUSDC,
 } from '@snx-v3/contracts';
-import { parseContractError } from '@snx-v3/parseContractError';
+import { importAllContractErrors, parseContractError } from '@snx-v3/parseContractError';
 import { ethers } from 'ethers';
 import { getCollateralConfig } from './getCollateralConfig';
 
@@ -46,13 +45,11 @@ export async function pmSetupPosition({ address = Cypress.env('walletAddress'), 
   const gasLimit = await PositionManagerContract.estimateGas
     .setupPosition(...args)
     .catch(async (error) => {
-      const AllErrors = await importAllErrors(Cypress.env('chainId'), Cypress.env('preset'));
       console.log(
         'setupPosition ERROR',
         parseContractError({
           error,
-          AllErrors,
-          extraAbi: PositionManager.abi,
+          abi: await importAllContractErrors(Cypress.env('chainId'), Cypress.env('preset')),
         })
       );
       return ethers.BigNumber.from(10_000_000);

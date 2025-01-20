@@ -1,5 +1,5 @@
-import { importAllErrors, importCoreProxy } from '@snx-v3/contracts';
-import { parseContractError } from '@snx-v3/parseContractError';
+import { importCoreProxy } from '@snx-v3/contracts';
+import { importAllContractErrors, parseContractError } from '@snx-v3/parseContractError';
 import { ethers } from 'ethers';
 import { getCollateralConfig } from './getCollateralConfig';
 
@@ -27,8 +27,13 @@ export async function borrowUsd({
     ethers.utils.parseEther(`${amount}`),
   ];
   const gasLimit = await CoreProxyContract.estimateGas.mintUsd(...args).catch(async (error) => {
-    const AllErrors = await importAllErrors(Cypress.env('chainId'), Cypress.env('preset'));
-    console.log('borrowUsd ERROR', parseContractError({ error, AllErrors }));
+    console.log(
+      'borrowUsd ERROR',
+      parseContractError({
+        error,
+        abi: await importAllContractErrors(Cypress.env('chainId'), Cypress.env('preset')),
+      })
+    );
     return ethers.BigNumber.from(10_000_000);
   });
   const txn = await CoreProxyContract.mintUsd(...args, { gasLimit: gasLimit.mul(2) });

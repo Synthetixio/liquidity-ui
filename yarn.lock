@@ -5208,6 +5208,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/parseContractError@workspace:liquidity/lib/parseContractError"
   dependencies:
+    "@snx-v3/contracts": "workspace:*"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -5576,6 +5577,9 @@ __metadata:
     "@snx-v3/parseContractError": "workspace:*"
     "@snx-v3/useAllErrors": "workspace:*"
     "@snx-v3/useClosePosition": "workspace:*"
+    "@snx-v3/usePositionManager": "workspace:*"
+    "@snx-v3/usePositionManagerAndromedaStataUSDC": "workspace:*"
+    "@snx-v3/usePositionManagerAndromedaUSDC": "workspace:*"
     "@snx-v3/useStaticAaveUSDC": "workspace:*"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -5916,7 +5920,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/usePositionManagerAndromedaStataUSDC@workspace:liquidity/lib/contracts/usePositionManagerAndromedaStataUSDC":
+"@snx-v3/usePositionManagerAndromedaStataUSDC@workspace:*, @snx-v3/usePositionManagerAndromedaStataUSDC@workspace:liquidity/lib/contracts/usePositionManagerAndromedaStataUSDC":
   version: 0.0.0-use.local
   resolution: "@snx-v3/usePositionManagerAndromedaStataUSDC@workspace:liquidity/lib/contracts/usePositionManagerAndromedaStataUSDC"
   dependencies:
@@ -5927,7 +5931,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/usePositionManagerAndromedaUSDC@workspace:liquidity/lib/contracts/usePositionManagerAndromedaUSDC":
+"@snx-v3/usePositionManagerAndromedaUSDC@workspace:*, @snx-v3/usePositionManagerAndromedaUSDC@workspace:liquidity/lib/contracts/usePositionManagerAndromedaUSDC":
   version: 0.0.0-use.local
   resolution: "@snx-v3/usePositionManagerAndromedaUSDC@workspace:liquidity/lib/contracts/usePositionManagerAndromedaUSDC"
   dependencies:

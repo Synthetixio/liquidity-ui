@@ -1,11 +1,10 @@
 import {
-  importDebtRepayer,
-  importCoreProxy,
-  importSpotMarketProxy,
   importAccountProxy,
-  importAllErrors,
+  importCoreProxy,
+  importDebtRepayer,
+  importSpotMarketProxy,
 } from '@snx-v3/contracts';
-import { parseContractError } from '@snx-v3/parseContractError';
+import { importAllContractErrors, parseContractError } from '@snx-v3/parseContractError';
 import { ethers } from 'ethers';
 import { getCollateralConfig } from './getCollateralConfig';
 
@@ -57,8 +56,13 @@ export async function clearDebt({
   const gasLimit = await DebtRepayerContract.estimateGas
     .depositDebtToRepay(...args)
     .catch(async (error) => {
-      const AllErrors = await importAllErrors(Cypress.env('chainId'), Cypress.env('preset'));
-      console.log('clearDebt ERROR', parseContractError({ error, AllErrors }));
+      console.log(
+        'clearDebt ERROR',
+        parseContractError({
+          error,
+          abi: await importAllContractErrors(Cypress.env('chainId'), Cypress.env('preset')),
+        })
+      );
       return ethers.BigNumber.from(10_000_000);
     });
   const txn = await DebtRepayerContract.depositDebtToRepay(...args, { gasLimit: gasLimit.mul(2) });

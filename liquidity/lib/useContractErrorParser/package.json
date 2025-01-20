@@ -7,6 +7,9 @@
     "@snx-v3/parseContractError": "workspace:*",
     "@snx-v3/useAllErrors": "workspace:*",
     "@snx-v3/useClosePosition": "workspace:*",
+    "@snx-v3/usePositionManager": "workspace:*",
+    "@snx-v3/usePositionManagerAndromedaStataUSDC": "workspace:*",
+    "@snx-v3/usePositionManagerAndromedaUSDC": "workspace:*",
     "@snx-v3/useStaticAaveUSDC": "workspace:*",
     "react": "^18.2.0"
   }

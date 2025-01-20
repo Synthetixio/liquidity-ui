@@ -1,5 +1,5 @@
-import { importAllErrors, importCoreProxy, importSystemToken } from '@snx-v3/contracts';
-import { parseContractError } from '@snx-v3/parseContractError';
+import { importCoreProxy, importSystemToken } from '@snx-v3/contracts';
+import { importAllContractErrors, parseContractError } from '@snx-v3/parseContractError';
 import { ethers } from 'ethers';
 
 export async function depositSystemToken({
@@ -23,8 +23,13 @@ export async function depositSystemToken({
     ethers.utils.parseEther(`${amount}`),
   ];
   const gasLimit = await CoreProxyContract.estimateGas.deposit(...args).catch(async (error) => {
-    const AllErrors = await importAllErrors(Cypress.env('chainId'), Cypress.env('preset'));
-    console.log('depositSystemToken ERROR', parseContractError({ error, AllErrors }));
+    console.log(
+      'depositSystemToken ERROR',
+      parseContractError({
+        error,
+        abi: await importAllContractErrors(Cypress.env('chainId'), Cypress.env('preset')),
+      })
+    );
     return ethers.BigNumber.from(10_000_000);
   });
   const txn = await CoreProxyContract.deposit(...args, { gasLimit: gasLimit.mul(2) });
