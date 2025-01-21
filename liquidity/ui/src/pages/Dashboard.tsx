@@ -31,10 +31,10 @@ export function Dashboard() {
               fontSize={['2rem', '3rem']}
               lineHeight="120%"
             >
-              The Liquidity Layer of DeFi
+              Earn
             </Heading>
             <Text color="gray.500" fontSize="1rem" lineHeight={6} fontFamily="heading" mt="1rem">
-              Provide liquidity for the next generation of permissionless protocols
+              Deposit your collateral to earn a share of protocol performance
             </Text>
           </Flex>
           <Flex mt={10} gap={4} flex={1}>
