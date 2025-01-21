@@ -19,7 +19,7 @@ export function currency(
 
     return isNaN(numberValue)
       ? stringValue
-      : numberValue.toLocaleString(navigator.language, {
+      : numberValue.toLocaleString('en-US', {
           minimumFractionDigits: 0,
           maximumFractionDigits,
           ...options,
