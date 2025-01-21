@@ -1,15 +1,16 @@
 describe(__filename, () => {
-  Cypress.env('chainId', '1');
+  Cypress.env('chainId', '42161');
   Cypress.env('preset', 'main');
   Cypress.env('walletAddress', '0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345');
-  Cypress.env('accountId', '651583203448');
+  Cypress.env('accountId', '58655818123');
 
   beforeEach(() => {
     cy.task('startAnvil', {
       chainId: Cypress.env('chainId'),
       forkUrl:
-        Cypress.env('RPC_MAINNET') ?? `https://mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '21233424',
+        Cypress.env('RPC_ARBITRUM_MAINNET') ??
+        `https://arbitrum-mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
+      block: '271813668',
     }).then(() => cy.log('Anvil started'));
     cy.pythBypass();
 
