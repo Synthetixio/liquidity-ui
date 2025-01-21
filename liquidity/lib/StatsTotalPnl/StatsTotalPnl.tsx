@@ -75,11 +75,12 @@ export function StatsTotalPnl() {
       title="Total PNL"
       isLoading={
         !(
-          params.accountId &&
-          !isPendingLiquidityPositions &&
-          !isPendingRewards &&
-          !isPendingSnxPrice &&
-          !isPendingRewardsPrices
+          !params.accountId ||
+          (params.accountId &&
+            !isPendingLiquidityPositions &&
+            !isPendingRewards &&
+            !isPendingSnxPrice &&
+            !isPendingRewardsPrices)
         )
       }
       value={

@@ -29,7 +29,7 @@ export function StatsTotalLocked() {
   return (
     <StatsBox
       title="Total Locked"
-      isLoading={!(params.accountId && !isPendingLiquidityPositions)}
+      isLoading={!(!params.accountId || (params.accountId && !isPendingLiquidityPositions))}
       value={<Amount prefix="$" value={wei(totalLocked || '0')} />}
       label={
         <>

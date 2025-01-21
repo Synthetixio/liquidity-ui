@@ -49,7 +49,15 @@ export function NetworkController() {
     }
   }, [params.accountId]);
 
+  const notConnected = !activeWallet;
+  const notSupported = activeWallet && !currentNetwork;
+
   React.useEffect(() => {
+    if (notConnected) {
+      const { accountId: _, ...newParams } = params;
+      setParams(newParams);
+      return;
+    }
     if (!isPendingAccounts && accounts) {
       if (accounts.length > 0 && !params.accountId) {
         setParams({ ...params, accountId: accounts[0].toString() });
@@ -69,16 +77,13 @@ export function NetworkController() {
         return;
       }
     }
-  }, [accounts, isPendingAccounts, params, paramsAccountId, setParams]);
+  }, [accounts, isPendingAccounts, notConnected, params, paramsAccountId, setParams]);
 
   React.useEffect(() => {
     if (window.$magicWallet) {
       connect({ autoSelect: { disableModals: true, label: 'MetaMask' } });
     }
   }, [connect]);
-
-  const notConnected = !activeWallet;
-  const notSupported = activeWallet && !currentNetwork;
 
   if (!activeWallet) {
     return (
