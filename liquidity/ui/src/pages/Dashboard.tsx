@@ -1,4 +1,5 @@
 import { Flex, Heading, Text } from '@chakra-ui/react';
+// import { SNXJubilee } from '@snx-v3/SNXJubilee';
 import { StatsTotalLocked } from '@snx-v3/StatsTotalLocked';
 import { StatsTotalPnl } from '@snx-v3/StatsTotalPnl';
 import { MAINNET, SEPOLIA, useNetwork } from '@snx-v3/useBlockchain';
@@ -7,6 +8,7 @@ import { MigrationBanner } from '../components/Migration/MigrationBanner';
 import { PoolsList } from '../components/Pools/PoolsList';
 import { PositionsList } from '../components/Positions/PositionsList';
 import { Rewards } from '../components/Rewards/Rewards';
+import { StataUSDC } from '../components/Synths/StataUSDC';
 import { Synths } from '../components/Synths/Synths';
 
 export function Dashboard() {
@@ -42,6 +44,14 @@ export function Dashboard() {
             <StatsTotalPnl />
           </Flex>
         </Flex>
+
+        {/*
+        {network?.id === MAINNET.id ? (
+          <Box mt={12}>
+            <SNXJubilee />
+          </Box>
+        ) : null}
+        */}
 
         <Flex mt={12} flexDirection="column" gap={4}>
           <Heading fontSize="1.25rem" fontFamily="heading" lineHeight="1.75rem">
@@ -81,6 +91,7 @@ export function Dashboard() {
             bg="navy.700"
           >
             <Synths />
+            <StataUSDC />
           </Flex>
         </Flex>
 

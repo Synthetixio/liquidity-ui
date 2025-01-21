@@ -67,6 +67,19 @@ export const PYTH_ERRORS: `error ${string}`[] = [
   'error InvalidWormholeAddressToSet()',
 ];
 
+const PANIC_REASONS: { [key: string]: string } = {
+  '00': 'Generic compiler inserted panics.',
+  '01': 'Assert evaluates to false.',
+  '11': 'Arithmetic operation results in underflow or overflow.',
+  '12': 'Division by zero.',
+  '21': 'Cannot convert value into an enum type.',
+  '22': 'Storage byte array is incorrectly encoded.',
+  '31': "Call to 'pop' on an empty array.",
+  '32': 'Array index is out of bounds.',
+  '41': 'Allocation of too much memory.',
+  '51': 'Call to a zero-initialized variable of internal function type.',
+};
+
 export function extractErrorData(error: Error | any) {
   return (
     error.cause?.cause?.cause?.error?.data ||
@@ -127,7 +140,27 @@ export function parseErrorData({
       data: errorData,
       signature: content,
       name: `Revert ${reason[0]}`,
-      args: {},
+      args: { reason: reason[0] },
+    };
+  }
+  if (`${errorData}`.startsWith('0x4e487b71')) {
+    const content = `0x${errorData.substring(10)}`;
+    const code = errorData.slice(-2);
+    if (code in PANIC_REASONS) {
+      console.error(`Panic ${PANIC_REASONS[code]}`);
+      return {
+        data: errorData,
+        signature: content,
+        name: `Panic ${PANIC_REASONS[code]}`,
+        args: { code },
+      };
+    }
+    console.error(`Panic ${code}`);
+    return {
+      data: errorData,
+      signature: content,
+      name: `Panic ${code}`,
+      args: { code },
     };
   }
 

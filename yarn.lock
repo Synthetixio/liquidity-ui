@@ -4854,6 +4854,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/SNXJubilee@workspace:liquidity/lib/SNXJubilee":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/SNXJubilee@workspace:liquidity/lib/SNXJubilee"
+  dependencies:
+    "@chakra-ui/icons": "npm:^2.1.1"
+    "@chakra-ui/react": "npm:^2.8.2"
+    "@snx-v3/getStatsUrl": "workspace:*"
+    "@snx-v3/icons": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useCollateralTypes": "workspace:*"
+    "@snx-v3/useVaultsData": "workspace:*"
+    numbro: "npm:^2.5.0"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/StatsBox@workspace:*, @snx-v3/StatsBox@workspace:liquidity/lib/StatsBox":
   version: 0.0.0-use.local
   resolution: "@snx-v3/StatsBox@workspace:liquidity/lib/StatsBox"
@@ -5053,6 +5069,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/getStatsUrl@workspace:*, @snx-v3/getStatsUrl@workspace:liquidity/lib/getStatsUrl":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/getStatsUrl@workspace:liquidity/lib/getStatsUrl"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/icons@workspace:*, @snx-v3/icons@workspace:liquidity/components/icons":
   version: 0.0.0-use.local
   resolution: "@snx-v3/icons@workspace:liquidity/components/icons"
@@ -5126,6 +5148,7 @@ __metadata:
     "@snx-v3/etherscanLink": "workspace:*"
     "@snx-v3/format": "workspace:*"
     "@snx-v3/formatters": "workspace:*"
+    "@snx-v3/getStatsUrl": "workspace:*"
     "@snx-v3/icons": "workspace:*"
     "@snx-v3/theme": "workspace:*"
     "@snx-v3/txnReducer": "workspace:*"
@@ -5166,6 +5189,7 @@ __metadata:
     "@snx-v3/useRates": "workspace:*"
     "@snx-v3/useRepay": "workspace:*"
     "@snx-v3/useRewards": "workspace:*"
+    "@snx-v3/useStaticAaveUSDC": "workspace:*"
     "@snx-v3/useStaticAaveUSDCRate": "workspace:*"
     "@snx-v3/useSynthBalances": "workspace:*"
     "@snx-v3/useSynthTokens": "workspace:*"
@@ -9762,7 +9786,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bignumber.js@npm:^9.0.0, bignumber.js@npm:^9.1.0, bignumber.js@npm:^9.1.1":
+"bignumber.js@npm:^8 || ^9, bignumber.js@npm:^9.0.0, bignumber.js@npm:^9.1.0, bignumber.js@npm:^9.1.1":
   version: 9.1.2
   resolution: "bignumber.js@npm:9.1.2"
   checksum: 10/d89b8800a987225d2c00dcbf8a69dc08e92aa0880157c851c287b307d31ceb2fc2acb0c62c3e3a3d42b6c5fcae9b004035f13eb4386e56d529d7edac18d5c9d8
@@ -16558,6 +16582,15 @@ __metadata:
   dependencies:
     boolbase: "npm:^1.0.0"
   checksum: 10/5afc3dafcd1573b08877ca8e6148c52abd565f1d06b1eb08caf982e3fa289a82f2cae697ffb55b5021e146d60443f1590a5d6b944844e944714a5b549675bcd3
+  languageName: node
+  linkType: hard
+
+"numbro@npm:^2.5.0":
+  version: 2.5.0
+  resolution: "numbro@npm:2.5.0"
+  dependencies:
+    bignumber.js: "npm:^8 || ^9"
+  checksum: 10/50408c826dded5b5a2a5511ea8af204af4a426e9b89cac367dd115ead813c1da35448fb7b38b1c80b2edae762b59e7ca7d74414f6eb6d74685665e295f2c8f9a
   languageName: node
   linkType: hard
 

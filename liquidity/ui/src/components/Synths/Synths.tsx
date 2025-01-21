@@ -16,6 +16,7 @@ import { Tooltip } from '@snx-v3/Tooltip';
 import { useWallet } from '@snx-v3/useBlockchain';
 import { useSynthBalances } from '@snx-v3/useSynthBalances';
 import { useUnwrapAllSynths } from '@snx-v3/useUnwrapAllSynths';
+import { wei } from '@synthetixio/wei';
 import React from 'react';
 import { SynthRow } from './SynthRow';
 import { SynthsLoading } from './SynthsLoading';
@@ -33,7 +34,7 @@ export function Synths() {
       return;
     }
     return synthBalances
-      .filter(({ balance }) => balance.gt(0))
+      .filter(({ balance }) => balance.gt(wei(0.01))) // ignore the dust
       .sort((a, b) => a.synth.symbol.localeCompare(b.synth.symbol))
       .sort((a, b) => b.balance.toNumber() - a.balance.toNumber());
   }, [synthBalances]);

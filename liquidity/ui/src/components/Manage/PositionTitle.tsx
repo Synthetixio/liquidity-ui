@@ -1,6 +1,7 @@
 import { ArrowUpIcon } from '@chakra-ui/icons';
 import { Flex, Heading, Link, Text } from '@chakra-ui/react';
 import { formatNumberToUsd } from '@snx-v3/formatters';
+import { getStatsUrl } from '@snx-v3/getStatsUrl';
 import { TokenIcon } from '@snx-v3/TokenIcon';
 import { NetworkIcon, useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
@@ -9,22 +10,6 @@ import { useVaultsData } from '@snx-v3/useVaultsData';
 import React from 'react';
 
 // import { useApr } from '@snx-v3/useApr';
-
-function getStatsUrl(chainId?: number) {
-  if (chainId === 1) {
-    return 'https://stats.synthetix.io/all/?page=ethereum';
-  }
-  if (chainId === 10) {
-    return 'https://stats.synthetix.io/all/?page=optimism';
-  }
-  if (chainId === 8453) {
-    return 'https://stats.synthetix.io/all/?page=base';
-  }
-  if (chainId === 42161) {
-    return 'https://stats.synthetix.io/all/?page=arbitrum';
-  }
-  return 'https://stats.synthetix.io/all/';
-}
 
 export function PositionTitle() {
   const { network } = useNetwork();
