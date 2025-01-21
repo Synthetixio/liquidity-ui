@@ -1,11 +1,12 @@
 import { Flex, Heading, Text } from '@chakra-ui/react';
+import { StatsTotalLocked } from '@snx-v3/StatsTotalLocked';
+import { StatsTotalPnl } from '@snx-v3/StatsTotalPnl';
 import { MAINNET, SEPOLIA, useNetwork } from '@snx-v3/useBlockchain';
 import { Helmet } from 'react-helmet';
 import { MigrationBanner } from '../components/Migration/MigrationBanner';
 import { PoolsList } from '../components/Pools/PoolsList';
 import { PositionsList } from '../components/Positions/PositionsList';
 import { Rewards } from '../components/Rewards/Rewards';
-import { StatsList } from '../components/Stats/StatsList';
 import { Synths } from '../components/Synths/Synths';
 
 export function Dashboard() {
@@ -21,22 +22,25 @@ export function Dashboard() {
           <MigrationBanner network={network} type="alert" />
         )}
 
-        <Heading
-          mt={[6, 10]}
-          color="gray.50"
-          maxWidth="20rem"
-          fontSize={['2rem', '3rem']}
-          lineHeight="120%"
-        >
-          The Liquidity Layer of DeFi
-        </Heading>
-
-        <Text color="gray.500" fontSize="1rem" lineHeight={6} fontFamily="heading" mt="1rem">
-          Provide liquidity for the next generation of permissionless protocols
-        </Text>
-
-        <Flex mt={12} flexDirection="column">
-          <StatsList />
+        <Flex columnGap={20} flexWrap="wrap" justifyContent="space-between">
+          <Flex flexDirection="column" minWidth={400}>
+            <Heading
+              mt={[6, 10]}
+              color="gray.50"
+              maxWidth="20rem"
+              fontSize={['2rem', '3rem']}
+              lineHeight="120%"
+            >
+              The Liquidity Layer of DeFi
+            </Heading>
+            <Text color="gray.500" fontSize="1rem" lineHeight={6} fontFamily="heading" mt="1rem">
+              Provide liquidity for the next generation of permissionless protocols
+            </Text>
+          </Flex>
+          <Flex mt={10} gap={4} flex={1}>
+            <StatsTotalLocked />
+            <StatsTotalPnl />
+          </Flex>
         </Flex>
 
         <Flex mt={12} flexDirection="column" gap={4}>

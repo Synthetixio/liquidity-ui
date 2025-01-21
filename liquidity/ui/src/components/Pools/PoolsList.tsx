@@ -107,20 +107,20 @@ export function PoolsList() {
   }, [stata, collateralPrices, stataPrice]);
 
   return (
-    <Flex mt={6} minW="1200px" overflowX="auto" direction="column" gap={4}>
-      <Flex flexDir="row" w="100%" gap={4} py={3} px={4} whiteSpace="nowrap">
+    <Flex mt={6} maxW="100%" overflowX="auto" direction="column" gap={4}>
+      <Flex flexDir="row" minW="800px" gap={4} py={3} px={4} whiteSpace="nowrap">
         <HeaderText width="260px" justifyContent="left">
           Collateral / Network
         </HeaderText>
         <HeaderText width="240px">Wallet Balance</HeaderText>
         <HeaderText width="240px">TVL</HeaderText>
         <HeaderText width="164px">APY / APR</HeaderText>
-        <Flex minW="210px" flex="1" />
+        <Flex minW="120px" flex="1" />
       </Flex>
 
       {isPending ? <PoolCardsLoading /> : null}
       {!isPending && filteredPools && allCollateralPrices ? (
-        <Flex direction="column-reverse" gap={4}>
+        <Flex minW="800px" direction="column-reverse" gap={4}>
           {filteredPools.flatMap(
             ({ network, poolInfo, apr, collateralTypes }) =>
               collateralTypes?.map((collateralType) => (

@@ -265,7 +265,7 @@ export function PoolRow({
             </Tooltip>
           </Text>
         </Flex>
-        <Flex minW="210px" flex="1" justifyContent="flex-end">
+        <Flex minW="120px" flex="1" justifyContent="flex-end">
           <Button
             as={Link}
             href={`?${makeSearch({

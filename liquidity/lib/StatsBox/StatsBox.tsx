@@ -1,17 +1,20 @@
 import { InfoIcon } from '@chakra-ui/icons';
 import { Fade, Flex, Text } from '@chakra-ui/react';
+import { SynthSkeleton } from '@snx-v3/SynthSkeleton';
 import { Tooltip } from '@snx-v3/Tooltip';
-import { ReactNode } from 'react';
-import { SynthSkeleton } from '../SynthSkeleton/SynthSkeleton';
+import React from 'react';
 
-interface StatBoxProps {
+export function StatsBox({
+  isLoading,
+  title,
+  label,
+  value,
+}: {
   isLoading: boolean;
   title: string;
-  label?: string | ReactNode;
-  value?: ReactNode;
-}
-
-export const StatBox = ({ isLoading, title, label, value }: StatBoxProps) => {
+  label?: React.ReactNode;
+  value?: React.ReactNode;
+}) {
   return (
     <Flex
       bg="navy.700"
@@ -60,4 +63,4 @@ export const StatBox = ({ isLoading, title, label, value }: StatBoxProps) => {
       </Flex>
     </Flex>
   );
-};
+}
