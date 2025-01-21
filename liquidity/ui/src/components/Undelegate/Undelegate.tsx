@@ -387,35 +387,11 @@ export function Undelegate() {
 
       {network?.preset === 'andromeda' && liquidityPosition ? (
         <Collapse in={liquidityPosition.debt.gt(0)} animateOpacity unmountOnExit>
-          <Alert status="error" mb="6" borderRadius="6px">
+          <Alert status="info" mb="6" borderRadius="6px">
             <AlertIcon />
             <Text>
-              To unlock this amount, you need to{' '}
-              <Link
-                href={`?${makeSearch({
-                  page: 'position',
-                  collateralSymbol: params.collateralSymbol,
-                  manageAction: 'repay',
-                  accountId: params.accountId,
-                })}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setParams({
-                    page: 'position',
-                    collateralSymbol: params.collateralSymbol,
-                    manageAction: 'repay',
-                    accountId: params.accountId,
-                  });
-                }}
-                textDecoration="underline"
-              >
-                <Amount
-                  prefix=" repay "
-                  value={liquidityPosition.debt}
-                  suffix={` ${liquidityPosition.collateralType.symbol}`}
-                />
-              </Link>{' '}
-              to your position
+              <Amount prefix="You will repay " value={liquidityPosition.debt} suffix=" USDC" /> to
+              unlock {liquidityPosition.collateralType.displaySymbol}
             </Text>
           </Alert>
         </Collapse>
