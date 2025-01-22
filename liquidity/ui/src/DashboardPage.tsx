@@ -1,14 +1,16 @@
-import { Flex, Heading, Text } from '@chakra-ui/react';
+import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { MigrationBanner } from '@snx-v3/Migration';
 import { PoolsList } from '@snx-v3/Pools';
 import { PositionsList } from '@snx-v3/Positions';
 import { Rewards } from '@snx-v3/Rewards';
-// import { SNXJubilee } from '@snx-v3/SNXJubilee';
+import { NewPool } from '@snx-v3/NewPool';
 import { StatsTotalLocked } from '@snx-v3/StatsTotalLocked';
 import { StatsTotalPnl } from '@snx-v3/StatsTotalPnl';
 import { StataUSDC, Synths } from '@snx-v3/Synths';
 import { MAINNET, SEPOLIA, useNetwork } from '@snx-v3/useBlockchain';
 import { Helmet } from 'react-helmet';
+
+const isNext = window.localStorage.SNX_NEXT === 'true';
 
 export function DashboardPage() {
   const { network } = useNetwork();
@@ -44,13 +46,11 @@ export function DashboardPage() {
           </Flex>
         </Flex>
 
-        {/*
-        {network?.id === MAINNET.id ? (
+        {network?.id === MAINNET.id && isNext ? (
           <Box mt={12}>
-            <SNXJubilee />
+            <NewPool />
           </Box>
         ) : null}
-        */}
 
         <Flex mt={12} flexDirection="column" gap={4}>
           <Heading fontSize="1.25rem" fontFamily="heading" lineHeight="1.75rem">

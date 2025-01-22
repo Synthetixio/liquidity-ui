@@ -23,7 +23,7 @@ function InfoBox({ ...props }) {
   );
 }
 
-export function SNXJubilee() {
+export function NewPool() {
   const { network } = useNetwork();
   const { data: vaultsData, isPending: isPendingVaultsData } = useVaultsData(network);
 

@@ -5097,6 +5097,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/NewPool@workspace:liquidity/lib/NewPool":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/NewPool@workspace:liquidity/lib/NewPool"
+  dependencies:
+    "@chakra-ui/icons": "npm:^2.1.1"
+    "@chakra-ui/react": "npm:^2.8.2"
+    "@snx-v3/getStatsUrl": "workspace:*"
+    "@snx-v3/icons": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useCollateralTypes": "workspace:*"
+    "@snx-v3/useVaultsData": "workspace:*"
+    numbro: "npm:^2.5.0"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/NumberInput@workspace:*, @snx-v3/NumberInput@workspace:liquidity/lib/NumberInput":
   version: 0.0.0-use.local
   resolution: "@snx-v3/NumberInput@workspace:liquidity/lib/NumberInput"
@@ -5270,22 +5286,6 @@ __metadata:
     "@snx-v3/useRewards": "workspace:*"
     "@snx-v3/useSynthTokens": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
-    react: "npm:^18.2.0"
-  languageName: unknown
-  linkType: soft
-
-"@snx-v3/SNXJubilee@workspace:liquidity/lib/SNXJubilee":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/SNXJubilee@workspace:liquidity/lib/SNXJubilee"
-  dependencies:
-    "@chakra-ui/icons": "npm:^2.1.1"
-    "@chakra-ui/react": "npm:^2.8.2"
-    "@snx-v3/getStatsUrl": "workspace:*"
-    "@snx-v3/icons": "workspace:*"
-    "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useCollateralTypes": "workspace:*"
-    "@snx-v3/useVaultsData": "workspace:*"
-    numbro: "npm:^2.5.0"
     react: "npm:^18.2.0"
   languageName: unknown
   linkType: soft
