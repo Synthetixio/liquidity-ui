@@ -1,9 +1,9 @@
 import { Container, Flex, Link, useDisclosure } from '@chakra-ui/react';
 import { Logo, LogoIcon } from '@snx-v3/icons';
+import { MigrateUSDButton } from '@snx-v3/MigrateUSD';
 import { MAINNET, SEPOLIA, useNetwork } from '@snx-v3/useBlockchain';
 import { useEffect } from 'react';
 import { NavLink as RouterLink, useLocation } from 'react-router-dom';
-import { MigrateUSDButton } from './components/MigrateUSD/MigrateUSDButton';
 import { NetworkController } from './NetworkController';
 
 export default function Header() {

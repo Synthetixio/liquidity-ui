@@ -1,21 +1,21 @@
 import { Box, Container, Flex, Spinner } from '@chakra-ui/react';
 import { useParams } from '@snx-v3/useParams';
 import { Suspense } from 'react';
+import { AccountSettingsPage } from './AccountSettingsPage';
+import { DashboardPage } from './DashboardPage';
 import { Footer } from './Footer';
 import Header from './Header';
-import { Settings } from './pages/Account/Settings';
-import { Dashboard } from './pages/Dashboard';
-import { Manage } from './pages/Manage';
+import { ManagePage } from './ManagePage';
 
 function Content() {
   const [params] = useParams();
   if (params.page === 'settings') {
-    return <Settings />;
+    return <AccountSettingsPage />;
   }
   if (params.page === 'position') {
-    return <Manage />;
+    return <ManagePage />;
   }
-  return <Dashboard />;
+  return <DashboardPage />;
 }
 
 export function Router() {

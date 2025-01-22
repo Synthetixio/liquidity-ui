@@ -8,9 +8,9 @@ import { Web3OnboardProvider } from '@web3-onboard/react';
 import { useEffect } from 'react';
 import Head from 'react-helmet';
 import { BrowserRouter } from 'react-router-dom';
+import { onboard } from './onboard';
 import { Router } from './Router';
-import { onboard } from './utils/onboard';
-import { Progress } from './utils/theme';
+import { Progress } from './theme';
 
 const queryClient = new QueryClient({
   defaultOptions: {
