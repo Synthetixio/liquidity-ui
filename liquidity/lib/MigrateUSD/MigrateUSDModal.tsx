@@ -9,7 +9,7 @@ import {
   ModalOverlay,
 } from '@chakra-ui/react';
 import { ZEROWEI } from '@snx-v3/constants';
-import { StepSuccessFinal } from '@snx-v3/Migration';
+import { StepSuccessFinal } from './StepSuccessFinal';
 import { Network } from '@snx-v3/useBlockchain';
 import { type HomePageSchemaType, useParams } from '@snx-v3/useParams';
 import React from 'react';

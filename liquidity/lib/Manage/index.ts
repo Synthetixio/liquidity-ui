@@ -1,6 +1,4 @@
 export * from './LiquidityPositionUpdated';
-export * from './actions';
-export * from './ManageActions';
 export * from './DebtStats';
 export * from './PositionTitle';
 export * from './StataDepositBanner';

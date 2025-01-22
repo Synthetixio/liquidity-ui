@@ -35,7 +35,7 @@ import { useTransferableSynthetix } from '@snx-v3/useTransferableSynthetix';
 import { useUSDC } from '@snx-v3/useUSDC';
 import { DepositsIncreaseTimeout } from '@snx-v3/WithdrawIncrease';
 import React from 'react';
-import { MigrationBanner } from '../Migration/MigrationBanner';
+import { MigrationBanner } from '@snx-v3/Migration';
 
 export function InitialDeposit({
   submit,

@@ -10,7 +10,6 @@
     "@snx-v3/BorderBox": "workspace:*",
     "@snx-v3/ChangeStat": "workspace:*",
     "@snx-v3/ContractError": "workspace:*",
-    "@snx-v3/Migration": "workspace:*",
     "@snx-v3/Multistep": "workspace:*",
     "@snx-v3/NumberInput": "workspace:*",
     "@snx-v3/TokenIcon": "workspace:*",

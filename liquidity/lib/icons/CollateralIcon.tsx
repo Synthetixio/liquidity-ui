@@ -1,11 +1,11 @@
 import { Icon, IconProps } from '@chakra-ui/react';
-import { ArbitrumIcon } from '../ArbitrumIcon';
-import { BitcoinIcon } from '../BitcoinIcon';
-import { DollarCircle } from '../DollarCircle';
-import { EthereumIcon } from '../EthereumIcon';
-import { OptimismIcon } from '../OptimismIcon';
-import { SNXIcon } from '../SNXIcon';
-import { SUSDCIcon } from '../SUSDCIcon';
+import { ArbitrumIcon } from './ArbitrumIcon';
+import { BitcoinIcon } from './BitcoinIcon';
+import { DollarCircle } from './DollarCircle';
+import { EthereumIcon } from './EthereumIcon';
+import { OptimismIcon } from './OptimismIcon';
+import { SNXIcon } from './SNXIcon';
+import { SUSDCIcon } from './SUSDCIcon';
 
 interface CollateralIconProps extends IconProps {
   symbol?: string;

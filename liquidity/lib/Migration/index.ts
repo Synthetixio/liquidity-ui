@@ -1,4 +1,3 @@
-export * from './StepSuccessFinal';
 export * from './MigrationDialog';
 export * from './StepSummary';
 export * from './StepSuccess';
