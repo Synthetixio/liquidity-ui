@@ -90,7 +90,7 @@ export function NewPool() {
             </InfoBox>
 
             <InfoBox>
-              <Text>Total TVL</Text>
+              <Text>TVL</Text>
               <Text color="gray.50">
                 {isPendingVaultsData
                   ? '~'
