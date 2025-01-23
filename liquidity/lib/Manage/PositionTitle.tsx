@@ -103,7 +103,7 @@ export function PositionTitle() {
             py={0.5}
             gap={2}
           >
-            <Text>Total TVL</Text>
+            <Text>TVL</Text>
             <Text>
               {isPendingVaultsData
                 ? '~'
