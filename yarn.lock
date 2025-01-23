@@ -5557,9 +5557,7 @@ __metadata:
   resolution: "@snx-v3/calculations@workspace:liquidity/lib/calculations"
   dependencies:
     "@snx-v3/constants": "workspace:*"
-    "@snx-v3/usePoolData": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
-    zod: "npm:^3.22.4"
   languageName: unknown
   linkType: soft
 
@@ -6400,7 +6398,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/usePoolData@workspace:*, @snx-v3/usePoolData@workspace:liquidity/lib/usePoolData":
+"@snx-v3/usePoolData@workspace:liquidity/lib/usePoolData":
   version: 0.0.0-use.local
   resolution: "@snx-v3/usePoolData@workspace:liquidity/lib/usePoolData"
   dependencies:
