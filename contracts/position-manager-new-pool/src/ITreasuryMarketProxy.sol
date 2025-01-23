@@ -3,20 +3,20 @@ pragma solidity ^0.8.21;
 
 interface ITreasuryMarketProxy {
     //  constructor(address v3SystemAddress, address treasuryAddress, uint128 v3PoolId, address collateralTokenAddress)
-    error ImplementationIsSterile(address implementation);
-    error InsufficientCRatio(uint128 accountId, uint256 currentDebt, uint256 targetDebt);
-    error InvalidParameter(string parameter, string reason);
-    error MarketAlreadyRegistered(uint128 marketId);
-    error NoChange();
-    error NotAContract(address contr);
-    error NotNominated(address addr);
-    error OutstandingLoan(uint128 accountId, uint256 outstandingLoanAmount);
-    error OverflowInt256ToUint256();
-    error OverflowUint256ToInt256();
-    error OverflowUint256ToUint128();
-    error Unauthorized(address addr);
-    error UpgradeSimulationFailed();
-    error ZeroAddress();
+    //  error ImplementationIsSterile(address implementation);
+    //  error InsufficientCRatio(uint128 accountId, uint256 currentDebt, uint256 targetDebt);
+    //  error InvalidParameter(string parameter, string reason);
+    //  error MarketAlreadyRegistered(uint128 marketId);
+    //  error NoChange();
+    //  error NotAContract(address contr);
+    //  error NotNominated(address addr);
+    //  error OutstandingLoan(uint128 accountId, uint256 outstandingLoanAmount);
+    //  error OverflowInt256ToUint256();
+    //  error OverflowUint256ToInt256();
+    //  error OverflowUint256ToUint128();
+    //  error Unauthorized(address addr);
+    //  error UpgradeSimulationFailed();
+    //  error ZeroAddress();
     //  event AccountSaddled(uint128 indexed accountId, uint256 collateralAmount, uint256 debtAssigned)
     //  event AccountUnsaddled(uint128 indexed accountId, uint256 collateralAmount, uint256 debtUnassigned)
     //  event LoanAdjusted(uint128 indexed accountId, uint256 newLoanedAmount, uint256 previousLoanedAmount)
