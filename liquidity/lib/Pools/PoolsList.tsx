@@ -114,7 +114,7 @@ export function PoolsList() {
         </HeaderText>
         <HeaderText width="240px">Wallet Balance</HeaderText>
         <HeaderText width="240px">TVL</HeaderText>
-        <HeaderText width="164px">APY / APR</HeaderText>
+        <HeaderText width="164px">APR</HeaderText>
         <Flex minW="120px" flex="1" />
       </Flex>
 
