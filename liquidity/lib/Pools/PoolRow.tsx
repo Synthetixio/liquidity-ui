@@ -1,9 +1,10 @@
 import { Button, Fade, Flex, Link, Text } from '@chakra-ui/react';
 import { ZEROWEI } from '@snx-v3/constants';
-import { formatApr, formatNumber, formatNumberToUsd } from '@snx-v3/formatters';
+import { formatNumber, formatNumberToUsd } from '@snx-v3/formatters';
 import { Sparkles } from '@snx-v3/icons';
 import { TokenIcon } from '@snx-v3/TokenIcon';
 import { Tooltip } from '@snx-v3/Tooltip';
+import { useApr } from '@snx-v3/useApr';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import { Network, NetworkIcon, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { CollateralType } from '@snx-v3/useCollateralTypes';
@@ -24,7 +25,6 @@ interface CollateralTypeWithDeposited extends CollateralType {
 export function PoolRow({
   pool: _pool,
   network,
-  apr,
   collateralType,
   collateralPrices,
 }: {
@@ -38,11 +38,6 @@ export function PoolRow({
     symbol: string;
     price: ethers.BigNumber;
   }[];
-  apr: {
-    combinedApr: number;
-    cumulativePnl: number;
-    collateralAprs: any[];
-  };
 }) {
   const [params, setParams] = useParams();
 
@@ -90,11 +85,14 @@ export function PoolRow({
     )?.price ?? 0
   );
 
-  const collateralApr = apr.collateralAprs.find(
-    (apr) => apr.collateralType === collateralType.tokenAddress.toLowerCase()
-  ) || { apr7d: 0, apr7dRewards: 0, apr7dPnl: 0 };
-
-  const { apr7d, apr7dRewards, apr7dPnl } = collateralApr;
+  const { data: apr, isPending: isPendingApr } = useApr(network);
+  const positionApr = React.useMemo(() => {
+    if (apr && collateralType) {
+      return apr.find(
+        (item) => item.collateralType.toLowerCase() === collateralType.tokenAddress.toLowerCase()
+      );
+    }
+  }, [apr, collateralType]);
 
   const onClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -236,33 +234,49 @@ export function PoolRow({
             fontWeight={500}
             color="white"
           >
-            {isAndromedaStataUSDC && stataUSDCApr
-              ? formatApr(apr7d * 100 + stataUSDCApr)
-              : formatApr(apr7d * 100)}
-            <Tooltip
-              label={
-                <Flex direction="column">
-                  <Flex justifyContent="space-between">
-                    <Text fontWeight={700} mr={2}>
-                      Total APR:
-                    </Text>
-                    <Text fontWeight={700}>{formatApr(apr7d * 100)}</Text>
+            {isPendingApr ? '~' : null}
+            {!isPendingApr && positionApr && positionApr.apr28d > 0
+              ? (
+                  positionApr.apr28d * 100 +
+                  (isAndromedaStataUSDC && stataUSDCApr ? stataUSDCApr : 0)
+                )
+                  .toFixed(2)
+                  .concat('%')
+              : '-'}
+            {!isPendingApr && positionApr && positionApr.apr28d > 0 ? (
+              <Tooltip
+                label={
+                  <Flex direction="column">
+                    <Flex justifyContent="space-between">
+                      <Text fontWeight={700} mr={2}>
+                        Total APR:
+                      </Text>
+                      <Text fontWeight={700}>
+                        {(positionApr.apr28d * 100).toFixed(2).concat('%')}
+                      </Text>
+                    </Flex>
+                    <Flex justifyContent="space-between">
+                      <Text mr={2}>Performance:</Text>
+                      <Text>{(positionApr.apr28dPnl * 100).toFixed(2).concat('%')}</Text>
+                    </Flex>
+                    <Flex justifyContent="space-between">
+                      <Text mr={2}>Rewards: </Text>
+                      <Text>{(positionApr.apr28dRewards * 100).toFixed(2).concat('%')}</Text>
+                    </Flex>
+                    {isAndromedaStataUSDC && stataUSDCApr ? (
+                      <Flex justifyContent="space-between">
+                        <Text mr={2}>AAVE yield: </Text>
+                        <Text>{stataUSDCApr.toFixed(2).concat('%')}</Text>
+                      </Flex>
+                    ) : null}
                   </Flex>
-                  <Flex justifyContent="space-between">
-                    <Text mr={2}>Performance:</Text>
-                    <Text>{formatApr(apr7dPnl * 100)}</Text>
-                  </Flex>
-                  <Flex justifyContent="space-between">
-                    <Text mr={2}>Rewards: </Text>
-                    <Text>{formatApr(apr7dRewards * 100)}</Text>
-                  </Flex>
+                }
+              >
+                <Flex as="span" display="inline">
+                  <Sparkles w="14px" h="14px" mb={1} ml="0.5px" mt="1px" />
                 </Flex>
-              }
-            >
-              <Flex as="span" display="inline">
-                <Sparkles w="14px" h="14px" mb={1} ml="0.5px" mt="1px" />
-              </Flex>
-            </Tooltip>
+              </Tooltip>
+            ) : null}
           </Text>
         </Flex>
         <Flex minW="120px" flex="1" justifyContent="flex-end">

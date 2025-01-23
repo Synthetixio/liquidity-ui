@@ -1,6 +1,5 @@
 import { Flex, Heading, Table, TableContainer, Tbody, Text, Tr } from '@chakra-ui/react';
 import { POOL_ID } from '@snx-v3/constants';
-import { useApr } from '@snx-v3/useApr';
 import { NetworkIcon, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import { useLiquidityPositions } from '@snx-v3/useLiquidityPositions';
 import { useParams } from '@snx-v3/useParams';
@@ -20,7 +19,6 @@ export const PositionsList = () => {
 
   const { data: liquidityPositions, isPending: isPendingLiquidityPositions } =
     useLiquidityPositions({ accountId: params.accountId });
-  const { data: apr } = useApr();
 
   const filteredLiquidityPositions = React.useMemo(
     () =>
@@ -99,12 +97,6 @@ export const PositionsList = () => {
               ) : (
                 <>
                   {filteredLiquidityPositions?.map((liquidityPosition, i) => {
-                    const positionApr = apr?.collateralAprs?.find(
-                      (apr: { collateralType: string }) =>
-                        apr.collateralType.toLowerCase() ===
-                        liquidityPosition.collateralType.tokenAddress.toLowerCase()
-                    );
-
                     return (
                       <Tr
                         key={`${POOL_ID}-${liquidityPosition.collateralType.tokenAddress}`}
@@ -112,10 +104,7 @@ export const PositionsList = () => {
                           i === filteredLiquidityPositions.length - 1 ? 'none' : '1px'
                         }
                       >
-                        <PositionRow
-                          liquidityPosition={liquidityPosition}
-                          apr={positionApr?.apr7d * 100}
-                        />
+                        <PositionRow liquidityPosition={liquidityPosition} />
                       </Tr>
                     );
                   })}

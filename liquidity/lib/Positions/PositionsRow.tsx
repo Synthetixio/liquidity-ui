@@ -22,14 +22,10 @@ import { type LiquidityPositionType } from '@snx-v3/useLiquidityPosition';
 import { makeSearch, useParams } from '@snx-v3/useParams';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
 import lockIcon from './lock.svg';
+import React from 'react';
+import { useApr } from '@snx-v3/useApr';
 
-export function PositionRow({
-  liquidityPosition,
-  apr,
-}: {
-  liquidityPosition: LiquidityPositionType;
-  apr?: number;
-}) {
+export function PositionRow({ liquidityPosition }: { liquidityPosition: LiquidityPositionType }) {
   const [params, setParams] = useParams();
   const { network } = useNetwork();
 
@@ -39,8 +35,7 @@ export function PositionRow({
   });
 
   const { minutes, hours, isRunning } = useWithdrawTimer(params.accountId);
-  const { data: stataUSDCAPR } = useStataUSDCApr(network?.id, network?.preset);
-  const stataUSDCAPRParsed = stataUSDCAPR || 0;
+  const { data: stataUSDCApr } = useStataUSDCApr(network?.id, network?.preset);
 
   const collateralAmount = liquidityPosition
     ? liquidityPosition.collateralAmount.add(liquidityPosition.totalLocked)
@@ -51,6 +46,17 @@ export function PositionRow({
         liquidityPosition.totalLocked.mul(liquidityPosition.collateralPrice)
       )
     : undefined;
+
+  const { data: apr, isPending: isPendingApr } = useApr(network);
+  const positionApr = React.useMemo(
+    () =>
+      apr?.find(
+        (item) =>
+          item.collateralType.toLowerCase() ===
+          liquidityPosition?.collateralType?.tokenAddress.toLowerCase()
+      ),
+    [apr, liquidityPosition?.collateralType?.tokenAddress]
+  );
 
   return (
     <>
@@ -190,8 +196,14 @@ export function PositionRow({
         <Fade in>
           <Flex flexDirection="column" alignItems="flex-end">
             <Text color="white" lineHeight="1.25rem" fontFamily="heading" fontSize="sm">
-              {apr && apr > 0
-                ? (isAndromedaStataUSDC ? apr + stataUSDCAPRParsed : apr).toFixed(2).concat('%')
+              {isPendingApr ? '~' : null}
+              {!isPendingApr && positionApr && positionApr.apr28d > 0
+                ? (
+                    positionApr.apr28d * 100 +
+                    (isAndromedaStataUSDC && stataUSDCApr ? stataUSDCApr : 0)
+                  )
+                    .toFixed(2)
+                    .concat('%')
                 : '-'}
             </Text>
           </Flex>

@@ -3,19 +3,18 @@ import { Box, Flex, Text } from '@chakra-ui/react';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { ClosePosition } from '@snx-v3/ClosePosition';
 import { UnsupportedCollateralAlert } from '@snx-v3/CollateralAlert';
-import { formatApr } from '@snx-v3/formatters';
 import { ManageStats, PositionTitle, StataDepositBanner } from '@snx-v3/Manage';
 import { ManageAction } from '@snx-v3/ManageAction';
 import { ManagePositionProvider } from '@snx-v3/ManagePositionContext';
 import { LockedCollateral } from '@snx-v3/Positions';
 import { Tooltip } from '@snx-v3/Tooltip';
+import { useApr } from '@snx-v3/useApr';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useIsAndromedaStataUSDC } from '@snx-v3/useIsAndromedaStataUSDC';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type ManageActionType, type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
-import { usePool } from '@snx-v3/usePoolsList';
 import React from 'react';
 import { Helmet } from 'react-helmet';
 
@@ -31,8 +30,7 @@ export const ManagePage = () => {
     collateralType,
   });
 
-  const { data: stataUSDCAPR } = useStataUSDCApr(network?.id, network?.preset);
-  const stataUSDCAPRParsed = stataUSDCAPR || 0;
+  const { data: stataUSDCApr } = useStataUSDCApr(network?.id, network?.preset);
 
   const isAndromedaStataUSDC = useIsAndromedaStataUSDC({
     tokenAddress: collateralType?.tokenAddress,
@@ -41,10 +39,13 @@ export const ManagePage = () => {
 
   const [txnModalOpen, setTxnModalOpen] = React.useState<ManageActionType | undefined>(undefined);
 
-  const { data: pool, isPending: isPendingPool } = usePool(Number(network?.id));
-
-  const positionApr = pool?.apr?.collateralAprs?.find(
-    (item: any) => item.collateralType.toLowerCase() === collateralType?.tokenAddress.toLowerCase()
+  const { data: apr, isPending: isPendingApr } = useApr(network);
+  const positionApr = React.useMemo(
+    () =>
+      apr?.find(
+        (item) => item.collateralType.toLowerCase() === collateralType?.tokenAddress.toLowerCase()
+      ),
+    [apr, collateralType?.tokenAddress]
   );
 
   return (
@@ -73,7 +74,7 @@ export const ManagePage = () => {
         >
           <PositionTitle />
           <Flex alignItems={['center', 'flex-end']} direction="column">
-            <Tooltip label="APR is averaged over the trailing 7 days and is comprised of both performance and rewards">
+            <Tooltip label="APR is averaged over the trailing 28 days and is comprised of both performance and rewards">
               <Text
                 fontFamily="heading"
                 fontSize="sm"
@@ -86,13 +87,15 @@ export const ManagePage = () => {
               </Text>
             </Tooltip>
             <Text fontWeight="bold" fontSize="20px" color="white" lineHeight="36px">
-              {isPendingPool
-                ? '~'
-                : formatApr(
-                    positionApr?.apr7d > 0
-                      ? positionApr.apr7d * 100 + (isAndromedaStataUSDC ? stataUSDCAPRParsed : 0)
-                      : undefined
-                  )}
+              {isPendingApr ? '~' : null}
+              {!isPendingApr && positionApr && positionApr.apr28d > 0
+                ? (
+                    positionApr.apr28d * 100 +
+                    (isAndromedaStataUSDC && stataUSDCApr ? stataUSDCApr : 0)
+                  )
+                    .toFixed(2)
+                    .concat('%')
+                : '-'}
             </Text>
           </Flex>
         </Flex>

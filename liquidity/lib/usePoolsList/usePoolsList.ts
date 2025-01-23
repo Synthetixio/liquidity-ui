@@ -1,49 +1,12 @@
 import { getSubgraphUrl, POOL_ID } from '@snx-v3/constants';
-import { fetchApr } from '@snx-v3/useApr';
 import { ARBITRUM, BASE_ANDROMEDA, MAINNET, NETWORKS } from '@snx-v3/useBlockchain';
 import { useQuery } from '@tanstack/react-query';
-
-export function usePoolsList() {
-  return useQuery({
-    queryKey: ['poolsList'],
-    queryFn: async () => {
-      try {
-        const [pools, aprs] = await Promise.all([fetchPoolsList(), fetchAprs()]);
-
-        const synthetixPools = pools.map((p, i) => ({
-          ...p,
-          apr: aprs[i],
-        }));
-
-        return { synthetixPools };
-      } catch (error) {
-        throw error;
-      }
-    },
-    staleTime: 60000 * 10,
-  });
-}
-
-export function usePool(networkId?: number) {
-  const { data, isPending } = usePoolsList();
-
-  return {
-    data: data?.synthetixPools.find(
-      (p) => p?.network?.id === networkId && p?.poolInfo?.[0]?.pool?.id === POOL_ID
-    ),
-    isPending,
-  };
-}
 
 const supportedNetworks = [MAINNET.id, BASE_ANDROMEDA.id, ARBITRUM.id];
 
 export const networksOffline = NETWORKS.filter(
   (n) => supportedNetworks.includes(n.id) && n.isSupported
 ).map((n) => n);
-
-async function fetchAprs() {
-  return Promise.all(networksOffline.map((network) => fetchApr(network.id)));
-}
 
 async function fetchPoolsList() {
   const urls = networksOffline.map((network) => getSubgraphUrl(network.name));
@@ -90,5 +53,24 @@ interface PoolInfo {
   pool: {
     name: string;
     id: string;
+  };
+}
+
+export function usePoolsList() {
+  return useQuery({
+    queryKey: ['poolsList'],
+    queryFn: async () => {
+      return fetchPoolsList();
+    },
+    staleTime: 60000 * 10,
+  });
+}
+
+export function usePool(networkId?: number) {
+  const { data, isPending } = usePoolsList();
+
+  return {
+    data: data?.find((p) => p?.network?.id === networkId && p?.poolInfo?.[0]?.pool?.id === POOL_ID),
+    isPending,
   };
 }

@@ -5,7 +5,6 @@
   "version": "0.0.2",
   "dependencies": {
     "@snx-v3/constants": "workspace:*",
-    "@snx-v3/useApr": "workspace:*",
     "@snx-v3/useBlockchain": "workspace:*",
     "@tanstack/react-query": "^5.8.3"
   }

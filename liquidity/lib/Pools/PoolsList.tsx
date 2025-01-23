@@ -64,11 +64,11 @@ export function PoolsList() {
     isStataPriceLoading;
 
   const filteredPools = React.useMemo(() => {
-    if (!poolsList?.synthetixPools) {
+    if (!poolsList) {
       return [];
     }
 
-    return poolsList.synthetixPools.map(({ network, poolInfo, apr }) => {
+    return poolsList.map(({ network, poolInfo }) => {
       const collateralDeposited = poolInfo.map(({ collateral_type }) => ({
         collateralDeposited: collateral_type.total_amount_deposited,
         tokenAddress: collateral_type.id,
@@ -93,12 +93,11 @@ export function PoolsList() {
       return {
         network,
         poolInfo,
-        apr,
         collateralDeposited,
         collateralTypes,
       };
     });
-  }, [poolsList?.synthetixPools, baseCollateralTypes, mainnetCollateralTypes]);
+  }, [poolsList, baseCollateralTypes, mainnetCollateralTypes]);
 
   const allCollateralPrices = React.useMemo(() => {
     if (stata && stataPrice) {
@@ -122,13 +121,12 @@ export function PoolsList() {
       {!isPending && filteredPools && allCollateralPrices ? (
         <Flex minW="800px" direction="column-reverse" gap={4}>
           {filteredPools.flatMap(
-            ({ network, poolInfo, apr, collateralTypes }) =>
+            ({ network, poolInfo, collateralTypes }) =>
               collateralTypes?.map((collateralType) => (
                 <PoolRow
                   key={`${network.id}-${collateralType.address}`}
                   pool={poolInfo?.[0]?.pool}
                   network={network}
-                  apr={apr}
                   collateralType={collateralType}
                   collateralPrices={allCollateralPrices}
                 />

@@ -2,6 +2,33 @@ import { getAprUrl } from '@snx-v3/constants';
 import { ARBITRUM, BASE_ANDROMEDA, MAINNET, Network, useNetwork } from '@snx-v3/useBlockchain';
 import { useQuery } from '@tanstack/react-query';
 
+export type PositionAPR = {
+  poolId: number;
+  collateralType: string;
+  apr28d: number;
+  apr28dPnl: number;
+  apr28dRewards: number;
+};
+
+const supportedAprNetworks = [BASE_ANDROMEDA.id, ARBITRUM.id, MAINNET.id];
+
+export async function fetchApr(networkId?: number) {
+  try {
+    const isSupported = networkId && supportedAprNetworks.includes(networkId);
+    if (!isSupported) {
+      throw new Error(`APR endpoint not supported for network ${networkId}`);
+    }
+    const response = await fetch(getAprUrl(networkId));
+    const data: PositionAPR[] = await response.json();
+
+    // Math.max(...data.map(({ apr28d }: { apr28d: number }) => apr28d)) * 100
+    return data;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
 export function useApr(customNetwork?: Network) {
   const { network } = useNetwork();
   const chain = customNetwork || network;
@@ -18,36 +45,4 @@ export function useApr(customNetwork?: Network) {
     staleTime: 60000,
     enabled: Boolean(chain?.id),
   });
-}
-
-const supportedAprNetworks = [BASE_ANDROMEDA.id, ARBITRUM.id, MAINNET.id];
-
-export async function fetchApr(networkId?: number) {
-  try {
-    const isSupported = networkId && supportedAprNetworks.includes(networkId);
-    if (!isSupported) {
-      throw new Error('Apr endpoint not supported for this network');
-    }
-
-    const response = await fetch(getAprUrl(networkId));
-
-    const data = await response.json();
-
-    const highestAprCollateral = data?.sort(
-      (a: { apr7d: number }, b: { apr7d: number }) => b.apr7d - a.apr7d
-    )[0];
-
-    return {
-      combinedApr: highestAprCollateral.apr7d * 100,
-      cumulativePnl: isSupported ? highestAprCollateral.cumulativePnl : 0,
-      collateralAprs: data,
-    };
-  } catch (error) {
-    console.error(error);
-    return {
-      combinedApr: 0,
-      cumulativePnl: 0,
-      collateralAprs: [],
-    };
-  }
 }
