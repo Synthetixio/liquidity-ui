@@ -5783,6 +5783,19 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/position-manager-new-pool@workspace:contracts/position-manager-new-pool":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/position-manager-new-pool@workspace:contracts/position-manager-new-pool"
+  dependencies:
+    "@synthetixio/core-contracts": "npm:^3.10.1"
+    "@synthetixio/core-modules": "npm:^3.10.1"
+    "@synthetixio/main": "npm:^3.10.1"
+    "@synthetixio/oracle-manager": "npm:^3.10.1"
+    "@synthetixio/pyth-erc7412-wrapper": "npm:^3.10.1"
+    forge-std: "github:foundry-rs/forge-std"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/position-manager@workspace:contracts/position-manager":
   version: 0.0.0-use.local
   resolution: "@snx-v3/position-manager@workspace:contracts/position-manager"
