@@ -37,7 +37,7 @@ export function DashboardPage() {
               Earn
             </Heading>
             <Text color="gray.500" fontSize="1rem" lineHeight={6} fontFamily="heading" mt="1rem">
-              Deposit your collateral to earn a share of protocol performance
+              Deposit SNX to earn a privileged share of protocol performance
             </Text>
           </Flex>
           <Flex mt={10} gap={4} flex={1}>
