@@ -248,14 +248,6 @@ export function PoolRow({
                 label={
                   <Flex direction="column">
                     <Flex justifyContent="space-between">
-                      <Text fontWeight={700} mr={2}>
-                        Total APR:
-                      </Text>
-                      <Text fontWeight={700}>
-                        {(positionApr.apr28d * 100).toFixed(2).concat('%')}
-                      </Text>
-                    </Flex>
-                    <Flex justifyContent="space-between">
                       <Text mr={2}>Performance:</Text>
                       <Text>{(positionApr.apr28dPnl * 100).toFixed(2).concat('%')}</Text>
                     </Flex>
