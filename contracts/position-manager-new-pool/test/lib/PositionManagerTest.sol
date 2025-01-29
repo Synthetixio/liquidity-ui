@@ -1,17 +1,28 @@
 pragma solidity ^0.8.21;
 
+import {ICoreProxy, MarketConfiguration} from "@synthetixio/v3-contracts/1-main/ICoreProxy.sol";
+import {IAccountProxy} from "@synthetixio/v3-contracts/1-main/IAccountProxy.sol";
+import {ITreasuryMarketProxy} from "src/ITreasuryMarketProxy.sol";
+import {IUSDProxy} from "@synthetixio/v3-contracts/1-main/IUSDProxy.sol";
+import {ISNX} from "src/ISNX.sol";
+
 import {PositionManagerNewPool} from "src/PositionManager.sol";
 import {Test} from "forge-std/src/Test.sol";
 import {Vm} from "forge-std/src/Vm.sol";
 import {console} from "forge-std/src/console.sol";
 
-contract PositionManagerTest is Test {
-    address internal CoreProxy;
-    address internal AccountProxy;
-    address internal TreasuryMarketProxy;
+interface IOwnable {
+    function owner() external view returns (address);
+    function getPoolOwner(uint128 poolId) external view returns (address);
+}
 
-    address internal $SNX;
-    address internal $sUSD;
+contract PositionManagerTest is Test {
+    ICoreProxy internal CoreProxy;
+    IAccountProxy internal AccountProxy;
+    ITreasuryMarketProxy internal TreasuryMarketProxy;
+
+    ISNX internal $SNX;
+    IUSDProxy internal $sUSD;
 
     uint128 internal poolId = 8;
 
@@ -25,21 +36,21 @@ contract PositionManagerTest is Test {
         string memory metaPath = string.concat(root, "/../../node_modules/@synthetixio/v3-contracts/1-main/meta.json");
         string memory metaJson = vm.readFile(metaPath);
 
-        CoreProxy = vm.parseJsonAddress(metaJson, ".contracts.CoreProxy");
-        vm.label(CoreProxy, "CoreProxy");
+        CoreProxy = ICoreProxy(vm.parseJsonAddress(metaJson, ".contracts.CoreProxy"));
+        vm.label(address(CoreProxy), "CoreProxy");
 
-        AccountProxy = vm.parseJsonAddress(metaJson, ".contracts.AccountProxy");
-        vm.label(AccountProxy, "AccountProxy");
+        AccountProxy = IAccountProxy(vm.parseJsonAddress(metaJson, ".contracts.AccountProxy"));
+        vm.label(address(AccountProxy), "AccountProxy");
 
         //        TreasuryMarketProxy = vm.parseJsonAddress(metaJson, ".contracts.TreasuryMarketProxy");
-        TreasuryMarketProxy = 0x7b952507306E7D983bcFe6942Ac9F2f75C1332D8;
-        vm.label(TreasuryMarketProxy, "TreasuryMarketProxy");
+        TreasuryMarketProxy = ITreasuryMarketProxy(0x7b952507306E7D983bcFe6942Ac9F2f75C1332D8);
+        vm.label(address(TreasuryMarketProxy), "TreasuryMarketProxy");
 
-        $SNX = vm.parseJsonAddress(metaJson, ".contracts.CollateralToken_SNX");
-        vm.label($SNX, "$SNX");
+        $SNX = ISNX(vm.parseJsonAddress(metaJson, ".contracts.CollateralToken_SNX"));
+        vm.label(address($SNX), "$SNX");
 
-        $sUSD = vm.parseJsonAddress(metaJson, ".contracts.USDProxy");
-        vm.label($sUSD, "$sUSD");
+        $sUSD = IUSDProxy(vm.parseJsonAddress(metaJson, ".contracts.USDProxy"));
+        vm.label(address($sUSD), "$sUSD");
     }
 
     function setUp() public {
@@ -58,13 +69,64 @@ contract PositionManagerTest is Test {
 
         positionManager = new PositionManagerNewPool(
             //
-            CoreProxy,
-            AccountProxy,
-            TreasuryMarketProxy,
-            $SNX,
-            $sUSD,
+            address(CoreProxy),
+            address(AccountProxy),
+            address(TreasuryMarketProxy),
+            address($SNX),
+            address($sUSD),
             poolId
         );
         vm.label(address(positionManager), "PositionManager");
+
+        _configurePool(); // Temporary until deployed
+        _disableAccountActivityTimeoutPending();
+        _fundPool();
+    }
+
+    function _configurePool() internal {
+        MarketConfiguration.Data[] memory configs = new MarketConfiguration.Data[](1);
+        configs[0] = MarketConfiguration.Data(3, 1 ether, 1 ether);
+
+        vm.prank(CoreProxy.getPoolOwner(poolId));
+        CoreProxy.setPoolConfiguration(poolId, configs);
+        CoreProxy.getPoolConfiguration(poolId);
+    }
+
+    function _get$SNX(address walletAddress, uint256 amount) internal {
+        vm.prank(address(CoreProxy));
+        $SNX.transfer(walletAddress, amount);
+    }
+
+    function _get$sUSD(address walletAddress, uint256 amount) internal {
+        vm.prank(address(CoreProxy));
+        $sUSD.transfer(walletAddress, amount);
+    }
+
+    function _fundPool() internal {
+        address B055 = vm.addr(0xB055);
+        vm.label(B055, "0xB055");
+        _setupPosition(B055, 10_000 ether);
+    }
+
+    function _disableAccountActivityTimeoutPending() internal {
+        assertEq(86_400, CoreProxy.getConfigUint("accountTimeoutWithdraw"));
+        vm.prank(CoreProxy.owner());
+        CoreProxy.setConfig("accountTimeoutWithdraw", 0);
+        assertEq(0, CoreProxy.getConfigUint("accountTimeoutWithdraw"));
+    }
+
+    function _setupPosition(address walletAddress, uint256 amount) internal returns (uint128 accountId) {
+        vm.deal(walletAddress, 1 ether);
+
+        _get$SNX(walletAddress, amount);
+
+        vm.startPrank(walletAddress);
+        $SNX.approve(address(positionManager), amount);
+
+        positionManager.setupPosition(amount);
+
+        accountId = uint128(AccountProxy.tokenOfOwnerByIndex(walletAddress, 0));
+        assertEq(walletAddress, AccountProxy.ownerOf(accountId));
+        vm.stopPrank();
     }
 }

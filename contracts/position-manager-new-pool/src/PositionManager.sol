@@ -3,12 +3,13 @@ pragma solidity ^0.8.21;
 
 import {ICoreProxy} from "@synthetixio/v3-contracts/1-main/ICoreProxy.sol";
 import {IAccountProxy} from "@synthetixio/v3-contracts/1-main/IAccountProxy.sol";
+import {IUSDProxy} from "@synthetixio/v3-contracts/1-main/IUSDProxy.sol";
 import {ITreasuryMarketProxy} from "./ITreasuryMarketProxy.sol";
 
 import {ERC2771Context} from "@synthetixio/core-contracts/contracts/utils/ERC2771Context.sol";
 import {IERC20} from "@synthetixio/core-contracts/contracts/interfaces/IERC20.sol";
 import {IERC721Receiver} from "@synthetixio/core-contracts/contracts/interfaces/IERC721Receiver.sol";
-import {ISNX} from "./ISNX.sol";
+import {ISNX, ISNXProxy} from "./ISNX.sol";
 
 contract PositionManagerNewPool {
     error NotEnoughAllowance(
@@ -21,10 +22,12 @@ contract PositionManagerNewPool {
     IAccountProxy public AccountProxy;
     ITreasuryMarketProxy public TreasuryMarketProxy;
 
-    address public $SNX;
-    address public $sUSD;
+    ISNX public $SNX;
+    IUSDProxy public $sUSD;
 
     uint128 public poolId;
+
+    uint256 public constant UINT256_MAX = type(uint256).max;
 
     constructor(
         address CoreProxy_,
@@ -37,9 +40,18 @@ contract PositionManagerNewPool {
         CoreProxy = ICoreProxy(CoreProxy_);
         AccountProxy = IAccountProxy(AccountProxy_);
         TreasuryMarketProxy = ITreasuryMarketProxy(TreasuryMarketProxy_);
-        $SNX = $SNX_;
-        $sUSD = $sUSD_;
+        $SNX = ISNX($SNX_);
+        $sUSD = IUSDProxy($sUSD_);
         poolId = poolId_;
+    }
+
+    /**
+     * @notice Retrieves the amount of SNX tokens that are available to transfer
+     * @param walletAddress Wallet address to retrieve transferable balance of
+     * @return amount Amount of SNX available to transfer
+     */
+    function transferableSynthetixBalanceOf(address walletAddress) public returns (uint256 amount) {
+        amount = ISNX(ISNXProxy(address($SNX)).target()).transferableSynthetix(walletAddress);
     }
 
     /**
@@ -77,7 +89,11 @@ contract PositionManagerNewPool {
             revert AccountExists();
         }
         uint128 accountId = CoreProxy.createAccount();
+
         _increasePosition(accountId, snxAmount);
+
+        TreasuryMarketProxy.saddle(accountId);
+
         AccountProxy.safeTransferFrom(
             //
             address(this),
@@ -99,7 +115,11 @@ contract PositionManagerNewPool {
             address(this),
             uint256(accountId)
         );
+
         _increasePosition(accountId, snxAmount);
+
+        TreasuryMarketProxy.saddle(accountId);
+
         AccountProxy.safeTransferFrom(
             //
             address(this),
@@ -116,7 +136,6 @@ contract PositionManagerNewPool {
     function repayLoan(uint128 accountId, uint256 susdAmount) public {
         address msgSender = ERC2771Context._msgSender();
 
-        // 1. Transfer Account NFT from the wallet
         AccountProxy.safeTransferFrom(
             //
             msgSender,
@@ -124,24 +143,35 @@ contract PositionManagerNewPool {
             uint256(accountId)
         );
 
-        // 2. Transfer sUSD tokens from the wallet to repay the loan
-        uint256 currentLoan = TreasuryMarketProxy.loanedAmount(accountId);
-        if (susdAmount > currentLoan) {
-            susdAmount = currentLoan;
-        }
-        _transferERC20($sUSD, susdAmount);
+        _repayLoan(accountId, susdAmount);
 
-        // 3. Repay account loan (must have enough sUSD that will be deposited to the Treasury Market)
-        TreasuryMarketProxy.adjustLoan(
+        AccountProxy.safeTransferFrom(
             //
-            accountId,
-            currentLoan - susdAmount
+            address(this),
+            msgSender,
+            uint256(accountId)
+        );
+    }
+
+    /**
+     * @notice Fully closes the position
+     * @param accountId User's Synthetix v3 Account NFT ID
+     */
+    function closePosition(uint128 accountId) public {
+        address msgSender = ERC2771Context._msgSender();
+
+        AccountProxy.safeTransferFrom(
+            //
+            msgSender,
+            address(this),
+            uint256(accountId)
         );
 
-        // 4. Unsaddle
+        _repayLoan(accountId, UINT256_MAX);
+
+        AccountProxy.approve(address(TreasuryMarketProxy), accountId);
         TreasuryMarketProxy.unsaddle(accountId);
 
-        // 5. Transfer Account NFT back to the owner
         AccountProxy.safeTransferFrom(
             //
             address(this),
@@ -169,18 +199,18 @@ contract PositionManagerNewPool {
         uint256 susdAvailable = CoreProxy.getAccountAvailableCollateral(
             //
             accountId,
-            $sUSD
+            address($sUSD)
         );
         if (susdAvailable > 0) {
             // 3. Withdraw all the available sUSD
             CoreProxy.withdraw(
                 //
                 accountId,
-                $sUSD,
+                address($sUSD),
                 susdAvailable
             );
             // 4. Send all the sUSD to the wallet
-            IERC20($sUSD).transfer(
+            $sUSD.transfer(
                 //
                 msgSender,
                 susdAvailable
@@ -191,19 +221,19 @@ contract PositionManagerNewPool {
         uint256 snxAvailable = CoreProxy.getAccountAvailableCollateral(
             //
             accountId,
-            $SNX
+            address($SNX)
         );
 
         // 6. Withdraw all the available SNX
         CoreProxy.withdraw(
             //
             accountId,
-            $SNX,
+            address($SNX),
             snxAvailable
         );
 
         // 7. Send all the SNX to the wallet
-        ISNX($SNX).transfer(
+        $SNX.transfer(
             //
             msgSender,
             snxAvailable
@@ -259,27 +289,27 @@ contract PositionManagerNewPool {
      */
     function _transferSNX(uint256 snxAmount) internal {
         address msgSender = ERC2771Context._msgSender();
-        uint256 availableAllowance = ISNX($SNX).allowance(msgSender, address(this));
+        uint256 availableAllowance = $SNX.allowance(msgSender, address(this));
         if (snxAmount > availableAllowance) {
             revert NotEnoughAllowance(
                 //
                 msgSender,
-                $SNX,
+                address($SNX),
                 snxAmount,
                 availableAllowance
             );
         }
-        uint256 availableAmount = ISNX($SNX).transferableSynthetix(msgSender);
+        uint256 availableAmount = transferableSynthetixBalanceOf(msgSender);
         if (snxAmount > availableAmount) {
             revert NotEnoughBalance(
                 //
                 msgSender,
-                $SNX,
+                address($SNX),
                 snxAmount,
                 availableAmount
             );
         }
-        ISNX($SNX).transferFrom(
+        $SNX.transferFrom(
             //
             msgSender,
             address(this),
@@ -291,34 +321,54 @@ contract PositionManagerNewPool {
         address msgSender = ERC2771Context._msgSender();
 
         // 1. Transfer SNX tokens from the wallet
-        if (snxAmount == 0) {
+        if (snxAmount == UINT256_MAX) {
             // All in!
-            snxAmount = ISNX($SNX).transferableSynthetix(msgSender);
+            snxAmount = transferableSynthetixBalanceOf(msgSender);
         }
-        _transferERC20($SNX, snxAmount);
+        _transferSNX(snxAmount);
 
         // 2. Deposit SNX to the Core
-        ISNX($SNX).approve(address(CoreProxy), snxAmount);
+        $SNX.approve(address(CoreProxy), snxAmount);
         CoreProxy.deposit(
             //
             accountId,
-            $SNX,
+            address($SNX),
             snxAmount
         );
 
         // 3. Delegate synthSNX to the Pool
-        uint256 currentPosition = CoreProxy.getPositionCollateral(accountId, poolId, $SNX);
+        uint256 currentPosition = CoreProxy.getPositionCollateral(
+            //
+            accountId,
+            poolId,
+            address($SNX)
+        );
         CoreProxy.delegateCollateral(
             //
             accountId,
             poolId,
-            $SNX,
+            address($SNX),
             currentPosition + snxAmount,
             1e18
         );
+    }
 
-        // 4. Saddle account
-        TreasuryMarketProxy.saddle(accountId);
+    function _repayLoan(uint128 accountId, uint256 susdAmount) internal {
+        uint256 currentLoan = TreasuryMarketProxy.loanedAmount(accountId);
+        if (currentLoan > 0) {
+            if (currentLoan < susdAmount) {
+                susdAmount = currentLoan;
+            }
+            // Transfer sUSD tokens from the wallet to repay the loan
+            _transferERC20(address($sUSD), susdAmount);
+
+            // Repay account loan (must have enough sUSD that will be deposited to the Treasury Market)
+            TreasuryMarketProxy.adjustLoan(
+                //
+                accountId,
+                currentLoan - susdAmount
+            );
+        }
     }
 
     function onERC721Received(address, address, uint256, bytes calldata) external pure returns (bytes4) {
