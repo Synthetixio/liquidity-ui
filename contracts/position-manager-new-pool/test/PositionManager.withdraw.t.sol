@@ -16,7 +16,7 @@ contract PositionManager_withdraw_Test is PositionManagerTest {
         AccountProxy.approve(address(positionManager), accountId);
         positionManager.closePosition(accountId);
 
-        assertEq(6, CoreProxy.getAccountAvailableCollateral(accountId, address($sUSD)));
+        assertEq(0, CoreProxy.getAccountAvailableCollateral(accountId, address($sUSD)));
         assertEq(200 ether, CoreProxy.getAccountAvailableCollateral(accountId, address($SNX)));
         assertEq(0 ether, $SNX.balanceOf(ALICE));
 

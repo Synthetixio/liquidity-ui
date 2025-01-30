@@ -122,6 +122,11 @@ contract PositionManagerTest is Test {
     }
 
     function _setupPosition(address walletAddress, uint256 amount) internal returns (uint128 accountId) {
+        uint256 ts = vm.getBlockTimestamp();
+
+        // Go back 1 week to bypass the 1 week Min Delegation restriction
+        vm.warp(ts - 86_400 * 7 - 1);
+
         vm.deal(walletAddress, 1 ether);
 
         _get$SNX(walletAddress, amount);
@@ -134,6 +139,9 @@ contract PositionManagerTest is Test {
         accountId = uint128(AccountProxy.tokenOfOwnerByIndex(walletAddress, 0));
         assertEq(walletAddress, AccountProxy.ownerOf(accountId));
         vm.stopPrank();
+
+        // Return to present
+        vm.warp(ts);
     }
 
     function _setupOldPoolPosition(uint128 oldPoolId, uint128 accountId, uint256 amount) internal {

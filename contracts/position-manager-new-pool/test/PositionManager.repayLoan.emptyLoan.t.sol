@@ -13,7 +13,7 @@ contract PositionManager_repayLoan_emptyLoan_Test is PositionManagerTest {
         uint128 accountId = _setupPosition(ALICE, 200 ether);
 
         assertEq(0 ether, TreasuryMarketProxy.loanedAmount(accountId));
-        assertEq(150.456236 ether, CoreProxy.getPositionDebt(accountId, poolId, address($SNX))); // at C-Ratio 200%
+        assertEq(155.822705 ether, CoreProxy.getPositionDebt(accountId, poolId, address($SNX))); // at C-Ratio 200%
         assertEq(200 ether, CoreProxy.getPositionCollateral(accountId, poolId, address($SNX)));
         assertEq(0 ether, CoreProxy.getAccountAvailableCollateral(accountId, address($SNX)));
 
@@ -25,7 +25,7 @@ contract PositionManager_repayLoan_emptyLoan_Test is PositionManagerTest {
 
         // Technically nothing changed because account had no loan
         assertEq(0 ether, TreasuryMarketProxy.loanedAmount(accountId));
-        assertEq(150.456236 ether, CoreProxy.getPositionDebt(accountId, poolId, address($SNX))); // at C-Ratio 200%
+        assertEq(155.822705 ether, CoreProxy.getPositionDebt(accountId, poolId, address($SNX))); // at C-Ratio 200%
         assertEq(200 ether, CoreProxy.getPositionCollateral(accountId, poolId, address($SNX)));
         assertEq(0 ether, CoreProxy.getAccountAvailableCollateral(accountId, address($SNX)));
     }
