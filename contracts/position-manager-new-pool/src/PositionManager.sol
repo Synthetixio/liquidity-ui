@@ -10,6 +10,7 @@ import {ERC2771Context} from "@synthetixio/core-contracts/contracts/utils/ERC277
 import {IERC20} from "@synthetixio/core-contracts/contracts/interfaces/IERC20.sol";
 import {IERC721Receiver} from "@synthetixio/core-contracts/contracts/interfaces/IERC721Receiver.sol";
 import {ISNX, ISNXProxy} from "./ISNX.sol";
+import {ICoreProxyWithMigration} from "./ICoreProxyWithMigration.sol";
 
 contract PositionManagerNewPool {
     error NotEnoughAllowance(
@@ -249,6 +250,39 @@ contract PositionManagerNewPool {
     }
 
     /**
+     * @notice Fully closes the position
+     * @param sourcePoolId ID of the pool to migrate position from
+     * @param accountId User's Synthetix v3 Account NFT ID
+     */
+    function migratePosition(uint128 sourcePoolId, uint128 accountId) public {
+        address msgSender = ERC2771Context._msgSender();
+
+        AccountProxy.safeTransferFrom(
+            //
+            msgSender,
+            address(this),
+            uint256(accountId)
+        );
+
+        // Migrate old pool position to the new pool
+        ICoreProxyWithMigration(address(CoreProxy)).migrateDelegation(
+            //
+            accountId,
+            sourcePoolId,
+            address($SNX),
+            poolId
+        );
+        TreasuryMarketProxy.saddle(accountId);
+
+        AccountProxy.safeTransferFrom(
+            //
+            address(this),
+            msgSender,
+            uint256(accountId)
+        );
+    }
+
+    /**
      * @notice Transfers specified amount of tokens to the contract
      * @param tokenAddress Token address
      * @param tokenAmount Token amount
@@ -361,6 +395,8 @@ contract PositionManagerNewPool {
             }
             // Transfer sUSD tokens from the wallet to repay the loan
             _transferERC20(address($sUSD), susdAmount);
+
+            $sUSD.approve(address(TreasuryMarketProxy), susdAmount);
 
             // Repay account loan (must have enough sUSD that will be deposited to the Treasury Market)
             TreasuryMarketProxy.adjustLoan(

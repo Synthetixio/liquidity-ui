@@ -11,11 +11,6 @@ import {Test} from "forge-std/src/Test.sol";
 import {Vm} from "forge-std/src/Vm.sol";
 import {console} from "forge-std/src/console.sol";
 
-interface IOwnable {
-    function owner() external view returns (address);
-    function getPoolOwner(uint128 poolId) external view returns (address);
-}
-
 contract PositionManagerTest is Test {
     ICoreProxy internal CoreProxy;
     IAccountProxy internal AccountProxy;
@@ -128,5 +123,38 @@ contract PositionManagerTest is Test {
         accountId = uint128(AccountProxy.tokenOfOwnerByIndex(walletAddress, 0));
         assertEq(walletAddress, AccountProxy.ownerOf(accountId));
         vm.stopPrank();
+    }
+
+    function _setupOldPoolPosition(uint128 oldPoolId, uint128 accountId, uint256 amount) internal {
+        uint256 ts = vm.getBlockTimestamp();
+
+        // Go back 1 week to bypass the 1 week Min Delegation restriction
+        vm.warp(ts - 86_400 * 7 - 1);
+
+        // Setup old pool position, borrow and withdraw sUSD
+        $SNX.approve(address(CoreProxy), amount);
+        CoreProxy.deposit(accountId, address($SNX), amount);
+        CoreProxy.delegateCollateral(accountId, oldPoolId, address($SNX), amount, 1e18);
+        CoreProxy.mintUsd(accountId, oldPoolId, address($SNX), amount / 5);
+        CoreProxy.withdraw(accountId, address($sUSD), amount / 5);
+
+        // Return to present
+        vm.warp(ts);
+
+        // vm.startPrank(CoreProxy.owner());
+        // CoreProxy.setConfig(
+        //     keccak256(abi.encode("accountOverrideMinDelegateTime", accountId, 1)),
+        //     0x0000000000000000000000000000000000000000000000000000000000000001
+        // );
+    }
+
+    function _updateMinDelegationTime() internal {
+        MarketConfiguration.Data[] memory marketConfigs = CoreProxy.getPoolConfiguration(poolId);
+        for (uint256 i = 0; i < marketConfigs.length; i++) {
+            assertEq(0, CoreProxy.getMarketMinDelegateTime(marketConfigs[i].marketId));
+            vm.prank(CoreProxy.getMarketAddress(marketConfigs[i].marketId));
+            CoreProxy.setMarketMinDelegateTime(marketConfigs[i].marketId, 1);
+            assertEq(1, CoreProxy.getMarketMinDelegateTime(marketConfigs[i].marketId));
+        }
     }
 }
