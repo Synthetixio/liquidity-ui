@@ -4,6 +4,8 @@ import {ICoreProxy, MarketConfiguration} from "@synthetixio/v3-contracts/1-main/
 import {IAccountProxy} from "@synthetixio/v3-contracts/1-main/IAccountProxy.sol";
 import {ITreasuryMarketProxy} from "src/ITreasuryMarketProxy.sol";
 import {IUSDProxy} from "@synthetixio/v3-contracts/1-main/IUSDProxy.sol";
+import {ILegacyMarketProxy} from "@synthetixio/v3-contracts/1-main/ILegacyMarketProxy.sol";
+import {IV2x} from "@synthetixio/v3-contracts/1-main/IV2x.sol";
 import {ISNX} from "src/ISNX.sol";
 
 import {PositionManagerNewPool} from "src/PositionManager.sol";
@@ -15,6 +17,8 @@ contract PositionManagerTest is Test {
     ICoreProxy internal CoreProxy;
     IAccountProxy internal AccountProxy;
     ITreasuryMarketProxy internal TreasuryMarketProxy;
+    ILegacyMarketProxy internal LegacyMarketProxy;
+    IV2x internal V2x;
 
     ISNX internal $SNX;
     IUSDProxy internal $sUSD;
@@ -40,6 +44,12 @@ contract PositionManagerTest is Test {
         //        TreasuryMarketProxy = vm.parseJsonAddress(metaJson, ".contracts.TreasuryMarketProxy");
         TreasuryMarketProxy = ITreasuryMarketProxy(0x7b952507306E7D983bcFe6942Ac9F2f75C1332D8);
         vm.label(address(TreasuryMarketProxy), "TreasuryMarketProxy");
+
+        V2x = IV2x(vm.parseJsonAddress(metaJson, ".contracts.V2x"));
+        vm.label(address(V2x), "V2x");
+
+        LegacyMarketProxy = ILegacyMarketProxy(vm.parseJsonAddress(metaJson, ".contracts.LegacyMarketProxy"));
+        vm.label(address(LegacyMarketProxy), "LegacyMarketProxy");
 
         $SNX = ISNX(vm.parseJsonAddress(metaJson, ".contracts.CollateralToken_SNX"));
         vm.label(address($SNX), "$SNX");
@@ -79,8 +89,9 @@ contract PositionManagerTest is Test {
     }
 
     function _configurePool() internal {
-        MarketConfiguration.Data[] memory configs = new MarketConfiguration.Data[](1);
-        configs[0] = MarketConfiguration.Data(3, 1 ether, 1 ether);
+        MarketConfiguration.Data[] memory configs = new MarketConfiguration.Data[](2);
+        configs[0] = MarketConfiguration.Data(LegacyMarketProxy.marketId(), 10 ether, 1 ether);
+        configs[1] = MarketConfiguration.Data(TreasuryMarketProxy.marketId(), 90 ether, 1 ether);
 
         vm.prank(CoreProxy.getPoolOwner(poolId));
         CoreProxy.setPoolConfiguration(poolId, configs);
@@ -155,6 +166,29 @@ contract PositionManagerTest is Test {
             vm.prank(CoreProxy.getMarketAddress(marketConfigs[i].marketId));
             CoreProxy.setMarketMinDelegateTime(marketConfigs[i].marketId, 1);
             assertEq(1, CoreProxy.getMarketMinDelegateTime(marketConfigs[i].marketId));
+        }
+    }
+
+    function generateAccountId() internal view returns (uint128 accountId) {
+        // Use multiple sources of randomness to increase unpredictability
+        uint256 randomSeed = uint256(blockhash(block.number - 1));
+
+        // Generate a random number in the range [0, type(uint128).max]
+        // Using uint256 for intermediate calculations
+        uint256 maxUint128PlusOne = (uint256(1) << 128); // 2^128
+        uint256 randomNumber = randomSeed % maxUint128PlusOne;
+
+        // Define the desired range
+        uint128 lowerBound = type(uint128).max / 4;
+        uint128 upperBound = type(uint128).max / 2;
+
+        // Ensure the number is within the specified range
+        if (randomNumber < lowerBound) {
+            return lowerBound + uint128((uint256(randomNumber) % (upperBound - lowerBound)));
+        } else if (randomNumber > upperBound) {
+            return lowerBound + uint128((uint256(randomNumber) % (upperBound - lowerBound)));
+        } else {
+            return uint128(randomNumber);
         }
     }
 }
