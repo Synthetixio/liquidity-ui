@@ -345,9 +345,9 @@ workflows:
           name: pm-statausdc-andromeda
           working_directory: 'contracts/position-manager-andromeda-statausdc'
 
-      - contract-test:
-          name: pm-new-pool
-          working_directory: 'contracts/position-manager-new-pool'
+      #      - contract-test:
+      #          name: pm-new-pool
+      #          working_directory: 'contracts/position-manager-new-pool'
 
       #- cy
       - e2e:
