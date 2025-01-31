@@ -177,7 +177,7 @@ contract PositionManagerTest is Test {
         }
     }
 
-    function generateAccountId() internal view returns (uint128 accountId) {
+    function _generateAccountId() internal view returns (uint128 accountId) {
         // Use multiple sources of randomness to increase unpredictability
         uint256 randomSeed = uint256(blockhash(block.number - 1));
 
@@ -198,5 +198,9 @@ contract PositionManagerTest is Test {
         } else {
             return uint128(randomNumber);
         }
+    }
+
+    function _getSNXPrice() internal view returns (uint256 snxPrice) {
+        snxPrice = CoreProxy.getCollateralPrice(address($SNX));
     }
 }

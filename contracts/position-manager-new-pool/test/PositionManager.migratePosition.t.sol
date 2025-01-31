@@ -13,6 +13,8 @@ contract PositionManager_migratePosition_Test is PositionManagerTest {
         address ALICE = vm.addr(0xA11CE);
         vm.label(ALICE, "0xA11CE");
 
+        uint256 snxPrice = _getSNXPrice();
+
         _get$SNX(ALICE, 1000 ether);
 
         vm.startPrank(ALICE);
@@ -21,8 +23,8 @@ contract PositionManager_migratePosition_Test is PositionManagerTest {
         uint128 accountId = CoreProxy.createAccount();
         _setupOldPoolPosition(oldPoolId, accountId, 1000 ether);
 
-        assertEq(
-            7.79113525 ether,
+        assertLt(
+            5 ether,
             CoreProxy.getPositionCollateralRatio(accountId, oldPoolId, address($SNX)),
             "C-Ratio should be > 500%"
         );
@@ -63,10 +65,11 @@ contract PositionManager_migratePosition_Test is PositionManagerTest {
             TreasuryMarketProxy.loanedAmount(accountId),
             "Loan amount for SNX position should be 200 as previously borrowed amount"
         );
-        assertEq(
-            779.113525 ether,
-            CoreProxy.getPositionDebt(accountId, poolId, address($SNX)),
-            "Virtual debt for SNX position should be 779.113525 at C-Ratio 200%"
+        assertApproxEqAbs(
+            1000 * snxPrice / 2,
+            uint256(CoreProxy.getPositionDebt(accountId, poolId, address($SNX))),
+            0.1 ether,
+            "Virtual debt for SNX position should be at C-Ratio 200%"
         );
         assertEq(
             1000 ether,

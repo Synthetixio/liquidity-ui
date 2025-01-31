@@ -13,10 +13,17 @@ contract PositionManager_migratePosition_v2x_Test is PositionManagerTest {
         address ALICE = 0xf7ECaE6F035EA4927FDE97FaA679b5e224afb169;
         vm.label(ALICE, "0xA11CE");
 
-        // Just for logging
-        assertEq(289_498.456246835038781189 ether, V2x.balanceOf(ALICE), "V2x SNX balance should be ~289_498");
-        assertEq(293_946.924326705539796859 ether, V2x.collateral(ALICE), "V2x SNX collateral should be ~293_946");
-        assertEq(0.393005539052230194 ether, V2x.collateralisationRatio(ALICE), "V2x staking C-Ratio should be ~0.393");
+        uint256 snxPrice = _getSNXPrice();
+
+        uint256 collateral = V2x.collateral(ALICE);
+        uint256 cratio = V2x.collateralisationRatio(ALICE);
+        uint256 collateralValue = collateral * snxPrice / 10 ** 18;
+        uint256 debt = collateralValue * cratio / 10 ** 18;
+
+        assertLt(0, V2x.balanceOf(ALICE), "V2x SNX balance should be > 0");
+        assertLt(0, collateral, "V2x SNX collateral should be > 0");
+        assertLt(0, cratio, "V2x staking C-Ratio should be > 0");
+        assertLt(0, debt, "V2x debt should be > 0");
 
         // Update preferred pool, because legacy market migration will migrate to preferred pool only
         vm.prank(CoreProxy.owner());
@@ -30,20 +37,24 @@ contract PositionManager_migratePosition_v2x_Test is PositionManagerTest {
 
         assertEq(ALICE, AccountProxy.ownerOf(accountId));
 
-        assertEq(
-            180_010.704244416353469663 ether,
+        assertApproxEqAbs(
+            debt,
             TreasuryMarketProxy.loanedAmount(accountId),
-            "Loan amount for SNX position should be 200 as previously borrowed amount"
+            0.1 ether,
+            "Loan amount for SNX position should be equal to v2x debt"
+        );
+
+        uint256 positionDebt = collateralValue / 2; // at c-ratio 200%
+        assertApproxEqAbs(
+            positionDebt,
+            uint256(CoreProxy.getPositionDebt(accountId, poolId, address($SNX))),
+            0.1 ether,
+            "Virtual debt for SNX position should be half of collateral value (C-Ratio 200%)"
         );
         assertEq(
-            229_018.024375087804748158 ether,
-            CoreProxy.getPositionDebt(accountId, poolId, address($SNX)),
-            "Virtual debt for SNX position should be ~229_018 at C-Ratio 200%"
-        );
-        assertEq(
-            293_946.924326705539796859 ether,
+            collateral,
             CoreProxy.getPositionCollateral(accountId, poolId, address($SNX)),
-            "SNX position should be unchanged at ~293_946 but in the new pool"
+            "SNX position collateral amount should be unchanged in the new pool"
         );
     }
 }

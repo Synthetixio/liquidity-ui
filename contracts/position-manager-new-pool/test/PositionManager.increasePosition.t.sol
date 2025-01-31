@@ -12,9 +12,13 @@ contract PositionManager_increasePosition_Test is PositionManagerTest {
         vm.label(ALICE, "0xA11CE");
         uint128 accountId = _setupPosition(ALICE, 200 ether);
 
+        uint256 snxPrice = _getSNXPrice();
+
         assertEq(0, TreasuryMarketProxy.loanedAmount(accountId));
-        assertEq(155.822705 ether, CoreProxy.getPositionDebt(accountId, poolId, address($SNX))); // at C-Ratio 200%
         assertEq(200 ether, CoreProxy.getPositionCollateral(accountId, poolId, address($SNX)));
+        assertApproxEqAbs(
+            200 * snxPrice / 2, uint256(CoreProxy.getPositionDebt(accountId, poolId, address($SNX))), 0.1 ether
+        );
         assertEq(0, CoreProxy.getAccountAvailableCollateral(accountId, address($SNX)));
 
         // Increase position by 500 SNX
@@ -29,8 +33,8 @@ contract PositionManager_increasePosition_Test is PositionManagerTest {
         assertEq(ALICE, AccountProxy.ownerOf(accountId));
 
         assertEq(0, TreasuryMarketProxy.loanedAmount(accountId));
-        assertEq(545.3794675 ether, CoreProxy.getPositionDebt(accountId, poolId, address($SNX))); // at C-Ratio 200%
         assertEq(700 ether, CoreProxy.getPositionCollateral(accountId, poolId, address($SNX)));
+        assertEq(700 * snxPrice / 2, uint256(CoreProxy.getPositionDebt(accountId, poolId, address($SNX)))); // at C-Ratio 200%
         assertEq(0, CoreProxy.getAccountAvailableCollateral(accountId, address($SNX)));
     }
 }

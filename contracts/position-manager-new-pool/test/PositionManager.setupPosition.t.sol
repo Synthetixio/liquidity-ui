@@ -11,10 +11,13 @@ contract PositionManager_setupPosition_Test is PositionManagerTest {
         address ALICE = vm.addr(0xA11CE);
         vm.label(ALICE, "0xA11CE");
         uint128 accountId = _setupPosition(ALICE, 200 ether);
+        uint256 snxPrice = _getSNXPrice();
 
         assertEq(0, TreasuryMarketProxy.loanedAmount(accountId));
-        assertEq(155.822705 ether, CoreProxy.getPositionDebt(accountId, poolId, address($SNX))); // at C-Ratio 200%
         assertEq(200 ether, CoreProxy.getPositionCollateral(accountId, poolId, address($SNX)));
+        assertApproxEqAbs(
+            200 * snxPrice / 2, uint256(CoreProxy.getPositionDebt(accountId, poolId, address($SNX))), 0.1 ether
+        );
         assertEq(0, CoreProxy.getAccountAvailableCollateral(accountId, address($SNX)));
     }
 }

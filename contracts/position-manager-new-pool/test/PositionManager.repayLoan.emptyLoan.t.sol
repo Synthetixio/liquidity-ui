@@ -11,11 +11,7 @@ contract PositionManager_repayLoan_emptyLoan_Test is PositionManagerTest {
         address ALICE = vm.addr(0xA11CE);
         vm.label(ALICE, "0xA11CE");
         uint128 accountId = _setupPosition(ALICE, 200 ether);
-
-        assertEq(0 ether, TreasuryMarketProxy.loanedAmount(accountId));
-        assertEq(155.822705 ether, CoreProxy.getPositionDebt(accountId, poolId, address($SNX))); // at C-Ratio 200%
-        assertEq(200 ether, CoreProxy.getPositionCollateral(accountId, poolId, address($SNX)));
-        assertEq(0 ether, CoreProxy.getAccountAvailableCollateral(accountId, address($SNX)));
+        uint256 snxPrice = _getSNXPrice();
 
         vm.startPrank(ALICE);
         AccountProxy.approve(address(positionManager), accountId);
@@ -24,9 +20,11 @@ contract PositionManager_repayLoan_emptyLoan_Test is PositionManagerTest {
         assertEq(ALICE, AccountProxy.ownerOf(accountId));
 
         // Technically nothing changed because account had no loan
-        assertEq(0 ether, TreasuryMarketProxy.loanedAmount(accountId));
-        assertEq(155.822705 ether, CoreProxy.getPositionDebt(accountId, poolId, address($SNX))); // at C-Ratio 200%
+        assertEq(0, TreasuryMarketProxy.loanedAmount(accountId));
         assertEq(200 ether, CoreProxy.getPositionCollateral(accountId, poolId, address($SNX)));
-        assertEq(0 ether, CoreProxy.getAccountAvailableCollateral(accountId, address($SNX)));
+        assertApproxEqAbs(
+            200 * snxPrice / 2, uint256(CoreProxy.getPositionDebt(accountId, poolId, address($SNX))), 0.1 ether
+        );
+        assertEq(0, CoreProxy.getAccountAvailableCollateral(accountId, address($SNX)));
     }
 }
