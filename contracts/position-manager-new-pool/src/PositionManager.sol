@@ -89,7 +89,10 @@ contract PositionManagerNewPool {
             // Do not allow to create more accounts
             revert AccountExists();
         }
+
         uint128 accountId = CoreProxy.createAccount();
+
+        TreasuryMarketProxy.rebalance();
 
         _increasePosition(accountId, snxAmount);
 
@@ -116,6 +119,8 @@ contract PositionManagerNewPool {
             address(this),
             uint256(accountId)
         );
+
+        TreasuryMarketProxy.rebalance();
 
         _increasePosition(accountId, snxAmount);
 
