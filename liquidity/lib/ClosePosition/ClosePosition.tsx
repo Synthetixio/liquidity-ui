@@ -36,8 +36,6 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
     accountId: params.accountId,
     collateralType,
   });
-  liquidityPosition?.debt;
-  liquidityPosition?.collateralAmount;
   const collateralSymbol = collateralType?.displaySymbol;
 
   const { network } = useNetwork();

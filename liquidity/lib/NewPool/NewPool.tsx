@@ -6,14 +6,17 @@ import { LogoIcon } from '@snx-v3/icons';
 import coinImage from '@snx-v3/Manage/coin.png';
 import { NetworkIcon, useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
-import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
-import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { usePythPrice } from '@snx-v3/usePythPrice';
 import { useTransferableSynthetix } from '@snx-v3/useTransferableSynthetix';
 import { useVaultsData } from '@snx-v3/useVaultsData';
 import { wei } from '@synthetixio/wei';
 import numbro from 'numbro';
 import React from 'react';
+import { useAccountAvailableCollateral } from './useAccountAvailableCollateral';
+import { useIncreasePositionNewPool } from './useIncreasePositionNewPool';
+import { useLoanedAmount } from './useLoanedAmount';
+import { useMigrateNewPool } from './useMigrateNewPool';
+import { usePositionCollateral } from './usePositionCollateral';
 
 function InfoBox({ ...props }) {
   return (
@@ -33,10 +36,10 @@ function InfoBox({ ...props }) {
 }
 
 export function NewPool() {
-  const [params] = useParams<PositionPageSchemaType>();
-
   const { network } = useNetwork();
+
   const { data: vaultsData, isPending: isPendingVaultsData } = useVaultsData(network);
+  const { data: loanedAmount, isPending: isPendingLoanedAmount } = useLoanedAmount();
 
   const { data: collateralType } = useCollateralType('SNX');
 
@@ -48,15 +51,20 @@ export function NewPool() {
     }
   }, [collateralType, vaultsData]);
 
-  const { data: liquidityPosition, isPending: isPendingLiquidityPosition } = useLiquidityPosition({
-    accountId: params.accountId,
-    collateralType,
-  });
+  const { data: accountAvailableCollateral, isPending: isPendingAccountAvailableCollateral } =
+    useAccountAvailableCollateral();
+
+  const { data: positionCollateral, isPending: isPendingPositionCollateral } =
+    usePositionCollateral();
 
   const { data: transferrableSnx, isPending: isPendingTransferrableSnx } =
     useTransferableSynthetix();
 
   const { data: snxPrice, isPending: isPendingSnxPrice } = usePythPrice('SNX');
+
+  const { isReady: isReadyMigrate, mutation: migrate } = useMigrateNewPool();
+  const { isReady: isReadyIncreasePosition, mutation: increasePosition } =
+    useIncreasePositionNewPool();
 
   return (
     <Flex
@@ -135,44 +143,72 @@ export function NewPool() {
           <Flex minWidth="120px" direction="column" gap={3}>
             <Text color="gray.500">Deposited</Text>
             <Text color="gray.50" fontSize="1.25em">
-              {isPendingLiquidityPosition ? '~' : null}
-              {!isPendingLiquidityPosition && liquidityPosition ? (
-                <Amount prefix="$" value={liquidityPosition.collateralValue} />
+              {isPendingPositionCollateral || isPendingSnxPrice ? '~' : null}
+              {!(isPendingPositionCollateral || isPendingSnxPrice) &&
+              positionCollateral &&
+              snxPrice ? (
+                <Amount prefix="$" value={wei(positionCollateral).mul(snxPrice)} />
               ) : null}
             </Text>
           </Flex>
           <Flex minWidth="120px" direction="column" gap={3}>
             <Text color="gray.500">Loan</Text>
             <Text color="gray.50" fontSize="1.25em">
-              {isPendingLiquidityPosition ? '~' : null}
-              {!isPendingLiquidityPosition && liquidityPosition ? (
-                <Amount prefix="$" value={liquidityPosition.debt} />
+              {isPendingLoanedAmount || isPendingSnxPrice ? '~' : null}
+              {!(isPendingLoanedAmount || isPendingSnxPrice) && loanedAmount ? (
+                <Amount prefix="$" value={wei(loanedAmount)} />
               ) : null}
             </Text>
           </Flex>
         </Flex>
-        <Flex flex={[1, 1, 1]} minWidth="300px" direction="column" gap={3}>
-          <Text color="gray.500">Available to deposit</Text>
-          <Text color="gray.50" fontSize="1.25em">
-            {isPendingTransferrableSnx || isPendingSnxPrice ? '~' : null}
-            {!isPendingTransferrableSnx && !isPendingSnxPrice && transferrableSnx && snxPrice ? (
-              <Amount
-                prefix="$"
-                value={transferrableSnx.transferable.mul(snxPrice)}
-                suffix=" SNX"
-              />
-            ) : null}
-          </Text>
-          <Flex gap={3}>
+        <Flex flex={[1, 1, 1]} minWidth="300px" direction="row" gap={3}>
+          <Flex gap={3} direction="column" width="50%">
+            <Text color="gray.500">Available to deposit</Text>
+            <Text color="gray.50" fontSize="1.25em">
+              {isPendingTransferrableSnx || isPendingSnxPrice ? '~' : null}
+              {!isPendingTransferrableSnx && !isPendingSnxPrice && transferrableSnx && snxPrice ? (
+                <Amount
+                  prefix="$"
+                  value={transferrableSnx.transferable.mul(snxPrice)}
+                  suffix=" SNX"
+                />
+              ) : null}
+            </Text>
+
             <Button
-              width="50%"
-              isDisabled={!(transferrableSnx && transferrableSnx.transferable.gt(0))}
+              width="100%"
+              isDisabled={
+                !(
+                  transferrableSnx &&
+                  transferrableSnx.transferable.gt(0) &&
+                  isReadyIncreasePosition
+                )
+              }
+              isLoading={increasePosition.isPending}
+              onClick={() => increasePosition.mutate()}
             >
               Deposit
             </Button>
+          </Flex>
+
+          <Flex gap={3} direction="column" width="50%">
+            <Text color="gray.500">Available to withdraw</Text>
+            <Text color="gray.50" fontSize="1.25em">
+              {isPendingAccountAvailableCollateral || isPendingSnxPrice ? '~' : null}
+              {!(isPendingAccountAvailableCollateral || isPendingSnxPrice) &&
+              accountAvailableCollateral &&
+              snxPrice ? (
+                <Amount
+                  prefix="$"
+                  value={wei(accountAvailableCollateral).mul(snxPrice)}
+                  suffix=" SNX"
+                />
+              ) : null}
+            </Text>
+
             <Button
-              width="50%"
-              isDisabled={!(liquidityPosition && liquidityPosition.availableCollateral.gt(0))}
+              width="100%"
+              isDisabled={!(accountAvailableCollateral && accountAvailableCollateral.gt(0))}
             >
               Withdraw
             </Button>
@@ -269,7 +305,13 @@ export function NewPool() {
               Debt Jubilee
             </Heading>
           </Flex>
-          <Button isDisabled={true}>Migrate to Jubilee</Button>
+          <Button
+            isDisabled={!isReadyMigrate}
+            isLoading={migrate.isPending}
+            onClick={() => migrate.mutate()}
+          >
+            Migrate to Jubilee
+          </Button>
         </Flex>
       </Flex>
     </Flex>

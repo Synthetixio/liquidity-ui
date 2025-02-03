@@ -57,7 +57,7 @@ interface ITreasuryMarketProxy {
     function rebalance() external;
     function registerMarket() external returns (uint128 newMarketId);
     function renounceNomination() external;
-    function repaymentPenalty(uint128 accountId, uint256 targetDebt) external view returns (uint256);
+    function repaymentPenalty(uint128 accountId, uint256 targetLoan) external view returns (uint256);
     function reportedDebt(uint128) external view returns (uint256 debt);
     function saddle(uint128 accountId) external;
     function saddledCollateral(uint128) external view returns (uint256);
@@ -66,6 +66,7 @@ interface ITreasuryMarketProxy {
     function simulateUpgradeTo(address newImplementation) external;
     function supportsInterface(bytes4 interfaceId) external view returns (bool);
     function targetCratio() external view returns (uint256);
+    function totalSaddledCollateral() external view returns (uint256);
     function treasury() external view returns (address);
     function unsaddle(uint128 accountId) external;
     function upgradeTo(address to) external;
