@@ -44,8 +44,7 @@ contract PositionManagerTest is Test {
         AccountProxy = IAccountProxy(vm.parseJsonAddress(metaJson, ".contracts.AccountProxy"));
         vm.label(address(AccountProxy), "AccountProxy");
 
-        //        TreasuryMarketProxy = vm.parseJsonAddress(metaJson, ".contracts.TreasuryMarketProxy");
-        TreasuryMarketProxy = ITreasuryMarketProxy(0x7b952507306E7D983bcFe6942Ac9F2f75C1332D8);
+        TreasuryMarketProxy = ITreasuryMarketProxy(vm.parseJsonAddress(metaJson, ".contracts.TreasuryMarketProxy"));
         vm.label(address(TreasuryMarketProxy), "TreasuryMarketProxy");
 
         LegacyMarketProxy = ILegacyMarketProxy(vm.parseJsonAddress(metaJson, ".contracts.LegacyMarketProxy"));

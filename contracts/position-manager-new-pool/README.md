@@ -100,7 +100,7 @@ export _meta="$_root/node_modules/@synthetixio/v3-contracts/1-main/meta.json"
 
 export _CoreProxy=$(cat $_meta | jq -r '.contracts.CoreProxy')
 export _AccountProxy=$(cat $_meta | jq -r '.contracts.AccountProxy')
-export _TreasuryMarketProxy="0x7b952507306E7D983bcFe6942Ac9F2f75C1332D8"
+export _TreasuryMarketProxy=$(cat $_meta | jq -r '.contracts.TreasuryMarketProxy')
 export _LegacyMarketProxy=$(cat $_meta | jq -r '.contracts.LegacyMarketProxy')
 
 export TEST_PK=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
@@ -149,9 +149,9 @@ cast call $_CoreProxy "function getPoolOwner(uint128 poolId) view returns (addre
 cast send --unlocked --from $(cast call $_CoreProxy "function owner() view returns (address)") $_CoreProxy "function setConfig(bytes32 k, bytes32 v)" "0x6163636f756e7454696d656f7574576974686472617700000000000000000000" "0x0000000000000000000000000000000000000000000000000000000000000000"
 cast call $_CoreProxy "function getConfigUint(bytes32 k) view returns (uint256 v)" "0x6163636f756e7454696d656f7574576974686472617700000000000000000000"
 
-# Setup SNX Jubilee pool
-cast send --unlocked --from $(cast call $_CoreProxy 'function getPoolOwner(uint128 poolId) view returns (address)' $_poolId) $_CoreProxy "function setPoolConfiguration(uint128,tuple(uint128, uint128, int128)[])" $_poolId '[(1,10000000000000000000,1000000000000000000),(3, 90000000000000000000,1000000000000000000)]'
-cast call $_CoreProxy "function getPoolConfiguration(uint128 poolId) view returns (tuple(uint128, uint128, int128)[])" $_poolId
+# Setup SNX Jubilee pool (no longer needed)
+# cast send --unlocked --from $(cast call $_CoreProxy 'function getPoolOwner(uint128 poolId) view returns (address)' $_poolId) $_CoreProxy "function setPoolConfiguration(uint128,tuple(uint128, uint128, int128)[])" $_poolId '[(1,10000000000000000000,1000000000000000000),(3, 90000000000000000000,1000000000000000000)]'
+# cast call $_CoreProxy "function getPoolConfiguration(uint128 poolId) view returns (tuple(uint128, uint128, int128)[])" $_poolId
 
 # Fund SNX Jubilee pool with 10k SNX position
 export _SNX=$(cast call $_PositionManager 'function get$SNX() view returns (address $SNX)')
