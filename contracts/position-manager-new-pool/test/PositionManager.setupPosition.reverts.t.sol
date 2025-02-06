@@ -5,7 +5,7 @@ import "src/PositionManager.sol";
 
 contract PositionManager_setupPosition_reverts_Test is PositionManagerTest {
     constructor() {
-        forkBlockNumber = 21684537;
+        forkBlockNumber = 21787552;
     }
 
     function test_setupPosition_NotEnoughBalance() public {

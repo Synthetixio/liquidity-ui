@@ -6,7 +6,7 @@ import "src/PositionManager.sol";
 
 contract PositionManager_increasePosition_reverts_Test is PositionManagerTest {
     constructor() {
-        forkBlockNumber = 21684537;
+        forkBlockNumber = 21787552;
     }
 
     function test_increasePosition_Unauthorized() public {

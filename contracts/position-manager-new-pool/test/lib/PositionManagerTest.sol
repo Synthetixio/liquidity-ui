@@ -52,14 +52,14 @@ contract PositionManagerTest is Test {
     }
 
     function setUp() public {
-        //        string memory forkUrl = vm.envString("RPC_MAINNET");
-        string memory forkUrl = "http://127.0.0.1:8545";
-        //        fork = vm.createFork(forkUrl, forkBlockNumber);
-        fork = vm.createFork(forkUrl);
+        string memory forkUrl = vm.envString("RPC_MAINNET");
+        //        string memory forkUrl = "http://127.0.0.1:8545";
+        fork = vm.createFork(forkUrl, forkBlockNumber);
+        //        fork = vm.createFork(forkUrl);
         vm.selectFork(fork);
 
         // Verify fork
-        //        assertEq(block.number, forkBlockNumber);
+        assertEq(block.number, forkBlockNumber);
         assertEq(vm.activeFork(), fork);
 
         // Pyth bypass
@@ -89,21 +89,21 @@ contract PositionManagerTest is Test {
         V2xResolver = IAddressResolver(positionManager.V2xResolver());
         vm.label(address(V2xResolver), "V2xResolver");
 
-        _configurePool(); // Temporary until deployed
+        // _configurePool(); // Temporary until deployed
         _disableAccountActivityTimeoutPending();
         _fundPool();
     }
 
-    function _configurePool() internal {
-        MarketConfiguration.Data[] memory configs = new MarketConfiguration.Data[](2);
-        configs[0] = MarketConfiguration.Data(LegacyMarketProxy.marketId(), 10 ether, 1 ether);
-        configs[1] = MarketConfiguration.Data(TreasuryMarketProxy.marketId(), 90 ether, 1 ether);
-
-        uint128 poolId = 8;
-        vm.prank(CoreProxy.getPoolOwner(poolId));
-        CoreProxy.setPoolConfiguration(poolId, configs);
-        CoreProxy.getPoolConfiguration(poolId);
-    }
+    //    function _configurePool() internal {
+    //        MarketConfiguration.Data[] memory configs = new MarketConfiguration.Data[](2);
+    //        configs[0] = MarketConfiguration.Data(LegacyMarketProxy.marketId(), 10 ether, 1 ether);
+    //        configs[1] = MarketConfiguration.Data(TreasuryMarketProxy.marketId(), 90 ether, 1 ether);
+    //
+    //        uint128 poolId = 8;
+    //        vm.prank(CoreProxy.getPoolOwner(poolId));
+    //        CoreProxy.setPoolConfiguration(poolId, configs);
+    //        CoreProxy.getPoolConfiguration(poolId);
+    //    }
 
     function _deal$SNX(address walletAddress, uint256 amount) internal {
         $SNX.balanceOf(walletAddress);

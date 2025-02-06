@@ -4,7 +4,7 @@ import "./lib/PositionManagerTest.sol";
 
 contract PositionManager_repayLoan_emptyLoan_Test is PositionManagerTest {
     constructor() {
-        forkBlockNumber = 21684537;
+        forkBlockNumber = 21787552;
     }
 
     function test_repayLoan_emptyLoan() public {

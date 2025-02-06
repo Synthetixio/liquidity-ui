@@ -4,7 +4,7 @@ import "./lib/PositionManagerTest.sol";
 
 contract PositionManager_setupPosition_Test is PositionManagerTest {
     constructor() {
-        forkBlockNumber = 21684537;
+        forkBlockNumber = 21787552;
     }
 
     function test_setupPosition() public {

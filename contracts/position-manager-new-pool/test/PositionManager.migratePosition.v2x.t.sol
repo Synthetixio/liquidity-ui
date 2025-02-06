@@ -6,7 +6,7 @@ import "@synthetixio/v3-contracts/1-main/ICoreProxy.sol";
 
 contract PositionManager_migratePosition_v2x_Test is PositionManagerTest {
     constructor() {
-        forkBlockNumber = 21684537;
+        forkBlockNumber = 21787552;
     }
 
     function test_migratePosition_v2x() public {
