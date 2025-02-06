@@ -1,26 +1,28 @@
 const abi = [
-  'constructor(address CoreProxy_, address AccountProxy_, address TreasuryMarketProxy_, address $SNX_, address $sUSD_, uint128 poolId_)',
-  'function $SNX() view returns (address)',
-  'function $sUSD() view returns (address)',
+  'constructor(address CoreProxy_, address AccountProxy_, address TreasuryMarketProxy_, address LegacyMarketProxy_)',
   'function AccountProxy() view returns (address)',
   'function CoreProxy() view returns (address)',
+  'function LegacyMarketProxy() view returns (address)',
   'function TreasuryMarketProxy() view returns (address)',
   'function UINT256_MAX() view returns (uint256)',
+  'function V2xResolver() view returns (address)',
   'function closePosition(uint128 accountId)',
+  'function get$SNX() view returns (address $SNX)',
+  'function get$sUSD() view returns (address $sUSD)',
+  'function get$snxUSD() view returns (address $snxUSD)',
   'function getAccounts() view returns (uint128[] accountIds)',
+  'function getV2x() view returns (address v2x)',
+  'function getV2xUsd() view returns (address v2xUsd)',
   'function increasePosition(uint128 accountId, uint256 snxAmount)',
   'function migratePosition(uint128 sourcePoolId, uint128 accountId)',
   'function onERC721Received(address, address, uint256, bytes) pure returns (bytes4)',
-  'function poolId() view returns (uint128)',
   'function repayLoan(uint128 accountId, uint256 susdAmount)',
   'function setupPosition(uint256 snxAmount)',
-  'function transferableSynthetixBalanceOf(address walletAddress) returns (uint256 amount)',
   'function withdraw(uint128 accountId)',
   'error AccountExists()',
   'error NotEnoughAllowance(address walletAddress, address tokenAddress, uint256 requiredAllowance, uint256 availableAllowance)',
   'error NotEnoughBalance(address walletAddress, address tokenAddress, uint256 requiredAmount, uint256 availableAmount)',
 ];
-
 export async function importPositionManagerNewPool(
   chainId?: number,
   preset?: string
@@ -28,8 +30,8 @@ export async function importPositionManagerNewPool(
   const deployment = `${Number(chainId).toFixed(0)}-${preset}`;
   switch (deployment) {
     case '1-main': {
-      // https://etherscan.io/address/0x103416cfCD0D0a32b904Ab4fb69dF6E5B5aaDf2b#code
-      return { address: '0x103416cfCD0D0a32b904Ab4fb69dF6E5B5aaDf2b', abi };
+      // https://etherscan.io/address/0xABc84968376556B5e5B3C3bda750D091a06De536#code
+      return { address: '0xABc84968376556B5e5B3C3bda750D091a06De536', abi };
     }
     default: {
       throw new Error(`Unsupported deployment ${deployment} for PositionManagerNewPool`);
