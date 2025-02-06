@@ -21,9 +21,11 @@ contract PositionManager_repayLoan_emptyLoan_Test is PositionManagerTest {
 
         // Technically nothing changed because account had no loan
         assertEq(0, TreasuryMarketProxy.loanedAmount(accountId));
-        assertEq(200 ether, CoreProxy.getPositionCollateral(accountId, poolId, address($SNX)));
+        assertEq(200 ether, CoreProxy.getPositionCollateral(accountId, TreasuryMarketProxy.poolId(), address($SNX)));
         assertApproxEqAbs(
-            200 * snxPrice / 2, uint256(CoreProxy.getPositionDebt(accountId, poolId, address($SNX))), 0.1 ether
+            200 * snxPrice / 2,
+            uint256(CoreProxy.getPositionDebt(accountId, TreasuryMarketProxy.poolId(), address($SNX))),
+            0.1 ether
         );
         assertEq(0, CoreProxy.getAccountAvailableCollateral(accountId, address($SNX)));
     }

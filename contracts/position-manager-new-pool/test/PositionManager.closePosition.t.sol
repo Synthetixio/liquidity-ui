@@ -19,8 +19,8 @@ contract PositionManager_closePosition_Test is PositionManagerTest {
         assertEq(ALICE, AccountProxy.ownerOf(accountId));
 
         assertEq(0, TreasuryMarketProxy.loanedAmount(accountId));
-        assertEq(0, CoreProxy.getPositionDebt(accountId, poolId, address($SNX))); // at C-Ratio 200%
-        assertEq(0, CoreProxy.getPositionCollateral(accountId, poolId, address($SNX)));
+        assertEq(0, CoreProxy.getPositionDebt(accountId, TreasuryMarketProxy.poolId(), address($SNX))); // at C-Ratio 200%
+        assertEq(0, CoreProxy.getPositionCollateral(accountId, TreasuryMarketProxy.poolId(), address($SNX)));
         assertEq(200 ether, CoreProxy.getAccountAvailableCollateral(accountId, address($SNX)));
     }
 }

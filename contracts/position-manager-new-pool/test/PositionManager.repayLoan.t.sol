@@ -13,7 +13,16 @@ contract PositionManager_repayLoan_Test is PositionManagerTest {
         address ALICE = vm.addr(0xA11CE);
         vm.label(ALICE, "0xA11CE");
 
-        _get$SNX(ALICE, 1000 ether);
+        // Repayments are made with $sUSD
+        _deal$sUSD(ALICE, 50 ether);
+        assertEq(
+            //
+            50 ether,
+            $sUSD.balanceOf(ALICE),
+            "Wallet balance of sUSD should be at 50"
+        );
+
+        _deal$SNX(ALICE, 1000 ether);
 
         vm.startPrank(ALICE);
 
@@ -39,7 +48,7 @@ contract PositionManager_repayLoan_Test is PositionManagerTest {
         assertEq(
             //
             200 ether,
-            $sUSD.balanceOf(ALICE),
+            $snxUSD.balanceOf(ALICE),
             "Wallet balance of sUSD should be unchanged at 200"
         );
 
@@ -54,9 +63,21 @@ contract PositionManager_repayLoan_Test is PositionManagerTest {
         );
         assertEq(
             //
-            150 ether,
-            $sUSD.balanceOf(ALICE),
+            200 ether,
+            $snxUSD.balanceOf(ALICE),
             "Wallet balance of sUSD should be at 150 after $50 loan repayment"
+        );
+        assertEq(
+            //
+            0 ether,
+            $sUSD.balanceOf(ALICE),
+            "Wallet balance of $sUSD should be at 0 after $50 loan repayment"
+        );
+        assertEq(
+            //
+            200 ether,
+            $snxUSD.balanceOf(ALICE),
+            "Wallet balance of $snxUSD should remain at 200 as loans are repaid in $sUSD"
         );
     }
 }

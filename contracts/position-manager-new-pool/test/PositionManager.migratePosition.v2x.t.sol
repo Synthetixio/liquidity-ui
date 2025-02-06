@@ -10,7 +10,7 @@ contract PositionManager_migratePosition_v2x_Test is PositionManagerTest {
     }
 
     function test_migratePosition_v2x() public {
-        address ALICE = 0xf7ECaE6F035EA4927FDE97FaA679b5e224afb169;
+        address ALICE = 0xa5758de121079D2FA868C64b02Ef35C909635f16;
         vm.label(ALICE, "0xA11CE");
 
         uint256 snxPrice = _getSNXPrice();
@@ -26,9 +26,9 @@ contract PositionManager_migratePosition_v2x_Test is PositionManagerTest {
         assertLt(0, debt, "V2x debt should be > 0");
 
         // Update preferred pool, because legacy market migration will migrate to preferred pool only
-        vm.prank(CoreProxy.owner());
-        CoreProxy.setPreferredPool(poolId);
-        assertEq(poolId, CoreProxy.getPreferredPool());
+        vm.startPrank(CoreProxy.owner());
+        CoreProxy.setPreferredPool(TreasuryMarketProxy.poolId());
+        assertEq(TreasuryMarketProxy.poolId(), CoreProxy.getPreferredPool());
 
         uint128 accountId = 888;
         vm.startPrank(ALICE);
@@ -47,13 +47,13 @@ contract PositionManager_migratePosition_v2x_Test is PositionManagerTest {
         uint256 positionDebt = collateralValue / 2; // at c-ratio 200%
         assertApproxEqAbs(
             positionDebt,
-            uint256(CoreProxy.getPositionDebt(accountId, poolId, address($SNX))),
+            uint256(CoreProxy.getPositionDebt(accountId, TreasuryMarketProxy.poolId(), address($SNX))),
             0.1 ether,
             "Virtual debt for SNX position should be half of collateral value (C-Ratio 200%)"
         );
         assertEq(
             collateral,
-            CoreProxy.getPositionCollateral(accountId, poolId, address($SNX)),
+            CoreProxy.getPositionCollateral(accountId, TreasuryMarketProxy.poolId(), address($SNX)),
             "SNX position collateral amount should be unchanged in the new pool"
         );
     }

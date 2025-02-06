@@ -41,9 +41,7 @@ export _meta="$_root/node_modules/@synthetixio/v3-contracts/11155111-main/meta.j
 export _CoreProxy=$(cat $_meta | jq -r '.contracts.CoreProxy')
 export _AccountProxy=$(cat $_meta | jq -r '.contracts.AccountProxy')
 export _TreasuryMarketProxy=$(cat $_meta | jq -r '.contracts.TreasuryMarketProxy')
-export _SNX=$(cat $_meta | jq -r '.contracts.CollateralToken_SNX')
-export _sUSD=$(cat $_meta | jq -r '.contracts.USDProxy')
-export _poolId=8
+export _LegacyMarketProxy=$(cat $_meta | jq -r '.contracts.LegacyMarketProxy')
 
 forge create \
   --broadcast \
@@ -59,9 +57,7 @@ forge create \
       $_CoreProxy \
       $_AccountProxy \
       $_TreasuryMarketProxy \
-      $_SNX \
-      $_sUSD \
-      $_poolId
+      $_LegacyMarketProxy
 ```
 
 Mainnet
@@ -76,9 +72,7 @@ export _meta="$_root/node_modules/@synthetixio/v3-contracts/1-main/meta.json"
 export _CoreProxy=$(cat $_meta | jq -r '.contracts.CoreProxy')
 export _AccountProxy=$(cat $_meta | jq -r '.contracts.AccountProxy')
 export _TreasuryMarketProxy=$(cat $_meta | jq -r '.contracts.TreasuryMarketProxy')
-export _SNX=$(cat $_meta | jq -r '.contracts.CollateralToken_SNX')
-export _sUSD=$(cat $_meta | jq -r '.contracts.USDProxy')
-export _poolId=8
+export _LegacyMarketProxy=$(cat $_meta | jq -r '.contracts.LegacyMarketProxy')
 
 forge create \
   --broadcast \
@@ -94,9 +88,8 @@ forge create \
       $_CoreProxy \
       $_AccountProxy \
       $_TreasuryMarketProxy \
-      $_SNX \
-      $_sUSD \
-      $_poolId
+      $_LegacyMarketProxy
+
 ```
 
 Local
@@ -108,9 +101,7 @@ export _meta="$_root/node_modules/@synthetixio/v3-contracts/1-main/meta.json"
 export _CoreProxy=$(cat $_meta | jq -r '.contracts.CoreProxy')
 export _AccountProxy=$(cat $_meta | jq -r '.contracts.AccountProxy')
 export _TreasuryMarketProxy="0x7b952507306E7D983bcFe6942Ac9F2f75C1332D8"
-export _SNX=$(cat $_meta | jq -r '.contracts.CollateralToken_SNX')
-export _sUSD=$(cat $_meta | jq -r '.contracts.USDProxy')
-export _poolId=8
+export _LegacyMarketProxy=$(cat $_meta | jq -r '.contracts.LegacyMarketProxy')
 
 export TEST_PK=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 
@@ -123,9 +114,7 @@ forge create \
       $_CoreProxy \
       $_AccountProxy \
       $_TreasuryMarketProxy \
-      $_SNX \
-      $_sUSD \
-      $_poolId
+      $_LegacyMarketProxy
 ```
 
 Additional cast commands to setup and configure the new pool

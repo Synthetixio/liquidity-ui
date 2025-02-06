@@ -15,7 +15,7 @@ contract PositionManager_migratePosition_Test is PositionManagerTest {
 
         uint256 snxPrice = _getSNXPrice();
 
-        _get$SNX(ALICE, 1000 ether);
+        _deal$SNX(ALICE, 1000 ether);
 
         vm.startPrank(ALICE);
 
@@ -45,10 +45,10 @@ contract PositionManager_migratePosition_Test is PositionManagerTest {
         );
         assertEq(
             0 ether,
-            CoreProxy.getAccountAvailableCollateral(accountId, address($sUSD)),
+            CoreProxy.getAccountAvailableCollateral(accountId, address($snxUSD)),
             "Available sUSD should be 0 (after withdrawal)"
         );
-        assertEq(200 ether, $sUSD.balanceOf(ALICE), "Wallet balance of sUSD should be 200");
+        assertEq(200 ether, $snxUSD.balanceOf(ALICE), "Wallet balance of sUSD should be 200");
 
         AccountProxy.approve(address(positionManager), accountId);
         positionManager.migratePosition(oldPoolId, accountId);
@@ -67,13 +67,13 @@ contract PositionManager_migratePosition_Test is PositionManagerTest {
         );
         assertApproxEqAbs(
             1000 * snxPrice / 2,
-            uint256(CoreProxy.getPositionDebt(accountId, poolId, address($SNX))),
+            uint256(CoreProxy.getPositionDebt(accountId, TreasuryMarketProxy.poolId(), address($SNX))),
             0.1 ether,
             "Virtual debt for SNX position should be at C-Ratio 200%"
         );
         assertEq(
             1000 ether,
-            CoreProxy.getPositionCollateral(accountId, poolId, address($SNX)),
+            CoreProxy.getPositionCollateral(accountId, TreasuryMarketProxy.poolId(), address($SNX)),
             "SNX position should be unchanged at 1000 but in the new pool"
         );
         assertEq(
@@ -83,9 +83,9 @@ contract PositionManager_migratePosition_Test is PositionManagerTest {
         );
         assertEq(
             0 ether,
-            CoreProxy.getAccountAvailableCollateral(accountId, address($sUSD)),
+            CoreProxy.getAccountAvailableCollateral(accountId, address($snxUSD)),
             "Available sUSD should be unchanged at 0"
         );
-        assertEq(200 ether, $sUSD.balanceOf(ALICE), "Wallet balance of sUSD should be unchanged at 200");
+        assertEq(200 ether, $snxUSD.balanceOf(ALICE), "Wallet balance of sUSD should be unchanged at 200");
     }
 }

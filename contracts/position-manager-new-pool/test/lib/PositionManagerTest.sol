@@ -2,11 +2,14 @@ pragma solidity ^0.8.21;
 
 import {ICoreProxy, MarketConfiguration} from "@synthetixio/v3-contracts/1-main/ICoreProxy.sol";
 import {IAccountProxy} from "@synthetixio/v3-contracts/1-main/IAccountProxy.sol";
+import {IAddressResolver} from "src/IAddressResolver.sol";
 import {ITreasuryMarketProxy} from "src/ITreasuryMarketProxy.sol";
 import {IUSDProxy} from "@synthetixio/v3-contracts/1-main/IUSDProxy.sol";
 import {ILegacyMarketProxy} from "@synthetixio/v3-contracts/1-main/ILegacyMarketProxy.sol";
 import {IV2x} from "@synthetixio/v3-contracts/1-main/IV2x.sol";
-import {ISNX} from "src/ISNX.sol";
+import {IV2xUsd} from "@synthetixio/v3-contracts/1-main/IV2xUsd.sol";
+import {IERC20} from "@synthetixio/core-contracts/contracts/interfaces/IERC20.sol";
+import {IAddressResolver} from "src/IAddressResolver.sol";
 
 import {PositionManagerNewPool} from "src/PositionManager.sol";
 import {Test} from "forge-std/src/Test.sol";
@@ -19,11 +22,11 @@ contract PositionManagerTest is Test {
     ITreasuryMarketProxy internal TreasuryMarketProxy;
     ILegacyMarketProxy internal LegacyMarketProxy;
     IV2x internal V2x;
+    IAddressResolver internal V2xResolver;
 
-    ISNX internal $SNX;
-    IUSDProxy internal $sUSD;
-
-    uint128 internal poolId = 8;
+    IERC20 internal $SNX;
+    IERC20 internal $snxUSD;
+    IERC20 internal $sUSD;
 
     uint256 internal fork;
     uint256 internal forkBlockNumber;
@@ -45,17 +48,8 @@ contract PositionManagerTest is Test {
         TreasuryMarketProxy = ITreasuryMarketProxy(0x7b952507306E7D983bcFe6942Ac9F2f75C1332D8);
         vm.label(address(TreasuryMarketProxy), "TreasuryMarketProxy");
 
-        V2x = IV2x(vm.parseJsonAddress(metaJson, ".contracts.V2x"));
-        vm.label(address(V2x), "V2x");
-
         LegacyMarketProxy = ILegacyMarketProxy(vm.parseJsonAddress(metaJson, ".contracts.LegacyMarketProxy"));
         vm.label(address(LegacyMarketProxy), "LegacyMarketProxy");
-
-        $SNX = ISNX(vm.parseJsonAddress(metaJson, ".contracts.CollateralToken_SNX"));
-        vm.label(address($SNX), "$SNX");
-
-        $sUSD = IUSDProxy(vm.parseJsonAddress(metaJson, ".contracts.USDProxy"));
-        vm.label(address($sUSD), "$sUSD");
     }
 
     function setUp() public {
@@ -70,18 +64,31 @@ contract PositionManagerTest is Test {
         assertEq(vm.activeFork(), fork);
 
         // Pyth bypass
-        // vm.etch(0x1234123412341234123412341234123412341234, "FORK");
+        vm.etch(0x1234123412341234123412341234123412341234, "FORK");
 
         positionManager = new PositionManagerNewPool(
             //
             address(CoreProxy),
             address(AccountProxy),
             address(TreasuryMarketProxy),
-            address($SNX),
-            address($sUSD),
-            poolId
+            address(LegacyMarketProxy)
         );
         vm.label(address(positionManager), "PositionManager");
+
+        $SNX = IERC20(positionManager.get$SNX());
+        vm.label(address($SNX), "$SNX");
+
+        $snxUSD = IERC20(positionManager.get$snxUSD());
+        vm.label(address($snxUSD), "$snxUSD");
+
+        $sUSD = IERC20(positionManager.get$sUSD());
+        vm.label(address($sUSD), "$sUSD");
+
+        V2x = IV2x(positionManager.getV2x());
+        vm.label(address(V2x), "V2x");
+
+        V2xResolver = IAddressResolver(positionManager.V2xResolver());
+        vm.label(address(V2xResolver), "V2xResolver");
 
         _configurePool(); // Temporary until deployed
         _disableAccountActivityTimeoutPending();
@@ -93,18 +100,35 @@ contract PositionManagerTest is Test {
         configs[0] = MarketConfiguration.Data(LegacyMarketProxy.marketId(), 10 ether, 1 ether);
         configs[1] = MarketConfiguration.Data(TreasuryMarketProxy.marketId(), 90 ether, 1 ether);
 
+        uint128 poolId = 8;
         vm.prank(CoreProxy.getPoolOwner(poolId));
         CoreProxy.setPoolConfiguration(poolId, configs);
         CoreProxy.getPoolConfiguration(poolId);
     }
 
-    function _get$SNX(address walletAddress, uint256 amount) internal {
+    function _deal$SNX(address walletAddress, uint256 amount) internal {
+        $SNX.balanceOf(walletAddress);
+        $SNX.balanceOf(address(CoreProxy));
+
         vm.prank(address(CoreProxy));
         $SNX.transfer(walletAddress, amount);
     }
 
-    function _get$sUSD(address walletAddress, uint256 amount) internal {
+    function _deal$snxUSD(address walletAddress, uint256 amount) internal {
+        $snxUSD.balanceOf(walletAddress);
+        $snxUSD.balanceOf(address(CoreProxy));
+
         vm.prank(address(CoreProxy));
+        $snxUSD.transfer(walletAddress, amount);
+    }
+
+    function _deal$sUSD(address walletAddress, uint256 amount) internal {
+        address SynthRedeemer = V2xResolver.getAddress("SynthRedeemer");
+
+        $sUSD.balanceOf(walletAddress);
+        $sUSD.balanceOf(SynthRedeemer);
+
+        vm.prank(SynthRedeemer);
         $sUSD.transfer(walletAddress, amount);
     }
 
@@ -129,7 +153,7 @@ contract PositionManagerTest is Test {
 
         vm.deal(walletAddress, 1 ether);
 
-        _get$SNX(walletAddress, amount);
+        _deal$SNX(walletAddress, amount);
 
         vm.startPrank(walletAddress);
         $SNX.approve(address(positionManager), amount);
@@ -155,7 +179,7 @@ contract PositionManagerTest is Test {
         CoreProxy.deposit(accountId, address($SNX), amount);
         CoreProxy.delegateCollateral(accountId, oldPoolId, address($SNX), amount, 1e18);
         CoreProxy.mintUsd(accountId, oldPoolId, address($SNX), amount / 5);
-        CoreProxy.withdraw(accountId, address($sUSD), amount / 5);
+        CoreProxy.withdraw(accountId, address($snxUSD), amount / 5);
 
         // Return to present
         vm.warp(ts);
@@ -168,7 +192,7 @@ contract PositionManagerTest is Test {
     }
 
     function _updateMinDelegationTime() internal {
-        MarketConfiguration.Data[] memory marketConfigs = CoreProxy.getPoolConfiguration(poolId);
+        MarketConfiguration.Data[] memory marketConfigs = CoreProxy.getPoolConfiguration(TreasuryMarketProxy.poolId());
         for (uint256 i = 0; i < marketConfigs.length; i++) {
             assertEq(0, CoreProxy.getMarketMinDelegateTime(marketConfigs[i].marketId));
             vm.prank(CoreProxy.getMarketAddress(marketConfigs[i].marketId));
