@@ -63,7 +63,6 @@ export const MigrationDialog: FC<Props> = ({ network, onClose, isOpen, onSuccess
                 onClose();
               }}
               onClose={onClose}
-              network={network}
             />
           )}
         </ModalBody>

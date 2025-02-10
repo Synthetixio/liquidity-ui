@@ -19,7 +19,7 @@ import {
 import { Amount } from '@snx-v3/Amount';
 import { ZEROWEI } from '@snx-v3/constants';
 import { CRatioBadge } from '@snx-v3/CRatioBar';
-import { MAINNET, Network } from '@snx-v3/useBlockchain';
+import { MAINNET } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useMigrate } from '@snx-v3/useMigrate';
 import { useRates } from '@snx-v3/useRates';
@@ -31,16 +31,14 @@ import { StepSuccess } from './StepSuccess';
 
 export const StepSummary = ({
   onClose,
-  network,
   onConfirm,
 }: {
   onClose: () => void;
   onConfirm: (accountId: string) => void;
-  network: Network;
 }) => {
   const { data: snxCollateral } = useCollateralType('SNX', MAINNET);
   const [isUnderstanding, setIsUnderstanding] = useState(false);
-  const { data } = useV2Position(network);
+  const { data } = useV2Position();
   const { migrate, transaction, isLoading, isSuccess, accountId } = useMigrate();
 
   const { data: rates } = useRates();

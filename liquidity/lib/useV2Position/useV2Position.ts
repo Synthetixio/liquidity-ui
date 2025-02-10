@@ -1,14 +1,15 @@
-import { useQuery } from '@tanstack/react-query';
-import { Network, useWallet, useProviderForChain } from '@snx-v3/useBlockchain';
+import { contractsHash } from '@snx-v3/tsHelpers';
+import { useNetwork, useProvider, useWallet } from '@snx-v3/useBlockchain';
+import { useTrustedMulticallForwarder } from '@snx-v3/useTrustedMulticallForwarder';
 import { useV2xSynthetix } from '@snx-v3/useV2xSynthetix';
 import { wei } from '@synthetixio/wei';
-import { useTrustedMulticallForwarder } from '@snx-v3/useTrustedMulticallForwarder';
-import { contractsHash } from '@snx-v3/tsHelpers';
+import { useQuery } from '@tanstack/react-query';
 import { ethers } from 'ethers';
 
-export function useV2Position(network: Network) {
+export function useV2Position() {
+  const { network } = useNetwork();
+  const provider = useProvider();
   const { activeWallet } = useWallet();
-  const provider = useProviderForChain(network);
   const { data: Multicall3 } = useTrustedMulticallForwarder(network);
   const { data: V2xSynthetix } = useV2xSynthetix(network);
   const walletAddress = activeWallet?.address;

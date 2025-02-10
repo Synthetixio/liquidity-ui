@@ -13,6 +13,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import debug from 'debug';
 import { ethers } from 'ethers';
 import React from 'react';
+import { useTargetCRatio } from './useTargetCRatio';
 
 const log = debug('snx:useMigrateNewPool');
 
@@ -33,6 +34,7 @@ export function useMigrateNewPool() {
   const { data: PositionManagerNewPool } = usePositionManagerNewPool();
   const { data: AccountProxy } = useAccountProxy();
   const { data: TrustedMulticallForwarder } = useTrustedMulticallForwarder();
+  const { data: targetCRatio } = useTargetCRatio();
 
   const isReady =
     network &&
@@ -43,6 +45,7 @@ export function useMigrateNewPool() {
     AccountProxy &&
     liquidityPosition &&
     liquidityPosition.collateralAmount.gt(0) &&
+    liquidityPosition.cRatio.gte(targetCRatio) &&
     true;
 
   const toast = useToast({ isClosable: true, duration: 9000 });

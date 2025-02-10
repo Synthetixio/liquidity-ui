@@ -30,7 +30,7 @@ export function MigrationBanner({
   const [isOpen, setIsOpen] = React.useState(false);
   const [accountId, setAccountId] = React.useState('');
   const [isUSDModalOpen, setIsUSDModalOpen] = React.useState(false);
-  const { data } = useV2Position(network);
+  const { data } = useV2Position();
   const { network: currentNetwork, setNetwork } = useNetwork();
   const { connect, activeWallet } = useWallet();
 
