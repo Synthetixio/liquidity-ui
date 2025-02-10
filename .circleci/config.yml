@@ -209,14 +209,14 @@ jobs:
           paths:
             - '~/.foundry/cache'
 
-      - run: exit $(cat /tmp/cypress_exit_code)
-
       - run:
           name: 'Upload coverage report to Codecov'
           command: |-
             curl -Os https://uploader.codecov.io/latest/linux/codecov
             chmod +x codecov
             ./codecov -t ${CODECOV_TOKEN} --file liquidity/cypress/.nyc_output/out.json
+
+      - run: exit $(cat /tmp/cypress_exit_code)
 
       - store_test_results:
           path: 'liquidity/cypress/cypress/reports'

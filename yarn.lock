@@ -2749,14 +2749,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cypress/code-coverage@npm:^3.13.9":
-  version: 3.13.9
-  resolution: "@cypress/code-coverage@npm:3.13.9"
+"@cypress/code-coverage@npm:^3.13.11":
+  version: 3.13.11
+  resolution: "@cypress/code-coverage@npm:3.13.11"
   dependencies:
     "@cypress/webpack-preprocessor": "npm:^6.0.0"
     chalk: "npm:4.1.2"
     dayjs: "npm:1.11.13"
-    debug: "npm:4.3.7"
+    debug: "npm:4.4.0"
     execa: "npm:4.1.0"
     globby: "npm:11.1.0"
     istanbul-lib-coverage: "npm:^3.0.0"
@@ -2768,7 +2768,23 @@ __metadata:
     babel-loader: ^8.3 || ^9
     cypress: "*"
     webpack: ^4 || ^5
-  checksum: 10/5c6fedd2e4e2ff4e221d440832cc00a9d7a420f2ada1a93ce1f68991397900f6179aa11730de018b785a452fdad18b4b69e6d695e1f2bfcbaa14e0b33dc3f8a3
+  checksum: 10/519b86f8e17c242e723a17f520d9e8ac2bfd6ea08d173e56b23f6b9e65a46a96b94e2023759a2b63b1f2ab6027a8c62c8d562dc0263bab8fe4eedd009fcaccb7
+  languageName: node
+  linkType: hard
+
+"@cypress/react@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "@cypress/react@npm:9.0.0"
+  peerDependencies:
+    "@types/react": ^18 || ^19
+    "@types/react-dom": ^18 || ^19
+    cypress: "*"
+    react: ^18 || ^19
+    react-dom: ^18 || ^19
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: 10/ff254d9907d519a9c4bd5b823b04b3fb34d847b1184e5f5d2e3bd2fce391140270db71645cac3baad4e71ed32ec55a66075c16963101662a80ef56d9062b3a27
   languageName: node
   linkType: hard
 
@@ -5662,13 +5678,14 @@ __metadata:
   resolution: "@snx-v3/liquidity-cypress@workspace:liquidity/cypress"
   dependencies:
     "@chakra-ui/react": "npm:^2.8.2"
-    "@cypress/code-coverage": "npm:^3.13.9"
+    "@cypress/code-coverage": "npm:^3.13.11"
+    "@cypress/react": "npm:^9.0.0"
     "@snx-v3/contracts": "workspace:*"
     "@snx-v3/liquidity": "workspace:*"
     "@snx-v3/parseContractError": "workspace:*"
     "@snx-v3/theme": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
-    cypress: "npm:13.17.0"
+    cypress: "npm:14.0.2"
     cypress-terminal-report: "npm:^7.1.0"
     ethers: "npm:^5.7.2"
     react-router-dom: "npm:^6.18.0"
@@ -11675,9 +11692,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress@npm:13.17.0":
-  version: 13.17.0
-  resolution: "cypress@npm:13.17.0"
+"cypress@npm:14.0.2":
+  version: 14.0.2
+  resolution: "cypress@npm:14.0.2"
   dependencies:
     "@cypress/request": "npm:^3.0.6"
     "@cypress/xvfb": "npm:^1.2.4"
@@ -11724,7 +11741,7 @@ __metadata:
     yauzl: "npm:^2.10.0"
   bin:
     cypress: bin/cypress
-  checksum: 10/6c548e2adf7ae127365570680aa32015dbeb94cad30ce4f8a92e2e58d8ef7033b7f0ece50579a0a13eb07061feede0c813ff8d1e50e0feb87520dece5be4ba95
+  checksum: 10/1adb4dd7559c8e483815fa682a8e02115e654e3dd6cd006cd0c7ea97c88acb4dcbe5feaa8a5d8b67e034883c208cd3d5c18f6e8df50a38e1d8dd1449ce7fd889
   languageName: node
   linkType: hard
 
@@ -11813,15 +11830,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:4.3.7, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4, debug@npm:^4.3.7":
-  version: 4.3.7
-  resolution: "debug@npm:4.3.7"
+"debug@npm:4, debug@npm:4.4.0, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4, debug@npm:^4.3.7":
+  version: 4.4.0
+  resolution: "debug@npm:4.4.0"
   dependencies:
     ms: "npm:^2.1.3"
   peerDependenciesMeta:
     supports-color:
       optional: true
-  checksum: 10/71168908b9a78227ab29d5d25fe03c5867750e31ce24bf2c44a86efc5af041758bb56569b0a3d48a9b5344c00a24a777e6f4100ed6dfd9534a42c1dde285125a
+  checksum: 10/1847944c2e3c2c732514b93d11886575625686056cd765336212dc15de2d2b29612b6cd80e1afba767bb8e1803b778caf9973e98169ef1a24a7a7009e1820367
   languageName: node
   linkType: hard
 
