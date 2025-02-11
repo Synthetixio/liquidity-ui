@@ -23,6 +23,7 @@ const abi = [
   'error NotEnoughAllowance(address walletAddress, address tokenAddress, uint256 requiredAllowance, uint256 availableAllowance)',
   'error NotEnoughBalance(address walletAddress, address tokenAddress, uint256 requiredAmount, uint256 availableAmount)',
 ];
+
 export async function importPositionManagerNewPool(
   chainId?: number,
   preset?: string
@@ -30,8 +31,8 @@ export async function importPositionManagerNewPool(
   const deployment = `${Number(chainId).toFixed(0)}-${preset}`;
   switch (deployment) {
     case '1-main': {
-      // https://etherscan.io/address/0xABc84968376556B5e5B3C3bda750D091a06De536#code
-      return { address: '0xABc84968376556B5e5B3C3bda750D091a06De536', abi };
+      // https://etherscan.io/address/0x190dc6311258c6d84e60c24b21008c280880de95#code
+      return { address: '0x190dc6311258C6D84E60c24b21008C280880dE95', abi };
     }
     default: {
       throw new Error(`Unsupported deployment ${deployment} for PositionManagerNewPool`);
