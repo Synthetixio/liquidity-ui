@@ -14,7 +14,9 @@ contract PositionManager_setupPosition_reverts_Test is PositionManagerTest {
 
         vm.prank(ALICE);
         vm.expectRevert(
-            abi.encodeWithSelector(PositionManagerNewPool.NotEnoughBalance.selector, ALICE, $SNX, 100 ether, 0 ether)
+            abi.encodeWithSelector(
+                PositionManagerNewPool.NotEnoughBalance.selector, ALICE, address($SNX), 100 ether, 0 ether
+            )
         );
         positionManager.setupPosition(100 ether);
     }
@@ -27,23 +29,11 @@ contract PositionManager_setupPosition_reverts_Test is PositionManagerTest {
 
         // NotEnoughAllowance error when not enough SNX approval for PositionManager
         vm.expectRevert(
-            abi.encodeWithSelector(PositionManagerNewPool.NotEnoughAllowance.selector, ALICE, $SNX, 100 ether, 0 ether)
+            abi.encodeWithSelector(
+                PositionManagerNewPool.NotEnoughAllowance.selector, ALICE, address($SNX), 100 ether, 0 ether
+            )
         );
         vm.prank(ALICE);
-        positionManager.setupPosition(100 ether);
-    }
-
-    function test_setupPosition_AccountExists() public {
-        address ALICE = vm.addr(0xA11CE);
-        vm.label(ALICE, "0xA11CE");
-
-        _setupPosition(ALICE, 200 ether);
-
-        _deal$SNX(ALICE, 100 ether);
-        $SNX.approve(address(positionManager), 100 ether);
-
-        vm.prank(ALICE);
-        vm.expectRevert(abi.encodeWithSelector(PositionManagerNewPool.AccountExists.selector));
         positionManager.setupPosition(100 ether);
     }
 }

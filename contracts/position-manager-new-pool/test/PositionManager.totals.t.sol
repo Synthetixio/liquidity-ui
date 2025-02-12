@@ -19,9 +19,9 @@ contract PositionManager_totals_Test is PositionManagerTest {
         vm.startPrank(ALICE);
 
         $SNX.approve(address(positionManager), 1000 ether);
-        positionManager.setupDelegatedPosition(100 ether);
-        positionManager.setupDelegatedPosition(300 ether);
-        positionManager.setupDelegatedPosition(600 ether);
+        positionManager.setupPosition(100 ether);
+        positionManager.setupPosition(300 ether);
+        positionManager.setupPosition(600 ether);
 
         uint128[] memory accounts = positionManager.getAccounts();
         assertEq(accounts.length, 3, "should have 3 accounts created");

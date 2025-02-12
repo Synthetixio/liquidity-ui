@@ -10,16 +10,30 @@ contract PositionManager_setupPosition_Test is PositionManagerTest {
     function test_setupPosition() public {
         address ALICE = vm.addr(0xA11CE);
         vm.label(ALICE, "0xA11CE");
-        uint128 accountId = _setupPosition(ALICE, 200 ether);
+
         uint256 snxPrice = _getSNXPrice();
 
-        assertEq(0, TreasuryMarketProxy.loanedAmount(accountId));
-        assertEq(200 ether, CoreProxy.getPositionCollateral(accountId, TreasuryMarketProxy.poolId(), address($SNX)));
+        vm.deal(ALICE, 1 ether);
+        _deal$SNX(ALICE, 1000 ether);
+
+        vm.startPrank(ALICE);
+
+        $SNX.approve(address(positionManager), 1000 ether);
+
+        positionManager.setupPosition(1000 ether);
+        uint128 accountId = uint128(AccountProxy.tokenOfOwnerByIndex(ALICE, 0));
+
+        uint256 debtAmount = 1000 * snxPrice / 2;
+        uint256 loanedAmount = 1000 * snxPrice / 5;
+
+        assertEq(loanedAmount, TreasuryMarketProxy.loanedAmount(accountId));
+        assertEq(1000 ether, CoreProxy.getPositionCollateral(accountId, TreasuryMarketProxy.poolId(), address($SNX)));
         assertApproxEqAbs(
-            200 * snxPrice / 2,
+            debtAmount,
             uint256(CoreProxy.getPositionDebt(accountId, TreasuryMarketProxy.poolId(), address($SNX))),
             0.1 ether
         );
         assertEq(0, CoreProxy.getAccountAvailableCollateral(accountId, address($SNX)));
+        assertEq(loanedAmount, CoreProxy.getAccountAvailableCollateral(accountId, address($snxUSD)));
     }
 }
