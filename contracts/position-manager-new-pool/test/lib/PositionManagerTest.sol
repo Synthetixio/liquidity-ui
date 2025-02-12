@@ -95,7 +95,6 @@ contract PositionManagerTest is Test {
         vm.label(address(V2xResolver), "V2xResolver");
 
         // _configurePool(); // Temporary until deployed
-        //        _disableAccountActivityTimeoutPending();
         _bypassTimeouts(address(positionManager));
         _bypassTimeouts(address(TreasuryMarketProxy));
         _fundPool();
@@ -162,14 +161,6 @@ contract PositionManagerTest is Test {
         address B055 = vm.addr(0xB055);
         vm.label(B055, "0xB055");
         _setupPosition(B055, 10_000 ether);
-    }
-
-    function _disableAccountActivityTimeoutPending() internal {
-        assertEq(86_400, CoreProxy.getConfigUint("accountTimeoutWithdraw"));
-        vm.startPrank(CoreProxy.owner());
-        CoreProxy.setConfig("accountTimeoutWithdraw", 0);
-        assertEq(0, CoreProxy.getConfigUint("accountTimeoutWithdraw"));
-        vm.stopPrank();
     }
 
     function _setupPosition(address walletAddress, uint256 amount) internal returns (uint128 accountId) {
