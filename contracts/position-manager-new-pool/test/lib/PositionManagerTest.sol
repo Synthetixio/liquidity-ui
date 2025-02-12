@@ -1,9 +1,14 @@
 pragma solidity ^0.8.21;
 
-import {ICoreProxy, MarketConfiguration} from "@synthetixio/v3-contracts/1-main/ICoreProxy.sol";
+import {
+    ICoreProxy,
+    PoolCollateralConfiguration,
+    CollateralConfiguration,
+    MarketConfiguration
+} from "@synthetixio/v3-contracts/1-main/ICoreProxy.sol";
 import {IAccountProxy} from "@synthetixio/v3-contracts/1-main/IAccountProxy.sol";
 import {IAddressResolver} from "src/IAddressResolver.sol";
-import {ITreasuryMarketProxy} from "src/ITreasuryMarketProxy.sol";
+import {ITreasuryMarketProxy} from "@synthetixio/v3-contracts/1-main/ITreasuryMarketProxy.sol";
 import {IUSDProxy} from "@synthetixio/v3-contracts/1-main/IUSDProxy.sol";
 import {ILegacyMarketProxy} from "@synthetixio/v3-contracts/1-main/ILegacyMarketProxy.sol";
 import {IV2x} from "@synthetixio/v3-contracts/1-main/IV2x.sol";
@@ -52,14 +57,14 @@ contract PositionManagerTest is Test {
     }
 
     function setUp() public {
-        string memory forkUrl = vm.envString("RPC_MAINNET");
-        //        string memory forkUrl = "http://127.0.0.1:8545";
-        fork = vm.createFork(forkUrl, forkBlockNumber);
-        //        fork = vm.createFork(forkUrl);
+        //        string memory forkUrl = vm.envString("RPC_MAINNET");
+        string memory forkUrl = "http://127.0.0.1:8545";
+        //        fork = vm.createFork(forkUrl, forkBlockNumber);
+        fork = vm.createFork(forkUrl);
         vm.selectFork(fork);
 
         // Verify fork
-        assertEq(block.number, forkBlockNumber);
+        //        assertEq(block.number, forkBlockNumber);
         assertEq(vm.activeFork(), fork);
 
         // Pyth bypass
@@ -90,8 +95,27 @@ contract PositionManagerTest is Test {
         vm.label(address(V2xResolver), "V2xResolver");
 
         // _configurePool(); // Temporary until deployed
-        _disableAccountActivityTimeoutPending();
+        //        _disableAccountActivityTimeoutPending();
+        _bypassTimeouts(address(positionManager));
+        _bypassTimeouts(address(TreasuryMarketProxy));
         _fundPool();
+    }
+
+    function _bypassTimeouts(address addr) internal {
+        vm.startPrank(CoreProxy.owner());
+        CoreProxy.setConfig(
+            keccak256(abi.encode(bytes32("accountOverrideMinDelegateTime"), addr, uint128(1))),
+            0x0000000000000000000000000000000000000000000000000000000000000001
+        );
+        CoreProxy.setConfig(
+            keccak256(abi.encode(bytes32("accountOverrideMinDelegateTime"), addr, TreasuryMarketProxy.poolId())),
+            0x0000000000000000000000000000000000000000000000000000000000000001
+        );
+        CoreProxy.setConfig(
+            keccak256(abi.encode(bytes32("accountOverrideWithdrawTimeout"), addr)),
+            0x0000000000000000000000000000000000000000000000000000000000000001
+        );
+        vm.stopPrank();
     }
 
     //    function _configurePool() internal {
@@ -109,16 +133,18 @@ contract PositionManagerTest is Test {
         $SNX.balanceOf(walletAddress);
         $SNX.balanceOf(address(CoreProxy));
 
-        vm.prank(address(CoreProxy));
+        vm.startPrank(address(CoreProxy));
         $SNX.transfer(walletAddress, amount);
+        vm.stopPrank();
     }
 
     function _deal$snxUSD(address walletAddress, uint256 amount) internal {
         $snxUSD.balanceOf(walletAddress);
         $snxUSD.balanceOf(address(CoreProxy));
 
-        vm.prank(address(CoreProxy));
+        vm.startPrank(address(CoreProxy));
         $snxUSD.transfer(walletAddress, amount);
+        vm.stopPrank();
     }
 
     function _deal$sUSD(address walletAddress, uint256 amount) internal {
@@ -127,8 +153,9 @@ contract PositionManagerTest is Test {
         $sUSD.balanceOf(walletAddress);
         $sUSD.balanceOf(SynthRedeemer);
 
-        vm.prank(SynthRedeemer);
+        vm.startPrank(SynthRedeemer);
         $sUSD.transfer(walletAddress, amount);
+        vm.stopPrank();
     }
 
     function _fundPool() internal {
@@ -139,17 +166,13 @@ contract PositionManagerTest is Test {
 
     function _disableAccountActivityTimeoutPending() internal {
         assertEq(86_400, CoreProxy.getConfigUint("accountTimeoutWithdraw"));
-        vm.prank(CoreProxy.owner());
+        vm.startPrank(CoreProxy.owner());
         CoreProxy.setConfig("accountTimeoutWithdraw", 0);
         assertEq(0, CoreProxy.getConfigUint("accountTimeoutWithdraw"));
+        vm.stopPrank();
     }
 
     function _setupPosition(address walletAddress, uint256 amount) internal returns (uint128 accountId) {
-        uint256 ts = vm.getBlockTimestamp();
-
-        // Go back 1 week to bypass the 1 week Min Delegation restriction
-        vm.warp(ts - 86_400 * 7 - 1);
-
         vm.deal(walletAddress, 1 ether);
 
         _deal$SNX(walletAddress, amount);
@@ -162,41 +185,34 @@ contract PositionManagerTest is Test {
         accountId = uint128(AccountProxy.tokenOfOwnerByIndex(walletAddress, 0));
         assertEq(walletAddress, AccountProxy.ownerOf(accountId));
         vm.stopPrank();
-
-        // Return to present
-        vm.warp(ts);
     }
 
     function _setupOldPoolPosition(uint128 oldPoolId, uint128 accountId, uint256 amount) internal {
-        uint256 ts = vm.getBlockTimestamp();
-
-        // Go back 1 week to bypass the 1 week Min Delegation restriction
-        vm.warp(ts - 86_400 * 7 - 1);
-
         // Setup old pool position, borrow and withdraw sUSD
         $SNX.approve(address(CoreProxy), amount);
         CoreProxy.deposit(accountId, address($SNX), amount);
         CoreProxy.delegateCollateral(accountId, oldPoolId, address($SNX), amount, 1e18);
-        CoreProxy.mintUsd(accountId, oldPoolId, address($SNX), amount / 5);
-        CoreProxy.withdraw(accountId, address($snxUSD), amount / 5);
-
-        // Return to present
-        vm.warp(ts);
-
-        // vm.startPrank(CoreProxy.owner());
-        // CoreProxy.setConfig(
-        //     keccak256(abi.encode("accountOverrideMinDelegateTime", accountId, 1)),
-        //     0x0000000000000000000000000000000000000000000000000000000000000001
-        // );
+        PoolCollateralConfiguration.Data memory poolCollateralConfig =
+            CoreProxy.getPoolCollateralConfiguration(oldPoolId, address($SNX));
+        uint256 issuanceRatioD18 = poolCollateralConfig.issuanceRatioD18;
+        if (issuanceRatioD18 == 0) {
+            CollateralConfiguration.Data memory collateralConfig = CoreProxy.getCollateralConfiguration(address($SNX));
+            issuanceRatioD18 = collateralConfig.issuanceRatioD18;
+        }
+        (, uint256 collateralValue,,) = CoreProxy.getPosition(accountId, oldPoolId, address($SNX));
+        uint256 mintable$snxUSD = (collateralValue * 1e18) / issuanceRatioD18;
+        CoreProxy.mintUsd(accountId, oldPoolId, address($SNX), mintable$snxUSD);
+        CoreProxy.withdraw(accountId, address($snxUSD), mintable$snxUSD);
     }
 
     function _updateMinDelegationTime() internal {
         MarketConfiguration.Data[] memory marketConfigs = CoreProxy.getPoolConfiguration(TreasuryMarketProxy.poolId());
         for (uint256 i = 0; i < marketConfigs.length; i++) {
             assertEq(0, CoreProxy.getMarketMinDelegateTime(marketConfigs[i].marketId));
-            vm.prank(CoreProxy.getMarketAddress(marketConfigs[i].marketId));
+            vm.startPrank(CoreProxy.getMarketAddress(marketConfigs[i].marketId));
             CoreProxy.setMarketMinDelegateTime(marketConfigs[i].marketId, 1);
             assertEq(1, CoreProxy.getMarketMinDelegateTime(marketConfigs[i].marketId));
+            vm.stopPrank();
         }
     }
 

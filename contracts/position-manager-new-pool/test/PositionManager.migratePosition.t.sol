@@ -13,6 +13,8 @@ contract PositionManager_migratePosition_Test is PositionManagerTest {
         address ALICE = vm.addr(0xA11CE);
         vm.label(ALICE, "0xA11CE");
 
+        _bypassTimeouts(ALICE);
+
         uint256 snxPrice = _getSNXPrice();
 
         _deal$SNX(ALICE, 1000 ether);
@@ -21,17 +23,19 @@ contract PositionManager_migratePosition_Test is PositionManagerTest {
 
         uint128 oldPoolId = 1;
         uint128 accountId = CoreProxy.createAccount();
+
+        vm.startPrank(ALICE);
         _setupOldPoolPosition(oldPoolId, accountId, 1000 ether);
 
-        assertLt(
+        assertEq(
             5 ether,
             CoreProxy.getPositionCollateralRatio(accountId, oldPoolId, address($SNX)),
-            "C-Ratio should be > 500%"
+            "C-Ratio should be exactly 500%"
         );
-        assertEq(
-            200 ether,
-            CoreProxy.getPositionDebt(accountId, oldPoolId, address($SNX)),
-            "Debt for SNX position should be 200"
+        CoreProxy.getPositionDebt(accountId, oldPoolId, address($SNX));
+        uint256 debtAmount = 1000 * snxPrice / 5;
+        assertApproxEqAbs(
+            debtAmount, uint256(CoreProxy.getPositionDebt(accountId, oldPoolId, address($SNX))), 0.1 ether
         );
         assertEq(
             1000 ether,
@@ -48,7 +52,11 @@ contract PositionManager_migratePosition_Test is PositionManagerTest {
             CoreProxy.getAccountAvailableCollateral(accountId, address($snxUSD)),
             "Available sUSD should be 0 (after withdrawal)"
         );
-        assertEq(200 ether, $snxUSD.balanceOf(ALICE), "Wallet balance of sUSD should be 200");
+        assertEq(
+            debtAmount,
+            $snxUSD.balanceOf(ALICE),
+            "Wallet balance of sUSD should be equal to debt amount (after withdrawal)"
+        );
 
         AccountProxy.approve(address(positionManager), accountId);
         positionManager.migratePosition(oldPoolId, accountId);
@@ -61,7 +69,7 @@ contract PositionManager_migratePosition_Test is PositionManagerTest {
             "C-Ratio should be UINT256_MAX"
         );
         assertEq(
-            200 ether,
+            debtAmount,
             TreasuryMarketProxy.loanedAmount(accountId),
             "Loan amount for SNX position should be 200 as previously borrowed amount"
         );
@@ -86,6 +94,10 @@ contract PositionManager_migratePosition_Test is PositionManagerTest {
             CoreProxy.getAccountAvailableCollateral(accountId, address($snxUSD)),
             "Available sUSD should be unchanged at 0"
         );
-        assertEq(200 ether, $snxUSD.balanceOf(ALICE), "Wallet balance of sUSD should be unchanged at 200");
+        assertEq(
+            debtAmount,
+            $snxUSD.balanceOf(ALICE),
+            "Wallet balance of sUSD should be unchanged and equal initially borrowed amount"
+        );
     }
 }
