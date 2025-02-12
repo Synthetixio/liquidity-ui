@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import {ICoreProxy} from "@synthetixio/v3-contracts/1-main/ICoreProxy.sol";
+import {
+    ICoreProxy,
+    PoolCollateralConfiguration,
+    CollateralConfiguration
+} from "@synthetixio/v3-contracts/1-main/ICoreProxy.sol";
 import {IAccountProxy} from "@synthetixio/v3-contracts/1-main/IAccountProxy.sol";
 import {IUSDProxy} from "@synthetixio/v3-contracts/1-main/IUSDProxy.sol";
-import {ITreasuryMarketProxy} from "./ITreasuryMarketProxy.sol";
+import {ITreasuryMarketProxy} from "@synthetixio/v3-contracts/1-main/ITreasuryMarketProxy.sol";
 import {ILegacyMarketProxy} from "@synthetixio/v3-contracts/1-main/ILegacyMarketProxy.sol";
 import {IV2xUsd} from "@synthetixio/v3-contracts/1-main/IV2xUsd.sol";
 import {IV2x} from "@synthetixio/v3-contracts/1-main/IV2x.sol";
@@ -89,10 +93,38 @@ contract PositionManagerNewPool {
     }
 
     /**
-     * @notice Creates new account, deposits collateral to the system and then delegates it to the pool
-     * @param snxAmount The amount of collateral to delegate. This is a relative number
+     * @notice Retrieves the total deposit amount of SNX collateral across all accounts owned by the caller
+     * @dev Iterates through all accounts owned by the caller and sums up their collateral in the specified pool
+     * @return totalDeposit The total amount of SNX collateral deposited across all caller-owned accounts
      */
-    function setupPosition(uint256 snxAmount) public {
+    function getTotalDeposit() public view returns (uint256 totalDeposit) {
+        uint128[] memory accountIds = getAccounts();
+        totalDeposit = 0;
+        uint128 poolId = TreasuryMarketProxy.poolId();
+        address $SNX = get$SNX();
+        for (uint256 i = 0; i < accountIds.length; i++) {
+            totalDeposit = totalDeposit + CoreProxy.getPositionCollateral(accountIds[i], poolId, $SNX);
+        }
+    }
+
+    /**
+     * @notice Retrieves the total loan amount across all accounts owned by the caller
+     * @dev Iterates through all accounts owned by the caller and sums up their loaned amounts
+     * @return totalLoan The total loan amount across all caller-owned accounts
+     */
+    function getTotalLoan() public view returns (uint256 totalLoan) {
+        uint128[] memory accountIds = getAccounts();
+        totalLoan = 0;
+        for (uint256 i = 0; i < accountIds.length; i++) {
+            totalLoan = totalLoan + TreasuryMarketProxy.loanedAmount(accountIds[i]);
+        }
+    }
+
+    /**
+     * @notice Creates new account, deposits collateral to the system and then delegates it to the pool
+     * @param $SNXAmount The amount of collateral to delegate. This is a relative number
+     */
+    function setupPosition(uint256 $SNXAmount) public {
         address msgSender = ERC2771Context._msgSender();
         if (AccountProxy.balanceOf(msgSender) > 0) {
             // Do not allow to create more accounts
@@ -103,11 +135,12 @@ contract PositionManagerNewPool {
 
         TreasuryMarketProxy.rebalance();
 
-        _increasePosition(accountId, snxAmount);
+        uint128 poolId = TreasuryMarketProxy.poolId();
+        _increasePosition(accountId, $SNXAmount, poolId);
 
         TreasuryMarketProxy.saddle(accountId);
 
-        AccountProxy.safeTransferFrom(
+        AccountProxy.transferFrom(
             //
             address(this),
             msgSender,
@@ -118,11 +151,11 @@ contract PositionManagerNewPool {
     /**
      * @notice Deposits extra collateral to the system if needed and then delegates requested amount to the pool
      * @param accountId User's Synthetix v3 Account NFT ID
-     * @param snxAmount The amount of SNX to delegate. This is a relative number
+     * @param $SNXAmount The amount of SNX to delegate. This is a relative number
      */
-    function increasePosition(uint128 accountId, uint256 snxAmount) public {
+    function increasePosition(uint128 accountId, uint256 $SNXAmount) public {
         address msgSender = ERC2771Context._msgSender();
-        AccountProxy.safeTransferFrom(
+        AccountProxy.transferFrom(
             //
             msgSender,
             address(this),
@@ -131,11 +164,12 @@ contract PositionManagerNewPool {
 
         TreasuryMarketProxy.rebalance();
 
-        _increasePosition(accountId, snxAmount);
+        uint128 poolId = TreasuryMarketProxy.poolId();
+        _increasePosition(accountId, $SNXAmount, poolId);
 
         TreasuryMarketProxy.saddle(accountId);
 
-        AccountProxy.safeTransferFrom(
+        AccountProxy.transferFrom(
             //
             address(this),
             msgSender,
@@ -151,7 +185,7 @@ contract PositionManagerNewPool {
     function repayLoan(uint128 accountId, uint256 susdAmount) public {
         address msgSender = ERC2771Context._msgSender();
 
-        AccountProxy.safeTransferFrom(
+        AccountProxy.transferFrom(
             //
             msgSender,
             address(this),
@@ -160,7 +194,7 @@ contract PositionManagerNewPool {
 
         _repayLoan(accountId, susdAmount);
 
-        AccountProxy.safeTransferFrom(
+        AccountProxy.transferFrom(
             //
             address(this),
             msgSender,
@@ -175,7 +209,7 @@ contract PositionManagerNewPool {
     function closePosition(uint128 accountId) public {
         address msgSender = ERC2771Context._msgSender();
 
-        AccountProxy.safeTransferFrom(
+        AccountProxy.transferFrom(
             //
             msgSender,
             address(this),
@@ -187,7 +221,7 @@ contract PositionManagerNewPool {
         AccountProxy.approve(address(TreasuryMarketProxy), accountId);
         TreasuryMarketProxy.unsaddle(accountId);
 
-        AccountProxy.safeTransferFrom(
+        AccountProxy.transferFrom(
             //
             address(this),
             msgSender,
@@ -205,7 +239,7 @@ contract PositionManagerNewPool {
         address $snxUSD = get$snxUSD();
 
         // 1. Transfer Account NFT from the wallet
-        AccountProxy.safeTransferFrom(
+        AccountProxy.transferFrom(
             //
             msgSender,
             address(this),
@@ -258,7 +292,7 @@ contract PositionManagerNewPool {
         );
 
         // 8. Transfer Account NFT back to the owner
-        AccountProxy.safeTransferFrom(
+        AccountProxy.transferFrom(
             //
             address(this),
             msgSender,
@@ -274,7 +308,7 @@ contract PositionManagerNewPool {
     function migratePosition(uint128 sourcePoolId, uint128 accountId) public {
         address msgSender = ERC2771Context._msgSender();
 
-        AccountProxy.safeTransferFrom(
+        AccountProxy.transferFrom(
             //
             msgSender,
             address(this),
@@ -291,7 +325,7 @@ contract PositionManagerNewPool {
         );
         TreasuryMarketProxy.saddle(accountId);
 
-        AccountProxy.safeTransferFrom(
+        AccountProxy.transferFrom(
             //
             address(this),
             msgSender,
@@ -299,7 +333,51 @@ contract PositionManagerNewPool {
         );
     }
 
-    function _increasePosition(uint128 accountId, uint256 $SNXAmount) internal {
+    /**
+     * @notice Creates new account, deposits collateral to the system and then delegates it to the SC pool and mints snxUSD
+     * @param $SNXAmount The amount of collateral to delegate. This is a relative number
+     */
+    function setupDelegatedPosition(uint256 $SNXAmount) public {
+        address msgSender = ERC2771Context._msgSender();
+
+        uint128 accountId = CoreProxy.createAccount();
+
+        uint128 scPoolId = 1; // SC Pool id is always 1
+        _increasePosition(accountId, $SNXAmount, scPoolId);
+        _maxMint(accountId, scPoolId);
+        ICoreProxyWithMigration(address(CoreProxy)).migrateDelegation(
+            //
+            accountId,
+            scPoolId,
+            get$SNX(),
+            TreasuryMarketProxy.poolId()
+        );
+        TreasuryMarketProxy.saddle(accountId);
+
+        AccountProxy.transferFrom(
+            //
+            address(this),
+            msgSender,
+            uint256(accountId)
+        );
+    }
+
+    function _maxMint(uint128 accountId, uint128 poolId) internal {
+        address $SNX = get$SNX();
+        PoolCollateralConfiguration.Data memory poolCollateralConfig =
+            CoreProxy.getPoolCollateralConfiguration(poolId, $SNX);
+        uint256 issuanceRatioD18 = poolCollateralConfig.issuanceRatioD18;
+        if (issuanceRatioD18 == 0) {
+            CollateralConfiguration.Data memory collateralConfig = CoreProxy.getCollateralConfiguration($SNX);
+            issuanceRatioD18 = collateralConfig.issuanceRatioD18;
+        }
+
+        (, uint256 collateralValue,,) = CoreProxy.getPosition(accountId, poolId, $SNX);
+        uint256 mintable$snxUSD = (collateralValue * 1e18) / issuanceRatioD18;
+        CoreProxy.mintUsd(accountId, poolId, $SNX, mintable$snxUSD);
+    }
+
+    function _increasePosition(uint128 accountId, uint256 $SNXAmount, uint128 poolId) internal {
         address msgSender = ERC2771Context._msgSender();
         address $SNX = get$SNX();
 
@@ -351,7 +429,6 @@ contract PositionManagerNewPool {
             $SNXAmount
         );
 
-        uint128 poolId = TreasuryMarketProxy.poolId();
         // 5. Delegate $SNX to the Pool
         uint256 currentPosition = CoreProxy.getPositionCollateral(
             //

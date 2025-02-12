@@ -13,6 +13,8 @@ contract PositionManager_repayLoan_Test is PositionManagerTest {
         address ALICE = vm.addr(0xA11CE);
         vm.label(ALICE, "0xA11CE");
 
+        uint256 snxPrice = _getSNXPrice();
+
         // Repayments are made with $sUSD
         _deal$sUSD(ALICE, 50 ether);
         assertEq(
@@ -21,35 +23,35 @@ contract PositionManager_repayLoan_Test is PositionManagerTest {
             $sUSD.balanceOf(ALICE),
             "Wallet balance of sUSD should be at 50"
         );
-
         _deal$SNX(ALICE, 1000 ether);
 
-        vm.startPrank(ALICE);
-
         uint128 oldPoolId = 1;
-        uint128 accountId = CoreProxy.createAccount();
-        _setupOldPoolPosition(oldPoolId, accountId, 1000 ether);
 
-        AccountProxy.approve(address(positionManager), accountId);
-        positionManager.migratePosition(oldPoolId, accountId);
+        vm.startPrank(ALICE);
+        $SNX.approve(address(positionManager), 1000 ether);
+        positionManager.setupDelegatedPosition(1000 ether);
+        uint128 accountId = uint128(AccountProxy.tokenOfOwnerByIndex(ALICE, 0));
+
+        uint256 loanedAmount = 1000 * snxPrice / 5;
 
         assertEq(ALICE, AccountProxy.ownerOf(accountId));
-
         assertEq(
             UINT256_MAX,
             CoreProxy.getPositionCollateralRatio(accountId, oldPoolId, address($SNX)),
             "C-Ratio should be UINT256_MAX"
         );
         assertEq(
-            200 ether,
+            loanedAmount,
             TreasuryMarketProxy.loanedAmount(accountId),
-            "Loan amount for SNX position should be 200 as previously borrowed amount"
+            "Loan amount for SNX position should be (1000 * snxPrice / 5) as previously borrowed amount"
         );
+
+        AccountProxy.approve(address(positionManager), accountId);
+        positionManager.withdraw(accountId);
         assertEq(
-            //
-            200 ether,
+            loanedAmount,
             $snxUSD.balanceOf(ALICE),
-            "Wallet balance of sUSD should be unchanged at 200"
+            "Wallet balance of $sUSD should be unchanged at (1000 * snxPrice / 5)"
         );
 
         AccountProxy.approve(address(positionManager), accountId);
@@ -57,15 +59,9 @@ contract PositionManager_repayLoan_Test is PositionManagerTest {
         positionManager.repayLoan(accountId, 50 ether);
 
         assertEq(
-            150 ether,
+            loanedAmount - 50 ether,
             TreasuryMarketProxy.loanedAmount(accountId),
-            "Loan amount for SNX position should be 150 after $50 loan repayment"
-        );
-        assertEq(
-            //
-            200 ether,
-            $snxUSD.balanceOf(ALICE),
-            "Wallet balance of sUSD should be at 150 after $50 loan repayment"
+            "Loan amount for SNX position should be reduced by $50 after loan repayment"
         );
         assertEq(
             //
@@ -75,7 +71,7 @@ contract PositionManager_repayLoan_Test is PositionManagerTest {
         );
         assertEq(
             //
-            200 ether,
+            loanedAmount,
             $snxUSD.balanceOf(ALICE),
             "Wallet balance of $snxUSD should remain at 200 as loans are repaid in $sUSD"
         );
