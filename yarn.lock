@@ -7363,9 +7363,9 @@ __metadata:
   linkType: hard
 
 "@synthetixio/v3-contracts@npm:^8.1.0":
-  version: 8.3.0
-  resolution: "@synthetixio/v3-contracts@npm:8.3.0"
-  checksum: 10/d7bf164d42fb8bf9f9cad2df0089bdecc35bbcff467d66ef4c195e68aaf92ec5aa668f626f6ee0cd9997002c6396c1fe06cafa204efb62c7aad9220b11dedf2e
+  version: 8.4.0
+  resolution: "@synthetixio/v3-contracts@npm:8.4.0"
+  checksum: 10/b2897466ccb77985dcf9938847bfa5bc9cbfaef5f4b194bf23cf80921a4da5668ed9155e27261ab98e729447cf2a1220187b106e2a02af30e69a44080040426b
   languageName: node
   linkType: hard
 
