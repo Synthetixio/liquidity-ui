@@ -13,7 +13,7 @@ contract PositionManager_migratePosition_v2x_Test is PositionManagerTest {
         address ALICE = 0xa5758de121079D2FA868C64b02Ef35C909635f16;
         vm.label(ALICE, "0xA11CE");
 
-        uint256 snxPrice = _getSNXPrice();
+        uint256 snxPrice = CoreProxy.getCollateralPrice(address($SNX));
 
         uint256 collateral = V2x.collateral(ALICE);
         uint256 cratio = V2x.collateralisationRatio(ALICE);

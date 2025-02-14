@@ -125,7 +125,7 @@ Additional cast commands to setup and configure the new pool
 ```sh
 cast rpc anvil_autoImpersonateAccount true
 
-export _PositionManager="0xABc84968376556B5e5B3C3bda750D091a06De536"
+export _PositionManager="0x6C3F7ed79b9D75486D0250946f7a20BDA74844Ba"
 
 cast selectors $(cast code $_PositionManager)
 
@@ -142,12 +142,29 @@ cast call $_PositionManager 'function getV2x() view returns (address v2x)'
 cast call $_PositionManager 'function getV2xUsd() view returns (address v2xUsd)'
 
 
-# Disable withdraw timeout
-export _poolId=$(cast call $_TreasuryMarketProxy "function poolId() view returns (uint128)")
-cast call $_CoreProxy "function owner() view returns (address)"
-cast call $_CoreProxy "function getPoolOwner(uint128 poolId) view returns (address)" $_poolId
-cast send --unlocked --from $(cast call $_CoreProxy "function owner() view returns (address)") $_CoreProxy "function setConfig(bytes32 k, bytes32 v)" "0x6163636f756e7454696d656f7574576974686472617700000000000000000000" "0x0000000000000000000000000000000000000000000000000000000000000000"
-cast call $_CoreProxy "function getConfigUint(bytes32 k) view returns (uint256 v)" "0x6163636f756e7454696d656f7574576974686472617700000000000000000000"
+# Disable timeouts
+export _owner=$(cast call $_CoreProxy "function owner() view returns (address)")
+export _accountTimeoutWithdraw=$(cast format-bytes32-string 'accountTimeoutWithdraw')
+export _accountOverrideMinDelegateTime=$(cast format-bytes32-string 'accountOverrideMinDelegateTime')
+export _accountOverrideWithdrawTimeout=$(cast format-bytes32-string 'accountOverrideWithdrawTimeout')
+
+cast send --unlocked --from $_owner $_CoreProxy "function setConfig(bytes32 k, bytes32 v)" \
+  "$(cast keccak "$(cast abi-encode "f(bytes32)" $_accountTimeoutWithdraw)")" \
+  "$(cast to-uint256 0)"
+cast send --unlocked --from $_owner $_CoreProxy "function setConfig(bytes32 k, bytes32 v)" \
+  "$(cast keccak "$(cast abi-encode "f(bytes32,address,uint128)" $_accountOverrideMinDelegateTime $_TreasuryMarketProxy "$(cast to-uint256 1)")")" \
+  "$(cast to-uint256 1)"
+cast send --unlocked --from $_owner $_CoreProxy "function setConfig(bytes32 k, bytes32 v)" \
+  "$(cast keccak "$(cast abi-encode "f(bytes32,address,uint128)" $_accountOverrideMinDelegateTime $_PositionManager "$(cast to-uint256 1)")")" \
+  "$(cast to-uint256 1)"
+cast send --unlocked --from $_owner $_CoreProxy "function setConfig(bytes32 k, bytes32 v)" \
+  "$(cast keccak "$(cast abi-encode "f(bytes32,address,uint128)" $_accountOverrideWithdrawTimeout $_TreasuryMarketProxy "$(cast to-uint256 1)")")" \
+  "$(cast to-uint256 1)"
+cast send --unlocked --from $_owner $_CoreProxy "function setConfig(bytes32 k, bytes32 v)" \
+  "$(cast keccak "$(cast abi-encode "f(bytes32,address,uint128)" $_accountOverrideWithdrawTimeout $_PositionManager "$(cast to-uint256 1)")")" \
+  "$(cast to-uint256 1)"
+
+
 
 # Setup SNX Jubilee pool (no longer needed)
 # cast send --unlocked --from $(cast call $_CoreProxy 'function getPoolOwner(uint128 poolId) view returns (address)' $_poolId) $_CoreProxy "function setPoolConfiguration(uint128,tuple(uint128, uint128, int128)[])" $_poolId '[(1,10000000000000000000,1000000000000000000),(3, 90000000000000000000,1000000000000000000)]'
@@ -164,4 +181,8 @@ cast send --unlocked --from 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 $_SNX "fu
 cast send --unlocked --from 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 $_PositionManager "function setupPosition(uint256 snxAmount)" $(cast to-wei 10000)
 
 cast send --unlocked --from $_CoreProxy $_SNX "function transfer(address to, uint256 amount) returns (bool)" 0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345 $(cast to-wei 1000)
+
+cast call --from 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 $_PositionManager 'function getTotalDeposit() view returns (uint256 totalDeposit)'
+cast call --from 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 $_PositionManager 'function getTotalLoan() view returns (uint256 totalLoan)'
+cast call --from 0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345 $_PositionManager 'function getTotalDeposit() view returns (uint256 totalDeposit)'
 ```
