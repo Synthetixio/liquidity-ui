@@ -103,30 +103,19 @@ contract PositionManagerTest is Test {
     function _bypassTimeouts(address addr) internal {
         vm.startPrank(CoreProxy.owner());
         CoreProxy.setConfig(
-            keccak256(abi.encode(bytes32("accountOverrideMinDelegateTime"), addr, uint128(1))),
+            keccak256(abi.encode(bytes32("senderOverrideMinDelegateTime"), addr, uint128(1))),
             0x0000000000000000000000000000000000000000000000000000000000000001
         );
         CoreProxy.setConfig(
-            keccak256(abi.encode(bytes32("accountOverrideMinDelegateTime"), addr, TreasuryMarketProxy.poolId())),
+            keccak256(abi.encode(bytes32("senderOverrideMinDelegateTime"), addr, TreasuryMarketProxy.poolId())),
             0x0000000000000000000000000000000000000000000000000000000000000001
         );
         CoreProxy.setConfig(
-            keccak256(abi.encode(bytes32("accountOverrideWithdrawTimeout"), addr)),
+            keccak256(abi.encode(bytes32("senderOverrideWithdrawTimeout"), addr)),
             0x0000000000000000000000000000000000000000000000000000000000000001
         );
         vm.stopPrank();
     }
-
-    //    function _configurePool() internal {
-    //        MarketConfiguration.Data[] memory configs = new MarketConfiguration.Data[](2);
-    //        configs[0] = MarketConfiguration.Data(LegacyMarketProxy.marketId(), 10 ether, 1 ether);
-    //        configs[1] = MarketConfiguration.Data(TreasuryMarketProxy.marketId(), 90 ether, 1 ether);
-    //
-    //        uint128 poolId = 8;
-    //        vm.prank(CoreProxy.getPoolOwner(poolId));
-    //        CoreProxy.setPoolConfiguration(poolId, configs);
-    //        CoreProxy.getPoolConfiguration(poolId);
-    //    }
 
     function _deal$SNX(address walletAddress, uint256 amount) internal {
         $SNX.balanceOf(walletAddress);
@@ -160,77 +149,21 @@ contract PositionManagerTest is Test {
     function _fundPool() internal {
         address B055 = vm.addr(0xB055);
         vm.label(B055, "0xB055");
-        _setupPosition(B055, 10_000 ether);
-    }
 
-    function _setupPosition(address walletAddress, uint256 amount) internal returns (uint128 accountId) {
-        vm.deal(walletAddress, 1 ether);
+        vm.deal(B055, 1 ether);
 
-        _deal$SNX(walletAddress, amount);
+        _deal$SNX(B055, 10_000 ether);
 
-        vm.startPrank(walletAddress);
-        $SNX.approve(address(positionManager), amount);
+        vm.startPrank(B055);
 
-        positionManager.setupPosition(amount);
+        uint128 accountId = CoreProxy.createAccount();
 
-        accountId = uint128(AccountProxy.tokenOfOwnerByIndex(walletAddress, 0));
-        assertEq(walletAddress, AccountProxy.ownerOf(accountId));
+        TreasuryMarketProxy.rebalance();
+        $SNX.approve(address(CoreProxy), 10_000 ether);
+        CoreProxy.deposit(accountId, address($SNX), 10_000 ether);
+        CoreProxy.delegateCollateral(accountId, TreasuryMarketProxy.poolId(), address($SNX), 10_000 ether, 1e18);
+        TreasuryMarketProxy.saddle(accountId);
+
         vm.stopPrank();
-    }
-
-    function _setupOldPoolPosition(uint128 oldPoolId, uint128 accountId, uint256 amount) internal {
-        // Setup old pool position, borrow and withdraw sUSD
-        $SNX.approve(address(CoreProxy), amount);
-        CoreProxy.deposit(accountId, address($SNX), amount);
-        CoreProxy.delegateCollateral(accountId, oldPoolId, address($SNX), amount, 1e18);
-        PoolCollateralConfiguration.Data memory poolCollateralConfig =
-            CoreProxy.getPoolCollateralConfiguration(oldPoolId, address($SNX));
-        uint256 issuanceRatioD18 = poolCollateralConfig.issuanceRatioD18;
-        if (issuanceRatioD18 == 0) {
-            CollateralConfiguration.Data memory collateralConfig = CoreProxy.getCollateralConfiguration(address($SNX));
-            issuanceRatioD18 = collateralConfig.issuanceRatioD18;
-        }
-        (, uint256 collateralValue,,) = CoreProxy.getPosition(accountId, oldPoolId, address($SNX));
-        uint256 mintable$snxUSD = (collateralValue * 1e18) / issuanceRatioD18;
-        CoreProxy.mintUsd(accountId, oldPoolId, address($SNX), mintable$snxUSD);
-        CoreProxy.withdraw(accountId, address($snxUSD), mintable$snxUSD);
-    }
-
-    function _updateMinDelegationTime() internal {
-        MarketConfiguration.Data[] memory marketConfigs = CoreProxy.getPoolConfiguration(TreasuryMarketProxy.poolId());
-        for (uint256 i = 0; i < marketConfigs.length; i++) {
-            assertEq(0, CoreProxy.getMarketMinDelegateTime(marketConfigs[i].marketId));
-            vm.startPrank(CoreProxy.getMarketAddress(marketConfigs[i].marketId));
-            CoreProxy.setMarketMinDelegateTime(marketConfigs[i].marketId, 1);
-            assertEq(1, CoreProxy.getMarketMinDelegateTime(marketConfigs[i].marketId));
-            vm.stopPrank();
-        }
-    }
-
-    function _generateAccountId() internal view returns (uint128 accountId) {
-        // Use multiple sources of randomness to increase unpredictability
-        uint256 randomSeed = uint256(blockhash(block.number - 1));
-
-        // Generate a random number in the range [0, type(uint128).max]
-        // Using uint256 for intermediate calculations
-        uint256 maxUint128PlusOne = (uint256(1) << 128); // 2^128
-        uint256 randomNumber = randomSeed % maxUint128PlusOne;
-
-        // Define the desired range
-        uint128 lowerBound = type(uint128).max / 4;
-        uint128 upperBound = type(uint128).max / 2;
-
-        // Ensure the number is within the specified range
-        if (randomNumber < lowerBound) {
-            return lowerBound + uint128((uint256(randomNumber) % (upperBound - lowerBound)));
-        } else if (randomNumber > upperBound) {
-            return lowerBound + uint128((uint256(randomNumber) % (upperBound - lowerBound)));
-        } else {
-            return uint128(randomNumber);
-        }
-    }
-
-    function _getSNXPrice() internal view returns (uint256 snxPrice) {
-        snxPrice = CoreProxy.getCollateralPrice(address($SNX));
     }
 }

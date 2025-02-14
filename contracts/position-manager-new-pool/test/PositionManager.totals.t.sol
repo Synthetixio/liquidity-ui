@@ -11,7 +11,7 @@ contract PositionManager_totals_Test is PositionManagerTest {
         address ALICE = vm.addr(0xA11CE);
         vm.label(ALICE, "0xA11CE");
 
-        uint256 snxPrice = _getSNXPrice();
+        uint256 snxPrice = CoreProxy.getCollateralPrice(address($SNX));
 
         vm.deal(ALICE, 1 ether);
         _deal$SNX(ALICE, 1000 ether);
