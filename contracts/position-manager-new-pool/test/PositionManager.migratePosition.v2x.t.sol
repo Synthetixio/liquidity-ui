@@ -1,12 +1,11 @@
 pragma solidity ^0.8.21;
 
 import "./lib/PositionManagerTest.sol";
-import "src/ICoreProxyWithMigration.sol";
 import "@synthetixio/v3-contracts/1-main/ICoreProxy.sol";
 
 contract PositionManager_migratePosition_v2x_Test is PositionManagerTest {
     constructor() {
-        forkBlockNumber = 21787552;
+        forkBlockNumber = 21864281;
     }
 
     function test_migratePosition_v2x() public {

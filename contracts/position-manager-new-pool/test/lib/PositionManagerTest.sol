@@ -57,14 +57,14 @@ contract PositionManagerTest is Test {
     }
 
     function setUp() public {
-        //        string memory forkUrl = vm.envString("RPC_MAINNET");
-        string memory forkUrl = "http://127.0.0.1:8545";
-        //        fork = vm.createFork(forkUrl, forkBlockNumber);
-        fork = vm.createFork(forkUrl);
+        string memory forkUrl = vm.envString("RPC_MAINNET");
+        //        string memory forkUrl = "http://127.0.0.1:8545";
+        fork = vm.createFork(forkUrl, forkBlockNumber);
+        //        fork = vm.createFork(forkUrl);
         vm.selectFork(fork);
 
         // Verify fork
-        //        assertEq(block.number, forkBlockNumber);
+        assertEq(block.number, forkBlockNumber);
         assertEq(vm.activeFork(), fork);
 
         // Pyth bypass
@@ -94,7 +94,6 @@ contract PositionManagerTest is Test {
         V2xResolver = IAddressResolver(positionManager.V2xResolver());
         vm.label(address(V2xResolver), "V2xResolver");
 
-        // _configurePool(); // Temporary until deployed
         _bypassTimeouts(address(positionManager));
         _bypassTimeouts(address(TreasuryMarketProxy));
         _fundPool();
