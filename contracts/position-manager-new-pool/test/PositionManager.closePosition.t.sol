@@ -4,7 +4,7 @@ import "./lib/PositionManagerTest.sol";
 
 contract PositionManager_closePosition_Test is PositionManagerTest {
     constructor() {
-        forkBlockNumber = 21787552;
+        forkBlockNumber = 21864281;
     }
 
     function _setupPosition(address walletAddress, uint256 amount) internal returns (uint128 accountId) {

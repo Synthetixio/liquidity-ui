@@ -16,7 +16,6 @@ import {IV2x} from "@synthetixio/v3-contracts/1-main/IV2x.sol";
 import {ERC2771Context} from "@synthetixio/core-contracts/contracts/utils/ERC2771Context.sol";
 import {IERC20} from "@synthetixio/core-contracts/contracts/interfaces/IERC20.sol";
 import {IERC721Receiver} from "@synthetixio/core-contracts/contracts/interfaces/IERC721Receiver.sol";
-import {ICoreProxyWithMigration} from "./ICoreProxyWithMigration.sol";
 import {IAddressResolver} from "./IAddressResolver.sol";
 
 contract PositionManagerNewPool {
@@ -219,7 +218,7 @@ contract PositionManagerNewPool {
         // 1. Ensure min delegation time has passed
         uint128 poolId = TreasuryMarketProxy.poolId();
         uint32 lastDelegationTime = uint32(
-            ICoreProxyWithMigration(address(CoreProxy)).getLastDelegationTime(
+            CoreProxy.getLastDelegationTime(
                 //
                 accountId,
                 poolId,

@@ -6,7 +6,7 @@ import "src/PositionManager.sol";
 
 contract PositionManager_closePosition_reverts_Test is PositionManagerTest {
     constructor() {
-        forkBlockNumber = 21787552;
+        forkBlockNumber = 21864281;
     }
 
     function test_closePosition_MidDelegationTime() public {
