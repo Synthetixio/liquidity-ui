@@ -7,29 +7,6 @@ contract PositionManager_closePosition_Test is PositionManagerTest {
         forkBlockNumber = 21864281;
     }
 
-    function _setupPosition(address walletAddress, uint256 amount) internal returns (uint128 accountId) {
-        uint256 ts = vm.getBlockTimestamp();
-
-        // Go back 1 week to bypass the 1 week Min Delegation restriction
-        vm.warp(ts - 86_400 * 7 - 1);
-
-        vm.deal(walletAddress, 1 ether);
-
-        _deal$SNX(walletAddress, amount);
-
-        vm.startPrank(walletAddress);
-        $SNX.approve(address(positionManager), amount);
-
-        positionManager.setupPosition(amount);
-
-        accountId = uint128(AccountProxy.tokenOfOwnerByIndex(walletAddress, 0));
-        assertEq(walletAddress, AccountProxy.ownerOf(accountId));
-        vm.stopPrank();
-
-        // Return to present
-        vm.warp(ts);
-    }
-
     function test_closePosition() public {
         address ALICE = vm.addr(0xA11CE);
         vm.label(ALICE, "0xA11CE");
@@ -37,13 +14,14 @@ contract PositionManager_closePosition_Test is PositionManagerTest {
 
         _deal$SNX(ALICE, 1000 ether);
 
+        _bypassTimeouts(ALICE);
+
         vm.startPrank(ALICE);
-        $SNX.approve(address(positionManager), 1000 ether);
 
         // Go back 1 week to bypass the 1 week Min Delegation restriction
         uint256 ts = vm.getBlockTimestamp();
         vm.warp(ts - 86_400 * 7 - 1);
-        positionManager.setupPosition(1000 ether);
+        _setupPosition(1000 ether);
         // Return to present
         vm.warp(ts);
 

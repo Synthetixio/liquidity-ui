@@ -165,4 +165,64 @@ contract PositionManagerTest is Test {
 
         vm.stopPrank();
     }
+
+    function _setupPosition(uint256 $SNXAmount) internal {
+        // 1. Create new v3 account for the user
+        uint128 accountId = CoreProxy.createAccount();
+
+        // 2. Delegate $SNXAmount to the SC pool
+        uint128 scPoolId = 1; // SC Pool id is always 1
+        _increasePosition(accountId, $SNXAmount, scPoolId);
+
+        // 3. Mint maximum possible amount of $snxUSD against $SNX position in the SC pool
+        _maxMint(accountId, scPoolId);
+
+        // 5. Migrate position to Delegated Staking pool and saddle account with debt
+        CoreProxy.migrateDelegation(
+            //
+            accountId,
+            scPoolId,
+            address($SNX),
+            TreasuryMarketProxy.poolId()
+        );
+        TreasuryMarketProxy.saddle(accountId);
+    }
+
+    function _maxMint(uint128 accountId, uint128 poolId) internal returns (uint256 mintable$snxUSD) {
+        PoolCollateralConfiguration.Data memory poolCollateralConfig =
+            CoreProxy.getPoolCollateralConfiguration(poolId, address($SNX));
+        uint256 issuanceRatioD18 = poolCollateralConfig.issuanceRatioD18;
+        if (issuanceRatioD18 == 0) {
+            CollateralConfiguration.Data memory collateralConfig = CoreProxy.getCollateralConfiguration(address($SNX));
+            issuanceRatioD18 = collateralConfig.issuanceRatioD18;
+        }
+
+        (, uint256 collateralValue,,) = CoreProxy.getPosition(accountId, poolId, address($SNX));
+        mintable$snxUSD = (collateralValue * 1e18) / issuanceRatioD18;
+        CoreProxy.mintUsd(accountId, poolId, address($SNX), mintable$snxUSD);
+    }
+
+    function _increasePosition(uint128 accountId, uint256 $SNXAmount, uint128 poolId) internal {
+        $SNX.approve(address(CoreProxy), $SNXAmount);
+        CoreProxy.deposit(
+            //
+            accountId,
+            address($SNX),
+            $SNXAmount
+        );
+        uint256 currentPosition = CoreProxy.getPositionCollateral(
+            //
+            accountId,
+            poolId,
+            address($SNX)
+        );
+        CoreProxy.delegateCollateral(
+            //
+            accountId,
+            poolId,
+            address($SNX),
+            currentPosition + $SNXAmount,
+            1e18
+        );
+    }
 }

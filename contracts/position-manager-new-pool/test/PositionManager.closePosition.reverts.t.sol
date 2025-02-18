@@ -15,12 +15,11 @@ contract PositionManager_closePosition_reverts_Test is PositionManagerTest {
         vm.deal(ALICE, 1 ether);
 
         _deal$SNX(ALICE, 1000 ether);
+        _bypassTimeouts(ALICE);
 
         vm.startPrank(ALICE);
-        $SNX.approve(address(positionManager), 1000 ether);
-        positionManager.setupPosition(1000 ether);
+        _setupPosition(1000 ether);
         uint128 accountId = uint128(AccountProxy.tokenOfOwnerByIndex(ALICE, 0));
-
         uint256 snxPrice = CoreProxy.getCollateralPrice(address($SNX));
         uint256 loanedAmount = 1000 * snxPrice / 5;
         _deal$sUSD(ALICE, loanedAmount);
@@ -40,13 +39,13 @@ contract PositionManager_closePosition_reverts_Test is PositionManagerTest {
         vm.deal(ALICE, 1 ether);
 
         _deal$SNX(ALICE, 1000 ether);
+        _bypassTimeouts(ALICE);
 
         vm.startPrank(ALICE);
-        $SNX.approve(address(positionManager), 1000 ether);
         // Go back 1 week to bypass the 1 week Min Delegation restriction
         uint256 ts = vm.getBlockTimestamp();
         vm.warp(ts - 86_400 * 7 - 1);
-        positionManager.setupPosition(1000 ether);
+        _setupPosition(1000 ether);
         // Return to present
         vm.warp(ts);
         uint128 accountId = uint128(AccountProxy.tokenOfOwnerByIndex(ALICE, 0));
@@ -62,13 +61,13 @@ contract PositionManager_closePosition_reverts_Test is PositionManagerTest {
         vm.deal(ALICE, 1 ether);
 
         _deal$SNX(ALICE, 1000 ether);
+        _bypassTimeouts(ALICE);
 
         vm.startPrank(ALICE);
-        $SNX.approve(address(positionManager), 1000 ether);
         // Go back 1 week to bypass the 1 week Min Delegation restriction
         uint256 ts = vm.getBlockTimestamp();
         vm.warp(ts - 86_400 * 7 - 1);
-        positionManager.setupPosition(1000 ether);
+        _setupPosition(1000 ether);
         // Return to present
         vm.warp(ts);
         uint128 accountId = uint128(AccountProxy.tokenOfOwnerByIndex(ALICE, 0));
@@ -93,13 +92,13 @@ contract PositionManager_closePosition_reverts_Test is PositionManagerTest {
         vm.deal(ALICE, 1 ether);
 
         _deal$SNX(ALICE, 1000 ether);
+        _bypassTimeouts(ALICE);
 
         vm.startPrank(ALICE);
-        $SNX.approve(address(positionManager), 1000 ether);
         // Go back 1 week to bypass the 1 week Min Delegation restriction
         uint256 ts = vm.getBlockTimestamp();
         vm.warp(ts - 86_400 * 7 - 1);
-        positionManager.setupPosition(1000 ether);
+        _setupPosition(1000 ether);
         // Return to present
         vm.warp(ts);
         uint128 accountId = uint128(AccountProxy.tokenOfOwnerByIndex(ALICE, 0));
