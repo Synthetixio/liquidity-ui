@@ -1,5 +1,6 @@
 const abi = [
   'constructor(address CoreProxy_, address AccountProxy_, address TreasuryMarketProxy_, address LegacyMarketProxy_)',
+  'error MinDelegationTimeoutPending(uint128 poolId, uint32 timeRemaining)',
   'error NotEnoughAllowance(address walletAddress, address tokenAddress, uint256 requiredAllowance, uint256 availableAllowance)',
   'error NotEnoughBalance(address walletAddress, address tokenAddress, uint256 requiredAmount, uint256 availableAmount)',
   'function AccountProxy() view returns (address)',
@@ -19,7 +20,6 @@ const abi = [
   'function getV2xUsd() view returns (address v2xUsd)',
   'function migratePosition(uint128 sourcePoolId, uint128 accountId)',
   'function onERC721Received(address, address, uint256, bytes) pure returns (bytes4)',
-  'function setupPosition(uint256 $SNXAmount)',
 ];
 
 export async function importPositionManagerNewPool(
@@ -29,8 +29,8 @@ export async function importPositionManagerNewPool(
   const deployment = `${Number(chainId).toFixed(0)}-${preset}`;
   switch (deployment) {
     case '1-main': {
-      // https://etherscan.io/address/0x6C3F7ed79b9D75486D0250946f7a20BDA74844Ba#code
-      return { address: '0x6C3F7ed79b9D75486D0250946f7a20BDA74844Ba', abi };
+      // https://etherscan.io/address/0x1081a545a58bd68808deda60fdfc39a10346fd33#code
+      return { address: '0x1081a545a58bd68808deda60fdfc39a10346fd33', abi };
     }
     default: {
       throw new Error(`Unsupported deployment ${deployment} for PositionManagerNewPool`);

@@ -145,26 +145,24 @@ cast call $_PositionManager 'function getV2xUsd() view returns (address v2xUsd)'
 # Disable timeouts
 export _owner=$(cast call $_CoreProxy "function owner() view returns (address)")
 export _accountTimeoutWithdraw=$(cast format-bytes32-string 'accountTimeoutWithdraw')
-export _accountOverrideMinDelegateTime=$(cast format-bytes32-string 'accountOverrideMinDelegateTime')
-export _accountOverrideWithdrawTimeout=$(cast format-bytes32-string 'accountOverrideWithdrawTimeout')
+export _senderOverrideMinDelegateTime=$(cast format-bytes32-string 'senderOverrideMinDelegateTime')
+export _senderOverrideWithdrawTimeout=$(cast format-bytes32-string 'senderOverrideWithdrawTimeout')
 
 cast send --unlocked --from $_owner $_CoreProxy "function setConfig(bytes32 k, bytes32 v)" \
   "$(cast keccak "$(cast abi-encode "f(bytes32)" $_accountTimeoutWithdraw)")" \
   "$(cast to-uint256 0)"
 cast send --unlocked --from $_owner $_CoreProxy "function setConfig(bytes32 k, bytes32 v)" \
-  "$(cast keccak "$(cast abi-encode "f(bytes32,address,uint128)" $_accountOverrideMinDelegateTime $_TreasuryMarketProxy "$(cast to-uint256 1)")")" \
+  "$(cast keccak "$(cast abi-encode "f(bytes32,address,uint128)" $_senderOverrideMinDelegateTime $_TreasuryMarketProxy "$(cast to-uint256 1)")")" \
   "$(cast to-uint256 1)"
 cast send --unlocked --from $_owner $_CoreProxy "function setConfig(bytes32 k, bytes32 v)" \
-  "$(cast keccak "$(cast abi-encode "f(bytes32,address,uint128)" $_accountOverrideMinDelegateTime $_PositionManager "$(cast to-uint256 1)")")" \
+  "$(cast keccak "$(cast abi-encode "f(bytes32,address,uint128)" $_senderOverrideMinDelegateTime $_PositionManager "$(cast to-uint256 1)")")" \
   "$(cast to-uint256 1)"
 cast send --unlocked --from $_owner $_CoreProxy "function setConfig(bytes32 k, bytes32 v)" \
-  "$(cast keccak "$(cast abi-encode "f(bytes32,address,uint128)" $_accountOverrideWithdrawTimeout $_TreasuryMarketProxy "$(cast to-uint256 1)")")" \
+  "$(cast keccak "$(cast abi-encode "f(bytes32,address,uint128)" $_senderOverrideWithdrawTimeout $_TreasuryMarketProxy "$(cast to-uint256 1)")")" \
   "$(cast to-uint256 1)"
 cast send --unlocked --from $_owner $_CoreProxy "function setConfig(bytes32 k, bytes32 v)" \
-  "$(cast keccak "$(cast abi-encode "f(bytes32,address,uint128)" $_accountOverrideWithdrawTimeout $_PositionManager "$(cast to-uint256 1)")")" \
+  "$(cast keccak "$(cast abi-encode "f(bytes32,address,uint128)" $_senderOverrideWithdrawTimeout $_PositionManager "$(cast to-uint256 1)")")" \
   "$(cast to-uint256 1)"
-
-
 
 # Setup SNX Jubilee pool (no longer needed)
 # cast send --unlocked --from $(cast call $_CoreProxy 'function getPoolOwner(uint128 poolId) view returns (address)' $_poolId) $_CoreProxy "function setPoolConfiguration(uint128,tuple(uint128, uint128, int128)[])" $_poolId '[(1,10000000000000000000,1000000000000000000),(3, 90000000000000000000,1000000000000000000)]'
