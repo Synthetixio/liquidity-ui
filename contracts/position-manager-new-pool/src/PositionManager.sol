@@ -138,10 +138,16 @@ contract PositionManagerNewPool {
             uint256(accountId)
         );
 
-        // 2. Withdraw any available $snxUSD
+        // 2. In case debt is negative we mint $snxUSD
+        int256 debt = CoreProxy.getPositionDebt(accountId, sourcePoolId, get$SNX());
+        if (debt < 0) {
+            CoreProxy.mintUsd(accountId, sourcePoolId, get$SNX(), uint256(-debt));
+        }
+
+        // 3. Withdraw any available $snxUSD
         _withdraw$snxUSD(accountId);
 
-        // 3. Migrate position to Delegated Staking pool and saddle account with debt
+        // 4. Migrate position to Delegated Staking pool and saddle account with debt
         CoreProxy.migrateDelegation(
             //
             accountId,
@@ -151,7 +157,7 @@ contract PositionManagerNewPool {
         );
         TreasuryMarketProxy.saddle(accountId);
 
-        // 4. Send account NFT back to the user wallet
+        // 5. Send account NFT back to the user wallet
         AccountProxy.transferFrom(
             //
             address(this),
