@@ -97,7 +97,11 @@ export function Step2Summary({
       </Checkbox>
 
       <Collapse
-        in={liquidityPosition && liquidityPosition.cRatio.lt(targetCRatio)}
+        in={
+          liquidityPosition &&
+          liquidityPosition.cRatio.gt(0) &&
+          liquidityPosition.cRatio.lt(targetCRatio)
+        }
         animateOpacity
         unmountOnExit
       >

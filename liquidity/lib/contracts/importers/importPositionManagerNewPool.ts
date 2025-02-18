@@ -29,8 +29,8 @@ export async function importPositionManagerNewPool(
   const deployment = `${Number(chainId).toFixed(0)}-${preset}`;
   switch (deployment) {
     case '1-main': {
-      // https://etherscan.io/address/0x1081a545a58bd68808deda60fdfc39a10346fd33#code
-      return { address: '0x1081a545a58bd68808deda60fdfc39a10346fd33', abi };
+      // https://etherscan.io/address/0x0ec41db062c246bf431d07d89e0411fe01fdfadc#code
+      return { address: '0x0ec41db062c246bf431d07d89e0411fe01fdfadc', abi };
     }
     default: {
       throw new Error(`Unsupported deployment ${deployment} for PositionManagerNewPool`);

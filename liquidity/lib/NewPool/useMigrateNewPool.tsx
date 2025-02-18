@@ -45,7 +45,7 @@ export function useMigrateNewPool() {
     AccountProxy &&
     liquidityPosition &&
     liquidityPosition.collateralAmount.gt(0) &&
-    liquidityPosition.cRatio.gte(targetCRatio) &&
+    (liquidityPosition.cRatio.lte(0) || liquidityPosition.cRatio.gte(targetCRatio)) &&
     true;
 
   const toast = useToast({ isClosable: true, duration: 9000 });

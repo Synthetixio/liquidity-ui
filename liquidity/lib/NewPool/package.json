@@ -25,7 +25,6 @@
     "@snx-v3/usePositionManagerNewPool": "workspace:*",
     "@snx-v3/usePythPrice": "workspace:*",
     "@snx-v3/useSNX": "workspace:*",
-    "@snx-v3/useTransferableSynthetix": "workspace:*",
     "@snx-v3/useTreasuryMarketProxy": "workspace:*",
     "@snx-v3/useTrustedMulticallForwarder": "workspace:*",
     "@snx-v3/useVaultsData": "workspace:*",

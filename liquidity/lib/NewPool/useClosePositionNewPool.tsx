@@ -58,9 +58,9 @@ export function useClosePositionNewPool() {
       if (loanedAmount.gt(0)) {
         toast.closeAll();
         toast({ title: 'Approving sUSD...', variant: 'left-accent' });
-        const sUSD = await PositionManagerNewPoolContract.get$sUSD();
+        const sUSDAddress = await PositionManagerNewPoolContract.get$sUSD();
         const sUSDContract = new ethers.Contract(
-          sUSD.address,
+          sUSDAddress,
           ['function approve(address spender, uint256 amount) returns (bool)'],
           signer
         );
