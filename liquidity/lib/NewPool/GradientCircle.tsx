@@ -19,7 +19,7 @@ export function GradientCircle({ size = 200, strokeWidth = 1 }) {
         strokeWidth="1"
       />
       <text x={center} y={center} fill="#ffffff" fontSize="36" textAnchor="middle">
-        10.1%
+        123.45%
       </text>
       <text x={center} y={center + 30} fill="#9999ac" fontSize="18" textAnchor="middle">
         APR

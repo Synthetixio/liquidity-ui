@@ -130,7 +130,12 @@ export function Step2Summary({
         </Alert>
       </Collapse>
 
-      <Button width="100%" isDisabled={!(isReady && isUnderstanding)} onClick={handleSubmit}>
+      <Button
+        width="100%"
+        isLoading={mutation.isPending}
+        isDisabled={!(isReady && isUnderstanding && !mutation.isPending)}
+        onClick={handleSubmit}
+      >
         Migrate
       </Button>
       <Button variant="outline" colorScheme="gray" onClick={onClose} width="100%">
