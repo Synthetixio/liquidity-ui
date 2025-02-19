@@ -10,7 +10,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import debug from 'debug';
 import { ethers } from 'ethers';
 import React from 'react';
-import { useLoanedAmount } from './useLoanedAmount';
+import { useCurrentLoanedAmount } from './useCurrentLoanedAmount';
 import { usePositionCollateral } from './usePositionCollateral';
 
 const log = debug('snx:useClosePositionNewPools');
@@ -26,7 +26,7 @@ export function useClosePositionNewPool() {
   const { data: AccountProxy } = useAccountProxy();
   const { data: TrustedMulticallForwarder } = useTrustedMulticallForwarder();
   const { data: positionCollateral } = usePositionCollateral();
-  const { data: loanedAmount } = useLoanedAmount();
+  const { data: loanedAmount } = useCurrentLoanedAmount();
 
   const isReady =
     network &&

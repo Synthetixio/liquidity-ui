@@ -7,7 +7,7 @@ import { useNetwork } from '@snx-v3/useBlockchain';
 import { usePythPrice } from '@snx-v3/usePythPrice';
 import { wei } from '@synthetixio/wei';
 import React from 'react';
-import { useLoanedAmount } from './useLoanedAmount';
+import { useCurrentLoanedAmount } from './useCurrentLoanedAmount';
 import { usePositionCollateral } from './usePositionCollateral';
 
 export const Step3Success = ({
@@ -22,7 +22,7 @@ export const Step3Success = ({
   const { network } = useNetwork();
   const { data: positionCollateral, isPending: isPendingPositionCollateral } =
     usePositionCollateral();
-  const { data: loanedAmount, isPending: isPendingLoanedAmount } = useLoanedAmount();
+  const { data: loanedAmount, isPending: isPendingLoanedAmount } = useCurrentLoanedAmount();
   const { data: snxPrice, isPending: isPendingSnxPrice } = usePythPrice('SNX');
 
   return (

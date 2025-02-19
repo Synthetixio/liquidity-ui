@@ -1,4 +1,4 @@
-export function GradientCircle({ size = 200, strokeWidth = 1 }) {
+export function GradientCircle({ value = '', size = 200, strokeWidth = 1 }) {
   const radius = (size - strokeWidth) / 2; // Calculate radius based on size and stroke width
   const center = size / 2; // Center of the circle
 
@@ -19,7 +19,7 @@ export function GradientCircle({ size = 200, strokeWidth = 1 }) {
         strokeWidth="1"
       />
       <text x={center} y={center} fill="#ffffff" fontSize="36" textAnchor="middle">
-        123.45%
+        {value}
       </text>
       <text x={center} y={center + 30} fill="#9999ac" fontSize="18" textAnchor="middle">
         APR

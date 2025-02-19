@@ -6,9 +6,9 @@ import { useQuery } from '@tanstack/react-query';
 import debug from 'debug';
 import { ethers } from 'ethers';
 
-const log = debug('snx:useLoanedAmount');
+const log = debug('snx:useCurrentLoanedAmount');
 
-export function useLoanedAmount() {
+export function useCurrentLoanedAmount() {
   const [params] = useParams<PositionPageSchemaType>();
 
   const provider = useProvider();
@@ -20,7 +20,7 @@ export function useLoanedAmount() {
     queryKey: [
       `${network?.id}-${network?.preset}`,
       'New Pool',
-      'useLoanedAmount',
+      'useCurrentLoanedAmount',
       { accountId: params.accountId },
       { contractsHash: contractsHash([TreasuryMarketProxy]) },
     ],

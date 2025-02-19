@@ -31,7 +31,7 @@ it(`${import.meta.url.split('/').pop()}`, () => {
   localStorage.setItem('chakra-ui-color-mode', 'dark');
 
   queryClient.setQueryData(
-    ['undefined-undefined', 'New Pool', 'useLoanedAmount', {}, { contractsHash: '~' }],
+    ['undefined-undefined', 'New Pool', 'useCurrentLoanedAmount', {}, { contractsHash: '~' }],
     ethers.utils.parseEther('123.45')
   );
   queryClient.setQueryData(
