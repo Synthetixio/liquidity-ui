@@ -28,12 +28,12 @@ export async function importPositionManagerAndromedaUSDC(
   const deployment = `${Number(chainId).toFixed(0)}-${preset}`;
   switch (deployment) {
     case '8453-andromeda': {
-      // https://basescan.org/address/0xae3fbedc18675fb30d59ee85080deeec485d17b2#code
-      return { address: '0xae3fbedc18675fb30d59ee85080deeec485d17b2', abi };
+      // https://basescan.org/address/0x2b67227533714adbab620bb1a493c7fdfaeb6cc9#code
+      return { address: '0x2b67227533714adbab620bb1a493c7fdfaeb6cc9', abi };
     }
     case '84532-andromeda': {
-      // https://sepolia.basescan.org/address/0x83a3f789d3ea78bbad9389e2f574f11b11b09c07#code
-      return { address: '0x83a3f789d3ea78bbad9389e2f574f11b11b09c07', abi };
+      // https://sepolia.basescan.org/address/0x6f043ce2d90eb8ee4f25ddd1fba50cb5012cb9a2#code
+      return { address: '0x6f043ce2d90eb8ee4f25ddd1fba50cb5012cb9a2', abi };
     }
     default: {
       throw new Error(`Unsupported deployment ${deployment} for PositionManagerAndromedaStataUSDC`);
