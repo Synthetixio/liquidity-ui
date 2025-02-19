@@ -262,13 +262,15 @@ contract PositionManagerAndromedaStataUSDC {
             $synthStataUSDC
         );
 
-        // 7. Withdraw all the available synth stataUSDC
-        ICollateralModule(CoreProxy).withdraw(
-            //
-            accountId,
-            $synthStataUSDC,
-            statausdcSynthAvailable
-        );
+        if(statausdcSynthAvailable > 0) {
+            // 7. Withdraw all the available synth stataUSDC
+            ICollateralModule(CoreProxy).withdraw(
+                //
+                accountId,
+                $synthStataUSDC,
+                statausdcSynthAvailable
+            );
+        }
 
         // 8. Unwrap synth stataUSDC back to stataUSDC token
         uint256 stataAmount = statausdcSynthAvailable * (10 ** IERC20($stataUSDC).decimals()) / (10 ** 18);

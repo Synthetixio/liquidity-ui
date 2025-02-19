@@ -216,14 +216,15 @@ contract PositionManagerAndromedaUSDC {
             $synthUSDC
         );
 
-        // 7. Withdraw all the available synthUSDC
-        ICollateralModule(CoreProxy).withdraw(
-            //
-            accountId,
-            $synthUSDC,
-            usdcSynthAvailable
-        );
-
+        if (usdcSynthAvailable > 0) {
+            // 7. Withdraw all the available synthUSDC
+            ICollateralModule(CoreProxy).withdraw(
+                //
+                accountId,
+                $synthUSDC,
+                usdcSynthAvailable
+            );
+        }
         // 8. Unwrap ALL synthUSDC back to USDC token
         uint256 usdcAmount = (usdcSynthAvailable + usdcSynthBought) * (10 ** IERC20($USDC).decimals()) / (10 ** 18);
         IWrapperModule(SpotMarketProxy).unwrap(
