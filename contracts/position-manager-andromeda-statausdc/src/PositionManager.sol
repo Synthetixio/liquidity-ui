@@ -262,7 +262,7 @@ contract PositionManagerAndromedaStataUSDC {
             $synthStataUSDC
         );
 
-        if(statausdcSynthAvailable > 0) {
+        if (statausdcSynthAvailable > 0) {
             // 7. Withdraw all the available synth stataUSDC
             ICollateralModule(CoreProxy).withdraw(
                 //
