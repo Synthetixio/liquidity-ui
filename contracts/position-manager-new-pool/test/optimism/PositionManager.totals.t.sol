@@ -1,10 +1,13 @@
 pragma solidity ^0.8.21;
 
-import "./lib/PositionManagerTest.sol";
+import "../lib/PositionManagerTest.sol";
 
-contract PositionManager_totals_Test is PositionManagerTest {
+contract Optimism_PositionManager_totals_Test is PositionManagerTest {
     constructor() {
-        forkBlockNumber = 21864281;
+        deployment = "10-main";
+        forkUrl = vm.envString("RPC_OPTIMISM_MAINNET");
+        forkBlockNumber = 132172461;
+        initialize();
     }
 
     function test_totals() public {
@@ -31,10 +34,5 @@ contract PositionManager_totals_Test is PositionManagerTest {
         assertEq(
             loanedAmount, positionManager.getTotalLoan(), "should have combined loan amount of (1000 * snxPrice / 5)"
         );
-    }
-
-    function test_for_coverage() public view {
-        assertNotEq("", positionManager.onERC721Received(address(0), address(0), 0, ""));
-        assertNotEq(address(0), positionManager.getV2xUsd());
     }
 }
