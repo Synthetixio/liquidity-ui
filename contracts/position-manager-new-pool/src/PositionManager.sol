@@ -129,6 +129,8 @@ contract PositionManagerNewPool {
      */
     function migratePosition(uint128 sourcePoolId, uint128 accountId) public {
         address msgSender = ERC2771Context._msgSender();
+        address $SNX = get$SNX();
+        address $snxUSD = get$snxUSD();
 
         // 1. Temporarily transfer Account NFT from the user wallet
         AccountProxy.transferFrom(
@@ -139,20 +141,20 @@ contract PositionManagerNewPool {
         );
 
         // 2. In case debt is negative we mint $snxUSD
-        int256 debt = CoreProxy.getPositionDebt(accountId, sourcePoolId, get$SNX());
+        int256 debt = CoreProxy.getPositionDebt(accountId, sourcePoolId, $SNX);
         if (debt < 0) {
-            CoreProxy.mintUsd(accountId, sourcePoolId, get$SNX(), uint256(-debt));
+            CoreProxy.mintUsd(accountId, sourcePoolId, $SNX, uint256(-debt));
         }
 
         // 3. Withdraw any available $snxUSD
-        _withdraw$snxUSD(accountId);
+        _withdrawCollateral(accountId, $snxUSD);
 
         // 4. Migrate position to Delegated Staking pool and saddle account with debt
         CoreProxy.migrateDelegation(
             //
             accountId,
             sourcePoolId,
-            get$SNX(),
+            $SNX,
             TreasuryMarketProxy.poolId()
         );
         TreasuryMarketProxy.saddle(accountId);
@@ -177,8 +179,9 @@ contract PositionManagerNewPool {
     function closePosition(uint128 accountId) public {
         address msgSender = ERC2771Context._msgSender();
         address $SNX = get$SNX();
+        address $snxUSD = get$snxUSD();
 
-        // 1. Ensure min delegation time has passed
+        // 1. Verify that minimum delegation time is respected
         uint128 poolId = TreasuryMarketProxy.poolId();
         uint32 lastDelegationTime = uint32(
             CoreProxy.getLastDelegationTime(
@@ -205,23 +208,20 @@ contract PositionManagerNewPool {
             uint256(accountId)
         );
 
-        // 3. Verify that minimum delegation time is respected
-        CoreProxy.getMarketMinDelegateTime(LegacyMarketProxy.marketId());
+        // 3. Repay outstanding loan (if needed)
+        _repayLoan(accountId);
 
-        // 4. Repay outstanding loan (if needed)
-        _repayLoan(accountId, UINT256_MAX);
-
-        // 5. Unsaddle account, TreasuryMarketProxy will close position on behalf
+        // 4. Unsaddle account, TreasuryMarketProxy will close position on behalf
         AccountProxy.approve(address(TreasuryMarketProxy), accountId);
         TreasuryMarketProxy.unsaddle(accountId);
 
-        // 6. Withdraw available $snxUSD
-        _withdraw$snxUSD(accountId);
+        // 5. Withdraw available $snxUSD
+        _withdrawCollateral(accountId, $snxUSD);
 
-        // 7. Withdraw available $SNX
-        _withdraw$SNX(accountId);
+        // 6. Withdraw available $SNX
+        _withdrawCollateral(accountId, $SNX);
 
-        // 8. Send Account NFT back to the user wallet
+        // 7. Send Account NFT back to the user wallet
         AccountProxy.transferFrom(
             //
             address(this),
@@ -231,70 +231,38 @@ contract PositionManagerNewPool {
     }
 
     /**
-     * @notice Withdraws the available amount of snxUSD for the given account and sends it to the caller's wallet.
-     * @dev Ensures any available snxUSD collateral is fully withdrawn and transferred to the caller.
-     * @param accountId The unique ID of the user's Synthetix v3 Account NFT.
-     * @return available$snxUSD The amount of snxUSD that was withdrawn and sent to the caller.
-     */
-    function _withdraw$snxUSD(uint128 accountId) internal returns (uint256 available$snxUSD) {
-        address msgSender = ERC2771Context._msgSender();
-        address $snxUSD = get$snxUSD();
-
-        // 1. Get amount of available $snxUSD
-        available$snxUSD = CoreProxy.getAccountAvailableCollateral(
-            //
-            accountId,
-            $snxUSD
-        );
-        if (available$snxUSD > 0) {
-            // 2. Withdraw all the available $snxUSD
-            CoreProxy.withdraw(
-                //
-                accountId,
-                $snxUSD,
-                available$snxUSD
-            );
-
-            // 3. Send all the $snxUSD to the wallet
-            IERC20($snxUSD).transfer(
-                //
-                msgSender,
-                available$snxUSD
-            );
-        }
-    }
-
-    /**
-     * @notice Withdraws the available amount of SNX for the given account and sends it to the caller's wallet.
-     * @dev Ensures that any available SNX collateral is fully withdrawn and then directly transferred to the caller's wallet.
+     * @notice Withdraws the available amount of collateral for the given account and sends it to the caller's wallet.
+     * @dev Ensures that any available collateral collateral is fully withdrawn and then directly transferred to the caller's wallet.
      *      The function checks the available collateral, withdraws the full amount, and transfers it to the wallet if the amount is greater than zero.
      * @param accountId The unique ID of the user's Synthetix v3 Account NFT.
-     * @return available$SNX The amount of SNX that was withdrawn and sent to the caller.
+     * @return availableCollateral The amount of collateral that was withdrawn and sent to the caller.
      */
-    function _withdraw$SNX(uint128 accountId) internal returns (uint256 available$SNX) {
+    function _withdrawCollateral(uint128 accountId, address collateralType)
+        internal
+        returns (uint256 availableCollateral)
+    {
         address msgSender = ERC2771Context._msgSender();
-        address $SNX = get$SNX();
 
-        // 1. Get amount of available $SNX
-        available$SNX = CoreProxy.getAccountAvailableCollateral(
+        // 1. Get amount of available collateral
+        availableCollateral = CoreProxy.getAccountAvailableCollateral(
             //
             accountId,
-            $SNX
+            collateralType
         );
-        if (available$SNX > 0) {
-            // 2. Withdraw all the available $SNX
+        if (availableCollateral > 0) {
+            // 2. Withdraw all the available collateral
             CoreProxy.withdraw(
                 //
                 accountId,
-                $SNX,
-                available$SNX
+                collateralType,
+                availableCollateral
             );
 
-            // 3. Send all the $SNX to the wallet
-            IERC20($SNX).transfer(
+            // 3. Send all the collateral to the wallet
+            IERC20(collateralType).transfer(
                 //
                 msgSender,
-                available$SNX
+                availableCollateral
             );
         }
     }
@@ -312,26 +280,23 @@ contract PositionManagerNewPool {
      *      If the `$sUSDAmount` provided is greater than the current loan amount, it automatically adjusts to repay only what's required.
      *      If the wallet doesn't have enough $sUSD or allowance, the function reverts with the appropriate error.
      * @param accountId The unique ID of the user's Synthetix account NFT.
-     * @param $sUSDAmount The amount of $sUSD to repay the loan with. If greater than the loan amount, only the loan amount is repaid.
      */
-    function _repayLoan(uint128 accountId, uint256 $sUSDAmount) internal {
+    function _repayLoan(uint128 accountId) internal {
         uint256 currentLoan = TreasuryMarketProxy.loanedAmount(accountId);
         if (currentLoan > 0) {
-            if (currentLoan < $sUSDAmount) {
-                $sUSDAmount = currentLoan;
-            }
-
             address msgSender = ERC2771Context._msgSender();
             address $sUSD = get$sUSD();
             uint256 transferable$sUSDAmount = IV2xUsd(getV2xUsd()).transferableSynths(msgSender);
+            uint256 repaymentPenalty = TreasuryMarketProxy.repaymentPenalty(accountId, 0);
+            uint256 required$sUSDAmount = currentLoan + repaymentPenalty;
 
             // 1. Verify wallet has enough transferable $sUSD
-            if ($sUSDAmount > transferable$sUSDAmount) {
+            if (required$sUSDAmount > transferable$sUSDAmount) {
                 revert NotEnoughBalance(
                     //
                     msgSender,
                     $sUSD,
-                    $sUSDAmount,
+                    required$sUSDAmount,
                     transferable$sUSDAmount
                 );
             }
@@ -342,12 +307,12 @@ contract PositionManagerNewPool {
                 msgSender,
                 address(this)
             );
-            if ($sUSDAmount > available$sUSDAllowance) {
+            if (required$sUSDAmount > available$sUSDAllowance) {
                 revert NotEnoughAllowance(
                     //
                     msgSender,
                     $sUSD,
-                    $sUSDAmount,
+                    required$sUSDAmount,
                     available$sUSDAllowance
                 );
             }
@@ -357,23 +322,23 @@ contract PositionManagerNewPool {
                 //
                 msgSender,
                 address(this),
-                $sUSDAmount
+                required$sUSDAmount
             );
 
             // 4. Allow LegacyMarketProxy to spend $sUSD
-            IERC20($sUSD).approve(address(LegacyMarketProxy), $sUSDAmount);
+            IERC20($sUSD).approve(address(LegacyMarketProxy), required$sUSDAmount);
 
             // 5. Convert $sUSD to $snxUSD
-            LegacyMarketProxy.convertUSD($sUSDAmount);
+            LegacyMarketProxy.convertUSD(required$sUSDAmount);
 
             // 6. Allow TreasuryMarketProxy to spend $snxUSD
-            IERC20(get$snxUSD()).approve(address(TreasuryMarketProxy), $sUSDAmount);
+            IERC20(get$snxUSD()).approve(address(TreasuryMarketProxy), required$sUSDAmount);
 
             // 7. Repay account loan (must have enough $sUSD that will be deposited to the Treasury Market)
             TreasuryMarketProxy.adjustLoan(
                 //
                 accountId,
-                currentLoan - $sUSDAmount
+                0
             );
         }
     }
