@@ -44,7 +44,7 @@ describe(__filename, () => {
     cy.get('[data-cy="withdraw form"]').should('exist');
     cy.get('[data-cy="withdraw amount"]', { timeout: 180_000 })
       .should('exist')
-      .and('include.text', 'Unlocked: 150.00000016 USDC');
+      .and('include.text', 'Unlocked: 150.000000096 USDC');
 
     cy.get('[data-cy="stats collateral"] [data-cy="change stats current"]')
       .should('exist')
