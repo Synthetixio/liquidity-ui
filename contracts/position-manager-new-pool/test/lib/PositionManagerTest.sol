@@ -42,7 +42,7 @@ contract PositionManagerTest is Test {
 
     PositionManagerNewPool internal positionManager;
 
-    constructor() {
+    function initialize() internal {
         string memory testMode = vm.envString("TEST_MODE");
         if (keccak256(abi.encodePacked(testMode)) == keccak256(abi.encodePacked("mainnet"))) {
             string memory root = vm.projectRoot();
@@ -54,6 +54,11 @@ contract PositionManagerTest is Test {
             AccountProxy = IAccountProxy(vm.parseJsonAddress(metaJson, ".contracts.AccountProxy"));
             TreasuryMarketProxy = ITreasuryMarketProxy(vm.parseJsonAddress(metaJson, ".contracts.TreasuryMarketProxy"));
             LegacyMarketProxy = ILegacyMarketProxy(vm.parseJsonAddress(metaJson, ".contracts.LegacyMarketProxy"));
+
+            vm.label(address(CoreProxy), "CoreProxy");
+            vm.label(address(AccountProxy), "AccountProxy");
+            vm.label(address(TreasuryMarketProxy), "TreasuryMarketProxy");
+            vm.label(address(LegacyMarketProxy), "LegacyMarketProxy");
         } else {
             forkBlockNumber = 132215583;
             string memory forkUrl = vm.envString("RPC_URL");
@@ -63,32 +68,35 @@ contract PositionManagerTest is Test {
             deployer.run();
             CoreProxy = ICoreProxy(deployer.getAddress(keccak256("system.CoreProxy")));
             AccountProxy = IAccountProxy(deployer.getAddress(keccak256("system.AccountProxy")));
-            TreasuryMarketProxy =
-                ITreasuryMarketProxy(deployer.getAddress(keccak256("treasuryMarket.TreasuryMarketProxy")));
-            LegacyMarketProxy = ILegacyMarketProxy(deployer.getAddress(keccak256("legacyMarket.LegacyMarketProxy")));
+            TreasuryMarketProxy = ITreasuryMarketProxy(deployer.getAddress(keccak256("treasury_market.Proxy")));
+            LegacyMarketProxy = ILegacyMarketProxy(deployer.getAddress(keccak256("legacyMarket.Proxy")));
+
+            // after the deployment is completed, the pool configuration has to be manually set
+            MarketConfiguration.Data[] memory marketConfig = new MarketConfiguration.Data[](2);
+            marketConfig[0] = MarketConfiguration.Data(1, 1 ether, 1 ether);
+            marketConfig[1] = MarketConfiguration.Data(3, 9 ether, 1 ether);
+            vm.prank(CoreProxy.owner());
+            CoreProxy.setPoolConfiguration(8, marketConfig);
         }
 
-        vm.label(address(CoreProxy), "CoreProxy");
         vm.makePersistent(address(AccountProxy));
-        vm.label(address(AccountProxy), "AccountProxy");
         vm.makePersistent(address(TreasuryMarketProxy));
-        vm.label(address(TreasuryMarketProxy), "TreasuryMarketProxy");
         vm.makePersistent(address(LegacyMarketProxy));
-        vm.label(address(LegacyMarketProxy), "LegacyMarketProxy");
     }
 
     function setUp() public {
+        initialize();
         //        string memory forkUrl = "http://127.0.0.1:8545";
-        if (fork == 0) {
+        string memory testMode = vm.envString("TEST_MODE");
+        if (keccak256(abi.encodePacked(testMode)) == keccak256(abi.encodePacked("mainnet"))) {
             string memory forkUrl = vm.envString("RPC_URL");
             fork = vm.createFork(forkUrl, forkBlockNumber);
-        }
-        //        fork = vm.createFork(forkUrl);
-        vm.selectFork(fork);
+            vm.selectFork(fork);
 
-        // Verify fork
-        assertEq(block.number, forkBlockNumber);
-        assertEq(vm.activeFork(), fork);
+            // Verify fork
+            assertEq(block.number, forkBlockNumber);
+            assertEq(vm.activeFork(), fork);
+        }
 
         // Pyth bypass
         vm.etch(0x1234123412341234123412341234123412341234, "FORK");
