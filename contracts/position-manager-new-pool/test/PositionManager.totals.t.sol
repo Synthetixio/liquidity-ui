@@ -32,4 +32,9 @@ contract PositionManager_totals_Test is PositionManagerTest {
             loanedAmount, positionManager.getTotalLoan(), "should have combined loan amount of (1000 * snxPrice / 5)"
         );
     }
+
+    function test_for_coverage() public view {
+        assertNotEq("", positionManager.onERC721Received(address(0), address(0), 0, ""));
+        assertNotEq(address(0), positionManager.getV2xUsd());
+    }
 }
