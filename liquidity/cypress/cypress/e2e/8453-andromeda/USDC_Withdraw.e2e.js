@@ -59,7 +59,7 @@ describe(__filename, () => {
     cy.get('[data-cy="withdraw dialog"]')
       .should('exist')
       .and('include.text', 'Withdrawing USDC')
-      .and('include.text', 'Withdrawing 150 USDC');
+      .and('include.text', 'Withdrawing 150.000000096 USDC');
 
     cy.contains('[data-status="success"]', 'Withdrawal was successful', {
       timeout: 180_000,
@@ -69,7 +69,7 @@ describe(__filename, () => {
     cy.get('[data-cy="withdraw dialog"]')
       .should('exist')
       .and('include.text', 'Withdrawing USDC')
-      .and('include.text', 'Withdrew 150 USDC');
+      .and('include.text', 'Withdrew 150.000000096 USDC');
 
     cy.contains('[data-cy="withdraw dialog"] button', 'Done').click();
 
