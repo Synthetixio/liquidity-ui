@@ -66,10 +66,10 @@ contract PositionManagerTest is Test {
             vm.selectFork(fork);
             CannonDeployOp deployer = new CannonDeployOp();
             deployer.run();
-            CoreProxy = ICoreProxy(deployer.getAddress(keccak256("system.CoreProxy")));
-            AccountProxy = IAccountProxy(deployer.getAddress(keccak256("system.AccountProxy")));
-            TreasuryMarketProxy = ITreasuryMarketProxy(deployer.getAddress(keccak256("treasury_market.Proxy")));
-            LegacyMarketProxy = ILegacyMarketProxy(deployer.getAddress(keccak256("legacyMarket.Proxy")));
+            CoreProxy = ICoreProxy(deployer.getAddress("system.CoreProxy"));
+            AccountProxy = IAccountProxy(deployer.getAddress("system.AccountProxy"));
+            TreasuryMarketProxy = ITreasuryMarketProxy(deployer.getAddress("treasury_market.Proxy"));
+            LegacyMarketProxy = ILegacyMarketProxy(deployer.getAddress("legacyMarket.Proxy"));
 
             // after the deployment is completed, the pool configuration has to be manually set
             MarketConfiguration.Data[] memory marketConfig = new MarketConfiguration.Data[](2);
