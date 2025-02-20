@@ -43,6 +43,7 @@ export function useMigrateNewPool() {
     TrustedMulticallForwarder &&
     PositionManagerNewPool &&
     AccountProxy &&
+    targetCRatio &&
     liquidityPosition &&
     liquidityPosition.collateralAmount.gt(0) &&
     (liquidityPosition.cRatio.lte(0) || liquidityPosition.cRatio.gte(targetCRatio)) &&

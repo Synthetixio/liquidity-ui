@@ -1,13 +1,10 @@
 import { Container, Flex, Link, useDisclosure } from '@chakra-ui/react';
 import { Logo, LogoIcon } from '@snx-v3/icons';
-import { MigrateUSDButton } from '@snx-v3/MigrateUSD';
-import { MAINNET, SEPOLIA, useNetwork } from '@snx-v3/useBlockchain';
 import { useEffect } from 'react';
 import { NavLink as RouterLink, useLocation } from 'react-router-dom';
 import { NetworkController } from './NetworkController';
 
 export default function Header() {
-  const { network } = useNetwork();
   const { onClose } = useDisclosure();
   const location = useLocation();
 
@@ -34,9 +31,6 @@ export default function Header() {
           </Link>
         </Flex>
         <Flex gap={3} flexWrap="wrap-reverse" justifyContent="center" alignItems="center">
-          {network && [MAINNET.id, SEPOLIA.id].includes(network.id) ? (
-            <MigrateUSDButton network={network} />
-          ) : null}
           <NetworkController />
         </Flex>
       </Container>
