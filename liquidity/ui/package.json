@@ -19,7 +19,6 @@
     "@snx-v3/Manage": "workspace:*",
     "@snx-v3/ManageAction": "workspace:*",
     "@snx-v3/ManagePositionContext": "workspace:*",
-    "@snx-v3/MigrateUSD": "workspace:*",
     "@snx-v3/Migration": "workspace:*",
     "@snx-v3/NewPool": "workspace:*",
     "@snx-v3/Permissions": "workspace:*",

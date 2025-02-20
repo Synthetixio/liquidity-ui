@@ -78,8 +78,8 @@ export function Step2Summary({
               {isPendingLiquidityPosition ? '~' : formatCRatio(liquidityPosition?.cRatio.toBN())}
             </Text>
           </HStack>
-          <HStack fontWeight="700" justifyContent="space-between">
-            <Text>Loan</Text>
+          <HStack fontWeight="700" justifyContent="space-between" color="green.500">
+            <Text>Loan Forgiven</Text>
             {isPendingLiquidityPosition ? (
               '~'
             ) : (

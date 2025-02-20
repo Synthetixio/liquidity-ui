@@ -1,12 +1,14 @@
 import { ArrowUpIcon } from '@chakra-ui/icons';
-import { Box, Button, Flex, Heading, Image, Link, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Link, Text } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { getStatsUrl } from '@snx-v3/getStatsUrl';
 import { LogoIcon } from '@snx-v3/icons';
-import coinImage from '@snx-v3/Manage/coin.png';
 import { NetworkIcon, useNetwork } from '@snx-v3/useBlockchain';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { usePythPrice } from '@snx-v3/usePythPrice';
+import { useVaultsData } from '@snx-v3/useVaultsData';
 import { wei } from '@synthetixio/wei';
+import numbro from 'numbro';
 import React from 'react';
 import { GradientCircle } from './GradientCircle';
 import { LoanChart } from './LoanChart';
@@ -14,7 +16,6 @@ import { MigrationDialog } from './MigrationDialog';
 import { useClosePositionNewPool } from './useClosePositionNewPool';
 import { useCurrentLoanedAmount } from './useCurrentLoanedAmount';
 import { useLoan } from './useLoan';
-import { useMigrateNewPool } from './useMigrateNewPool';
 import { usePositionCollateral } from './usePositionCollateral';
 
 function InfoBox({ ...props }) {
@@ -34,21 +35,21 @@ function InfoBox({ ...props }) {
   );
 }
 
-export function NewPool() {
+export function NewPoolPosition() {
   const { network } = useNetwork();
 
-  // const { data: vaultsData, isPending: isPendingVaultsData } = useVaultsData(network);
   const { data: loanedAmount, isPending: isPendingLoanedAmount } = useCurrentLoanedAmount();
   const { data: loan, isPending: isPendingLoan } = useLoan();
 
-  //  const { data: collateralType } = useCollateralType('SNX');
-  //  const vaultData = React.useMemo(() => {
-  //    if (vaultsData && collateralType) {
-  //      return vaultsData.find(
-  //        (item) => item.collateralType.address.toLowerCase() === collateralType.address.toLowerCase()
-  //      );
-  //    }
-  //  }, [collateralType, vaultsData]);
+  const { data: collateralType } = useCollateralType('SNX');
+  const { data: vaultsData, isPending: isPendingVaultsData } = useVaultsData(network);
+  const vaultData = React.useMemo(() => {
+    if (vaultsData && collateralType) {
+      return vaultsData.find(
+        (item) => item.collateralType.address.toLowerCase() === collateralType.address.toLowerCase()
+      );
+    }
+  }, [collateralType, vaultsData]);
 
   const { data: positionCollateral, isPending: isPendingPositionCollateral } =
     usePositionCollateral();
@@ -62,8 +63,6 @@ export function NewPool() {
   const [isOpenMigrate, setIsOpenMigrate] = React.useState(false);
 
   const { isReady: isReadyClosePosition, mutation: closePosition } = useClosePositionNewPool();
-
-  const { isReady: isReadyMigrate } = useMigrateNewPool();
 
   return (
     <>
@@ -90,7 +89,7 @@ export function NewPool() {
               fontWeight={700}
             >
               <LogoIcon />
-              <Text>SNX Jubilee</Text>
+              <Text>SNX Debt Jubilee</Text>
             </Heading>
 
             <Flex direction="row" flexWrap="wrap" alignItems="center" gap={2}>
@@ -99,14 +98,13 @@ export function NewPool() {
                 <Text>{network?.label} Network</Text>
               </InfoBox>
 
-              {/* TODO: update snx-api to handle new pools
               <InfoBox>
                 <Text>TVL</Text>
                 <Text color="gray.50">
                   {isPendingVaultsData
                     ? '~'
-                    : vaultData
-                      ? numbro(vaultData.collateral.value.toNumber()).format({
+                    : vaultData && snxPrice
+                      ? numbro(vaultData.collateral.amount.mul(snxPrice).toNumber()).format({
                           trimMantissa: true,
                           thousandSeparated: true,
                           average: true,
@@ -116,7 +114,6 @@ export function NewPool() {
                       : '-'}
                 </Text>
               </InfoBox>
-              */}
 
               <InfoBox
                 as={Link}
@@ -131,40 +128,11 @@ export function NewPool() {
               </InfoBox>
             </Flex>
           </Flex>
-          <Text mt={3} color="gray.500">
-            Deposit your SNX to earn a share of the protocol’s revenue
+          <Text mt={3} color="gray.500" maxWidth="40em">
+            Your stake is fully delegated to Synthetix, and your loan is being forgiven
+            automatically over time. No action needed—just sit back and earn.
           </Text>
         </Box>
-
-        <Flex
-          direction={['column', 'row', 'row']}
-          flexWrap="wrap"
-          alignItems="top"
-          justifyContent="stretch"
-          gap={4}
-        >
-          <Flex flex={[1, 1, 2]} direction="row" flexWrap="wrap" gap={6}>
-            <Flex minWidth="120px" direction="column" gap={3}>
-              <Text color="gray.500">Deposited</Text>
-              <Text color="gray.50" fontSize="1.25em">
-                {isPendingPositionCollateral || isPendingSnxPrice ? '~' : null}
-                {!(isPendingPositionCollateral || isPendingSnxPrice) &&
-                positionCollateral &&
-                snxPrice ? (
-                  <Amount prefix="$" value={wei(positionCollateral).mul(snxPrice)} />
-                ) : null}
-              </Text>
-              <Button
-                width="100%"
-                isLoading={closePosition.isPending}
-                isDisabled={!(isReadyClosePosition && !closePosition.isPending)}
-                onClick={() => closePosition.mutateAsync()}
-              >
-                Withdraw
-              </Button>
-            </Flex>
-          </Flex>
-        </Flex>
 
         <Flex
           direction={{ base: 'column', sm: 'row', lg: 'row', xl: 'row' }}
@@ -183,18 +151,6 @@ export function NewPool() {
             direction="column"
             gap={6}
           >
-            <Flex direction="row" gap={6}>
-              <Flex
-                flex={{ base: 1, sm: 1, lg: 1, xl: 1 }}
-                direction="column"
-                width="200px"
-                gap={6}
-              >
-                <Heading fontSize="20px" lineHeight="1.75rem" color="gray.50" fontWeight={700}>
-                  Yield
-                </Heading>
-              </Flex>
-            </Flex>
             <Flex gap={6} direction={{ base: 'column', sm: 'column', lg: 'row', xl: 'row' }}>
               <Flex
                 flex={{ base: 1, sm: 1, lg: 1, xl: 1 }}
@@ -205,17 +161,15 @@ export function NewPool() {
               >
                 <GradientCircle
                   value={
-                    isPendingPositionCollateral || isPendingLoan || isPendingLoanSnxPrice
+                    isPendingPositionCollateral || isPendingLoanSnxPrice
                       ? '~'
                       : loan &&
                           positionCollateral &&
                           loanSnxPrice &&
                           positionCollateral.gt(0) &&
                           loanSnxPrice.gt(0)
-                        ? `${wei(1)
-                            .sub(
-                              wei(loan.loanAmount).div(wei(positionCollateral).mul(loanSnxPrice))
-                            )
+                        ? `${wei(loan.loanAmount)
+                            .div(wei(positionCollateral).mul(loanSnxPrice))
                             .mul(100)
                             .toNumber()
                             .toFixed(1)}%`
@@ -231,7 +185,10 @@ export function NewPool() {
                 p={3}
               >
                 <Flex minWidth="120px" direction="column" gap={3}>
-                  <Text color="gray.500">Loan repaid</Text>
+                  <Heading fontSize="20px" lineHeight="1.75rem" color="gray.50" fontWeight={700}>
+                    Loan repaid
+                  </Heading>
+
                   {isPendingLoanedAmount || isPendingLoan || isPendingSnxPrice ? (
                     <Text as="span" color="gray.50" fontSize="1.25em">
                       ~
@@ -272,15 +229,36 @@ export function NewPool() {
             gap={3}
             justifyContent="space-between"
           >
-            <Flex direction="column" gap={3}>
-              <Image rounded="8px" src={coinImage} width="100%" maxWidth="354px" />
-              <Heading fontSize="20px" lineHeight="1.75rem" color="gray.50" fontWeight={700}>
-                Debt Jubilee
-              </Heading>
+            <Flex minWidth="120px" direction="column" gap={3} textAlign="center">
+              <Text color="gray.500">Account Balance</Text>
+              <Box>
+                <Text color="gray.50" fontSize="1.25em">
+                  {isPendingPositionCollateral || isPendingSnxPrice ? '~' : null}
+                  {!(isPendingPositionCollateral || isPendingSnxPrice) &&
+                  positionCollateral &&
+                  snxPrice ? (
+                    <Amount value={wei(positionCollateral)} suffix=" SNX" />
+                  ) : null}
+                </Text>
+                <Text color="gray.500" fontSize="1.0em">
+                  {isPendingPositionCollateral || isPendingSnxPrice ? '~' : null}
+                  {!(isPendingPositionCollateral || isPendingSnxPrice) &&
+                  positionCollateral &&
+                  snxPrice ? (
+                    <Amount prefix="$" value={wei(positionCollateral).mul(snxPrice)} />
+                  ) : null}
+                </Text>
+              </Box>
+              <Button
+                width="100%"
+                variant="outline"
+                isLoading={closePosition.isPending}
+                isDisabled={!(isReadyClosePosition && !closePosition.isPending)}
+                onClick={() => closePosition.mutateAsync()}
+              >
+                Withdraw
+              </Button>
             </Flex>
-            <Button isDisabled={!isReadyMigrate} onClick={() => setIsOpenMigrate(true)}>
-              Migrate to Jubilee
-            </Button>
           </Flex>
         </Flex>
       </Flex>

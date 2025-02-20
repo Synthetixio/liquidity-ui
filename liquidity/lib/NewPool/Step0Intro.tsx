@@ -1,17 +1,4 @@
-import { CheckIcon } from '@chakra-ui/icons';
-import {
-  Button,
-  Flex,
-  Heading,
-  Image,
-  Link,
-  List,
-  ListIcon,
-  ListItem,
-  Spacer,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
+import { Button, Flex, Heading, Image, Link, Spacer, Text, VStack } from '@chakra-ui/react';
 import React from 'react';
 import rocketImage from './synthetix-rocket.png';
 
@@ -24,33 +11,14 @@ export const Step0Intro = ({
 }) => {
   return (
     <VStack spacing={2} align="start">
-      <Flex>
+      <Flex gap={6}>
         <VStack gap={6} flex={1} align="start" fontWeight="400" fontSize="14px">
-          <Heading size="sm">Delegated Staking is now live!</Heading>
-
+          <Heading size="sm">Debt-free Staking is now live!</Heading>
           <Text>
-            Migrate from Synthetix V2 or V3 to have your active debt forgiven over 12 months, while
-            also earning:
+            Migrate your staking position to have your active debt forgiven over 12 months, without
+            managing liquidation risk.
           </Text>
-
-          <List spacing={2}>
-            <ListItem>
-              <ListIcon as={CheckIcon} color="cyan.500" />
-              V2 Legacy Market Fees
-            </ListItem>
-            <ListItem>
-              <ListIcon as={CheckIcon} color="cyan.500" />
-              V3 SC Pool Fees
-            </ListItem>
-            <ListItem>
-              <ListIcon as={CheckIcon} color="cyan.500" />
-              LP Incentives
-            </ListItem>
-            <ListItem>
-              <ListIcon as={CheckIcon} color="cyan.500" />
-              Improved LP experience
-            </ListItem>
-          </List>
+          <Text>Withdraw at any time after initial 7 day lock by repaying your loan.</Text>
           <Text fontSize="sm">
             Learn more about{' '}
             <Link isExternal color="cyan.500" href="https://sips.synthetix.io/sips/sip-420/">
@@ -58,8 +26,8 @@ export const Step0Intro = ({
             </Link>
           </Text>
         </VStack>
-        <Flex alignItems="center" justifyContent="center" flex={1}>
-          <Image width="165px" src={rocketImage} alt="Synthetix Delegated Staking Launch" />
+        <Flex alignItems="center" justifyContent="center">
+          <Image mx={6} width="100px" src={rocketImage} alt="Synthetix Delegated Staking Launch" />
         </Flex>
       </Flex>
 

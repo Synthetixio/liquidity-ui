@@ -1,11 +1,24 @@
-import { Alert, AlertIcon, Button, Flex, Image, Link, Text, VStack } from '@chakra-ui/react';
+import {
+  Alert,
+  AlertIcon,
+  Button,
+  Collapse,
+  Flex,
+  Image,
+  Link,
+  Text,
+  VStack,
+  Box,
+} from '@chakra-ui/react';
+import { useCollateralType } from '@snx-v3/useCollateralTypes';
+import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
+import { makeSearch, type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import React from 'react';
 import accountIcon from './account.svg';
+import { formatCRatio } from './formatCRatio';
 import lockIcon from './lock.svg';
 import migrateIcon from './migrate.svg';
-import { makeSearch, type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { useTargetCRatio } from './useTargetCRatio';
-import { formatCRatio } from './formatCRatio';
 
 export function Step1Explain({
   onClose,
@@ -16,10 +29,17 @@ export function Step1Explain({
 }) {
   const [params, setParams] = useParams<PositionPageSchemaType>();
   const { data: targetCRatio } = useTargetCRatio();
+
+  const { data: collateralType } = useCollateralType('SNX');
+  const { data: liquidityPosition, isPending: isPendingLiquidityPosition } = useLiquidityPosition({
+    accountId: params.accountId,
+    collateralType,
+  });
+
   return (
-    <VStack spacing={2} align="start">
+    <VStack gap={6} align="start">
       <Text fontWeight="700">Migrating to Delegated Staking consists of:</Text>
-      <Flex mt={2.5} flexDir="column" gap={2.5} fontSize="14px" fontWeight="400">
+      <Flex flexDir="column" gap={2.5} fontSize="14px" fontWeight="400">
         <Flex alignItems="center" gap={2.5}>
           <Flex width={4}>
             <Image src={accountIcon} />
@@ -49,41 +69,53 @@ export function Step1Explain({
         </Flex>
       </Flex>
 
-      <Alert my={6} status="info" borderRadius="6px">
-        <AlertIcon />
-        <Text fontSize="14px">
-          Migration to the Jubilee Pool requires a C-Ratio of &gt;{formatCRatio(targetCRatio)}. If
-          you are below {formatCRatio(targetCRatio)}, you must{' '}
-          <Link
-            textDecoration="underline"
-            href={`?${makeSearch({
-              page: 'position',
-              collateralSymbol: 'SNX',
-              manageAction: 'repay',
-              accountId: params.accountId,
-            })}`}
-            onClick={(e) => {
-              e.preventDefault();
-              setParams({
+      <Collapse
+        in={
+          liquidityPosition &&
+          liquidityPosition.cRatio.gt(0) &&
+          liquidityPosition.cRatio.lt(targetCRatio)
+        }
+        animateOpacity
+        unmountOnExit
+      >
+        <Alert status="info" borderRadius="6px">
+          <AlertIcon />
+          <Text fontSize="14px">
+            Migration to the Jubilee Pool requires a C-Ratio of &gt;{formatCRatio(targetCRatio)}. If
+            you are below {formatCRatio(targetCRatio)}, you must{' '}
+            <Link
+              textDecoration="underline"
+              href={`?${makeSearch({
                 page: 'position',
                 collateralSymbol: 'SNX',
                 manageAction: 'repay',
                 accountId: params.accountId,
-              });
-            }}
-          >
-            repay your debt
-          </Link>{' '}
-          before migration.
-        </Text>
-      </Alert>
+              })}`}
+              onClick={(e) => {
+                e.preventDefault();
+                setParams({
+                  page: 'position',
+                  collateralSymbol: 'SNX',
+                  manageAction: 'repay',
+                  accountId: params.accountId,
+                });
+              }}
+            >
+              repay your debt
+            </Link>{' '}
+            before migration.
+          </Text>
+        </Alert>
+      </Collapse>
 
-      <Button width="100%" onClick={onConfirm}>
-        Continue
-      </Button>
-      <Button width="100%" variant="outline" colorScheme="gray" onClick={onClose}>
-        Back
-      </Button>
+      <VStack gap={3} width="100%">
+        <Button width="100%" onClick={onConfirm}>
+          Continue
+        </Button>
+        <Button width="100%" variant="outline" colorScheme="gray" onClick={onClose}>
+          Back
+        </Button>
+      </VStack>
     </VStack>
   );
 }

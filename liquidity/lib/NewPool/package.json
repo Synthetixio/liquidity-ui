@@ -7,6 +7,7 @@
     "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/react": "^2.8.2",
     "@snx-v3/Amount": "workspace:*",
+    "@snx-v3/CRatioBar": "workspace:*",
     "@snx-v3/ContractError": "workspace:*",
     "@snx-v3/Manage": "workspace:*",
     "@snx-v3/TransactionSummary": "workspace:*",
@@ -27,6 +28,7 @@
     "@snx-v3/useSNX": "workspace:*",
     "@snx-v3/useTreasuryMarketProxy": "workspace:*",
     "@snx-v3/useTrustedMulticallForwarder": "workspace:*",
+    "@snx-v3/useVaultsData": "workspace:*",
     "@synthetixio/wei": "^2.74.4",
     "@tanstack/react-query": "^5.8.3",
     "@web3-onboard/injected-wallets": "^2.11.2",
@@ -34,6 +36,7 @@
     "date-fns": "^2.30.0",
     "debug": "^4.3.7",
     "ethers": "^5.7.2",
+    "numbro": "^2.5.0",
     "react": "^18.2.0"
   }
 }
