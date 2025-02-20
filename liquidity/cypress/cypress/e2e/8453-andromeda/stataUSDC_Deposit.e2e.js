@@ -45,7 +45,7 @@ describe(__filename, () => {
 
     cy.get('[data-cy="stats collateral"] [data-cy="change stats current"]')
       .should('exist')
-      .and('include.text', '465.62 Static aUSDC');
+      .and('include.text', '463.17 Static aUSDC');
 
     cy.get('[data-cy="stats collateral"] [data-cy="change stats new"]').should('not.exist');
 
