@@ -60,11 +60,12 @@ contract PositionManagerTest is Test {
             vm.label(address(TreasuryMarketProxy), "TreasuryMarketProxy");
             vm.label(address(LegacyMarketProxy), "LegacyMarketProxy");
         } else {
-            forkBlockNumber = 132215583;
+            CannonDeployOp deployer = new CannonDeployOp();
+            forkBlockNumber = deployer.deployBlockNumber();
             string memory forkUrl = vm.envString("RPC_URL");
             fork = vm.createFork(forkUrl, forkBlockNumber);
             vm.selectFork(fork);
-            CannonDeployOp deployer = new CannonDeployOp();
+            deployer = new CannonDeployOp();
             deployer.run();
             CoreProxy = ICoreProxy(deployer.getAddress("system.CoreProxy"));
             AccountProxy = IAccountProxy(deployer.getAddress("system.AccountProxy"));
