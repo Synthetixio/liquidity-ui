@@ -16,6 +16,8 @@ import {IV2xUsd} from "@synthetixio/v3-contracts/1-main/IV2xUsd.sol";
 import {IERC20} from "@synthetixio/core-contracts/contracts/interfaces/IERC20.sol";
 import {IAddressResolver} from "src/IAddressResolver.sol";
 
+import {CannonDeploy as CannonDeployOp} from "../../script/CannonDeployOp.sol";
+
 import {PositionManagerNewPool} from "src/PositionManager.sol";
 import {Test} from "forge-std/src/Test.sol";
 import {Vm} from "forge-std/src/Vm.sol";
@@ -35,31 +37,52 @@ contract PositionManagerTest is Test {
 
     uint256 internal fork;
     uint256 internal forkBlockNumber;
+    string internal deployment;
+    string internal forkUrl;
 
     PositionManagerNewPool internal positionManager;
 
     constructor() {
-        string memory root = vm.projectRoot();
-        string memory metaPath = string.concat(root, "/../../node_modules/@synthetixio/v3-contracts/1-main/meta.json");
-        string memory metaJson = vm.readFile(metaPath);
+        string memory testMode = vm.envString("TEST_MODE");
+        if (keccak256(abi.encodePacked(testMode)) == keccak256(abi.encodePacked("mainnet"))) {
+            string memory root = vm.projectRoot();
+            string memory metaPath =
+                string.concat(root, "/../../node_modules/@synthetixio/v3-contracts/1-main/meta.json");
+            string memory metaJson = vm.readFile(metaPath);
 
-        CoreProxy = ICoreProxy(vm.parseJsonAddress(metaJson, ".contracts.CoreProxy"));
+            CoreProxy = ICoreProxy(vm.parseJsonAddress(metaJson, ".contracts.CoreProxy"));
+            AccountProxy = IAccountProxy(vm.parseJsonAddress(metaJson, ".contracts.AccountProxy"));
+            TreasuryMarketProxy = ITreasuryMarketProxy(vm.parseJsonAddress(metaJson, ".contracts.TreasuryMarketProxy"));
+            LegacyMarketProxy = ILegacyMarketProxy(vm.parseJsonAddress(metaJson, ".contracts.LegacyMarketProxy"));
+        } else {
+            forkBlockNumber = 132215583;
+            string memory forkUrl = vm.envString("RPC_URL");
+            fork = vm.createFork(forkUrl, forkBlockNumber);
+            vm.selectFork(fork);
+            CannonDeployOp deployer = new CannonDeployOp();
+            deployer.run();
+            CoreProxy = ICoreProxy(deployer.getAddress(keccak256("system.CoreProxy")));
+            AccountProxy = IAccountProxy(deployer.getAddress(keccak256("system.AccountProxy")));
+            TreasuryMarketProxy =
+                ITreasuryMarketProxy(deployer.getAddress(keccak256("treasuryMarket.TreasuryMarketProxy")));
+            LegacyMarketProxy = ILegacyMarketProxy(deployer.getAddress(keccak256("legacyMarket.LegacyMarketProxy")));
+        }
+
         vm.label(address(CoreProxy), "CoreProxy");
-
-        AccountProxy = IAccountProxy(vm.parseJsonAddress(metaJson, ".contracts.AccountProxy"));
+        vm.makePersistent(address(AccountProxy));
         vm.label(address(AccountProxy), "AccountProxy");
-
-        TreasuryMarketProxy = ITreasuryMarketProxy(vm.parseJsonAddress(metaJson, ".contracts.TreasuryMarketProxy"));
+        vm.makePersistent(address(TreasuryMarketProxy));
         vm.label(address(TreasuryMarketProxy), "TreasuryMarketProxy");
-
-        LegacyMarketProxy = ILegacyMarketProxy(vm.parseJsonAddress(metaJson, ".contracts.LegacyMarketProxy"));
+        vm.makePersistent(address(LegacyMarketProxy));
         vm.label(address(LegacyMarketProxy), "LegacyMarketProxy");
     }
 
     function setUp() public {
-        string memory forkUrl = vm.envString("RPC_MAINNET");
         //        string memory forkUrl = "http://127.0.0.1:8545";
-        fork = vm.createFork(forkUrl, forkBlockNumber);
+        if (fork == 0) {
+            string memory forkUrl = vm.envString("RPC_URL");
+            fork = vm.createFork(forkUrl, forkBlockNumber);
+        }
         //        fork = vm.createFork(forkUrl);
         vm.selectFork(fork);
 
