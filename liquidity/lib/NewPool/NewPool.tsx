@@ -207,7 +207,11 @@ export function NewPool() {
                   value={
                     isPendingPositionCollateral || isPendingLoan || isPendingLoanSnxPrice
                       ? '~'
-                      : loan && positionCollateral && loanSnxPrice
+                      : loan &&
+                          positionCollateral &&
+                          loanSnxPrice &&
+                          positionCollateral.gt(0) &&
+                          loanSnxPrice.gt(0)
                         ? `${wei(1)
                             .sub(
                               wei(loan.loanAmount).div(wei(positionCollateral).mul(loanSnxPrice))
