@@ -10,7 +10,6 @@ import {
 } from '@chakra-ui/react';
 import React from 'react';
 import { Step0Intro } from './Step0Intro';
-import { Step1Explain } from './Step1Explain';
 import { Step2Summary } from './Step2Summary';
 import { Step3Success } from './Step3Success';
 import { ethers } from 'ethers';
@@ -36,10 +35,7 @@ export function MigrationDialog({ onClose, isOpen }: { onClose: () => void; isOp
           <Divider borderColor="gray.900" mb={6} colorScheme="gray" />
         </Flex>
         <ModalBody pt={0} pb={6}>
-          {step === 0 ? <Step0Intro onConfirm={() => setStep(1)} onClose={onClose} /> : null}
-          {step === 1 ? (
-            <Step1Explain onConfirm={() => setStep(2)} onClose={() => setStep(0)} />
-          ) : null}
+          {step === 0 ? <Step0Intro onConfirm={() => setStep(2)} onClose={onClose} /> : null}
           {step === 2 ? (
             <Step2Summary
               onConfirm={(receipt: ethers.providers.TransactionReceipt) => {
