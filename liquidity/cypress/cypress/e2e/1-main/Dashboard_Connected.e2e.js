@@ -21,7 +21,7 @@ describe(__filename, () => {
       );
     });
   });
-  //  afterEach(() => cy.task('stopAnvil').then(() => cy.log('Anvil stopped')));
+  afterEach(() => cy.task('stopAnvil').then(() => cy.log('Anvil stopped')));
 
   it(__filename, () => {
     cy.setEthBalance({ balance: 100 });
