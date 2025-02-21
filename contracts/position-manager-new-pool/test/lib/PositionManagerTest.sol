@@ -35,12 +35,15 @@ contract PositionManagerTest is Test {
 
     uint256 internal fork;
     uint256 internal forkBlockNumber;
+    string internal deployment;
+    string internal forkUrl;
 
     PositionManagerNewPool internal positionManager;
 
-    constructor() {
+    function initialize() internal {
         string memory root = vm.projectRoot();
-        string memory metaPath = string.concat(root, "/../../node_modules/@synthetixio/v3-contracts/1-main/meta.json");
+        string memory metaPath =
+            string.concat(root, "/../../node_modules/@synthetixio/v3-contracts/", deployment, "/meta.json");
         string memory metaJson = vm.readFile(metaPath);
 
         CoreProxy = ICoreProxy(vm.parseJsonAddress(metaJson, ".contracts.CoreProxy"));
@@ -57,14 +60,16 @@ contract PositionManagerTest is Test {
     }
 
     function setUp() public {
-        string memory forkUrl = vm.envString("RPC_MAINNET");
-        //        string memory forkUrl = "http://127.0.0.1:8545";
-        fork = vm.createFork(forkUrl, forkBlockNumber);
-        //        fork = vm.createFork(forkUrl);
-        vm.selectFork(fork);
+        if (keccak256(abi.encodePacked(forkUrl)) == keccak256(abi.encodePacked("http://127.0.0.1:8545"))) {
+            fork = vm.createFork(forkUrl);
+            vm.selectFork(fork);
+        } else {
+            fork = vm.createFork(forkUrl, forkBlockNumber);
+            vm.selectFork(fork);
+            // Verify fork
+            assertEq(block.number, forkBlockNumber);
+        }
 
-        // Verify fork
-        assertEq(block.number, forkBlockNumber);
         assertEq(vm.activeFork(), fork);
 
         // Pyth bypass

@@ -1,11 +1,14 @@
 pragma solidity ^0.8.21;
 
-import "./lib/PositionManagerTest.sol";
+import "../lib/PositionManagerTest.sol";
 import "@synthetixio/v3-contracts/1-main/ICoreProxy.sol";
 
 contract PositionManager_migratePosition_negativeDebt_Test is PositionManagerTest {
     constructor() {
+        deployment = "1-main";
+        forkUrl = vm.envString("RPC_MAINNET");
         forkBlockNumber = 21864281;
+        initialize();
     }
 
     function test_migratePosition() public {

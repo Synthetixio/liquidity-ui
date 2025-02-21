@@ -1,10 +1,13 @@
 pragma solidity ^0.8.21;
 
-import "./lib/PositionManagerTest.sol";
+import "../lib/PositionManagerTest.sol";
 
 contract PositionManager_closePosition_Test is PositionManagerTest {
     constructor() {
+        deployment = "1-main";
+        forkUrl = vm.envString("RPC_MAINNET");
         forkBlockNumber = 21864281;
+        initialize();
     }
 
     function test_closePosition() public {
