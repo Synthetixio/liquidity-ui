@@ -28,38 +28,6 @@ brew install lcov
 
 ## Deploy
 
-Sepolia
-
-```sh
-export ETHERSCAN_API_KEY=
-export ETHERSCAN_API_URL=https://api.etherscan.io/api
-export ETHERSCAN_SEPOLIA_API_URL=https://api-sepolia.etherscan.io/api
-
-export _root=$(yarn workspace root exec pwd)
-export _meta="$_root/node_modules/@synthetixio/v3-contracts/11155111-main/meta.json"
-
-export _CoreProxy=$(cat $_meta | jq -r '.contracts.CoreProxy')
-export _AccountProxy=$(cat $_meta | jq -r '.contracts.AccountProxy')
-export _TreasuryMarketProxy=$(cat $_meta | jq -r '.contracts.TreasuryMarketProxy')
-export _LegacyMarketProxy=$(cat $_meta | jq -r '.contracts.LegacyMarketProxy')
-
-forge create \
-  --broadcast \
-  --no-cache \
-  --rpc-url https://sepolia.infura.io/v3/$INFURA_API_KEY \
-  --chain 11155111 \
-  --private-key $TESTNET_DEPLOYER_PRIVATE_KEY \
-  --verifier-url $ETHERSCAN_SEPOLIA_API_URL \
-  --etherscan-api-key $ETHERSCAN_API_KEY \
-  --verify \
-  src/PositionManager.sol:PositionManagerNewPool \
-  --constructor-args \
-      $_CoreProxy \
-      $_AccountProxy \
-      $_TreasuryMarketProxy \
-      $_LegacyMarketProxy
-```
-
 Mainnet
 
 ```sh
@@ -73,6 +41,11 @@ export _CoreProxy=$(cat $_meta | jq -r '.contracts.CoreProxy')
 export _AccountProxy=$(cat $_meta | jq -r '.contracts.AccountProxy')
 export _TreasuryMarketProxy=$(cat $_meta | jq -r '.contracts.TreasuryMarketProxy')
 export _LegacyMarketProxy=$(cat $_meta | jq -r '.contracts.LegacyMarketProxy')
+
+echo _CoreProxy $_CoreProxy
+echo _AccountProxy $_AccountProxy
+echo _TreasuryMarketProxy $_TreasuryMarketProxy
+echo _LegacyMarketProxy $_LegacyMarketProxy
 
 forge create \
   --broadcast \
@@ -89,7 +62,42 @@ forge create \
       $_AccountProxy \
       $_TreasuryMarketProxy \
       $_LegacyMarketProxy
+```
 
+Optimism Mainnet
+
+```sh
+export OPTIMISTIC_ETHERSCAN_API_KEY=
+export OPTIMISTIC_ETHERSCAN_API_URL=https://api-optimistic.etherscan.io/api
+
+export _root=$(yarn workspace root exec pwd)
+export _meta="$_root/node_modules/@synthetixio/v3-contracts/10-main/meta.json"
+
+export _CoreProxy=$(cat $_meta | jq -r '.contracts.CoreProxy')
+export _AccountProxy=$(cat $_meta | jq -r '.contracts.AccountProxy')
+export _TreasuryMarketProxy=$(cat $_meta | jq -r '.contracts.TreasuryMarketProxy')
+export _LegacyMarketProxy=$(cat $_meta | jq -r '.contracts.LegacyMarketProxy')
+
+echo _CoreProxy $_CoreProxy
+echo _AccountProxy $_AccountProxy
+echo _TreasuryMarketProxy $_TreasuryMarketProxy
+echo _LegacyMarketProxy $_LegacyMarketProxy
+
+forge create \
+  --broadcast \
+  --no-cache \
+  --rpc-url https://optimism-mainnet.infura.io/v3/$INFURA_API_KEY \
+  --chain 10 \
+  --private-key $MAINNET_DEPLOYER_PRIVATE_KEY \
+  --verifier-url $OPTIMISTIC_ETHERSCAN_API_URL \
+  --etherscan-api-key $OPTIMISTIC_ETHERSCAN_API_KEY \
+  --verify \
+  src/PositionManager.sol:PositionManagerNewPool \
+  --constructor-args \
+      $_CoreProxy \
+      $_AccountProxy \
+      $_TreasuryMarketProxy \
+      $_LegacyMarketProxy
 ```
 
 Local
