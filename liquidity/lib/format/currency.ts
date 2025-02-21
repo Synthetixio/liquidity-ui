@@ -12,16 +12,25 @@ export function currency(value?: Wei) {
     if (value.abs().lt(0.01)) {
       return value.toString();
     }
-    const m2 = numbro(value.toNumber()).format({
-      thousandSeparated: true,
+    const number = value.toNumber();
+    const m2 = numbro(number).format({
+      thousandSeparated: false,
       mantissa: 2,
     });
-    const m0 = numbro(value.toNumber()).format({
-      thousandSeparated: true,
+    const m0 = numbro(number).format({
+      thousandSeparated: false,
       mantissa: 0,
     });
     // Strip unnecessary .00
-    return parseFloat(m2) === parseFloat(m0) ? m0 : m2;
+    return parseFloat(m2) === parseFloat(m0)
+      ? numbro(number).format({
+          thousandSeparated: true,
+          mantissa: 0,
+        })
+      : numbro(number).format({
+          thousandSeparated: true,
+          mantissa: 2,
+        });
   } catch {
     return `${value}`;
   }

@@ -53,7 +53,7 @@ describe(__filename, () => {
 
     cy.get('[data-cy="stats debt"] [data-cy="change stats new"]')
       .should('exist')
-      .and('include.text', '$2.092');
+      .and('include.text', '$2.09');
 
     cy.get('[data-cy="repay submit"]').should('be.enabled');
     cy.get('[data-cy="repay submit"]').click();
