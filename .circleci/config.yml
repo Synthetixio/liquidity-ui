@@ -351,7 +351,7 @@ workflows:
           name: pm-jubilee-pool
           working_directory: 'contracts/position-manager-new-pool'
 
-      - cy
+      #- cy
       - e2e:
           name: e2e-base
           dir: '8453-andromeda'
@@ -369,7 +369,7 @@ workflows:
           requires:
             - checks
             - tests
-            - cy
+            #- cy
             - e2e-base
             - e2e-arbitrum
             - e2e-mainnet

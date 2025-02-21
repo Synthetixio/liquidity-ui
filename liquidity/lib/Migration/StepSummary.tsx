@@ -25,7 +25,7 @@ import { useMigrate } from '@snx-v3/useMigrate';
 import { useRates } from '@snx-v3/useRates';
 import { useV2Position } from '@snx-v3/useV2Position';
 import { wei } from '@synthetixio/wei';
-import { formatEther } from 'ethers/lib/utils';
+import { ethers } from 'ethers';
 import React, { useCallback, useState } from 'react';
 import { StepSuccess } from './StepSuccess';
 
@@ -188,7 +188,7 @@ export const StepSummary = ({
                 <Text>
                   <Amount
                     value={wei(
-                      formatEther(
+                      ethers.utils.formatEther(
                         transaction?.gasLimit.mul(transaction.gasPrice || 1).toString() || 0
                       )
                     )}
@@ -200,7 +200,7 @@ export const StepSummary = ({
                       &nbsp;($
                       {ethPrice
                         .mul(
-                          formatEther(
+                          ethers.utils.formatEther(
                             transaction?.gasLimit.mul(transaction.gasPrice || 1).toString() || 0
                           )
                         )

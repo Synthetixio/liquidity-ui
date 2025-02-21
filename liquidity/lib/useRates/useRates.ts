@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { MAINNET, useProviderForChain } from '@snx-v3/useBlockchain';
 import { Contract } from 'ethers';
-import { formatBytes32String } from 'ethers/lib/utils';
+import { ethers } from 'ethers';
 import { wei } from '@synthetixio/wei';
 
 export function useRates() {
@@ -20,8 +20,8 @@ export function useRates() {
       const ExchangeRates = new Contract(address, abi, mainnetProvider);
 
       const result = await ExchangeRates.ratesForCurrencies([
-        formatBytes32String('SNX'),
-        formatBytes32String('ETH'),
+        ethers.utils.formatBytes32String('SNX'),
+        ethers.utils.formatBytes32String('ETH'),
       ]);
       return {
         snx: wei(result[0] || 0),
