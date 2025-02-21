@@ -21,6 +21,8 @@ contract PositionManager_migratePosition_Test is PositionManagerTest {
         uint128 oldPoolId = 1;
         uint128 accountId = CoreProxy.createAccount();
 
+        uint256 migrateTargetCRatio = TreasuryMarketProxy.targetCratio();
+
         vm.startPrank(ALICE);
 
         // Setup SC pool position, borrow and withdraw $snxUSD
@@ -81,10 +83,10 @@ contract PositionManager_migratePosition_Test is PositionManagerTest {
             "Loan amount for $SNX position should be 200 as previously borrowed amount"
         );
         assertApproxEqAbs(
-            1000 * snxPrice / 2,
+            1000 * snxPrice * 1 ether / migrateTargetCRatio,
             uint256(CoreProxy.getPositionDebt(accountId, TreasuryMarketProxy.poolId(), address($SNX))),
             0.1 ether,
-            "Virtual debt for $SNX position should be at C-Ratio 200%"
+            "Virtual debt for $SNX position should be at treasury market target c ratio"
         );
         assertEq(
             1000 ether,

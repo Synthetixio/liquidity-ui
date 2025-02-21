@@ -10,6 +10,12 @@ contract PositionManager_migratePosition_v2x_Test is PositionManagerTest {
 
     function test_migratePosition_v2x() public {
         address ALICE = 0xa5758de121079D2FA868C64b02Ef35C909635f16;
+
+        string memory testMode = vm.envString("TEST_MODE");
+        if (keccak256(abi.encodePacked(testMode)) == keccak256(abi.encodePacked("optimism"))) {
+            ALICE = 0x89808C49F858b86E80B892506CF11606Fb25fCDC;
+        }
+
         vm.label(ALICE, "0xA11CE");
 
         uint256 snxPrice = CoreProxy.getCollateralPrice(address($SNX));
@@ -43,7 +49,8 @@ contract PositionManager_migratePosition_v2x_Test is PositionManagerTest {
             "Loan amount for SNX position should be equal to v2x debt"
         );
 
-        uint256 positionDebt = collateralValue / 2; // at c-ratio 200%
+        uint256 migrateTargetCRatio = TreasuryMarketProxy.targetCratio();
+        uint256 positionDebt = collateralValue * 1 ether / migrateTargetCRatio; // at c-ratio 200%
         assertApproxEqAbs(
             positionDebt,
             uint256(CoreProxy.getPositionDebt(accountId, TreasuryMarketProxy.poolId(), address($SNX))),

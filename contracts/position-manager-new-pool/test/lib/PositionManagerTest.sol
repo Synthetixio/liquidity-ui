@@ -74,7 +74,7 @@ contract PositionManagerTest is Test {
 
             // after the deployment is completed, the pool configuration has to be manually set
             MarketConfiguration.Data[] memory marketConfig = new MarketConfiguration.Data[](2);
-            marketConfig[0] = MarketConfiguration.Data(1, 1 ether, 1 ether);
+            marketConfig[0] = MarketConfiguration.Data(2, 1 ether, 1 ether);
             marketConfig[1] = MarketConfiguration.Data(3, 9 ether, 1 ether);
             vm.prank(CoreProxy.owner());
             CoreProxy.setPoolConfiguration(8, marketConfig);
