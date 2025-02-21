@@ -4672,10 +4672,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/Amount@workspace:liquidity/lib/Amount"
   dependencies:
-    "@snx-v3/Tooltip": "workspace:*"
-    "@snx-v3/format": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     ethers: "npm:^5.7.2"
+    numbro: "npm:^2.5.0"
     react: "npm:^18.2.0"
   languageName: unknown
   linkType: soft

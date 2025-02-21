@@ -158,7 +158,7 @@ export function StataUSDC() {
             fontWeight={500}
             lineHeight="20px"
           >
-            <Amount prefix="$" value={wei(stataBalance.previewRedeem, 6)} showTooltip />
+            <Amount prefix="$" value={wei(stataBalance.previewRedeem, 6)} />
           </Text>
         </Flex>
         <Button

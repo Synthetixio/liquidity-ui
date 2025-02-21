@@ -95,7 +95,6 @@ export function CollateralStats({
               <Amount
                 value={liquidityPosition.totalLocked}
                 suffix={` ${collateralType?.displaySymbol}`}
-                showTooltip
               />
             </Link>
           </Flex>

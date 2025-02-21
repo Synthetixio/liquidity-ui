@@ -19,7 +19,7 @@ it(`${import.meta.url.split('/').pop()}`, () => {
     </QueryClientProvider>
   );
 
-  cy.get('[data-cy="Step0Intro"]').should('include.text', 'Delegated Staking is now live!');
+  cy.get('[data-cy="Step0Intro"]').should('include.text', 'Debt-free Staking is now live!');
 
   cy.get('[data-cy="Step0Intro"]').should(
     'include.text',

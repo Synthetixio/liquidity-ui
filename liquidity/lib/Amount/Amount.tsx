@@ -1,59 +1,45 @@
-import { currency } from '@snx-v3/format';
-import { Tooltip } from '@snx-v3/Tooltip';
 import Wei, { wei } from '@synthetixio/wei';
 import { constants } from 'ethers';
-import { useMemo } from 'react';
+import numbro from 'numbro';
+import React from 'react';
 
 export function Amount({
   value,
   prefix = '',
   suffix = '',
   'data-cy': testid,
-  showTooltip,
 }: {
   prefix?: string;
   value?: Wei;
   suffix?: string;
   'data-cy'?: string;
-  showTooltip?: boolean;
 }) {
-  const { formattedValue, preciseValue, isMaxUint } = useMemo(() => {
+  const isMaxUint = value && wei(constants.MaxInt256).lte(value);
+
+  const formattedValue = React.useMemo(() => {
     if (!value) {
-      return { formattedValue: '-', preciseValue: '-' };
+      return '-';
     }
-
-    const formattedValue = value.eq(0) ? '0.00' : currency(value);
-    const cleanNumber = wei(formattedValue.replaceAll(',', ''));
-
-    return {
-      isMaxUint: wei(constants.MaxInt256).lte(value),
-      formattedValue,
-      preciseValue: value.eq(cleanNumber) ? formattedValue : value.toString(),
-    };
+    if (value.eq(0)) {
+      return '0.00';
+    }
+    const m2 = numbro(value.toNumber()).format({
+      thousandSeparated: true,
+      mantissa: 2,
+    });
+    const m0 = numbro(value.toNumber()).format({
+      thousandSeparated: true,
+      mantissa: 0,
+    });
+    // Strip unnecessary .00
+    return parseFloat(m2) === parseFloat(m0) ? m0 : m2;
   }, [value]);
 
   return (
-    <Tooltip
-      label={
-        <>
-          {isMaxUint ? (
-            'You cannot borrow against this collateral'
-          ) : (
-            <>
-              {prefix}
-              {preciseValue}
-              {suffix}
-            </>
-          )}
-        </>
-      }
-      isDisabled={formattedValue === preciseValue || !showTooltip}
-    >
-      <span data-cy={testid}>
-        {prefix}
-        {isMaxUint ? 'Infinite' : formattedValue}
-        {!isMaxUint && suffix}
-      </span>
-    </Tooltip>
+    <span data-cy={testid}>
+      {prefix}
+      {isMaxUint ? 'Infinite' : formattedValue}
+      {!isMaxUint && suffix}
+    </span>
   );
 }

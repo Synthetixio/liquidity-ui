@@ -41,7 +41,7 @@ export function RewardsRow({
               fontWeight={500}
               lineHeight="20px"
             >
-              <Amount value={claimableAmount} showTooltip />
+              <Amount value={claimableAmount} />
             </Text>
           </Fade>
         </Td>

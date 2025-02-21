@@ -47,7 +47,7 @@ export function SynthRow({
             fontWeight={500}
             lineHeight="20px"
           >
-            <Amount value={balance} showTooltip />
+            <Amount value={balance} />
           </Text>
         </Fade>
       </Td>

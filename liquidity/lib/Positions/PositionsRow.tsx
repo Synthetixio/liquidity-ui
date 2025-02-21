@@ -121,7 +121,6 @@ export function PositionRow({ liquidityPosition }: { liquidityPosition: Liquidit
                     prefix="Including "
                     value={liquidityPosition.totalLocked}
                     suffix={` ${liquidityPosition.collateralType.displaySymbol} Escrow that cannot be unlocked until the unlocking date has been reached`}
-                    showTooltip
                   />
                 }
               >
