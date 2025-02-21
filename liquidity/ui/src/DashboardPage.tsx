@@ -58,7 +58,7 @@ export function DashboardPage() {
             </Text>
           </Flex>
           <Flex mt={10} gap={4} flex={1}>
-            <StatsTotalLocked />
+            {network?.id === MAINNET.id ? null : <StatsTotalLocked />}
             {network?.id === MAINNET.id ? null : <StatsTotalPnl />}
           </Flex>
         </Flex>

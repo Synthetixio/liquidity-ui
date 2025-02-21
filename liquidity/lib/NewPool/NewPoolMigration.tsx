@@ -4,7 +4,6 @@ import { Amount } from '@snx-v3/Amount';
 import { CRatioAmount } from '@snx-v3/CRatioBar';
 import { getStatsUrl } from '@snx-v3/getStatsUrl';
 import { LogoIcon } from '@snx-v3/icons';
-import coinImage from '@snx-v3/Manage/coin.png';
 import { NetworkIcon, useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
@@ -14,6 +13,7 @@ import { useVaultsData } from '@snx-v3/useVaultsData';
 import { wei } from '@synthetixio/wei';
 import numbro from 'numbro';
 import React from 'react';
+import CoinImage from './coin.webp';
 import { MigrationDialog } from './MigrationDialog';
 import { useMigrateNewPool } from './useMigrateNewPool';
 
@@ -191,7 +191,15 @@ export function NewPoolMigration() {
             justifyContent="space-between"
           >
             <Flex direction="column" gap={3}>
-              <Image rounded="8px" src={coinImage} width="100%" maxWidth="354px" />
+              <Image
+                rounded="8px"
+                src={CoinImage}
+                width="100%"
+                maxWidth="354px"
+                style={{
+                  maskImage: 'linear-gradient(270deg, #000000 50%, rgba(0, 0, 0, 0) 100%)',
+                }}
+              />
             </Flex>
           </Flex>
         </Flex>
