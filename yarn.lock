@@ -5093,7 +5093,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/Migration@workspace:*, @snx-v3/Migration@workspace:liquidity/lib/Migration":
+"@snx-v3/Migration@workspace:liquidity/lib/Migration":
   version: 0.0.0-use.local
   resolution: "@snx-v3/Migration@workspace:liquidity/lib/Migration"
   dependencies:
@@ -5127,16 +5127,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/NewPool@workspace:*, @snx-v3/NewPool@workspace:liquidity/lib/NewPool":
+"@snx-v3/NewPool@workspace:*, @snx-v3/NewPool@workspace:staking/lib/NewPool":
   version: 0.0.0-use.local
-  resolution: "@snx-v3/NewPool@workspace:liquidity/lib/NewPool"
+  resolution: "@snx-v3/NewPool@workspace:staking/lib/NewPool"
   dependencies:
     "@chakra-ui/icons": "npm:^2.1.1"
     "@chakra-ui/react": "npm:^2.8.2"
     "@snx-v3/Amount": "workspace:*"
     "@snx-v3/CRatioBar": "workspace:*"
     "@snx-v3/ContractError": "workspace:*"
-    "@snx-v3/Manage": "workspace:*"
     "@snx-v3/TransactionSummary": "workspace:*"
     "@snx-v3/constants": "workspace:*"
     "@snx-v3/etherscanLink": "workspace:*"
@@ -5717,8 +5716,6 @@ __metadata:
     "@snx-v3/Manage": "workspace:*"
     "@snx-v3/ManageAction": "workspace:*"
     "@snx-v3/ManagePositionContext": "workspace:*"
-    "@snx-v3/Migration": "workspace:*"
-    "@snx-v3/NewPool": "workspace:*"
     "@snx-v3/Permissions": "workspace:*"
     "@snx-v3/Pools": "workspace:*"
     "@snx-v3/Positions": "workspace:*"
@@ -5741,8 +5738,9 @@ __metadata:
     "@snx-v3/useLiquidityPosition": "workspace:*"
     "@snx-v3/useLocalStorage": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
+    "@synthetixio/devtools-formatters": "workspace:*"
+    "@synthetixio/magic-wallet": "workspace:*"
     "@synthetixio/safe-import": "workspace:*"
-    "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     "@tanstack/react-query-devtools": "npm:^5.8.3"
     "@web3-onboard/coinbase": "npm:^2.4.1"
@@ -5841,6 +5839,76 @@ __metadata:
     "@synthetixio/oracle-manager": "npm:^3.10.1"
     "@synthetixio/pyth-erc7412-wrapper": "npm:^3.10.1"
     forge-std: "github:foundry-rs/forge-std"
+  languageName: unknown
+  linkType: soft
+
+"@snx-v3/staking@workspace:staking/ui":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/staking@workspace:staking/ui"
+  dependencies:
+    "@babel/core": "npm:^7.24.6"
+    "@babel/plugin-transform-runtime": "npm:^7.24.6"
+    "@babel/preset-env": "npm:^7.24.6"
+    "@babel/preset-react": "npm:^7.24.6"
+    "@babel/preset-typescript": "npm:^7.24.6"
+    "@babel/runtime-corejs3": "npm:^7.24.6"
+    "@chakra-ui/icons": "npm:^2.1.1"
+    "@chakra-ui/react": "npm:^2.8.2"
+    "@emotion/react": "npm:^11.11.1"
+    "@emotion/styled": "npm:^11.11.0"
+    "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.11"
+    "@safe-global/safe-apps-provider": "npm:^0.18.3"
+    "@safe-global/safe-apps-sdk": "npm:^8.0.0"
+    "@snx-v3/NewPool": "workspace:*"
+    "@snx-v3/TermsModal": "workspace:*"
+    "@snx-v3/Tooltip": "workspace:*"
+    "@snx-v3/constants": "workspace:*"
+    "@snx-v3/format": "workspace:*"
+    "@snx-v3/icons": "workspace:*"
+    "@snx-v3/theme": "workspace:*"
+    "@snx-v3/useAccounts": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@snx-v3/useCollateralTypes": "workspace:*"
+    "@snx-v3/useCreateAccount": "workspace:*"
+    "@snx-v3/useLiquidityPosition": "workspace:*"
+    "@snx-v3/useParams": "workspace:*"
+    "@synthetixio/devtools-formatters": "workspace:*"
+    "@synthetixio/magic-wallet": "workspace:*"
+    "@synthetixio/safe-import": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    "@tanstack/react-query-devtools": "npm:^5.8.3"
+    "@web3-onboard/coinbase": "npm:^2.4.1"
+    "@web3-onboard/common": "npm:^2.4.2"
+    "@web3-onboard/gnosis": "npm:^2.3.2"
+    "@web3-onboard/injected-wallets": "npm:^2.11.2"
+    "@web3-onboard/ledger": "npm:2.7.1"
+    "@web3-onboard/react": "npm:^2.10.0"
+    "@web3-onboard/trezor": "npm:^2.4.6"
+    "@web3-onboard/walletconnect": "npm:^2.6.1"
+    babel-loader: "npm:^9.1.3"
+    babel-plugin-istanbul: "npm:^6.1.1"
+    bn.js: "npm:^5.2.1"
+    copy-webpack-plugin: "npm:^11.0.0"
+    core-js: "npm:^3.33.2"
+    crypto-browserify: "npm:^3.12.0"
+    css-loader: "npm:^6.8.1"
+    dotenv: "npm:^16.4.3"
+    ethers: "npm:^5.7.2"
+    framer-motion: "npm:^10.16.5"
+    html-webpack-plugin: "npm:^5.5.3"
+    process: "npm:^0.11.10"
+    react: "npm:^18.2.0"
+    react-dom: "npm:^18.2.0"
+    react-helmet: "npm:^6.1.0"
+    react-refresh: "npm:^0.14.0"
+    react-router-dom: "npm:^6.18.0"
+    stream-browserify: "npm:^3.0.0"
+    style-loader: "npm:^3.3.3"
+    terser-webpack-plugin: "npm:^5.3.9"
+    webpack: "npm:^5.89.0"
+    webpack-bundle-analyzer: "npm:^4.10.0"
+    webpack-cli: "npm:^5.1.4"
+    webpack-dev-server: "npm:^4.15.1"
   languageName: unknown
   linkType: soft
 
@@ -7324,6 +7392,24 @@ __metadata:
     deps-circular: ./circular.js
     deps-mismatched: ./mismatched.js
     deps-version: ./version.js
+  languageName: unknown
+  linkType: soft
+
+"@synthetixio/devtools-formatters@workspace:*, @synthetixio/devtools-formatters@workspace:tools/devtools-formatters":
+  version: 0.0.0-use.local
+  resolution: "@synthetixio/devtools-formatters@workspace:tools/devtools-formatters"
+  dependencies:
+    "@synthetixio/wei": "npm:^2.74.4"
+    ethers: "npm:^5.7.2"
+  languageName: unknown
+  linkType: soft
+
+"@synthetixio/magic-wallet@workspace:*, @synthetixio/magic-wallet@workspace:tools/magic-wallet":
+  version: 0.0.0-use.local
+  resolution: "@synthetixio/magic-wallet@workspace:tools/magic-wallet"
+  dependencies:
+    "@snx-v3/useBlockchain": "workspace:*"
+    ethers: "npm:^5.7.2"
   languageName: unknown
   linkType: soft
 

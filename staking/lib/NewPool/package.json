@@ -9,7 +9,6 @@
     "@snx-v3/Amount": "workspace:*",
     "@snx-v3/CRatioBar": "workspace:*",
     "@snx-v3/ContractError": "workspace:*",
-    "@snx-v3/Manage": "workspace:*",
     "@snx-v3/TransactionSummary": "workspace:*",
     "@snx-v3/constants": "workspace:*",
     "@snx-v3/etherscanLink": "workspace:*",
