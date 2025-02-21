@@ -38,7 +38,7 @@ describe(__filename, () => {
 
     cy.get('[data-cy="unwrap synths info"]')
       .should('exist')
-      .and('include.text', 'Unwrapping 0.00000041 WETH');
+      .and('include.text', 'Unwrapping 0.000000407266711488 WETH');
 
     cy.get('[data-cy="unwrap synths info"]', { timeout: 180_000 }).should(
       'include.text',

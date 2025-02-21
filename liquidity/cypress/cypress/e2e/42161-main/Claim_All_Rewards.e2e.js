@@ -39,8 +39,8 @@ describe(__filename, () => {
 
       .and('include.text', 'Claiming 0.35 ARB')
       .and('include.text', 'Claiming 0.18 USDe')
-      .and('include.text', 'Claiming 0.0012 WETH')
-      .and('include.text', 'Claiming 0.000000071 tBTC');
+      .and('include.text', 'Claiming 0.001185952801937196 WETH')
+      .and('include.text', 'Claiming 0.000000070807614891 tBTC');
 
     cy.contains('[data-status="success"]', 'Your rewards have been claimed', {
       timeout: 180_000,
@@ -51,8 +51,8 @@ describe(__filename, () => {
       .should('exist')
       .and('include.text', 'Claimed 0.35 ARB')
       .and('include.text', 'Claimed 0.18 USDe')
-      .and('include.text', 'Claimed 0.0012 WETH')
-      .and('include.text', 'Claimed 0.000000071 tBTC');
+      .and('include.text', 'Claimed 0.001185952801937196 WETH')
+      .and('include.text', 'Claimed 0.000000070807614891 tBTC');
 
     cy.contains('[data-cy="claim rewards dialog"] button', 'Done').click();
     cy.get('[data-cy="rewards table"]', { timeout: 180_000 }).should(

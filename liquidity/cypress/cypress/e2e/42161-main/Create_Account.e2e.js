@@ -27,7 +27,7 @@ describe(__filename, () => {
   it(__filename, () => {
     cy.setEthBalance({ balance: 100 });
 
-    cy.visit('?');
+    cy.visit('/');
 
     cy.get('[data-cy="wallet button"]').click();
     cy.get('[data-cy="accounts list"]').children().should('have.length', 1);

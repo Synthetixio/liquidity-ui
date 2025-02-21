@@ -44,17 +44,17 @@ describe(__filename, () => {
 
     cy.get('[data-cy="stats collateral"] [data-cy="change stats current"]')
       .should('exist')
-      .and('include.text', '2.094 WETH');
+      .and('include.text', '2.09 WETH');
     cy.get('[data-cy="stats debt"] [data-cy="change stats new"]').should('not.exist');
     cy.get('[data-cy="stats debt"] [data-cy="change stats current"]')
       .should('exist')
-      .and('include.text', '$1,584.45');
+      .and('include.text', '$1,584');
 
     cy.get('[data-cy="repay amount input"]').type('10');
 
     cy.get('[data-cy="stats debt"] [data-cy="change stats new"]')
       .should('exist')
-      .and('include.text', '$1,574.45');
+      .and('include.text', '$1,574');
 
     cy.get('[data-cy="repay submit"]').should('be.enabled');
     cy.get('[data-cy="repay submit"]').click();

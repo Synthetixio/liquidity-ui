@@ -58,9 +58,7 @@ export function CollateralStats({
                     : ZEROWEI
                 }
                 newValue={newCollateralAmount.mul(liquidityPosition?.collateralPrice ?? ZEROWEI)}
-                formatFn={(val?: Wei) =>
-                  currency(val ?? ZEROWEI, { currency: 'USD', style: 'currency' })
-                }
+                formatFn={(val?: Wei) => currency(val ?? ZEROWEI)}
                 size="md"
                 hasChanges={hasChanges}
                 data-cy="stats collateral value"

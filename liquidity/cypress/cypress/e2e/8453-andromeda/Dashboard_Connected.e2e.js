@@ -27,16 +27,13 @@ describe(__filename, () => {
   it(__filename, () => {
     cy.setEthBalance({ balance: 100 });
 
-    cy.visit('?');
+    cy.visit('/');
 
     cy.get('[data-cy="short wallet address"]').contains(
       `${Cypress.env('walletAddress').substring(0, 6)}...${Cypress.env('walletAddress').substring(
         Cypress.env('walletAddress').length - 4
       )}`
     );
-
-    cy.get('[data-cy="stats box"][data-title="Total Locked"]').contains('$0.00');
-    cy.get('[data-cy="stats box"][data-title="Total PNL"]').contains('$0.00');
 
     cy.contains('h2', 'Positions').should('exist');
     cy.get('[data-cy="all pools button"]').should('exist');

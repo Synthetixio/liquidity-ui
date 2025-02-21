@@ -14,11 +14,9 @@ describe(__filename, () => {
   });
 
   it(__filename, () => {
-    cy.visit('?');
+    cy.visit('/');
 
     cy.contains('[data-cy="connect wallet button"]', 'Connect Wallet').should('exist');
-    cy.get('[data-cy="stats box"][data-title="Total Locked"]').contains('$0.00');
-    cy.get('[data-cy="stats box"][data-title="Total PNL"]').contains('$0.00');
 
     cy.contains('h2', 'Positions').should('exist');
     cy.contains('p', 'Please connect wallet to view active positions').should('exist');

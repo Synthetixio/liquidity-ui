@@ -47,7 +47,7 @@ describe(__filename, () => {
     cy.get('[data-cy="stats debt"] [data-cy="change stats new"]').should('not.exist');
     cy.get('[data-cy="stats debt"] [data-cy="change stats current"]')
       .should('exist')
-      .and('include.text', '$4.092');
+      .and('include.text', '$4.09');
 
     cy.get('[data-cy="repay amount input"]').type('2');
 
@@ -74,7 +74,7 @@ describe(__filename, () => {
 
     cy.get('[data-cy="stats debt"] [data-cy="change stats current"]', { timeout: 180_000 }).and(
       'include.text',
-      '$2.092'
+      '$2.09'
     );
 
     cy.get('[data-cy="repay submit"]').should('be.disabled');

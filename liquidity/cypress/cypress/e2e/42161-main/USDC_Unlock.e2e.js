@@ -51,7 +51,7 @@ describe(__filename, () => {
     cy.get('[data-cy="undelegate dialog"]')
       .should('exist')
       .and('include.text', 'Unlocking Collateral')
-      .and('include.text', 'Unlocking 0.5 USDC');
+      .and('include.text', 'Unlocking 0.50 USDC');
 
     cy.contains('[data-status="success"]', 'Your collateral has been updated', {
       timeout: 180_000,
@@ -60,7 +60,7 @@ describe(__filename, () => {
 
     cy.get('[data-cy="undelegate dialog"]')
       .should('exist')
-      .and('include.text', 'Unlocked 0.5 USDC');
+      .and('include.text', 'Unlocked 0.50 USDC');
 
     cy.contains('[data-cy="undelegate dialog"] button', 'Done').click();
 

@@ -43,7 +43,7 @@ describe(__filename, () => {
     cy.get('[data-cy="claim rewards info"]')
       .should('exist')
       .and('include.text', 'Claiming 2.37 USDC')
-      .and('include.text', 'Claiming 1.9 SNX');
+      .and('include.text', 'Claiming 1.90 SNX');
 
     cy.contains('[data-status="success"]', 'Your rewards have been claimed', {
       timeout: 180_000,
@@ -52,7 +52,7 @@ describe(__filename, () => {
 
     cy.get('[data-cy="claim rewards info"]')
       .should('include.text', 'Claimed 2.37 USDC')
-      .and('include.text', 'Claimed 1.9 SNX');
+      .and('include.text', 'Claimed 1.90 SNX');
 
     cy.contains('[data-cy="claim rewards dialog"] button', 'Done').click();
     cy.get('[data-cy="rewards table"]', { timeout: 180_000 }).should(
