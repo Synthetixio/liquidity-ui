@@ -283,19 +283,22 @@ contract PositionManagerAndromedaStataUSDC {
 
         // 9. Withdraw everything from AAVE
         uint256 usdcAmount = IStaticAaveToken($stataUSDC).maxWithdraw(address(this));
-        IStaticAaveToken($stataUSDC).withdraw(
-            //
-            usdcAmount,
-            address(this),
-            address(this)
-        );
 
-        // 10. Send all the USDC to the wallet
-        IERC20($USDC).transfer(
-            //
-            msgSender,
-            usdcAmount
-        );
+        if (usdcAmount > 0) {
+            IStaticAaveToken($stataUSDC).withdraw(
+                //
+                usdcAmount,
+                address(this),
+                address(this)
+            );
+
+            // 10. Send all the USDC to the wallet
+            IERC20($USDC).transfer(
+                //
+                msgSender,
+                usdcAmount
+            );
+        }
 
         // 11. Transfer Account NFT back to the owner
         IERC721(AccountProxy).safeTransferFrom(
