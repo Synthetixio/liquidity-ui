@@ -270,16 +270,16 @@ contract PositionManagerAndromedaStataUSDC {
                 $synthStataUSDC,
                 statausdcSynthAvailable
             );
-        }
 
-        // 8. Unwrap synth stataUSDC back to stataUSDC token
-        uint256 stataAmount = statausdcSynthAvailable * (10 ** IERC20($stataUSDC).decimals()) / (10 ** 18);
-        IWrapperModule(SpotMarketProxy).unwrap(
-            //
-            synthIdStataUSDC,
-            statausdcSynthAvailable,
-            stataAmount
-        );
+            // 8. Unwrap synth stataUSDC back to stataUSDC token
+            uint256 stataAmount = statausdcSynthAvailable * (10 ** IERC20($stataUSDC).decimals()) / (10 ** 18);
+            IWrapperModule(SpotMarketProxy).unwrap(
+                //
+                synthIdStataUSDC,
+                statausdcSynthAvailable,
+                stataAmount
+            );
+        }
 
         // 9. Withdraw everything from AAVE
         uint256 usdcAmount = IStaticAaveToken($stataUSDC).maxWithdraw(address(this));
