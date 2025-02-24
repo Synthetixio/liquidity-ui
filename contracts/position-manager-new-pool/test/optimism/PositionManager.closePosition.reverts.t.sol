@@ -7,13 +7,12 @@ import "src/PositionManager.sol";
 contract Optimism_PositionManager_closePosition_reverts_Test is PositionManagerTest {
     constructor() {
         deployment = "10-main";
-        //        forkUrl = vm.envString("RPC_OPTIMISM_MAINNET");
-        forkUrl = "http://127.0.0.1:8545";
-        forkBlockNumber = 132172461;
+        forkUrl = vm.envString("RPC_OPTIMISM_MAINNET");
+        forkBlockNumber = 132386388;
         initialize();
     }
 
-    function test_closePosition_MidDelegationTime() public {
+    function test_closePosition_MinDelegationTime() public {
         address ALICE = vm.addr(0xA11CE);
         vm.label(ALICE, "0xA11CE");
         vm.deal(ALICE, 1 ether);

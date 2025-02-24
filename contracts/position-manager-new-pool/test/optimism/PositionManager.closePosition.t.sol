@@ -6,11 +6,19 @@ contract Optimism_PositionManager_closePosition_Test is PositionManagerTest {
     constructor() {
         deployment = "10-main";
         forkUrl = vm.envString("RPC_OPTIMISM_MAINNET");
-        forkBlockNumber = 132172461;
+        forkBlockNumber = 132386388;
         initialize();
     }
 
     function test_closePosition() public {
+        // Ensure we have someone migrated to have sUSD available
+        address V2X_STAKER = 0x09CF50574504d9dcf127E848A6058e8e0Bb814Aa;
+        vm.label(V2X_STAKER, "0xV2X_STAKER");
+        vm.startPrank(V2X_STAKER);
+        uint128 v2x_stakerAccountId = 888;
+        LegacyMarketProxy.migrate(v2x_stakerAccountId);
+        TreasuryMarketProxy.saddle(v2x_stakerAccountId);
+
         address ALICE = vm.addr(0xA11CE);
         vm.label(ALICE, "0xA11CE");
         vm.deal(ALICE, 1 ether);

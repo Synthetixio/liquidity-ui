@@ -7,12 +7,12 @@ contract Optimism_PositionManager_migratePosition_v2x_Test is PositionManagerTes
     constructor() {
         deployment = "10-main";
         forkUrl = vm.envString("RPC_OPTIMISM_MAINNET");
-        forkBlockNumber = 132172461;
+        forkBlockNumber = 132386388;
         initialize();
     }
 
     function test_migratePosition_v2x() public {
-        address ALICE = 0xa5758de121079D2FA868C64b02Ef35C909635f16;
+        address ALICE = 0x09CF50574504d9dcf127E848A6058e8e0Bb814Aa;
         vm.label(ALICE, "0xA11CE");
 
         uint256 snxPrice = CoreProxy.getCollateralPrice(address($SNX));
