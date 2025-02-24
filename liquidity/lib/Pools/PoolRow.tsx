@@ -249,11 +249,13 @@ export function PoolRow({
                   <Flex direction="column">
                     <Flex justifyContent="space-between">
                       <Text mr={2}>Performance:</Text>
-                      <Text>{(positionApr.apr28dPnl * 100).toFixed(2).concat('%')}</Text>
+                      <Text>{(positionApr.apr28dPerformance * 100).toFixed(2).concat('%')}</Text>
                     </Flex>
                     <Flex justifyContent="space-between">
                       <Text mr={2}>Rewards: </Text>
-                      <Text>{(positionApr.apr28dRewards * 100).toFixed(2).concat('%')}</Text>
+                      <Text>
+                        {(positionApr.apr28dIncentiveRewards * 100).toFixed(2).concat('%')}
+                      </Text>
                     </Flex>
                     {isAndromedaStataUSDC && stataUSDCApr ? (
                       <Flex justifyContent="space-between">

@@ -8,6 +8,8 @@ export type PositionAPR = {
   apr28d: number;
   apr28dPnl: number;
   apr28dRewards: number;
+  apr28dPerformance: number;
+  apr28dIncentiveRewards: number;
 };
 
 const supportedAprNetworks = [BASE_ANDROMEDA.id, ARBITRUM.id, MAINNET.id];
