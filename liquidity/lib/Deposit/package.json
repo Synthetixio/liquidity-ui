@@ -9,7 +9,6 @@
     "@snx-v3/BorderBox": "workspace:*",
     "@snx-v3/CRatioBar": "workspace:*",
     "@snx-v3/ChangeStat": "workspace:*",
-    "@snx-v3/CollateralAlert": "workspace:*",
     "@snx-v3/ManagePositionContext": "workspace:*",
     "@snx-v3/NumberInput": "workspace:*",
     "@snx-v3/TokenIcon": "workspace:*",

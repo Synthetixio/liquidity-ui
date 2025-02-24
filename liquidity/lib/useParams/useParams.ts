@@ -2,18 +2,12 @@ import React from 'react';
 import { createSearchParams, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 
-export const HomePageSchema = z
-  .object({
-    page: z.literal('home').optional(),
-    accountId: z.string().optional(),
-    convert: z.literal('snxusd').optional(),
-    migrate: z.literal('snx').optional(),
-    sort: z.string().optional(),
-    dir: z.string().optional(),
-  })
-  .refine((data) => !data.convert || !data.migrate, {
-    message: "Cannot have both 'convert' and 'migrate' properties",
-  });
+export const HomePageSchema = z.object({
+  page: z.literal('home').optional(),
+  accountId: z.string().optional(),
+  sort: z.string().optional(),
+  dir: z.string().optional(),
+});
 export type HomePageSchemaType = z.infer<typeof HomePageSchema>;
 
 export const SettingsPageSchema = z.object({

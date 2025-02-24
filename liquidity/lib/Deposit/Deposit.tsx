@@ -11,7 +11,6 @@ import {
 import { Amount } from '@snx-v3/Amount';
 import { BorderBox } from '@snx-v3/BorderBox';
 import { ChangeStat } from '@snx-v3/ChangeStat';
-import { CollateralAlert } from '@snx-v3/CollateralAlert';
 import { ZEROWEI } from '@snx-v3/constants';
 import { CRatioChangeStat } from '@snx-v3/CRatioBar';
 import { currency } from '@snx-v3/format';
@@ -210,13 +209,6 @@ export function Deposit() {
           </Flex>
         </Flex>
       </BorderBox>
-
-      {collateralType?.symbol === 'SNX' &&
-      transferrableSnx &&
-      transferrableSnx.collateral &&
-      transferrableSnx.collateral.gt(0) ? (
-        <CollateralAlert mb="6" tokenBalance={transferrableSnx.collateral} />
-      ) : null}
 
       <Collapse in={collateralChange.gt(0) && !overAvailableBalance} animateOpacity unmountOnExit>
         <DepositsIncreaseTimeout />
