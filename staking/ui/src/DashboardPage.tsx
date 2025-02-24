@@ -1,8 +1,10 @@
 import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import {
   NewPoolMigration,
+  NewPoolMigrationV2x,
   NewPoolPosition,
   usePositionCollateral as useNewPoolPositionCollateral,
+  useV2xPosition,
 } from '@snx-v3/NewPool';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
@@ -18,6 +20,7 @@ export function DashboardPage() {
     collateralType,
   });
   const { data: newPoolPositionCollateral } = useNewPoolPositionCollateral();
+  const { data: v2xPosition } = useV2xPosition();
 
   return (
     <>
@@ -43,15 +46,21 @@ export function DashboardPage() {
           </Flex>
         </Flex>
 
-        {newPoolPositionCollateral && newPoolPositionCollateral.gt(0) ? (
+        {v2xPosition && v2xPosition.debt.gt(0) ? (
           <Box mt={12}>
-            <NewPoolPosition />
+            <NewPoolMigrationV2x />
           </Box>
         ) : null}
 
         {liquidityPosition && liquidityPosition.debt.gt(0) ? (
           <Box mt={12}>
             <NewPoolMigration />
+          </Box>
+        ) : null}
+
+        {newPoolPositionCollateral && newPoolPositionCollateral.gt(0) ? (
+          <Box mt={12}>
+            <NewPoolPosition />
           </Box>
         ) : null}
       </Flex>

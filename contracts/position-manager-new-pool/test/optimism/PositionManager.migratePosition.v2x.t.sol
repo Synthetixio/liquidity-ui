@@ -12,7 +12,7 @@ contract Optimism_PositionManager_migratePosition_v2x_Test is PositionManagerTes
     }
 
     function test_migratePosition_v2x() public {
-        address ALICE = 0x09CF50574504d9dcf127E848A6058e8e0Bb814Aa;
+        address ALICE = 0xa5f7a39E55D7878bC5bd754eE5d6BD7a7662355b;
         vm.label(ALICE, "0xA11CE");
 
         uint256 snxPrice = CoreProxy.getCollateralPrice(address($SNX));

@@ -12,7 +12,7 @@ contract Optimism_PositionManager_closePosition_Test is PositionManagerTest {
 
     function test_closePosition() public {
         // Ensure we have someone migrated to have sUSD available
-        address V2X_STAKER = 0x09CF50574504d9dcf127E848A6058e8e0Bb814Aa;
+        address V2X_STAKER = 0xa5f7a39E55D7878bC5bd754eE5d6BD7a7662355b;
         vm.label(V2X_STAKER, "0xV2X_STAKER");
         vm.startPrank(V2X_STAKER);
         uint128 v2x_stakerAccountId = 888;
