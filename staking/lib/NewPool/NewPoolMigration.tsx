@@ -1,5 +1,19 @@
 import { ArrowUpIcon } from '@chakra-ui/icons';
-import { Box, Button, Flex, Heading, Image, Link, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  CloseButton,
+  Divider,
+  Flex,
+  Heading,
+  Image,
+  Link,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalOverlay,
+  Text,
+} from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
 import { CRatioAmount } from '@snx-v3/CRatioBar';
 import { getStatsUrl } from '@snx-v3/getStatsUrl';
@@ -11,10 +25,13 @@ import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
 import { usePythPrice } from '@snx-v3/usePythPrice';
 import { useVaultsData } from '@snx-v3/useVaultsData';
 import { wei } from '@synthetixio/wei';
+import { ethers } from 'ethers';
 import numbro from 'numbro';
 import React from 'react';
 import CoinImage from './coin.webp';
-import { MigrationDialog } from './MigrationDialog';
+import { Step0Intro } from './Step0Intro';
+import { Step2Summary } from './Step2Summary';
+import { Step3Success } from './Step3Success';
 import { useMigrateNewPool } from './useMigrateNewPool';
 
 function InfoBox({ ...props }) {
@@ -57,10 +74,56 @@ export function NewPoolMigration() {
     collateralType,
   });
 
+  const [step, setStep] = React.useState(0);
+  React.useEffect(() => {
+    if (!isOpenMigrate) {
+      setStep(0);
+    }
+  }, [isOpenMigrate]);
+  const [receipt, setReceipt] = React.useState<ethers.providers.TransactionReceipt>();
+
   return (
     <>
-      <MigrationDialog onClose={() => setIsOpenMigrate(false)} isOpen={isOpenMigrate} />
-
+      <Modal
+        size="lg"
+        isOpen={isOpenMigrate}
+        onClose={() => setIsOpenMigrate(false)}
+        closeOnOverlayClick={false}
+      >
+        <ModalOverlay />
+        <ModalContent
+          mt="100px"
+          borderWidth="1px"
+          borderColor="gray.900"
+          bg="navy.900"
+          color="white"
+        >
+          <Flex justifyContent="space-between" p={6} alignItems="center">
+            <Heading fontSize="20px">Migrate to Delegated Staking</Heading>
+            <CloseButton onClick={() => setIsOpenMigrate(false)} color="gray" />
+          </Flex>
+          <Flex width="100%" px={6}>
+            <Divider borderColor="gray.900" mb={6} colorScheme="gray" />
+          </Flex>
+          <ModalBody pt={0} pb={6}>
+            {step === 0 ? (
+              <Step0Intro onConfirm={() => setStep(2)} onClose={() => setIsOpenMigrate(false)} />
+            ) : null}
+            {step === 2 ? (
+              <Step2Summary
+                onConfirm={(receipt: ethers.providers.TransactionReceipt) => {
+                  setReceipt(receipt);
+                  setStep(3);
+                }}
+                onClose={() => setIsOpenMigrate(false)}
+              />
+            ) : null}
+            {step === 3 ? (
+              <Step3Success receipt={receipt} onConfirm={() => setIsOpenMigrate(false)} />
+            ) : null}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
       <Flex
         direction="column"
         borderColor="gray.900"
