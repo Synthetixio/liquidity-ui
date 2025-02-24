@@ -83,8 +83,9 @@ contract PositionManager_migratePosition_Test is PositionManagerTest {
             TreasuryMarketProxy.loanedAmount(accountId),
             "Loan amount for $SNX position should be 200 as previously borrowed amount"
         );
+        uint256 targetCratio = TreasuryMarketProxy.targetCratio();
         assertApproxEqAbs(
-            1000 * snxPrice / 2,
+            1000 * snxPrice * 1 ether / targetCratio,
             uint256(CoreProxy.getPositionDebt(accountId, TreasuryMarketProxy.poolId(), address($SNX))),
             0.1 ether,
             "Virtual debt for $SNX position should be at C-Ratio 200%"

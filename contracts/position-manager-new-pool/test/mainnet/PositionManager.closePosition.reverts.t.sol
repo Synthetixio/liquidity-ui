@@ -12,7 +12,7 @@ contract PositionManager_closePosition_reverts_Test is PositionManagerTest {
         initialize();
     }
 
-    function test_closePosition_MidDelegationTime() public {
+    function test_closePosition_MinDelegationTime() public {
         address ALICE = vm.addr(0xA11CE);
         vm.label(ALICE, "0xA11CE");
         vm.deal(ALICE, 1 ether);

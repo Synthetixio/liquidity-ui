@@ -47,8 +47,10 @@ contract PositionManager_migratePosition_negativeDebt_Test is PositionManagerTes
         assertEq(ALICE, AccountProxy.ownerOf(accountId));
 
         assertEq(0, TreasuryMarketProxy.loanedAmount(accountId), "Loan amount for $SNX position should be 0");
+
+        uint256 targetCratio = TreasuryMarketProxy.targetCratio();
         assertApproxEqAbs(
-            (positionCollateral / 1e18) * snxPrice / 2,
+            (positionCollateral / 1e18) * snxPrice * 1 ether / targetCratio,
             uint256(CoreProxy.getPositionDebt(accountId, TreasuryMarketProxy.poolId(), address($SNX))),
             1 ether,
             "Virtual debt for $SNX position should be at C-Ratio 200%"

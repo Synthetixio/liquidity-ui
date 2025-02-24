@@ -46,7 +46,8 @@ contract PositionManager_migratePosition_v2x_Test is PositionManagerTest {
             "Loan amount for SNX position should be equal to v2x debt"
         );
 
-        uint256 positionDebt = collateralValue / 2; // at c-ratio 200%
+        uint256 targetCratio = TreasuryMarketProxy.targetCratio();
+        uint256 positionDebt = collateralValue * 1 ether / targetCratio;
         assertApproxEqAbs(
             positionDebt,
             uint256(CoreProxy.getPositionDebt(accountId, TreasuryMarketProxy.poolId(), address($SNX))),
