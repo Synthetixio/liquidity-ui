@@ -5059,48 +5059,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/NewPool@workspace:*, @snx-v3/NewPool@workspace:staking/lib/NewPool":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/NewPool@workspace:staking/lib/NewPool"
-  dependencies:
-    "@chakra-ui/icons": "npm:^2.1.1"
-    "@chakra-ui/react": "npm:^2.8.2"
-    "@snx-v3/Amount": "workspace:*"
-    "@snx-v3/CRatioBar": "workspace:*"
-    "@snx-v3/ContractError": "workspace:*"
-    "@snx-v3/TransactionSummary": "workspace:*"
-    "@snx-v3/constants": "workspace:*"
-    "@snx-v3/etherscanLink": "workspace:*"
-    "@snx-v3/getStatsUrl": "workspace:*"
-    "@snx-v3/icons": "workspace:*"
-    "@snx-v3/tsHelpers": "workspace:*"
-    "@snx-v3/useAccountProxy": "workspace:*"
-    "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useCollateralTypes": "workspace:*"
-    "@snx-v3/useContractErrorParser": "workspace:*"
-    "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useLegacyMarket": "workspace:*"
-    "@snx-v3/useLiquidityPosition": "workspace:*"
-    "@snx-v3/useParams": "workspace:*"
-    "@snx-v3/usePositionManagerNewPool": "workspace:*"
-    "@snx-v3/usePythPrice": "workspace:*"
-    "@snx-v3/useSNX": "workspace:*"
-    "@snx-v3/useTreasuryMarketProxy": "workspace:*"
-    "@snx-v3/useTrustedMulticallForwarder": "workspace:*"
-    "@snx-v3/useV2xSynthetix": "workspace:*"
-    "@snx-v3/useVaultsData": "workspace:*"
-    "@synthetixio/wei": "npm:^2.74.4"
-    "@tanstack/react-query": "npm:^5.8.3"
-    "@web3-onboard/injected-wallets": "npm:^2.11.2"
-    "@web3-onboard/react": "npm:^2.10.0"
-    date-fns: "npm:^2.30.0"
-    debug: "npm:^4.3.7"
-    ethers: "npm:^5.7.2"
-    numbro: "npm:^2.5.0"
-    react: "npm:^18.2.0"
-  languageName: unknown
-  linkType: soft
-
 "@snx-v3/NumberInput@workspace:*, @snx-v3/NumberInput@workspace:liquidity/lib/NumberInput":
   version: 0.0.0-use.local
   resolution: "@snx-v3/NumberInput@workspace:liquidity/lib/NumberInput"
@@ -5792,22 +5750,40 @@ __metadata:
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.11"
     "@safe-global/safe-apps-provider": "npm:^0.18.3"
     "@safe-global/safe-apps-sdk": "npm:^8.0.0"
-    "@snx-v3/NewPool": "workspace:*"
+    "@snx-v3/Amount": "workspace:*"
+    "@snx-v3/CRatioBar": "workspace:*"
+    "@snx-v3/ContractError": "workspace:*"
     "@snx-v3/TermsModal": "workspace:*"
     "@snx-v3/Tooltip": "workspace:*"
+    "@snx-v3/TransactionSummary": "workspace:*"
     "@snx-v3/constants": "workspace:*"
+    "@snx-v3/etherscanLink": "workspace:*"
     "@snx-v3/format": "workspace:*"
+    "@snx-v3/getStatsUrl": "workspace:*"
     "@snx-v3/icons": "workspace:*"
     "@snx-v3/theme": "workspace:*"
+    "@snx-v3/tsHelpers": "workspace:*"
+    "@snx-v3/useAccountProxy": "workspace:*"
     "@snx-v3/useAccounts": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCollateralTypes": "workspace:*"
+    "@snx-v3/useContractErrorParser": "workspace:*"
+    "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useCreateAccount": "workspace:*"
+    "@snx-v3/useLegacyMarket": "workspace:*"
     "@snx-v3/useLiquidityPosition": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
+    "@snx-v3/usePositionManagerNewPool": "workspace:*"
+    "@snx-v3/usePythPrice": "workspace:*"
+    "@snx-v3/useSNX": "workspace:*"
+    "@snx-v3/useTreasuryMarketProxy": "workspace:*"
+    "@snx-v3/useTrustedMulticallForwarder": "workspace:*"
+    "@snx-v3/useV2xSynthetix": "workspace:*"
+    "@snx-v3/useVaultsData": "workspace:*"
     "@synthetixio/devtools-formatters": "workspace:*"
     "@synthetixio/magic-wallet": "workspace:*"
     "@synthetixio/safe-import": "workspace:*"
+    "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
     "@tanstack/react-query-devtools": "npm:^5.8.3"
     "@web3-onboard/coinbase": "npm:^2.4.1"
@@ -5825,10 +5801,13 @@ __metadata:
     core-js: "npm:^3.33.2"
     crypto-browserify: "npm:^3.12.0"
     css-loader: "npm:^6.8.1"
+    date-fns: "npm:^2.30.0"
+    debug: "npm:^4.4.0"
     dotenv: "npm:^16.4.3"
     ethers: "npm:^5.7.2"
     framer-motion: "npm:^10.16.5"
     html-webpack-plugin: "npm:^5.5.3"
+    numbro: "npm:^2.5.0"
     process: "npm:^0.11.10"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
@@ -11765,7 +11744,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:4.4.0, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4, debug@npm:^4.3.7":
+"debug@npm:4, debug@npm:4.4.0, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4, debug@npm:^4.3.7, debug@npm:^4.4.0":
   version: 4.4.0
   resolution: "debug@npm:4.4.0"
   dependencies:
