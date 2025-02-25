@@ -12,7 +12,7 @@ describe.skip(__filename, () => {
       forkUrl:
         Cypress.env('RPC_BASE_MAINNET') ??
         `https://base-mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '26828244', // positive debt
+      block: '26833143', // positive debt
     }).then(() => cy.log('Anvil started'));
     cy.pythBypass();
 
