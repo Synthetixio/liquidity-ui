@@ -475,11 +475,13 @@ contract PositionManagerAndromedaStataUSDC {
         if (wrappedAmount > synthAmount) {
             address msgSender = ERC2771Context._msgSender();
             uint256 dustAmount = wrappedAmount - synthAmount;
-            IERC20($synthUSDC).transfer(
-                //
-                msgSender,
-                dustAmount
-            );
+            if (dustAmount > 0) {
+                IERC20($synthUSDC).transfer(
+                    //
+                    msgSender,
+                    dustAmount
+                );
+            }
         }
     }
 

@@ -227,19 +227,21 @@ contract PositionManagerAndromedaUSDC {
         }
         // 8. Unwrap ALL synthUSDC back to USDC token
         uint256 usdcAmount = (usdcSynthAvailable + usdcSynthBought) * (10 ** IERC20($USDC).decimals()) / (10 ** 18);
-        IWrapperModule(SpotMarketProxy).unwrap(
-            //
-            synthIdUSDC,
-            usdcSynthAvailable + usdcSynthBought,
-            usdcAmount
-        );
+        if (usdcAmount > 0) {
+            IWrapperModule(SpotMarketProxy).unwrap(
+                //
+                synthIdUSDC,
+                usdcSynthAvailable + usdcSynthBought,
+                usdcAmount
+            );
 
-        // 9. Send all the USDC to the wallet
-        IERC20($USDC).transfer(
-            //
-            msgSender,
-            usdcAmount
-        );
+            // 9. Send all the USDC to the wallet
+            IERC20($USDC).transfer(
+                //
+                msgSender,
+                usdcAmount
+            );
+        }
 
         // 10. Transfer Account NFT back to the owner
         IERC721(AccountProxy).transferFrom(
@@ -416,11 +418,13 @@ contract PositionManagerAndromedaUSDC {
         if (wrappedAmount > synthAmount) {
             address msgSender = ERC2771Context._msgSender();
             uint256 dustAmount = wrappedAmount - synthAmount;
-            IERC20($synthUSDC).transfer(
-                //
-                msgSender,
-                dustAmount
-            );
+            if (dustAmount > 0) {
+                IERC20($synthUSDC).transfer(
+                    //
+                    msgSender,
+                    dustAmount
+                );
+            }
         }
     }
 
