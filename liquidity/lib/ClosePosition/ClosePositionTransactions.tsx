@@ -81,9 +81,11 @@ export function ClosePositionTransactions({
   } = useApprove({
     contractAddress: collateralAddress,
     amount:
-      liquidityPosition && liquidityPosition.debt.abs().sub(availableUSDCollateral).gt(0)
+      liquidityPosition &&
+      liquidityPosition.debt.gt(0) &&
+      liquidityPosition.debt.abs().sub(availableUSDCollateral).gt(0)
         ? liquidityPosition.debt.abs().sub(availableUSDCollateral).toBN()
-        : undefined,
+        : ethers.BigNumber.from(0),
     spender: CoreProxy?.address,
   });
   const { exec: execRepay } = useRepay({ repayAmount: liquidityPosition?.debt });
@@ -177,7 +179,7 @@ export function ClosePositionTransactions({
         cb: () => undelegate(),
       });
     } else {
-      if (liquidityPosition?.debt.gt(-0.00001) && requireApprovalUSDC) {
+      if (liquidityPosition?.debt.gt(0) && requireApprovalUSDC) {
         transactions.push({
           title: `Approve ${
             network?.preset === 'andromeda' ? collateralType?.symbol : systemToken?.symbol
@@ -321,7 +323,9 @@ export function ClosePositionTransactions({
 
       <Button
         data-cy="close position confirm button"
-        isDisabled={!isReadyApprove || !isReadyApproveUSDC}
+        isDisabled={
+          (requireApproval && !isReadyApprove) || (requireApprovalUSDC && !isReadyApproveUSDC)
+        }
         isLoading={txState.status === 'pending'}
         onClick={handleSubmit}
         mt="6"
