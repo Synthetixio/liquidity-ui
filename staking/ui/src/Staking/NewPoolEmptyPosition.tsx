@@ -115,7 +115,7 @@ export function NewPoolEmptyPosition() {
           <Button
             as={Link}
             isExternal
-            href="https://staking.synthetix.io"
+            href="https://liquidity.synthetix.io/?collateralSymbol=SNX&manageAction=deposit&page=position"
             variant="outline"
             mt={3}
             display="flex"
@@ -123,19 +123,6 @@ export function NewPoolEmptyPosition() {
             gap={1}
           >
             <Text>Stake on Mainnet</Text>
-            <ArrowUpIcon transform="rotate(45deg)" />
-          </Button>
-
-          <Button
-            as={Link}
-            isExternal
-            href="https://staking.synthetix.io"
-            variant="outline"
-            display="flex"
-            alignItems="center"
-            gap={1}
-          >
-            <Text>Stake on Optimism</Text>
             <ArrowUpIcon transform="rotate(45deg)" />
           </Button>
           {/*
