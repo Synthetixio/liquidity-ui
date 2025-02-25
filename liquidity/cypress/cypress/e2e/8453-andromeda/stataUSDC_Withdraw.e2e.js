@@ -11,7 +11,7 @@ describe(__filename, () => {
       forkUrl:
         Cypress.env('RPC_BASE_MAINNET') ??
         `https://base-mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '26827400',
+      block: '26828244',
     }).then(() => cy.log('Anvil started'));
     cy.pythBypass();
 
@@ -49,7 +49,7 @@ describe(__filename, () => {
 
     cy.get('[data-cy="stats collateral"] [data-cy="change stats current"]')
       .should('exist')
-      .and('include.text', '370.54 Static aUSDC');
+      .and('include.text', '370.26 Static aUSDC');
 
     cy.get('[data-cy="stats collateral"] [data-cy="change stats new"]').should('not.exist');
 
@@ -82,7 +82,7 @@ describe(__filename, () => {
 
     cy.get('[data-cy="stats collateral"] [data-cy="change stats current"]').and(
       'include.text',
-      '370.54 Static aUSDC'
+      '370.26 Static aUSDC'
     );
     cy.get('[data-cy="withdraw submit"]').should('be.disabled');
   });

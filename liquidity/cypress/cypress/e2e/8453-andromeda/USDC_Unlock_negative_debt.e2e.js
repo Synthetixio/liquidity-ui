@@ -29,11 +29,7 @@ describe(__filename, () => {
   it(__filename, () => {
     cy.setEthBalance({ balance: 100 });
     cy.getUSDC({ amount: 1000 });
-    cy.approveCollateral({ symbol: 'USDC', spender: 'SpotMarketProxy' });
-    cy.wrapCollateral({ symbol: 'USDC', amount: 500 });
-    cy.approveCollateral({ symbol: 'sUSDC', spender: 'CoreProxy' });
-    cy.depositCollateral({ symbol: 'sUSDC', amount: 150 });
-    cy.delegateCollateral({ symbol: 'sUSDC', amount: 150, poolId: 1 });
+    cy.pmIncreasePosition({ symbol: 'USDC', amount: 150 });
 
     cy.visit(
       `?${makeSearch({

@@ -12,7 +12,7 @@ describe(__filename, () => {
       forkUrl:
         Cypress.env('RPC_BASE_MAINNET') ??
         `https://base-mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '26827400',
+      block: '26828244',
     }).then(() => cy.log('Anvil started'));
     cy.pythBypass();
 
@@ -29,6 +29,9 @@ describe(__filename, () => {
   it(__filename, () => {
     cy.setEthBalance({ balance: 100 });
     cy.getUSDC({ amount: 1000 });
+    cy.getSystemToken({ amount: 1000 });
+    cy.setWithdrawTimeout({ timeout: '0' });
+    cy.pmIncreasePosition({ symbol: 'USDC', amount: 500 });
 
     cy.visit(
       `?${makeSearch({
@@ -48,7 +51,7 @@ describe(__filename, () => {
 
     cy.get('[data-cy="close position multistep"]')
       .should('exist')
-      .and('include.text', 'Repay Debt')
+      .and('include.text', 'Claim Profit')
       .and('include.text', 'Unlock Collateral');
 
     cy.get('[data-cy="close position submit"]').should('exist').click();

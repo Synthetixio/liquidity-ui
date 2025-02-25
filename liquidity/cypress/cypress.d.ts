@@ -117,6 +117,18 @@ declare global {
         amount: number;
       }) => Promise<void>;
 
+      pmIncreasePosition: ({
+        address,
+        accountId,
+        symbol,
+        amount,
+      }: {
+        address?: string;
+        accountId?: string;
+        symbol: 'USDC' | 'stataUSDC';
+        amount: number;
+      }) => Promise<void>;
+
       pmDecreasePosition: ({
         address,
         accountId,

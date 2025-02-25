@@ -12,7 +12,7 @@ describe(__filename, () => {
       forkUrl:
         Cypress.env('RPC_BASE_MAINNET') ??
         `https://base-mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '26827400',
+      block: '26828244',
     }).then(() => cy.log('Anvil started'));
     cy.pythBypass();
 
@@ -29,6 +29,7 @@ describe(__filename, () => {
   it(__filename, () => {
     cy.setEthBalance({ balance: 100 });
     cy.getUSDC({ amount: 1000 });
+    cy.pmIncreasePosition({ symbol: 'stataUSDC', amount: 500 });
 
     cy.visit(
       `?${makeSearch({
@@ -45,14 +46,14 @@ describe(__filename, () => {
       .and('include.text', 'Max');
 
     cy.get('[data-cy="undelegate amount input"]').should('exist');
-    cy.get('[data-cy="undelegate amount input"]').type('1');
+    cy.get('[data-cy="undelegate amount input"]').type('100');
     cy.get('[data-cy="undelegate submit"]').should('be.enabled');
     cy.get('[data-cy="undelegate submit"]').click();
 
     cy.get('[data-cy="undelegate dialog"]')
       .should('exist')
       .and('include.text', 'Unlocking Collateral')
-      .and('include.text', 'Unlocking 1 Static aUSDC');
+      .and('include.text', 'Unlocking 100 Static aUSDC');
 
     cy.contains('[data-status="success"]', 'Your collateral has been updated', {
       timeout: 180_000,
@@ -61,7 +62,7 @@ describe(__filename, () => {
 
     cy.get('[data-cy="undelegate dialog"]')
       .should('exist')
-      .and('include.text', 'Unlocked 1 Static aUSDC');
+      .and('include.text', 'Unlocked 100 Static aUSDC');
 
     cy.contains('[data-cy="undelegate dialog"] button', 'Done').click();
 

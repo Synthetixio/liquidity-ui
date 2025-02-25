@@ -17,6 +17,7 @@ import { getSUSD } from './commands/getSUSD';
 import { getSystemToken } from './commands/getSystemToken';
 import { pythBypass } from './commands/pythBypass';
 import { pmSetupPosition } from './commands/pmSetupPosition';
+import { pmIncreasePosition } from './commands/pmIncreasePosition';
 import { pmDecreasePosition } from './commands/pmDecreasePosition';
 
 installLogsCollector({
@@ -52,6 +53,7 @@ addTxnCommand('wrapEth', wrapEth, { timeout: 60_000 });
 addTxnCommand('pythBypass', pythBypass);
 
 addTxnCommand('pmSetupPosition', pmSetupPosition);
+addTxnCommand('pmIncreasePosition', pmIncreasePosition);
 addTxnCommand('pmDecreasePosition', pmDecreasePosition, { timeout: 180_000 });
 
 function subgraph(req) {

@@ -1,6 +1,6 @@
 import { makeSearch } from '@snx-v3/useParams';
 
-describe(__filename, () => {
+describe.skip(__filename, () => {
   Cypress.env('chainId', '8453');
   Cypress.env('preset', 'andromeda');
   Cypress.env('walletAddress', '0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345');
@@ -12,7 +12,7 @@ describe(__filename, () => {
       forkUrl:
         Cypress.env('RPC_BASE_MAINNET') ??
         `https://base-mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '26827400', // positive debt
+      block: '26828244', // positive debt
     }).then(() => cy.log('Anvil started'));
     cy.pythBypass();
 

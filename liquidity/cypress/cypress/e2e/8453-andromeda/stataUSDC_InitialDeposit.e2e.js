@@ -11,7 +11,7 @@ describe(__filename, () => {
       forkUrl:
         Cypress.env('RPC_BASE_MAINNET') ??
         `https://base-mainnet.infura.io/v3/${Cypress.env('INFURA_KEY')}`,
-      block: '26827400',
+      block: '26828244',
     }).then(() => cy.log('Anvil started'));
     cy.pythBypass();
 
@@ -52,7 +52,7 @@ describe(__filename, () => {
 
     cy.get('[data-cy="stats collateral"] [data-cy="change stats new"]')
       .should('exist')
-      .and('include.text', '463.17 Static aUSDC');
+      .and('include.text', '462.83 Static aUSDC');
 
     cy.get('[data-cy="deposit submit"]').should('be.enabled');
     cy.get('[data-cy="deposit submit"]').click();
@@ -77,7 +77,7 @@ describe(__filename, () => {
 
     cy.get('[data-cy="stats collateral"] [data-cy="change stats current"]', {
       timeout: 60_000,
-    }).and('include.text', '463.17 Static aUSDC');
+    }).and('include.text', '462.83 Static aUSDC');
     cy.get('[data-cy="deposit submit"]').should('be.disabled');
   });
 });
