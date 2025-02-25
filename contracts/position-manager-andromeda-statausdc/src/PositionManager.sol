@@ -131,7 +131,7 @@ contract PositionManagerAndromedaStataUSDC {
         }
         uint128 accountId = IAccountModule(CoreProxy).createAccount();
         _increasePosition(accountId, usdcAmount);
-        IERC721(AccountProxy).safeTransferFrom(
+        IERC721(AccountProxy).transferFrom(
             //
             address(this),
             msgSender,
@@ -146,14 +146,14 @@ contract PositionManagerAndromedaStataUSDC {
      */
     function increasePosition(uint128 accountId, uint256 usdcAmount) public {
         address msgSender = ERC2771Context._msgSender();
-        IERC721(AccountProxy).safeTransferFrom(
+        IERC721(AccountProxy).transferFrom(
             //
             msgSender,
             address(this),
             uint256(accountId)
         );
         _increasePosition(accountId, usdcAmount);
-        IERC721(AccountProxy).safeTransferFrom(
+        IERC721(AccountProxy).transferFrom(
             //
             address(this),
             msgSender,
@@ -170,7 +170,7 @@ contract PositionManagerAndromedaStataUSDC {
         address msgSender = ERC2771Context._msgSender();
 
         // 1. Transfer Account NFT from the wallet
-        IERC721(AccountProxy).safeTransferFrom(
+        IERC721(AccountProxy).transferFrom(
             //
             msgSender,
             address(this),
@@ -202,7 +202,7 @@ contract PositionManagerAndromedaStataUSDC {
         );
 
         // 5. Transfer Account NFT back to the owner
-        IERC721(AccountProxy).safeTransferFrom(
+        IERC721(AccountProxy).transferFrom(
             //
             address(this),
             msgSender,
@@ -218,7 +218,7 @@ contract PositionManagerAndromedaStataUSDC {
         address msgSender = ERC2771Context._msgSender();
 
         // 1. Transfer Account NFT from the wallet
-        IERC721(AccountProxy).safeTransferFrom(
+        IERC721(AccountProxy).transferFrom(
             //
             msgSender,
             address(this),
@@ -301,7 +301,7 @@ contract PositionManagerAndromedaStataUSDC {
         }
 
         // 11. Transfer Account NFT back to the owner
-        IERC721(AccountProxy).safeTransferFrom(
+        IERC721(AccountProxy).transferFrom(
             //
             address(this),
             msgSender,
@@ -315,7 +315,7 @@ contract PositionManagerAndromedaStataUSDC {
      */
     function closePosition(uint128 accountId) public {
         address msgSender = ERC2771Context._msgSender();
-        IERC721(AccountProxy).safeTransferFrom(
+        IERC721(AccountProxy).transferFrom(
             //
             msgSender,
             address(this),
@@ -330,7 +330,7 @@ contract PositionManagerAndromedaStataUSDC {
             0,
             1e18
         );
-        IERC721(AccountProxy).safeTransferFrom(
+        IERC721(AccountProxy).transferFrom(
             //
             address(this),
             msgSender,
@@ -345,14 +345,14 @@ contract PositionManagerAndromedaStataUSDC {
      */
     function repay(uint128 accountId, uint256 debtAmount) public {
         address msgSender = ERC2771Context._msgSender();
-        IERC721(AccountProxy).safeTransferFrom(
+        IERC721(AccountProxy).transferFrom(
             //
             msgSender,
             address(this),
             uint256(accountId)
         );
         _repay(accountId, debtAmount);
-        IERC721(AccountProxy).safeTransferFrom(
+        IERC721(AccountProxy).transferFrom(
             //
             address(this),
             msgSender,
@@ -366,14 +366,14 @@ contract PositionManagerAndromedaStataUSDC {
      */
     function clearDebt(uint128 accountId) public {
         address msgSender = ERC2771Context._msgSender();
-        IERC721(AccountProxy).safeTransferFrom(
+        IERC721(AccountProxy).transferFrom(
             //
             msgSender,
             address(this),
             uint256(accountId)
         );
         _clearDebt(accountId);
-        IERC721(AccountProxy).safeTransferFrom(
+        IERC721(AccountProxy).transferFrom(
             //
             address(this),
             msgSender,
