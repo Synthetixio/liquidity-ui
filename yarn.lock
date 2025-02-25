@@ -4840,7 +4840,7 @@ __metadata:
     "@snx-v3/useUndelegateBaseAndromeda": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -4974,7 +4974,7 @@ __metadata:
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -5308,7 +5308,7 @@ __metadata:
     "@snx-v3/useUnwrapAllSynths": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -5453,7 +5453,7 @@ __metadata:
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -5860,7 +5860,7 @@ __metadata:
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -5876,7 +5876,7 @@ __metadata:
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -5927,7 +5927,7 @@ __metadata:
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useTrustedMulticallForwarder": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
   languageName: unknown
   linkType: soft
@@ -5961,7 +5961,7 @@ __metadata:
     "@snx-v3/useAllowance": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6019,7 +6019,7 @@ __metadata:
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6042,7 +6042,7 @@ __metadata:
     "@snx-v3/useSynthTokens": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6063,7 +6063,7 @@ __metadata:
     "@snx-v3/useSpotMarketProxy": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6106,7 +6106,7 @@ __metadata:
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6162,7 +6162,7 @@ __metadata:
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useCoreProxy": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
   languageName: unknown
   linkType: soft
@@ -6191,7 +6191,7 @@ __metadata:
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6258,7 +6258,7 @@ __metadata:
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6279,7 +6279,7 @@ __metadata:
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
   languageName: unknown
   linkType: soft
@@ -6313,7 +6313,7 @@ __metadata:
     "@snx-v3/useCoreProxy": "workspace:*"
     "@snx-v3/useTrustedMulticallForwarder": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
   languageName: unknown
   linkType: soft
@@ -6545,7 +6545,7 @@ __metadata:
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6570,7 +6570,7 @@ __metadata:
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6590,7 +6590,7 @@ __metadata:
     "@snx-v3/useTrustedMulticallForwarder": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6662,7 +6662,7 @@ __metadata:
     "@snx-v3/useTrustedMulticallForwarder": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6677,7 +6677,7 @@ __metadata:
     "@snx-v3/useCollateralTypes": "workspace:*"
     "@snx-v3/useSynthTokens": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     react: "npm:^18.2.0"
   languageName: unknown
   linkType: soft
@@ -6734,7 +6734,7 @@ __metadata:
     "@snx-v3/useAccountProxy": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
   languageName: unknown
   linkType: soft
@@ -6809,7 +6809,7 @@ __metadata:
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6835,7 +6835,7 @@ __metadata:
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6856,7 +6856,7 @@ __metadata:
     "@snx-v3/useSynthBalances": "workspace:*"
     "@snx-v3/withERC7412": "workspace:*"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6915,7 +6915,7 @@ __metadata:
     "@snx-v3/withERC7412": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6941,7 +6941,7 @@ __metadata:
     "@snx-v3/useTokenBalance": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
     react: "npm:^18.2.0"
   languageName: unknown
@@ -6966,7 +6966,7 @@ __metadata:
     "@snx-v3/parseContractError": "workspace:*"
     "@snx-v3/tsHelpers": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
-    debug: "npm:^4.3.7"
+    debug: "npm:^4.4.0"
     ethers: "npm:^5.7.2"
   languageName: unknown
   linkType: soft
@@ -11744,7 +11744,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:4.4.0, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4, debug@npm:^4.3.7, debug@npm:^4.4.0":
+"debug@npm:4, debug@npm:4.4.0, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4, debug@npm:^4.4.0":
   version: 4.4.0
   resolution: "debug@npm:4.4.0"
   dependencies:

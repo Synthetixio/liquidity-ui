@@ -17,7 +17,7 @@
     "@snx-v3/useSynthTokens": "workspace:*",
     "@snx-v3/withERC7412": "workspace:*",
     "@tanstack/react-query": "^5.8.3",
-    "debug": "^4.3.7",
+    "debug": "^4.4.0",
     "ethers": "^5.7.2",
     "react": "^18.2.0"
   }

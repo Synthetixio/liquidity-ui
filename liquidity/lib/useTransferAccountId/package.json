@@ -7,7 +7,7 @@
     "@snx-v3/useAccountProxy": "workspace:*",
     "@snx-v3/useBlockchain": "workspace:*",
     "@tanstack/react-query": "^5.8.3",
-    "debug": "^4.3.7",
+    "debug": "^4.4.0",
     "ethers": "^5.7.2"
   }
 }
