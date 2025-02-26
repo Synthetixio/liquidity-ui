@@ -3,11 +3,11 @@ pragma solidity ^0.8.21;
 import "../lib/PositionManagerTest.sol";
 import "@synthetixio/v3-contracts/1-main/ICoreProxy.sol";
 
-contract PositionManager_migratePosition_v2x_Test is PositionManagerTest {
+contract Mainnet_PositionManager_migratePosition_v2x_Test is PositionManagerTest {
     constructor() {
         deployment = "1-main";
         forkUrl = vm.envString("RPC_MAINNET");
-        forkBlockNumber = 21864281;
+        forkBlockNumber = 21921167;
         initialize();
     }
 
@@ -27,9 +27,6 @@ contract PositionManager_migratePosition_v2x_Test is PositionManagerTest {
         assertLt(0, cratio, "V2x staking C-Ratio should be > 0");
         assertLt(0, debt, "V2x debt should be > 0");
 
-        // Update preferred pool, because legacy market migration will migrate to preferred pool only
-        vm.startPrank(CoreProxy.owner());
-        CoreProxy.setPreferredPool(TreasuryMarketProxy.poolId());
         assertEq(TreasuryMarketProxy.poolId(), CoreProxy.getPreferredPool());
 
         uint128 accountId = 888;

@@ -6,7 +6,7 @@ contract Optimism_PositionManager_closePosition_Test is PositionManagerTest {
     constructor() {
         deployment = "10-main";
         forkUrl = vm.envString("RPC_OPTIMISM_MAINNET");
-        forkBlockNumber = 132386388;
+        forkBlockNumber = 132431079;
         initialize();
     }
 
@@ -33,8 +33,6 @@ contract Optimism_PositionManager_closePosition_Test is PositionManagerTest {
         uint256 ts = vm.getBlockTimestamp();
         vm.warp(ts - 86_400 * 7 - 1);
         _setupPosition(1000 ether);
-        // Return to present
-        vm.warp(ts);
 
         uint128 accountId = uint128(AccountProxy.tokenOfOwnerByIndex(ALICE, 0));
 
@@ -47,17 +45,30 @@ contract Optimism_PositionManager_closePosition_Test is PositionManagerTest {
             "Loan amount for SNX position should be (1000 * snxPrice / 5) as previously borrowed amount"
         );
 
+        // Return to present
+        vm.warp(ts);
+
+        uint256 loanWith1weekForgiveness = TreasuryMarketProxy.loanedAmount(accountId);
+        uint256 penalty1week = TreasuryMarketProxy.repaymentPenalty(accountId, 0);
+
+        assertLt(
+            //
+            loanWith1weekForgiveness + penalty1week,
+            loanedAmount,
+            "Loan with 1 week forgiveness and penalty should be a little less than original loan"
+        );
+
         // Repayments are made with $sUSD
-        _deal$sUSD(ALICE, loanedAmount);
+        _deal$sUSD(ALICE, loanWith1weekForgiveness + penalty1week);
         assertEq(
             //
-            loanedAmount,
+            loanWith1weekForgiveness + penalty1week,
             $sUSD.balanceOf(ALICE),
-            "Wallet balance of sUSD should be at loaned amount (1000 * snxPrice / 5)"
+            "Wallet balance of sUSD should be at loaned amount with 1 week forgiveness"
         );
 
         vm.startPrank(ALICE);
-        $sUSD.approve(address(positionManager), loanedAmount);
+        $sUSD.approve(address(positionManager), loanWith1weekForgiveness + penalty1week);
         AccountProxy.approve(address(positionManager), accountId);
         positionManager.closePosition(accountId);
 

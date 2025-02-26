@@ -192,3 +192,77 @@ cast call --from 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 $_PositionManager 'f
 cast call --from 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 $_PositionManager 'function getTotalLoan() view returns (uint256 totalLoan)'
 cast call --from 0xc3Cf311e04c1f8C74eCF6a795Ae760dc6312F345 $_PositionManager 'function getTotalDeposit() view returns (uint256 totalDeposit)'
 ```
+
+## Find accounts with negative debt
+
+```sh
+#!/bin/bash
+
+export _root=$(yarn workspace root exec pwd)
+export _meta="$_root/node_modules/@synthetixio/v3-contracts/1-main/meta.json"
+export _CoreProxy=$(cat $_meta | jq -r '.contracts.CoreProxy')
+export _AccountProxy=$(cat $_meta | jq -r '.contracts.AccountProxy')
+export _TreasuryMarketProxy=$(cat $_meta | jq -r '.contracts.TreasuryMarketProxy')
+export _LegacyMarketProxy=$(cat $_meta | jq -r '.contracts.LegacyMarketProxy')
+export _SNX=$(cat $_meta | jq -r '.contracts.CollateralToken_SNX')
+export rpc="$RPC_MAINNET"
+export block=21921167
+
+export accounts='1
+2
+3
+4
+5';
+
+for account in $accounts; do
+  wallet=$(cast call --rpc-url "$rpc" --block $block "$_AccountProxy" "function ownerOf(uint256 tokenId) view returns (address)" "$account")
+  collateral_raw=$(cast call --rpc-url "$rpc" --block $block "$_CoreProxy" "function getPositionCollateral(uint128 accountId, uint128 poolId, address collateralType) view returns (uint256 amount)" "$account" 1 "$_SNX")
+  collateral=$(echo "$collateral_raw" | awk '{print $1}')
+  collateral_readable=$(cast from-wei "$collateral")
+  debt_raw=$(cast call --rpc-url "$rpc" --block $block "$_CoreProxy" "function getPositionDebt(uint128 accountId, uint128 poolId, address collateralType) returns (int256 debt)" "$account" 1 "$_SNX")
+  debt=$(echo "$debt_raw" | awk '{print $1}')
+  if [[ "$debt" == -* ]]; then
+      echo -e "\e[32m$i Wallet $wallet owner of $account has negative debt $debt collateral $collateral_readable\e[0m"
+  elif [[ "$debt" == 0 ]]; then
+      echo -e "\e[90m$i Wallet $wallet owner of $account has zero debt $debt collateral $collateral_readable\e[0m"
+  else
+      debt_readable=$(cast from-wei "$debt")
+      echo -e "\e[31m$i Wallet $wallet owner of $account has positive debt $debt_readable collateral $collateral_readable\e[0m"
+  fi
+done
+```
+
+For Optimism (and for unknown list of accounts)
+
+```sh
+#!/bin/bash
+
+export _root=$(yarn workspace root exec pwd)
+export _meta="$_root/node_modules/@synthetixio/v3-contracts/10-main/meta.json"
+export _CoreProxy=$(cat $_meta | jq -r '.contracts.CoreProxy')
+export _AccountProxy=$(cat $_meta | jq -r '.contracts.AccountProxy')
+export _TreasuryMarketProxy=$(cat $_meta | jq -r '.contracts.TreasuryMarketProxy')
+export _LegacyMarketProxy=$(cat $_meta | jq -r '.contracts.LegacyMarketProxy')
+export _SNX=$(cat $_meta | jq -r '.contracts.CollateralToken_SNX')
+export rpc="$RPC_OPTIMISM_MAINNET"
+export block=132431079
+
+for i in {1136..1236}; do
+  account_readable=$(cast call --rpc-url "$rpc" --block $block "$_AccountProxy" "function tokenByIndex(uint256 index) view returns (uint256)" "$i")
+  account=$(echo "$account_readable" | awk '{print $1}')
+  wallet=$(cast call --rpc-url "$rpc" --block $block "$_AccountProxy" "function ownerOf(uint256 tokenId) view returns (address)" "$account")
+  collateral_raw=$(cast call --rpc-url "$rpc" --block $block "$_CoreProxy" "function getPositionCollateral(uint128 accountId, uint128 poolId, address collateralType) view returns (uint256 amount)" "$account" 1 "$_SNX")
+  collateral=$(echo "$collateral_raw" | awk '{print $1}')
+  collateral_readable=$(cast from-wei "$collateral")
+  debt_raw=$(cast call --rpc-url "$rpc" --block $block "$_CoreProxy" "function getPositionDebt(uint128 accountId, uint128 poolId, address collateralType) returns (int256 debt)" "$account" 1 "$_SNX")
+  debt=$(echo "$debt_raw" | awk '{print $1}')
+  if [[ "$debt" == -* ]]; then
+      echo -e "\e[32m$i Wallet $wallet owner of $account has negative debt $debt collateral $collateral_readable\e[0m"
+  elif [[ "$debt" == 0 ]]; then
+      echo -e "\e[90m$i Wallet $wallet owner of $account has zero debt $debt collateral $collateral_readable\e[0m"
+  else
+      debt_readable=$(cast from-wei "$debt")
+      echo -e "\e[31m$i Wallet $wallet owner of $account has positive debt $debt_readable collateral $collateral_readable\e[0m"
+  fi
+done
+```

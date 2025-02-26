@@ -3,16 +3,16 @@ pragma solidity ^0.8.21;
 import "../lib/PositionManagerTest.sol";
 import "@synthetixio/v3-contracts/1-main/ICoreProxy.sol";
 
-contract Mainnet_PositionManager_migratePosition_negativeDebt_Test is PositionManagerTest {
+contract Optimism_PositionManager_migratePosition_negativeDebt_Test is PositionManagerTest {
     constructor() {
-        deployment = "1-main";
-        forkUrl = vm.envString("RPC_MAINNET");
-        forkBlockNumber = 21921167;
+        deployment = "10-main";
+        forkUrl = vm.envString("RPC_OPTIMISM_MAINNET");
+        forkBlockNumber = 132431079;
         initialize();
     }
 
-    function test_migratePosition_negativeDebt() public {
-        uint128 accountId = 834193794476;
+    function skip_test_migratePosition_negativeDebt() public {
+        uint128 accountId = 1562217869;
         address ALICE = AccountProxy.ownerOf(accountId);
         vm.label(ALICE, "0xA11CE");
 

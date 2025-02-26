@@ -7,7 +7,7 @@ contract Optimism_PositionManager_migratePosition_v2x_Test is PositionManagerTes
     constructor() {
         deployment = "10-main";
         forkUrl = vm.envString("RPC_OPTIMISM_MAINNET");
-        forkBlockNumber = 132386388;
+        forkBlockNumber = 132431079;
         initialize();
     }
 
@@ -27,9 +27,6 @@ contract Optimism_PositionManager_migratePosition_v2x_Test is PositionManagerTes
         assertLt(0, cratio, "V2x staking C-Ratio should be > 0");
         assertLt(0, debt, "V2x debt should be > 0");
 
-        // Update preferred pool, because legacy market migration will migrate to preferred pool only
-        vm.startPrank(CoreProxy.owner());
-        CoreProxy.setPreferredPool(TreasuryMarketProxy.poolId());
         assertEq(TreasuryMarketProxy.poolId(), CoreProxy.getPreferredPool());
 
         uint128 accountId = 888;
@@ -46,7 +43,8 @@ contract Optimism_PositionManager_migratePosition_v2x_Test is PositionManagerTes
             "Loan amount for SNX position should be equal to v2x debt"
         );
 
-        uint256 positionDebt = collateralValue / 2; // at c-ratio 200%
+        uint256 targetCratio = TreasuryMarketProxy.targetCratio();
+        uint256 positionDebt = collateralValue * 1 ether / targetCratio;
         assertApproxEqAbs(
             positionDebt,
             uint256(CoreProxy.getPositionDebt(accountId, TreasuryMarketProxy.poolId(), address($SNX))),

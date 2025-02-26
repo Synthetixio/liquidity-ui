@@ -8,7 +8,7 @@ contract Optimism_PositionManager_closePosition_reverts_Test is PositionManagerT
     constructor() {
         deployment = "10-main";
         forkUrl = vm.envString("RPC_OPTIMISM_MAINNET");
-        forkBlockNumber = 132386388;
+        forkBlockNumber = 132431079;
         initialize();
     }
 
@@ -72,18 +72,19 @@ contract Optimism_PositionManager_closePosition_reverts_Test is PositionManagerT
         vm.warp(ts - 86_400 * 7 - 1);
         _setupPosition(1000 ether);
         // Return to present
-        vm.warp(ts);
         uint128 accountId = uint128(AccountProxy.tokenOfOwnerByIndex(ALICE, 0));
+        vm.warp(ts);
 
-        uint256 snxPrice = CoreProxy.getCollateralPrice(address($SNX));
-        uint256 loanedAmount = 1000 * snxPrice / 5;
+        uint256 loanWith1weekForgiveness = TreasuryMarketProxy.loanedAmount(accountId);
+        uint256 penalty1week = TreasuryMarketProxy.repaymentPenalty(accountId, 0);
+        uint256 required$sUSD = loanWith1weekForgiveness + penalty1week;
 
         vm.startPrank(ALICE);
         AccountProxy.approve(address(positionManager), accountId);
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                PositionManagerNewPool.NotEnoughBalance.selector, ALICE, address($sUSD), loanedAmount, 0 ether
+                PositionManagerNewPool.NotEnoughBalance.selector, ALICE, address($sUSD), required$sUSD, 0 ether
             )
         );
         positionManager.closePosition(accountId);
@@ -103,13 +104,14 @@ contract Optimism_PositionManager_closePosition_reverts_Test is PositionManagerT
         vm.warp(ts - 86_400 * 7 - 1);
         _setupPosition(1000 ether);
         // Return to present
-        vm.warp(ts);
         uint128 accountId = uint128(AccountProxy.tokenOfOwnerByIndex(ALICE, 0));
+        vm.warp(ts);
 
-        uint256 snxPrice = CoreProxy.getCollateralPrice(address($SNX));
-        uint256 loanedAmount = 1000 * snxPrice / 5;
+        uint256 loanWith1weekForgiveness = TreasuryMarketProxy.loanedAmount(accountId);
+        uint256 penalty1week = TreasuryMarketProxy.repaymentPenalty(accountId, 0);
+        uint256 required$sUSD = loanWith1weekForgiveness + penalty1week;
 
-        _deal$sUSD(ALICE, loanedAmount);
+        _deal$sUSD(ALICE, required$sUSD);
 
         vm.startPrank(ALICE);
         AccountProxy.approve(address(positionManager), accountId);
@@ -117,7 +119,7 @@ contract Optimism_PositionManager_closePosition_reverts_Test is PositionManagerT
         // NotEnoughAllowance error when not enough SNX approval for PositionManager
         vm.expectRevert(
             abi.encodeWithSelector(
-                PositionManagerNewPool.NotEnoughAllowance.selector, ALICE, address($sUSD), loanedAmount, 0 ether
+                PositionManagerNewPool.NotEnoughAllowance.selector, ALICE, address($sUSD), required$sUSD, 0 ether
             )
         );
         positionManager.closePosition(accountId);

@@ -6,7 +6,7 @@ contract Optimism_PositionManager_getAccounts_Test is PositionManagerTest {
     constructor() {
         deployment = "10-main";
         forkUrl = vm.envString("RPC_OPTIMISM_MAINNET");
-        forkBlockNumber = 132386388;
+        forkBlockNumber = 132431079;
         initialize();
     }
 
