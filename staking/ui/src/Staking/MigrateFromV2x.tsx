@@ -107,7 +107,7 @@ export function MigrateFromV2x() {
               cRatio={v2xPosition?.cRatio}
             />
             <Button isDisabled={!isReadyMigrate} onClick={() => setIsOpenMigrate(true)}>
-              Migrate to Jubilee
+              Burn My Debt
             </Button>
           </>
         )}

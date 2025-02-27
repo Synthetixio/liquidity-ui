@@ -23,7 +23,7 @@ it(`${import.meta.url.split('/').pop()}`, () => {
 
   cy.get('[data-cy="Step0Intro"]').should(
     'include.text',
-    'Learn more about Delegated Staking and the Jubilee Pool'
+    'Learn more about Delegated Staking and the 420 Pool'
   );
 
   cy.contains('[data-cy="Step0Intro"] button', 'Start Migration').should('be.enabled');

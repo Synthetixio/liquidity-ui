@@ -114,7 +114,7 @@ export function MigrateFromV3() {
               cRatio={liquidityPosition?.cRatio}
             />
             <Button mt={6} isDisabled={!isReadyMigrate} onClick={() => setIsOpenMigrate(true)}>
-              Migrate to Jubilee
+              Burn My Debt
             </Button>
           </>
         )}

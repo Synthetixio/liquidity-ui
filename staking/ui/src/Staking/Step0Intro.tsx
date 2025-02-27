@@ -18,11 +18,13 @@ export const Step0Intro = ({
             Migrate your staking position to have your active debt forgiven over 12 months, without
             managing liquidation risk.
           </Text>
-          <Text>Withdraw at any time after initial 7 day lock by repaying your loan.</Text>
+          <Text>
+            Withdraw at any time after the initial 7 day lock-up period by repaying your loan.
+          </Text>
           <Text fontSize="sm">
             Learn more about{' '}
             <Link isExternal color="cyan.500" href="https://sips.synthetix.io/sips/sip-420/">
-              Delegated Staking and the Jubilee Pool
+              Delegated Staking and the 420 Pool
             </Link>
           </Text>
         </VStack>
