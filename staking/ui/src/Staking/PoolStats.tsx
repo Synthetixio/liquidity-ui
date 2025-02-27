@@ -2,26 +2,14 @@ import { ArrowUpIcon } from '@chakra-ui/icons';
 import { Flex, Link, Text } from '@chakra-ui/react';
 import { getStatsUrl } from '@snx-v3/getStatsUrl';
 import { MAINNET, NetworkIcon, useNetwork } from '@snx-v3/useBlockchain';
-import { useCollateralType } from '@snx-v3/useCollateralTypes';
-import { usePythPrice } from '@snx-v3/usePythPrice';
-import { useVaultsData } from '@snx-v3/useVaultsData';
 import numbro from 'numbro';
 import React from 'react';
 import { InfoBox } from './InfoBox';
+import { useTvl } from './useTvl';
 
 export function PoolStats() {
   const { network = MAINNET } = useNetwork();
-  const { data: collateralType } = useCollateralType('SNX', network);
-  const { data: vaultsData, isPending: isPendingVaultsData } = useVaultsData(network);
-  const vaultData = React.useMemo(() => {
-    if (vaultsData && collateralType) {
-      return vaultsData.find(
-        (item) => item.collateralType.address.toLowerCase() === collateralType.address.toLowerCase()
-      );
-    }
-  }, [collateralType, vaultsData]);
-  const { data: snxPrice, isPending: isPendingSnxPrice } = usePythPrice('SNX');
-
+  const { data: tvl, isPending: isPendingTvl } = useTvl();
   return (
     <Flex direction="row" flexWrap="wrap" alignItems="center" gap={2}>
       <InfoBox>
@@ -32,10 +20,10 @@ export function PoolStats() {
       <InfoBox>
         <Text>TVL</Text>
         <Text color="gray.50">
-          {isPendingVaultsData || isPendingSnxPrice
+          {isPendingTvl
             ? '~'
-            : vaultData && snxPrice
-              ? numbro(vaultData.collateral.amount.mul(snxPrice).toNumber()).format({
+            : tvl
+              ? numbro(tvl).format({
                   trimMantissa: true,
                   thousandSeparated: true,
                   average: true,

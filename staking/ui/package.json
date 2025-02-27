@@ -43,7 +43,6 @@
     "@snx-v3/useTreasuryMarketProxy": "workspace:*",
     "@snx-v3/useTrustedMulticallForwarder": "workspace:*",
     "@snx-v3/useV2xSynthetix": "workspace:*",
-    "@snx-v3/useVaultsData": "workspace:*",
     "@synthetixio/devtools-formatters": "workspace:*",
     "@synthetixio/magic-wallet": "workspace:*",
     "@synthetixio/safe-import": "workspace:*",
