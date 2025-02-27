@@ -1,8 +1,8 @@
-import { Container, Flex, Link, useDisclosure } from '@chakra-ui/react';
-import { Logo, LogoIcon } from '@snx-v3/icons';
+import { Container, Flex, Image, useDisclosure } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { NavLink as RouterLink, useLocation } from 'react-router-dom';
 import { NetworkController } from './NetworkController';
+import snxStakingIcon from './snx-staking.svg';
 
 export default function Header() {
   const { onClose } = useDisclosure();
@@ -13,22 +13,17 @@ export default function Header() {
   }, [location, onClose]);
 
   return (
-    <Flex
-      bg="navy.700"
-      mb="4"
-      py="3"
-      borderBottomWidth="1px"
-      borderBottomColor="gray.900"
-      px={{ base: 1, md: 10 }}
-    >
+    <Flex bg="navy.700" mb="4" py="3" borderBottomWidth="1px" borderBottomColor="gray.900">
       <Container maxW="1236px" as={Flex} justifyContent="space-between" alignItems="center">
-        <Flex flexDirection="row" justifyContent="start" alignItems="center">
-          <Link mt={-1.5} to="/" as={RouterLink} display={{ base: 'none', md: 'inline-block' }}>
-            <Logo />
-          </Link>
-          <Link mt={-1.5} to="/" as={RouterLink} display={{ md: 'none' }}>
-            <LogoIcon />
-          </Link>
+        <Flex
+          as={RouterLink}
+          to="/"
+          direction="row"
+          justifyContent="start"
+          alignItems="center"
+          height="22px"
+        >
+          <Image src={snxStakingIcon} alt="SNX Staking" />
         </Flex>
         <Flex gap={3} flexWrap="wrap-reverse" justifyContent="center" alignItems="center">
           <NetworkController />

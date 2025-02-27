@@ -1,14 +1,8 @@
-import { ArrowUpIcon } from '@chakra-ui/icons';
-import { Box, Button, Flex, Heading, Link, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Text } from '@chakra-ui/react';
 import { Amount } from '@snx-v3/Amount';
-import { getStatsUrl } from '@snx-v3/getStatsUrl';
 import { LogoIcon } from '@snx-v3/icons';
-import { NetworkIcon, useNetwork } from '@snx-v3/useBlockchain';
-import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { usePythPrice } from '@snx-v3/usePythPrice';
-import { useVaultsData } from '@snx-v3/useVaultsData';
 import { wei } from '@synthetixio/wei';
-import numbro from 'numbro';
 import React from 'react';
 import { GradientCircle } from './GradientCircle';
 import { LoanChart } from './LoanChart';
@@ -17,39 +11,9 @@ import { useCurrentLoanedAmount } from './useCurrentLoanedAmount';
 import { useLoan } from './useLoan';
 import { usePositionCollateral } from './usePositionCollateral';
 
-function InfoBox({ ...props }) {
-  return (
-    <Flex
-      alignItems="center"
-      borderWidth={1}
-      borderRadius={4}
-      px={2}
-      py={0}
-      gap={2}
-      height="1.75em"
-      color="gray.500"
-      fontWeight="500"
-      {...props}
-    />
-  );
-}
-
-export function NewPoolPosition() {
-  const { network } = useNetwork();
-
+export function StakingPosition() {
   const { data: loanedAmount, isPending: isPendingLoanedAmount } = useCurrentLoanedAmount();
   const { data: loan, isPending: isPendingLoan } = useLoan();
-
-  const { data: collateralType } = useCollateralType('SNX');
-  const { data: vaultsData, isPending: isPendingVaultsData } = useVaultsData(network);
-  const vaultData = React.useMemo(() => {
-    if (vaultsData && collateralType) {
-      return vaultsData.find(
-        (item) => item.collateralType.address.toLowerCase() === collateralType.address.toLowerCase()
-      );
-    }
-  }, [collateralType, vaultsData]);
-
   const { data: positionCollateral, isPending: isPendingPositionCollateral } =
     usePositionCollateral();
 
@@ -85,42 +49,6 @@ export function NewPoolPosition() {
             <LogoIcon />
             <Text>SNX Debt Jubilee</Text>
           </Heading>
-
-          <Flex direction="row" flexWrap="wrap" alignItems="center" gap={2}>
-            <InfoBox>
-              <NetworkIcon size="14px" networkId={network?.id} />
-              <Text>{network?.label} Network</Text>
-            </InfoBox>
-
-            <InfoBox>
-              <Text>TVL</Text>
-              <Text color="gray.50">
-                {isPendingVaultsData
-                  ? '~'
-                  : vaultData && snxPrice
-                    ? numbro(vaultData.collateral.amount.mul(snxPrice).toNumber()).format({
-                        trimMantissa: true,
-                        thousandSeparated: true,
-                        average: true,
-                        mantissa: 1,
-                        spaceSeparated: true,
-                      })
-                    : '-'}
-              </Text>
-            </InfoBox>
-
-            <InfoBox
-              as={Link}
-              isExternal
-              href={getStatsUrl(network?.id)}
-              textDecoration="none"
-              _hover={{ textDecoration: 'none' }}
-              cursor="pointer"
-            >
-              <Text>More Stats</Text>
-              <ArrowUpIcon transform="rotate(45deg)" />
-            </InfoBox>
-          </Flex>
         </Flex>
         <Text mt={3} color="gray.500" maxWidth="40em">
           Your stake is fully delegated to Synthetix, and your loan is being forgiven automatically

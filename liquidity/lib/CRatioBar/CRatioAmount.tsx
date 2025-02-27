@@ -14,5 +14,5 @@ export const CRatioAmount: FC<{
     return <>Infinite</>;
   }
 
-  return <Amount value={wei(value)} suffix="%" />;
+  return <Amount value={wei(Math.round(value))} suffix="%" />;
 };

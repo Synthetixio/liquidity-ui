@@ -164,7 +164,7 @@ export function NetworkController() {
             opacity={1}
             p="4"
           >
-            <Flex flexDir="column" w="100%" gap="2">
+            <Flex direction="column" w="100%" gap="2">
               <Flex justifyContent="space-between">
                 <Text fontSize="14px" color="gray.500">
                   Connected with {walletsInfo?.label}
@@ -201,7 +201,7 @@ export function NetworkController() {
                 </Tooltip>
               </Flex>
               <Flex
-                flexDir="column"
+                direction="column"
                 p="2"
                 border="1px solid"
                 borderColor="gray.900"
@@ -228,7 +228,7 @@ export function NetworkController() {
                     />
                   </Link>
                 </Flex>
-                <Flex data-cy="accounts list" flexDir="column">
+                <Flex data-cy="accounts list" direction="column">
                   {accounts?.map((accountId) => (
                     <Text
                       key={accountId.toString()}

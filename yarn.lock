@@ -4672,6 +4672,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snx-v3/Amount@workspace:liquidity/lib/Amount"
   dependencies:
+    "@chakra-ui/react": "npm:^2.8.2"
     "@snx-v3/format": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     ethers: "npm:^5.7.2"

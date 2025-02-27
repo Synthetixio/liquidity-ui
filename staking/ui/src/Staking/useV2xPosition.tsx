@@ -48,16 +48,21 @@ export function useV2xPosition() {
         provider
       );
 
-      const collateral = await V2xSynthetixContract.collateral(walletAddress);
-      log('collateral', collateral);
+      const collateralAmount = await V2xSynthetixContract.collateral(walletAddress);
+      log('collateralAmount', collateralAmount);
 
-      const collateralisationRatio =
-        await V2xSynthetixContract.collateralisationRatio(walletAddress);
-      const cRatio = ethers.utils
-        .parseEther('1')
-        .mul(ethers.utils.parseEther('1'))
-        .div(collateralisationRatio);
-      log('cRatio', cRatio);
+      let cRatio = ethers.BigNumber.from(0);
+      if (collateralAmount.gt(0)) {
+        const collateralisationRatio =
+          await V2xSynthetixContract.collateralisationRatio(walletAddress);
+        if (collateralisationRatio.gt(0)) {
+          cRatio = ethers.utils
+            .parseEther('1')
+            .mul(ethers.utils.parseEther('1'))
+            .div(collateralisationRatio);
+          log('cRatio', cRatio);
+        }
+      }
 
       const debt = await V2xSynthetixContract.debtBalanceOf(
         walletAddress,
@@ -65,7 +70,7 @@ export function useV2xPosition() {
       );
       log('debt', debt);
 
-      return { collateralAmount: collateral, cRatio, debt };
+      return { collateralAmount, cRatio, debt };
     },
   });
 }

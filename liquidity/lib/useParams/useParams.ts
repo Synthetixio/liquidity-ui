@@ -5,8 +5,7 @@ import { z } from 'zod';
 export const HomePageSchema = z.object({
   page: z.literal('home').optional(),
   accountId: z.string().optional(),
-  sort: z.string().optional(),
-  dir: z.string().optional(),
+  showAll: z.string().optional(),
 });
 export type HomePageSchemaType = z.infer<typeof HomePageSchema>;
 
