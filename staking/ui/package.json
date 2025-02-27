@@ -16,6 +16,7 @@
     "@snx-v3/Amount": "workspace:*",
     "@snx-v3/CRatioBar": "workspace:*",
     "@snx-v3/ContractError": "workspace:*",
+    "@snx-v3/Permissions": "workspace:*",
     "@snx-v3/TermsModal": "workspace:*",
     "@snx-v3/Tooltip": "workspace:*",
     "@snx-v3/TransactionSummary": "workspace:*",

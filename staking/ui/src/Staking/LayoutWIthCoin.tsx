@@ -19,7 +19,7 @@ export function LayoutWIthCoin({
       bg="navy.700"
     >
       <Flex direction="row" flexWrap="wrap" gap={4}>
-        <Flex direction="column" flex={1} p={6} gap={6}>
+        <Flex direction="column" flex={{ base: 2, sm: 2, md: 2, lg: 1 }} p={6} gap={6}>
           <Heading
             as={Flex}
             alignItems="center"
@@ -48,9 +48,9 @@ export function LayoutWIthCoin({
           </Flex>
         </Flex>
         <Flex
-          flex={1}
+          flex={{ base: 0, sm: 0, md: 1 }}
           direction="column"
-          display={{ base: 'none', sm: 'none', lg: 'flex' }}
+          display={{ base: 'none', sm: 'none', md: 'flex' }}
           position="relative"
           overflow="hidden"
         >
@@ -58,9 +58,11 @@ export function LayoutWIthCoin({
             rounded="5px"
             src={CoinImage}
             width="100%"
-            position="absolute"
-            bottom="0"
-            right="0"
+            height="100%"
+            objectFit="cover"
+            // position="absolute"
+            // bottom="0"
+            // right="0"
             style={{
               maskImage: 'linear-gradient(270deg, #000000 50%, rgba(0, 0, 0, 0) 100%)',
             }}

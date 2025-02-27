@@ -1,4 +1,5 @@
 import { Flex, Heading, Text } from '@chakra-ui/react';
+import { useWallet } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type HomePageSchemaType, useParams } from '@snx-v3/useParams';
@@ -25,11 +26,13 @@ export function DashboardPage() {
     useNewPoolPositionCollateral();
   const { data: v2xPosition, isPending: isPendingV2xPosition } = useV2xPosition();
 
+  const { activeWallet } = useWallet();
   const isPending =
-    isPendingCollateralType ||
-    (params.accountId && isPendingLiquidityPosition) ||
-    isPendingNewPoolPositionCollateral ||
-    isPendingV2xPosition;
+    activeWallet &&
+    (isPendingCollateralType ||
+      (params.accountId && isPendingLiquidityPosition) ||
+      isPendingNewPoolPositionCollateral ||
+      isPendingV2xPosition);
 
   const hasV2xPosition = v2xPosition && v2xPosition.debt.gt(0);
   const hasV3Position = liquidityPosition && liquidityPosition.collateralAmount.gt(0);
@@ -51,7 +54,7 @@ export function DashboardPage() {
             fontSize={['2rem', '3rem']}
             lineHeight="120%"
           >
-            Stake and Earn
+            Stake
           </Heading>
 
           <Flex justifyContent="space-between" alignItems="center" gap={6} flexWrap="wrap">

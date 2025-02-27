@@ -1,7 +1,7 @@
 import { ArrowUpIcon } from '@chakra-ui/icons';
 import { Flex, Link, Text } from '@chakra-ui/react';
 import { getStatsUrl } from '@snx-v3/getStatsUrl';
-import { NetworkIcon, useNetwork } from '@snx-v3/useBlockchain';
+import { MAINNET, NetworkIcon, useNetwork } from '@snx-v3/useBlockchain';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { usePythPrice } from '@snx-v3/usePythPrice';
 import { useVaultsData } from '@snx-v3/useVaultsData';
@@ -10,10 +10,8 @@ import React from 'react';
 import { InfoBox } from './InfoBox';
 
 export function PoolStats() {
-  const { data: collateralType } = useCollateralType('SNX');
-
-  const { network } = useNetwork();
-
+  const { network = MAINNET } = useNetwork();
+  const { data: collateralType } = useCollateralType('SNX', network);
   const { data: vaultsData, isPending: isPendingVaultsData } = useVaultsData(network);
   const vaultData = React.useMemo(() => {
     if (vaultsData && collateralType) {

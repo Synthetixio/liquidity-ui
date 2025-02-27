@@ -15,23 +15,23 @@ const VaultCollateralSchema = z
   .transform(({ value, amount }) => ({ value: wei(value), amount: wei(amount) }));
 
 export const useVaultsData = (customNetwork?: Network) => {
-  const { network } = useNetwork();
-  const targetNetwork = customNetwork || network;
+  const { network: currentNetwork } = useNetwork();
+  const network = customNetwork ?? currentNetwork;
 
-  const { data: collateralTypes } = useCollateralTypes(false, customNetwork);
-  const { data: CoreProxy } = useCoreProxy(customNetwork);
+  const { data: collateralTypes } = useCollateralTypes(false, network);
+  const { data: CoreProxy } = useCoreProxy(network);
 
-  const provider = useProviderForChain(targetNetwork);
+  const provider = useProviderForChain(network);
 
   return useQuery({
     queryKey: [
-      `${targetNetwork?.id}-${targetNetwork?.preset}`,
+      `${network?.id}-${network?.preset}`,
       'VaultsData',
       { contractsHash: contractsHash([CoreProxy, ...(collateralTypes ?? [])]) },
     ],
-    enabled: Boolean(CoreProxy && collateralTypes && targetNetwork && provider),
+    enabled: Boolean(CoreProxy && collateralTypes && network && provider),
     queryFn: async () => {
-      if (!(CoreProxy && collateralTypes && targetNetwork && provider)) {
+      if (!(CoreProxy && collateralTypes && network && provider)) {
         throw Error('useVaultsData should not be enabled when missing data');
       }
       const CoreProxyContract = new ethers.Contract(CoreProxy.address, CoreProxy.abi, provider);
@@ -45,7 +45,7 @@ export const useVaultsData = (customNetwork?: Network) => {
       );
 
       return await erc7412Call(
-        targetNetwork,
+        network,
         provider,
         calls,
         (decodedMulticall) => {
