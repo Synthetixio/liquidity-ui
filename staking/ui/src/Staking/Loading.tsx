@@ -1,21 +1,25 @@
 import { Flex, Spinner, Text } from '@chakra-ui/react';
 import React from 'react';
-import { LayoutWIthCoin } from './LayoutWIthCoin';
+import { LayoutWithImage } from './LayoutWithImage';
+import coin from './coin.webp';
 
 export function Loading() {
   return (
-    <LayoutWIthCoin
+    <LayoutWithImage
+      imageSrc={coin}
       Subheader={() => (
         <Text color="gray.50" fontSize="2em" maxWidth="20em">
-          Debt-free staking starts now. Migrate & earn{' '}
-          <Text as="span" fontWeight="700" color="green.500">
-            40%+
-          </Text>{' '}
-          APR in debt forgiveness
+          Debt-free staking starts now.
         </Text>
       )}
       Content={() => (
-        <Flex minHeight="10em" direction="column" alignItems="center" justifyContent="center">
+        <Flex
+          minHeight="10em"
+          flex={1}
+          direction="column"
+          alignItems="center"
+          justifyContent="center"
+        >
           <Spinner size="xl" />
         </Flex>
       )}

@@ -8,19 +8,20 @@ import {
   ModalBody,
   ModalContent,
   ModalOverlay,
-  Text,
 } from '@chakra-ui/react';
 import { usePythPrice } from '@snx-v3/usePythPrice';
 import { wei } from '@synthetixio/wei';
 import { ethers } from 'ethers';
 import React from 'react';
-import { LayoutWIthCoin } from './LayoutWIthCoin';
+import { LayoutWithImage } from './LayoutWithImage';
 import { MigrateStats } from './MigrateStats';
 import { Step0Intro } from './Step0Intro';
 import { Step2SummaryV2x } from './Step2SummaryV2x';
 import { Step3Success } from './Step3Success';
+import { SubheaderMigrateAndEarn } from './SubheaderMigrateAndEarn';
 import { useMigrateNewPoolV2x } from './useMigrateNewPoolV2x';
 import { useV2xPosition } from './useV2xPosition';
+import burn from './burn.webp';
 
 export function MigrateFromV2x() {
   const { data: snxPrice, isPending: isPendingSnxPrice } = usePythPrice('SNX');
@@ -81,12 +82,12 @@ export function MigrateFromV2x() {
         </ModalContent>
       </Modal>
 
-      <LayoutWIthCoin
+      <LayoutWithImage
+        imageSrc={burn}
         Subheader={() => (
-          <Text mt={3} color="gray.500" fontSize="2em" maxWidth="20em">
-            Debt-free staking starts now. Migrate & earn{' '}
-            <Text as="span" fontWeight="700" color="green.500">
-              {isPendingV2xPosition || isPendingSnxPrice
+          <SubheaderMigrateAndEarn
+            apy={
+              isPendingV2xPosition || isPendingSnxPrice
                 ? '~'
                 : v2xPosition && v2xPosition.collateralAmount.gt(0) && snxPrice
                   ? `${wei(v2xPosition.debt)
@@ -94,10 +95,9 @@ export function MigrateFromV2x() {
                       .mul(100)
                       .toNumber()
                       .toFixed(1)}%+`
-                  : '-'}
-            </Text>{' '}
-            APR in debt forgiveness
-          </Text>
+                  : '-'
+            }
+          />
         )}
         Content={() => (
           <>

@@ -1,14 +1,15 @@
 import { Flex, Heading, Image, Text } from '@chakra-ui/react';
 import { LogoIcon } from '@snx-v3/icons';
 import React from 'react';
-import CoinImage from './coin.webp';
 
-export function LayoutWIthCoin({
+export function LayoutWithImage({
   Subheader,
   Content,
+  imageSrc,
 }: {
   Subheader: () => React.ReactNode;
   Content: () => React.ReactNode;
+  imageSrc: string;
 }) {
   return (
     <Flex
@@ -20,17 +21,11 @@ export function LayoutWIthCoin({
     >
       <Flex direction="row" flexWrap="wrap" gap={4}>
         <Flex direction="column" flex={{ base: 2, sm: 2, md: 2, lg: 1 }} p={6} gap={6}>
-          <Heading
-            as={Flex}
-            alignItems="center"
-            gap={4}
-            fontSize="20px"
-            lineHeight="1.75rem"
-            color="gray.50"
-            fontWeight={700}
-          >
+          <Heading as={Flex} alignItems="center" gap={4}>
             <LogoIcon />
-            <Text>SNX Debt Jubilee</Text>
+            <Text lineHeight="20px" fontSize="14px" color="gray.500" fontWeight={500}>
+              SNX 420 Pool
+            </Text>
           </Heading>
 
           <Subheader />
@@ -56,13 +51,10 @@ export function LayoutWIthCoin({
         >
           <Image
             rounded="5px"
-            src={CoinImage}
+            src={imageSrc}
             width="100%"
             height="100%"
             objectFit="cover"
-            // position="absolute"
-            // bottom="0"
-            // right="0"
             style={{
               maskImage: 'linear-gradient(270deg, #000000 50%, rgba(0, 0, 0, 0) 100%)',
             }}

@@ -37,22 +37,16 @@ export function StakingPosition() {
     >
       <Box>
         <Flex direction="row" flexWrap="wrap" justifyContent="space-between" alignItems="center">
-          <Heading
-            as={Flex}
-            alignItems="center"
-            gap={4}
-            fontSize="20px"
-            lineHeight="1.75rem"
-            color="gray.50"
-            fontWeight={700}
-          >
+          <Heading as={Flex} alignItems="center" gap={4}>
             <LogoIcon />
-            <Text>SNX Debt Jubilee</Text>
+            <Text lineHeight="20px" fontSize="14px" color="gray.500" fontWeight={500}>
+              SNX 420 Pool
+            </Text>
           </Heading>
         </Flex>
         <Text mt={3} color="gray.500" maxWidth="40em">
           Your stake is fully delegated to Synthetix, and your loan is being forgiven automatically
-          over time. No action needed—just sit back and earn.
+          over time. No action needed — just sit back and earn.
         </Text>
       </Box>
 

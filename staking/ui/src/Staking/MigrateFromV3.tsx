@@ -8,7 +8,6 @@ import {
   ModalBody,
   ModalContent,
   ModalOverlay,
-  Text,
 } from '@chakra-ui/react';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
@@ -17,12 +16,14 @@ import { usePythPrice } from '@snx-v3/usePythPrice';
 import { wei } from '@synthetixio/wei';
 import { ethers } from 'ethers';
 import React from 'react';
-import { LayoutWIthCoin } from './LayoutWIthCoin';
+import { LayoutWithImage } from './LayoutWithImage';
 import { MigrateStats } from './MigrateStats';
 import { Step0Intro } from './Step0Intro';
 import { Step2Summary } from './Step2Summary';
 import { Step3Success } from './Step3Success';
+import { SubheaderMigrateAndEarn } from './SubheaderMigrateAndEarn';
 import { useMigrateNewPool } from './useMigrateNewPool';
+import burn from './burn.webp';
 
 export function MigrateFromV3() {
   const { data: collateralType } = useCollateralType('SNX');
@@ -88,12 +89,12 @@ export function MigrateFromV3() {
         </ModalContent>
       </Modal>
 
-      <LayoutWIthCoin
+      <LayoutWithImage
+        imageSrc={burn}
         Subheader={() => (
-          <Text mt={3} color="gray.500" fontSize="2em" maxWidth="20em">
-            Debt-free staking starts now. Migrate & earn{' '}
-            <Text as="span" fontWeight="700" color="green.500">
-              {isPendingLiquidityPosition || isPendingSnxPrice
+          <SubheaderMigrateAndEarn
+            apy={
+              isPendingLiquidityPosition || isPendingSnxPrice
                 ? '~'
                 : liquidityPosition && liquidityPosition.collateralAmount.gt(0) && snxPrice
                   ? `${wei(liquidityPosition.debt)
@@ -101,10 +102,9 @@ export function MigrateFromV3() {
                       .mul(100)
                       .toNumber()
                       .toFixed(1)}%+`
-                  : '-'}
-            </Text>{' '}
-            APR in debt forgiveness
-          </Text>
+                  : '-'
+            }
+          />
         )}
         Content={() => (
           <>

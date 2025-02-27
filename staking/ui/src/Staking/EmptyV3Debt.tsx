@@ -1,22 +1,20 @@
 import { Flex, Text } from '@chakra-ui/react';
+import { wei } from '@synthetixio/wei';
 import React from 'react';
 import { ButtonDocs } from './ButtonDocs';
 import { ButtonGetSnx } from './ButtonGetSnx';
 import { ButtonStake } from './ButtonStake';
 import { ComingSoon } from './ComingSoon';
-import { LayoutWIthCoin } from './LayoutWIthCoin';
+import { LayoutWithImage } from './LayoutWithImage';
+import { SubheaderMigrateAndEarn } from './SubheaderMigrateAndEarn';
+import burn from './burn.webp';
 
 export function EmptyV3Debt() {
   return (
-    <LayoutWIthCoin
+    <LayoutWithImage
+      imageSrc={burn}
       Subheader={() => (
-        <Text color="gray.50" fontSize="2em" maxWidth="20em">
-          Debt-free staking starts now. Migrate & earn{' '}
-          <Text as="span" fontWeight="700" color="green.500">
-            40%+
-          </Text>{' '}
-          APR in debt forgiveness
-        </Text>
+        <SubheaderMigrateAndEarn apy={`${wei(200).div(1000).mul(100).toNumber().toFixed(1)}%+`} />
       )}
       Content={() => (
         <>
