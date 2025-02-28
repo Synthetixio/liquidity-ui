@@ -1,17 +1,14 @@
-import { Flex, Spinner, Text } from '@chakra-ui/react';
+import { Flex, Spinner } from '@chakra-ui/react';
 import React from 'react';
+import burn from './burn.webp';
 import { LayoutWithImage } from './LayoutWithImage';
-import coin from './coin.webp';
+import { SubheaderMigrateAndEarn } from './SubheaderMigrateAndEarn';
 
 export function Loading() {
   return (
     <LayoutWithImage
-      imageSrc={coin}
-      Subheader={() => (
-        <Text color="gray.50" fontSize="2em" maxWidth="20em">
-          Debt-free staking starts now.
-        </Text>
-      )}
+      imageSrc={burn}
+      Subheader={() => <SubheaderMigrateAndEarn />}
       Content={() => (
         <Flex
           minHeight="10em"

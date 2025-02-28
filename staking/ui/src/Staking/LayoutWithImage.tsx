@@ -31,7 +31,6 @@ export function LayoutWithImage({
           <Subheader />
 
           <Flex
-            flex={1}
             borderColor="gray.900"
             borderWidth="1px"
             borderRadius="5px"

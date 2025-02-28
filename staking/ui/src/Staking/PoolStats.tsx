@@ -1,7 +1,7 @@
 import { ArrowUpIcon } from '@chakra-ui/icons';
 import { Flex, Link, Text } from '@chakra-ui/react';
 import { getStatsUrl } from '@snx-v3/getStatsUrl';
-import { MAINNET, NetworkIcon, useNetwork } from '@snx-v3/useBlockchain';
+import { MAINNET, useNetwork } from '@snx-v3/useBlockchain';
 import numbro from 'numbro';
 import React from 'react';
 import { InfoBox } from './InfoBox';
@@ -12,11 +12,6 @@ export function PoolStats() {
   const { data: tvl, isPending: isPendingTvl } = useTvl();
   return (
     <Flex direction="row" flexWrap="wrap" alignItems="center" gap={2}>
-      <InfoBox>
-        <NetworkIcon size="14px" networkId={network?.id} />
-        <Text>{network?.label} Network</Text>
-      </InfoBox>
-
       <InfoBox>
         <Text>TVL</Text>
         <Text color="gray.50">

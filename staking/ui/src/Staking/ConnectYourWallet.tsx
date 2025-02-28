@@ -1,23 +1,20 @@
-import { Flex, Text } from '@chakra-ui/react';
+import { Flex } from '@chakra-ui/react';
 import React from 'react';
+import burn from './burn.webp';
+import { ButtonConnect } from './ButtonConnect';
 import { ButtonDocs } from './ButtonDocs';
 import { ButtonGetSnx } from './ButtonGetSnx';
-import { ButtonStake } from './ButtonStake';
-import coin from './coin.webp';
 import { LayoutWithImage } from './LayoutWithImage';
+import { SubheaderMigrateAndEarn } from './SubheaderMigrateAndEarn';
 
-export function EmptyPosition() {
+export function ConnectYourWallet() {
   return (
     <LayoutWithImage
-      imageSrc={coin}
-      Subheader={() => (
-        <Text color="gray.50" fontSize="2em" maxWidth="20em">
-          Debt-free staking coming soon.
-        </Text>
-      )}
+      imageSrc={burn}
+      Subheader={() => <SubheaderMigrateAndEarn />}
       Content={() => (
         <>
-          <ButtonStake />
+          <ButtonConnect />
 
           <Flex gap={4} justifyContent="space-between">
             <ButtonGetSnx />

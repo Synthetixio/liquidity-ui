@@ -4,36 +4,38 @@ import {
   Divider,
   Flex,
   Heading,
+  Image,
+  Link,
   Modal,
   ModalBody,
   ModalContent,
   ModalOverlay,
+  Spacer,
+  Text,
+  VStack,
 } from '@chakra-ui/react';
 import { useCollateralType } from '@snx-v3/useCollateralTypes';
 import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
-import { usePythPrice } from '@snx-v3/usePythPrice';
-import { wei } from '@synthetixio/wei';
 import { ethers } from 'ethers';
 import React from 'react';
+import burn from './burn.webp';
+import coinburn from './coinburn.svg';
 import { LayoutWithImage } from './LayoutWithImage';
 import { MigrateStats } from './MigrateStats';
-import { Step0Intro } from './Step0Intro';
-import { Step2Summary } from './Step2Summary';
 import { Step3Success } from './Step3Success';
 import { SubheaderMigrateAndEarn } from './SubheaderMigrateAndEarn';
 import { useMigrateNewPool } from './useMigrateNewPool';
-import burn from './burn.webp';
+import { ZeroRisk } from './ZeroRisk';
 
 export function MigrateFromV3() {
   const { data: collateralType } = useCollateralType('SNX');
-  const { data: snxPrice, isPending: isPendingSnxPrice } = usePythPrice('SNX');
   const [isOpenMigrate, setIsOpenMigrate] = React.useState(false);
 
   const { isReady: isReadyMigrate } = useMigrateNewPool();
 
   const [params] = useParams<PositionPageSchemaType>();
-  const { data: liquidityPosition, isPending: isPendingLiquidityPosition } = useLiquidityPosition({
+  const { data: liquidityPosition } = useLiquidityPosition({
     accountId: params.accountId,
     collateralType,
   });
@@ -46,10 +48,18 @@ export function MigrateFromV3() {
   }, [isOpenMigrate]);
   const [receipt, setReceipt] = React.useState<ethers.providers.TransactionReceipt>();
 
+  const { isReady, mutation } = useMigrateNewPool();
+  const handleSubmit = React.useCallback(() => {
+    mutation.mutateAsync().then((receipt: ethers.providers.TransactionReceipt) => {
+      setReceipt(receipt);
+      setStep(1);
+    });
+  }, [mutation]);
+
   return (
     <>
       <Modal
-        size="lg"
+        size="xl"
         isOpen={isOpenMigrate}
         onClose={() => setIsOpenMigrate(false)}
         closeOnOverlayClick={false}
@@ -63,7 +73,7 @@ export function MigrateFromV3() {
           color="white"
         >
           <Flex justifyContent="space-between" p={6} alignItems="center">
-            <Heading fontSize="20px">Migrate to Delegated Staking</Heading>
+            <Heading fontSize="28px">Deposit to the 420 Pool</Heading>
             <CloseButton onClick={() => setIsOpenMigrate(false)} color="gray" />
           </Flex>
           <Flex width="100%" px={6}>
@@ -71,18 +81,47 @@ export function MigrateFromV3() {
           </Flex>
           <ModalBody pt={0} pb={6}>
             {step === 0 ? (
-              <Step0Intro onConfirm={() => setStep(2)} onClose={() => setIsOpenMigrate(false)} />
+              <VStack spacing={2} align="start">
+                <Flex gap={6}>
+                  <VStack gap={6} flex={1} align="start">
+                    <Heading fontSize="20px">Your final burn is here!</Heading>
+                    <Text>
+                      Deposit now to have your debt forgiven over 12 months and avoid the risk of
+                      liquidation.
+                    </Text>
+                    <Text>
+                      <Link
+                        isExternal
+                        color="cyan.500"
+                        href="https://sips.synthetix.io/sips/sip-420/"
+                      >
+                        Learn more about the 420 Pool
+                      </Link>
+                    </Text>
+                  </VStack>
+                  <Flex alignItems="center" justifyContent="center">
+                    <Image
+                      mx={6}
+                      width="150px"
+                      src={coinburn}
+                      alt="Synthetix Delegated Staking Launch"
+                    />
+                  </Flex>
+                </Flex>
+
+                <Spacer mt={6} />
+
+                <Button
+                  width="100%"
+                  isLoading={mutation.isPending}
+                  isDisabled={!(isReady && !mutation.isPending)}
+                  onClick={handleSubmit}
+                >
+                  Burn My Debt
+                </Button>
+              </VStack>
             ) : null}
-            {step === 2 ? (
-              <Step2Summary
-                onConfirm={(receipt: ethers.providers.TransactionReceipt) => {
-                  setReceipt(receipt);
-                  setStep(3);
-                }}
-                onClose={() => setIsOpenMigrate(false)}
-              />
-            ) : null}
-            {step === 3 ? (
+            {step === 1 ? (
               <Step3Success receipt={receipt} onConfirm={() => setIsOpenMigrate(false)} />
             ) : null}
           </ModalBody>
@@ -91,21 +130,7 @@ export function MigrateFromV3() {
 
       <LayoutWithImage
         imageSrc={burn}
-        Subheader={() => (
-          <SubheaderMigrateAndEarn
-            apy={
-              isPendingLiquidityPosition || isPendingSnxPrice
-                ? '~'
-                : liquidityPosition && liquidityPosition.collateralAmount.gt(0) && snxPrice
-                  ? `${wei(liquidityPosition.debt)
-                      .div(wei(liquidityPosition.collateralAmount).mul(snxPrice))
-                      .mul(100)
-                      .toNumber()
-                      .toFixed(1)}%+`
-                  : '-'
-            }
-          />
-        )}
+        Subheader={() => <SubheaderMigrateAndEarn />}
         Content={() => (
           <>
             <MigrateStats
@@ -113,7 +138,8 @@ export function MigrateFromV3() {
               collateralAmount={liquidityPosition?.collateralAmount}
               cRatio={liquidityPosition?.cRatio}
             />
-            <Button mt={6} isDisabled={!isReadyMigrate} onClick={() => setIsOpenMigrate(true)}>
+            <ZeroRisk />
+            <Button isDisabled={!isReadyMigrate} onClick={() => setIsOpenMigrate(true)}>
               Burn My Debt
             </Button>
           </>

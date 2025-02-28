@@ -5,6 +5,7 @@ import { useLiquidityPosition } from '@snx-v3/useLiquidityPosition';
 import { type HomePageSchemaType, useParams } from '@snx-v3/useParams';
 import React from 'react';
 import { Helmet } from 'react-helmet';
+import { ConnectYourWallet } from './Staking/ConnectYourWallet';
 import { EmptyPosition } from './Staking/EmptyPosition';
 import { EmptyV3Debt } from './Staking/EmptyV3Debt';
 import { Loading } from './Staking/Loading';
@@ -39,6 +40,7 @@ export function DashboardPage() {
   const hasV3Debt = liquidityPosition && liquidityPosition.debt.gt(0);
   const hasStakingPosition = newPoolPositionCollateral && newPoolPositionCollateral.gt(0);
 
+  let step = 0;
   return (
     <>
       <Helmet>
@@ -59,22 +61,64 @@ export function DashboardPage() {
 
           <Flex justifyContent="space-between" alignItems="center" gap={6} flexWrap="wrap">
             <Text color="gray.500" fontSize="1rem" lineHeight={6} fontFamily="heading">
-              Deposit SNX to earn a privileged share of protocol performance
+              Deposit into the 420 Pool to start earning yield
             </Text>
 
             <PoolStats />
           </Flex>
         </Flex>
         <Flex direction="column" mt={12} gap={6}>
+          {params.showAll ? (
+            <Heading mt={12} color="red.500">
+              State {step++}. Loading
+            </Heading>
+          ) : null}
           {params.showAll || isPending ? <Loading /> : null}
-          {params.showAll || (!isPending && hasV2xPosition) ? <MigrateFromV2x /> : null}
-          {params.showAll || (!isPending && hasV3Position && hasV3Debt) ? <MigrateFromV3 /> : null}
-          {params.showAll || (!isPending && hasStakingPosition) ? <StakingPosition /> : null}
-          {params.showAll || (!isPending && hasV3Position && !hasV3Debt) ? <EmptyV3Debt /> : null}
+
+          {params.showAll ? (
+            <Heading mt={12} color="red.500">
+              State {step++}. Not connected
+            </Heading>
+          ) : null}
+          {params.showAll || !activeWallet ? <ConnectYourWallet /> : null}
+
+          {params.showAll ? (
+            <Heading mt={12} color="red.500">
+              State {step++}. Connected wallet, no v2x/v3 positions
+            </Heading>
+          ) : null}
           {params.showAll ||
           (!isPending && !hasV2xPosition && !hasV3Position && !hasStakingPosition) ? (
             <EmptyPosition />
           ) : null}
+
+          {params.showAll ? (
+            <Heading mt={12} color="red.500">
+              State {step++}. v3 position without debt
+            </Heading>
+          ) : null}
+          {params.showAll || (!isPending && hasV3Position && !hasV3Debt) ? <EmptyV3Debt /> : null}
+
+          {params.showAll ? (
+            <Heading mt={12} color="red.500">
+              State {step++}. Migrate v2x position
+            </Heading>
+          ) : null}
+          {params.showAll || (!isPending && hasV2xPosition) ? <MigrateFromV2x /> : null}
+
+          {params.showAll ? (
+            <Heading mt={12} color="red.500">
+              State {step++}. Migrate v3 position
+            </Heading>
+          ) : null}
+          {params.showAll || (!isPending && hasV3Position && hasV3Debt) ? <MigrateFromV3 /> : null}
+
+          {params.showAll ? (
+            <Heading mt={12} color="red.500">
+              State {step++}. Pool 420 existing position
+            </Heading>
+          ) : null}
+          {params.showAll || (!isPending && hasStakingPosition) ? <StakingPosition /> : null}
         </Flex>
       </Flex>
     </>

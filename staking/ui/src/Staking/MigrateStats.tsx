@@ -48,7 +48,7 @@ export function MigrateStats({
         </Flex>
         <Flex direction="column" gap={3} flex={1}>
           <Text color="gray.600" fontFamily="heading" fontSize="12px" lineHeight="16px" mr={1}>
-            Loan
+            Debt
           </Text>
           {debt ? <Amount prefix="🔥 $" value={wei(debt)} /> : <Text>~</Text>}
         </Flex>

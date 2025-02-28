@@ -4,7 +4,6 @@ import { LogoIcon } from '@snx-v3/icons';
 import { usePythPrice } from '@snx-v3/usePythPrice';
 import { wei } from '@synthetixio/wei';
 import React from 'react';
-import { GradientCircle } from './GradientCircle';
 import { LoanChart } from './LoanChart';
 import { useClosePositionNewPool } from './useClosePositionNewPool';
 import { useCurrentLoanedAmount } from './useCurrentLoanedAmount';
@@ -16,13 +15,7 @@ export function StakingPosition() {
   const { data: loan, isPending: isPendingLoan } = useLoan();
   const { data: positionCollateral, isPending: isPendingPositionCollateral } =
     usePositionCollateral();
-
   const { data: snxPrice, isPending: isPendingSnxPrice } = usePythPrice('SNX');
-  const { data: loanSnxPrice, isPending: isPendingLoanSnxPrice } = usePythPrice(
-    'SNX',
-    loan?.startTime.toNumber()
-  );
-
   const { isReady: isReadyClosePosition, mutation: closePosition } = useClosePositionNewPool();
 
   return (
@@ -44,9 +37,9 @@ export function StakingPosition() {
             </Text>
           </Heading>
         </Flex>
-        <Text mt={3} color="gray.500" maxWidth="40em">
-          Your stake is fully delegated to Synthetix, and your loan is being forgiven automatically
-          over time. No action needed — just sit back and earn.
+        <Text mt={3} color="gray.50" maxWidth="40em">
+          Your position is fully delegated to Synthetix, and your debt is being forgiven
+          automatically over time with zero risk of liquidation.
         </Text>
       </Box>
 
@@ -65,31 +58,6 @@ export function StakingPosition() {
         >
           <Flex gap={6} direction={{ base: 'column', sm: 'column', lg: 'row', xl: 'row' }}>
             <Flex
-              flex={{ base: 1, sm: 1, lg: 1, xl: 1 }}
-              direction="column"
-              width="200px"
-              gap={6}
-              justifyContent="center"
-            >
-              <GradientCircle
-                value={
-                  isPendingPositionCollateral || isPendingLoanSnxPrice
-                    ? '~'
-                    : loan &&
-                        positionCollateral &&
-                        loanSnxPrice &&
-                        positionCollateral.gt(0) &&
-                        loanSnxPrice.gt(0)
-                      ? `${wei(loan.loanAmount)
-                          .div(wei(positionCollateral).mul(loanSnxPrice))
-                          .mul(100)
-                          .toNumber()
-                          .toFixed(1)}%`
-                      : '-'
-                }
-              />
-            </Flex>
-            <Flex
               flex={{ base: 1, sm: 2, lg: 2, xl: 2 }}
               direction="column"
               minWidth="400px"
@@ -98,7 +66,7 @@ export function StakingPosition() {
             >
               <Flex minWidth="120px" direction="column" gap={3}>
                 <Heading fontSize="20px" lineHeight="1.75rem" color="gray.50" fontWeight={700}>
-                  Loan repaid
+                  Debt burned
                 </Heading>
 
                 {isPendingLoanedAmount || isPendingLoan || isPendingSnxPrice ? (
