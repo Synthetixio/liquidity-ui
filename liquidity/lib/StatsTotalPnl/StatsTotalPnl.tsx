@@ -91,7 +91,7 @@ export function StatsTotalPnl() {
       label={
         <Text textAlign="left">
           Aggregated PNL of all your open Positions and combined value of all your Rewards. This is
-          not inclusive on previously claimed Rewards.
+          not inclusive of previously claimed Rewards.
         </Text>
       }
     />
