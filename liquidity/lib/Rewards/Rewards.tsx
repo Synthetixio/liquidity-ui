@@ -82,7 +82,7 @@ export function Rewards() {
               py={3}
             >
               Token
-              <Tooltip label="Claimable rewards from trader collateral liquidations and incentives">
+              <Tooltip label="Claimable rewards from trader collateral liquidations and incentives. Liquidated collateral rewards offset debt accrued during trader liquidations.">
                 <InfoIcon ml={1} mb="1px" />
               </Tooltip>
             </Th>
