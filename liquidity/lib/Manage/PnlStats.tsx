@@ -26,7 +26,7 @@ export function PnlStats({ newDebt, hasChanges }: { newDebt: Wei; hasChanges: bo
             PnL
           </Text>
           <Tooltip
-            label="Your portion of the pool's total debt, which fluctuates based on trader performance and market conditions"
+            label="Your portion of the pool's total debt, which fluctuates based on trader performance and market conditions. This PNL is not inclusive liquidated trader collateral rewards."
             textAlign="start"
             py={2}
             px={3}

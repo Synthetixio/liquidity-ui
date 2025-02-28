@@ -68,7 +68,7 @@ export function PositionTableHeader() {
             <Tooltip
               label={
                 network?.preset === 'andromeda' ? (
-                  "Your portion of the pool's total debt, which fluctuates based on trader performance and market conditions"
+                  "Your portion of the pool's total debt, which fluctuates based on trader performance and market conditions. This PNL is not inclusive liquidated trader collateral rewards."
                 ) : (
                   <Text textAlign="left">
                     Debt consists of:
