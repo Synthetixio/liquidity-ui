@@ -82,7 +82,7 @@ export function Rewards() {
               py={3}
             >
               Token
-              <Tooltip label="Total rewards active for the Pool">
+              <Tooltip label="Claimable rewards from trader collateral liquidations and incentives">
                 <InfoIcon ml={1} mb="1px" />
               </Tooltip>
             </Th>
