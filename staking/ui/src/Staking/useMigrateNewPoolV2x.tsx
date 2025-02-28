@@ -61,6 +61,11 @@ export function useMigrateNewPoolV2x() {
       const TreasuryMarketProxyInterface = new ethers.utils.Interface(TreasuryMarketProxy.abi);
       const multicall = [
         {
+          target: TreasuryMarketProxy.address,
+          callData: TreasuryMarketProxyInterface.encodeFunctionData('rebalance'),
+          requireSuccess: true,
+        },
+        {
           target: LegacyMarket.address,
           callData: LegacyMarketProxyInterface.encodeFunctionData('migrate', [
             ethers.BigNumber.from(accountId),
@@ -103,6 +108,7 @@ export function useMigrateNewPoolV2x() {
           //
           'New Pool',
           //
+          'Accounts',
           'PriceUpdates',
           'LiquidityPosition',
           'LiquidityPositions',

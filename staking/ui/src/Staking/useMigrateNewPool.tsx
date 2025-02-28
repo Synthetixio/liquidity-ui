@@ -14,6 +14,7 @@ import debug from 'debug';
 import { ethers } from 'ethers';
 import React from 'react';
 import { useTargetCRatio } from './useTargetCRatio';
+import { useTreasuryMarketProxy } from '@snx-v3/useTreasuryMarketProxy';
 
 const log = debug('snx:useMigrateNewPool');
 
@@ -35,6 +36,7 @@ export function useMigrateNewPool() {
   const { data: AccountProxy } = useAccountProxy();
   const { data: TrustedMulticallForwarder } = useTrustedMulticallForwarder();
   const { data: targetCRatio } = useTargetCRatio();
+  const { data: TreasuryMarketProxy } = useTreasuryMarketProxy();
 
   const isReady =
     network &&
@@ -43,6 +45,7 @@ export function useMigrateNewPool() {
     TrustedMulticallForwarder &&
     PositionManagerNewPool &&
     AccountProxy &&
+    TreasuryMarketProxy &&
     targetCRatio &&
     liquidityPosition &&
     liquidityPosition.collateralAmount.gt(0) &&
@@ -66,7 +69,14 @@ export function useMigrateNewPool() {
       const PositionManagerNewPoolInterface = new ethers.utils.Interface(
         PositionManagerNewPool.abi
       );
+      const TreasuryMarketProxyInterface = new ethers.utils.Interface(TreasuryMarketProxy.abi);
+
       const multicall = [
+        {
+          target: TreasuryMarketProxy.address,
+          callData: TreasuryMarketProxyInterface.encodeFunctionData('rebalance'),
+          requireSuccess: true,
+        },
         {
           target: AccountProxy.address,
           callData: AccountProxyInterface.encodeFunctionData('approve', [
@@ -112,6 +122,7 @@ export function useMigrateNewPool() {
           //
           'New Pool',
           //
+          'Accounts',
           'PriceUpdates',
           'LiquidityPosition',
           'LiquidityPositions',
