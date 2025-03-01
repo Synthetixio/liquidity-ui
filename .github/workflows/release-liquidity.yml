@@ -2,11 +2,8 @@ name: release-liquidity
 
 on:
   push:
-    tags:
-      - 'release-liquidity-*'
     branches:
-      - 'liquidity-synthetix-eth'
-      - 'releases'
+      - 'master'
 
 jobs:
   release-liquidity:
@@ -52,26 +49,3 @@ jobs:
 
       - run: git push origin master
         working-directory: liquidity.synthetix.eth
-
-      - uses: actions/checkout@v4
-        with:
-          path: liquidity.synthetix.io
-          repository: 'Synthetixio/liquidity.synthetix.io'
-          ref: 'master'
-          ssh-key: '${{ secrets.LIQUIDITY_SYNTHETIX_IO_SSH_KEY }}'
-
-      - run: rm -rf ./liquidity.synthetix.io/dist
-      - run: cp -r ./liquidity-ui/liquidity/ui/dist ./liquidity.synthetix.io/
-
-      - run: git add .
-        working-directory: liquidity.synthetix.io
-
-      - run: |
-          git commit -m "Release ${{ github.event.release.name }}" \
-            --allow-empty \
-            -m "Source: ${{ github.server_url}}/${{ github.repository }}" \
-            -m "Commit: ${{ github.sha }}"
-        working-directory: liquidity.synthetix.io
-
-      - run: git push origin master
-        working-directory: liquidity.synthetix.io
