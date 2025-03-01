@@ -13,7 +13,6 @@ export const D27 = ethers.utils.parseUnits('1', 27);
 export const DEFAULT_QUERY_STALE_TIME = 300_000; // 5min
 
 export const INFURA_KEY = process.env.INFURA_KEY || '8678fe160b1f4d45ad3f3f71502fc57b';
-export const ONBOARD_KEY = 'sec_jykTuCK0ZuqXWf3wNYqizxs2';
 
 export const getSubgraphUrl = (networkName = 'optimism-mainnet') => {
   switch (networkName) {

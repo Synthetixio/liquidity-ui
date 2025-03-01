@@ -49,8 +49,6 @@ module.exports = {
     {
       files: [
         //
-        'staking/ui/**/*',
-        'staking/lib/**/*',
         'liquidity/ui/**/*',
         'liquidity/lib/**/*',
       ],

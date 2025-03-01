@@ -1,1 +1,0 @@
-@synthetixio/=../../node_modules/@synthetixio/
