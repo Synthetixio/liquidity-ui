@@ -9,6 +9,7 @@ import { usePythPrice } from '@snx-v3/usePythPrice';
 import { useRewards } from '@snx-v3/useRewards';
 import { wei } from '@synthetixio/wei';
 import React from 'react';
+import { useClaimedRewards } from '../useClaimedRewards';
 
 export function StatsTotalPnl() {
   const [params] = useParams();
@@ -19,6 +20,10 @@ export function StatsTotalPnl() {
   });
 
   const { data: snxPrice, isPending: isPendingSnxPrice } = usePythPrice('SNX');
+
+  const { data: claimedRewards, isPending: isPendingClaimedRewards } = useClaimedRewards(
+    params.accountId
+  );
 
   const rewardsTokens = React.useMemo(() => {
     const result: Set<string> = new Set();
@@ -56,6 +61,11 @@ export function StatsTotalPnl() {
     }
   }, [rewards, rewardsTokenPrices, snxPrice]);
 
+  const totalClaimedRewardsValue = React.useMemo(
+    () => (claimedRewards || []).reduce((result, reward) => result.add(reward.amount_usd), wei(0)),
+    [claimedRewards]
+  );
+
   const { data: liquidityPositions, isPending: isPendingLiquidityPositions } =
     useLiquidityPositions({
       accountId: params.accountId,
@@ -80,18 +90,19 @@ export function StatsTotalPnl() {
             !isPendingLiquidityPositions &&
             !isPendingRewards &&
             !isPendingSnxPrice &&
-            !isPendingRewardsPrices)
+            !isPendingRewardsPrices &&
+            !isPendingClaimedRewards)
         )
       }
       value={
         totalDebt && totalRewardsValue ? (
-          <PnlAmount debt={totalDebt.sub(totalRewardsValue)} />
+          <PnlAmount debt={totalDebt.sub(totalRewardsValue).sub(totalClaimedRewardsValue)} />
         ) : null
       }
       label={
         <Text textAlign="left">
-          Aggregated PNL of all your open Positions and combined value of all your Rewards. This is
-          not inclusive of previously claimed Rewards.
+          Aggregated PNL of all of your open positions, unclaimed rewards, and previously claimed
+          rewards
         </Text>
       }
     />

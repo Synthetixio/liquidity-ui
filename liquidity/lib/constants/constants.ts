@@ -46,6 +46,17 @@ export const getAprUrl = (networkId = 8453) => {
   }
 };
 
+export const getClaimedRewardsURL = (networkId = 8453) => {
+  switch (networkId) {
+    case 1:
+      return 'https://api.synthetix.io/v3/mainnet/rewards-claimed';
+    case 8453:
+      return 'https://api.synthetix.io/v3/base/rewards-claimed';
+    default:
+      return '';
+  }
+};
+
 export const SESSION_STORAGE_KEYS = {
   TERMS_CONDITIONS_ACCEPTED: 'TERMS_CONDITIONS_ACCEPTED',
 };

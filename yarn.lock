@@ -5888,6 +5888,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/useClaimedRewards@workspace:liquidity/lib/useClaimedRewards":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useClaimedRewards@workspace:liquidity/lib/useClaimedRewards"
+  dependencies:
+    "@snx-v3/constants": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/useClearDebt@workspace:*, @snx-v3/useClearDebt@workspace:liquidity/lib/useClearDebt":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useClearDebt@workspace:liquidity/lib/useClearDebt"
