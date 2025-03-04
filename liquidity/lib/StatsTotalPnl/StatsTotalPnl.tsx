@@ -61,11 +61,6 @@ export function StatsTotalPnl() {
     }
   }, [rewards, rewardsTokenPrices, snxPrice]);
 
-  const totalClaimedRewardsValue = React.useMemo(
-    () => (claimedRewards || []).reduce((result, reward) => result.add(reward.amount_usd), wei(0)),
-    [claimedRewards]
-  );
-
   const { data: liquidityPositions, isPending: isPendingLiquidityPositions } =
     useLiquidityPositions({
       accountId: params.accountId,
@@ -95,8 +90,8 @@ export function StatsTotalPnl() {
         )
       }
       value={
-        totalDebt && totalRewardsValue && claimedRewards ? (
-          <PnlAmount debt={totalDebt.sub(totalRewardsValue).sub(totalClaimedRewardsValue)} />
+        totalDebt && totalRewardsValue && claimedRewards !== undefined ? (
+          <PnlAmount debt={totalDebt.sub(totalRewardsValue).sub(claimedRewards)} />
         ) : null
       }
       label={
