@@ -95,7 +95,7 @@ export function StatsTotalPnl() {
         )
       }
       value={
-        totalDebt && totalRewardsValue ? (
+        totalDebt && totalRewardsValue && claimedRewards ? (
           <PnlAmount debt={totalDebt.sub(totalRewardsValue).sub(totalClaimedRewardsValue)} />
         ) : null
       }
