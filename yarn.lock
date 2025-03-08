@@ -6085,6 +6085,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/useIssuedDebt@workspace:liquidity/lib/useIssuedDebt":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useIssuedDebt@workspace:liquidity/lib/useIssuedDebt"
+  dependencies:
+    "@snx-v3/constants": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    debug: "npm:^4.4.0"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/useLiquidityPosition@workspace:*, @snx-v3/useLiquidityPosition@workspace:liquidity/lib/useLiquidityPosition":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useLiquidityPosition@workspace:liquidity/lib/useLiquidityPosition"

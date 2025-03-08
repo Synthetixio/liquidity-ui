@@ -10,6 +10,7 @@ import { usePythPrice } from '@snx-v3/usePythPrice';
 import { useRewards } from '@snx-v3/useRewards';
 import { wei } from '@synthetixio/wei';
 import React from 'react';
+import { useIssuedDebt } from '../useIssuedDebt';
 
 export function StatsTotalPnl() {
   const [params] = useParams();
@@ -24,6 +25,7 @@ export function StatsTotalPnl() {
   const { data: claimedRewards, isPending: isPendingClaimedRewards } = useClaimedRewards(
     params.accountId
   );
+  const { data: issuedDebt, isPending: isPendingIssuedDebt } = useIssuedDebt(params.accountId);
 
   const rewardsTokens = React.useMemo(() => {
     const result: Set<string> = new Set();
@@ -76,11 +78,11 @@ export function StatsTotalPnl() {
   }, [liquidityPositions]);
 
   const totalClaimedRewards = React.useMemo(() => {
-    if (typeof claimedRewards === 'number' && !Number.isNaN(claimedRewards)) {
-      return wei(claimedRewards);
-    }
-    return wei(0);
+    return claimedRewards?.reduce((curr, acc) => curr.add(acc.total_amount_usd), wei(0));
   }, [claimedRewards]);
+  const totalIssuedDebt = React.useMemo(() => {
+    return issuedDebt?.reduce((curr, acc) => curr.add(acc.issuance), wei(0));
+  }, [issuedDebt]);
 
   return (
     <StatsBox
@@ -93,12 +95,15 @@ export function StatsTotalPnl() {
             !isPendingRewards &&
             !isPendingSnxPrice &&
             !isPendingRewardsPrices &&
-            !isPendingClaimedRewards)
+            !isPendingClaimedRewards &&
+            !isPendingIssuedDebt)
         )
       }
       value={
-        totalDebt && totalRewardsValue && totalClaimedRewards ? (
-          <PnlAmount debt={totalDebt.sub(totalRewardsValue).sub(totalClaimedRewards)} />
+        totalDebt && totalRewardsValue && totalClaimedRewards && totalIssuedDebt ? (
+          <PnlAmount
+            debt={totalDebt.sub(totalRewardsValue).sub(totalClaimedRewards).sub(totalIssuedDebt)}
+          />
         ) : undefined
       }
       label={

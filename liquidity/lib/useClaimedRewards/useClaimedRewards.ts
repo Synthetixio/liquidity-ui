@@ -13,11 +13,10 @@ export function useClaimedRewards(accountId?: string) {
     enabled: Boolean(network && accountId),
     queryFn: async () => {
       const response = await fetch(getClaimedRewardsURL(network?.id) + `?accountId=${accountId}`);
-      const claimedRewards = await response.json();
+      const claimedRewards: { total_amount_usd: string; collateral_type: string }[] =
+        await response.json();
       log('claimedRewards', claimedRewards);
-      const value = claimedRewards !== null ? parseFloat(claimedRewards) : 0;
-      log('value', value);
-      return value;
+      return claimedRewards;
     },
     staleTime: 60_000,
   });

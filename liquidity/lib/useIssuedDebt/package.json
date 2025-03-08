@@ -1,0 +1,12 @@
+{
+  "name": "@snx-v3/useIssuedDebt",
+  "private": true,
+  "main": "index.ts",
+  "version": "0.0.2",
+  "dependencies": {
+    "@snx-v3/constants": "workspace:*",
+    "@snx-v3/useBlockchain": "workspace:*",
+    "@tanstack/react-query": "^5.8.3",
+    "debug": "^4.4.0"
+  }
+}
