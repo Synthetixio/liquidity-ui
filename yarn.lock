@@ -5243,6 +5243,7 @@ __metadata:
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useClaimedRewards": "workspace:*"
     "@snx-v3/useCollateralPrices": "workspace:*"
+    "@snx-v3/useIssuedDebt": "workspace:*"
     "@snx-v3/useLiquidityPositions": "workspace:*"
     "@snx-v3/useParams": "workspace:*"
     "@snx-v3/usePythPrice": "workspace:*"
@@ -6085,7 +6086,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/useIssuedDebt@workspace:liquidity/lib/useIssuedDebt":
+"@snx-v3/useIssuedDebt@workspace:*, @snx-v3/useIssuedDebt@workspace:liquidity/lib/useIssuedDebt":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useIssuedDebt@workspace:liquidity/lib/useIssuedDebt"
   dependencies:

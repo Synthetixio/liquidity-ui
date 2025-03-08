@@ -10,7 +10,7 @@ import { usePythPrice } from '@snx-v3/usePythPrice';
 import { useRewards } from '@snx-v3/useRewards';
 import { wei } from '@synthetixio/wei';
 import React from 'react';
-import { useIssuedDebt } from '../useIssuedDebt';
+import { useIssuedDebt } from '@snx-v3/useIssuedDebt';
 
 export function StatsTotalPnl() {
   const [params] = useParams();
