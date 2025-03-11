@@ -11,15 +11,18 @@
     <script>
       var _paq = (window._paq = window._paq || []);
       /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+      _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
+      _paq.push(["setCookieDomain", "*.synthetix.io"]);
       _paq.push(['trackPageView']);
-      _paq.push(['enableLinkTracking']);
-      (function () {
-        var u = 'https://analytics.synthetix.io/';
+     _paq.push(['enableLinkTracking']);
+      (function() {
+        var u = "https://analytics.synthetix.io/";
+        // Configure the primary tracker (site ID 11)
         _paq.push(['setTrackerUrl', u + 'matomo.php']);
-        _paq.push(['setSiteId', '8']);
-        var d = document,
-          g = d.createElement('script'),
-          s = d.getElementsByTagName('script')[0];
+        _paq.push(['setSiteId', '11']);
+        // Add the second tracker (site ID 8)
+        _paq.push(['addTracker', u + 'matomo.php', 8]);
+        var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
         g.async = true;
         g.src = u + 'matomo.js';
         s.parentNode.insertBefore(g, s);
