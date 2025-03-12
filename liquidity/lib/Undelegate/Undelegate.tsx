@@ -437,7 +437,15 @@ export function Undelegate() {
       ) : null}
 
       <Button
-        onClick={onSubmit}
+        onClick={(e: React.FormEvent) => {
+          window?._paq?.push([
+            'trackEvent',
+            'liquidity',
+            'v3_staking',
+            `submit_undelegate_${collateralType?.symbol?.toLowerCase()}_v3`,
+          ]);
+          onSubmit(e);
+        }}
         data-cy="undelegate submit"
         type="submit"
         isDisabled={isSubmitDisabled}

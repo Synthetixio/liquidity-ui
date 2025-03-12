@@ -198,7 +198,15 @@ function ClosePositionUi({ onSubmit, onClose }: { onClose: () => void; onSubmit:
 
       <Button
         data-cy="close position submit"
-        onClick={onSubmit}
+        onClick={() => {
+          window?._paq?.push([
+            'trackEvent',
+            'liquidity',
+            'v3_staking',
+            `click_close_position_${collateralType?.symbol?.toLowerCase()}_v3`,
+          ]);
+          onSubmit();
+        }}
         type="submit"
         isDisabled={
           // Deployments that do not have ClosePosition contract available should skip this check

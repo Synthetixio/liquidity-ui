@@ -314,6 +314,14 @@ export function WithdrawAndromeda() {
         }
         data-cy="withdraw submit"
         type="submit"
+        onClick={() => {
+          window?._paq?.push([
+            'trackEvent',
+            'liquidity',
+            'v3_staking',
+            `submit_withdraw_${collateralType?.symbol?.toLowerCase()}_v3`,
+          ]);
+        }}
       >
         Withdraw
       </Button>

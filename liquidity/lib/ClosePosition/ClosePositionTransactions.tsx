@@ -327,7 +327,15 @@ export function ClosePositionTransactions({
           (requireApproval && !isReadyApprove) || (requireApprovalUSDC && !isReadyApproveUSDC)
         }
         isLoading={txState.status === 'pending'}
-        onClick={handleSubmit}
+        onClick={() => {
+          window?._paq?.push([
+            'trackEvent',
+            'liquidity',
+            'v3_staking',
+            `submit_close_position_${collateralType?.symbol?.toLowerCase()}_v3`,
+          ]);
+          handleSubmit();
+        }}
         mt="6"
       >
         {(() => {

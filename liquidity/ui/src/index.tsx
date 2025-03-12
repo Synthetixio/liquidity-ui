@@ -9,6 +9,7 @@ declare global {
   var $magicWallet: `0x${string}`; // eslint-disable-line no-var
   var $chainId: number; // eslint-disable-line no-var
   var ethereum: any; // eslint-disable-line no-var
+  var _paq: any; // eslint-disable-line no-var
 }
 
 export async function bootstrap() {

@@ -250,7 +250,15 @@ export function RepayModal({ onClose }: { onClose: () => void }) {
 
       <Button
         isDisabled={state.matches(State.approve) || state.matches(State.repay) || !isReadyApprove}
-        onClick={onSubmit}
+        onClick={() => {
+          window?._paq?.push([
+            'trackEvent',
+            'liquidity',
+            'v3_staking',
+            `submit_repay_${collateralType?.symbol?.toLowerCase()}_v3`,
+          ]);
+          onSubmit();
+        }}
         width="100%"
         mt="6"
         data-cy="repay confirm button"

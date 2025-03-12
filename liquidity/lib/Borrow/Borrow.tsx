@@ -180,6 +180,14 @@ export function Borrow() {
         data-cy="borrow submit"
         type="submit"
         isDisabled={!isBorrowReady || debtChange.gt(max)}
+        onClick={() => {
+          window?._paq?.push([
+            'trackEvent',
+            'liquidity',
+            'v3_staking',
+            `submit_borrow_${collateralType?.symbol?.toLowerCase()}_v3`,
+          ]);
+        }}
       >
         {debtChange.eq(0) ? 'Enter Amount' : 'Borrow'}
       </Button>

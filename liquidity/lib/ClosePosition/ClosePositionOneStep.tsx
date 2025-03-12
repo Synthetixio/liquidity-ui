@@ -273,7 +273,15 @@ export function ClosePositionOneStep({
         data-cy="close position confirm button"
         isLoading={txState.status === 'pending'}
         isDisabled={!(liquidityPosition && liquidityPosition.collateralAmount.gt(0))}
-        onClick={() => execClosePosition()}
+        onClick={() => {
+          window?._paq?.push([
+            'trackEvent',
+            'liquidity',
+            'v3_staking',
+            `submit_close_position_${collateralType?.symbol?.toLowerCase()}_v3`,
+          ]);
+          execClosePosition();
+        }}
         mt="6"
       >
         {txState.status === 'error' ? 'Retry' : null}

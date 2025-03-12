@@ -154,6 +154,13 @@ export function ClaimModal({ onClose }: { onClose: () => void }) {
       <Button
         isDisabled={['pending', 'prompting'].includes(txnState.txnStatus)}
         onClick={() => {
+          window?._paq?.push([
+            'trackEvent',
+            'liquidity',
+            'v3_staking',
+            `submit_borrow_${collateralType?.symbol?.toLowerCase()}_v3`,
+          ]);
+
           if (['unsent', 'error'].includes(txnState.txnStatus)) {
             execBorrowWithErrorParser();
           }

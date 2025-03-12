@@ -174,7 +174,10 @@ export function StataUSDC() {
             cursor: 'not-allowed',
           }}
           data-cy="unwrap stata submit"
-          onClick={() => unwrapStaticAaveUSDC()}
+          onClick={() => {
+            window?._paq?.push(['trackEvent', 'liquidity', 'v3_staking', `submit_unwrap_stata_v3`]);
+            unwrapStaticAaveUSDC();
+          }}
         >
           Unwrap
         </Button>

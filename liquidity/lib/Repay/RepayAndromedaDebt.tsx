@@ -97,7 +97,15 @@ export function RepayAndromedaDebt() {
               <Button
                 isDisabled={!hasEnoughBalance || !isReadyApprove}
                 isLoading={isLoading || approvalLoading}
-                onClick={submit}
+                onClick={() => {
+                  window?._paq?.push([
+                    'trackEvent',
+                    'liquidity',
+                    'v3_staking',
+                    `submit_repay_${collateralType?.symbol?.toLowerCase()}_v3`,
+                  ]);
+                  submit();
+                }}
                 data-cy="repay debt submit"
               >
                 <Amount

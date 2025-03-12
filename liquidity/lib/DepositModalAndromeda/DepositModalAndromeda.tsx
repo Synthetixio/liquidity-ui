@@ -277,7 +277,15 @@ export function DepositModalAndromeda({ onClose }: { onClose: () => void }) {
             txnStateDeposit.txnStatus === 'pending'
           }
           isDisabled={!isReady}
-          onClick={() => execDeposit()}
+          onClick={() => {
+            window?._paq?.push([
+              'trackEvent',
+              'liquidity',
+              'v3_staking',
+              `submit_deposit_${collateralType?.symbol?.toLowerCase()}_v3`,
+            ]);
+            execDeposit();
+          }}
           mt="6"
         >
           {(() => {

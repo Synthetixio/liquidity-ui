@@ -58,7 +58,15 @@ export function Synths() {
             cursor: 'not-allowed',
           }}
           data-cy="unwrap synths submit"
-          onClick={() => unwrapAll()}
+          onClick={() => {
+            window?._paq?.push([
+              'trackEvent',
+              'liquidity',
+              'v3_staking',
+              `submit_unwrap_synths_v3`,
+            ]);
+            unwrapAll();
+          }}
         >
           Unwrap
         </Button>

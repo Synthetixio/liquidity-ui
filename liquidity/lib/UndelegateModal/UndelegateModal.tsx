@@ -257,7 +257,15 @@ export function UndelegateModal({ onClose }: { onClose: () => void }) {
 
       <Button
         isDisabled={!isReady}
-        onClick={onSubmit}
+        onClick={() => {
+          window?._paq?.push([
+            'trackEvent',
+            'liquidity',
+            'v3_staking',
+            `submit_undelegate_${collateralType?.symbol?.toLowerCase()}_v3`,
+          ]);
+          onSubmit();
+        }}
         width="100%"
         mt="6"
         data-cy="undelegate confirm button"

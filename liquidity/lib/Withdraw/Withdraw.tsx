@@ -228,6 +228,14 @@ export function Withdraw({ isDebtWithdrawal = false }: { isDebtWithdrawal?: bool
         }
         data-cy="withdraw submit"
         type="submit"
+        onClick={() => {
+          window?._paq?.push([
+            'trackEvent',
+            'liquidity',
+            'v3_staking',
+            `submit_withdraw_${collateralType?.symbol?.toLowerCase()}_v3`,
+          ]);
+        }}
       >
         {withdrawAmount.gt(0) ? 'Withdraw' : 'Enter Amount'}
       </Button>

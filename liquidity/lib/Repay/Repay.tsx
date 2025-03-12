@@ -184,7 +184,19 @@ export function Repay() {
           </Text>
         </Flex>
       </BorderBox>
-      <Button data-cy="repay submit" type="submit" isDisabled={!isReadyRepay}>
+      <Button
+        data-cy="repay submit"
+        type="submit"
+        isDisabled={!isReadyRepay}
+        onClick={() => {
+          window?._paq?.push([
+            'trackEvent',
+            'liquidity',
+            'v3_staking',
+            `submit_repay_${collateralType?.symbol?.toLowerCase()}_v3`,
+          ]);
+        }}
+      >
         {debtChange.eq(0) ? 'Enter Amount' : 'Repay'}
       </Button>
     </Flex>

@@ -320,6 +320,14 @@ export function Deposit() {
               .gt(collateralType.minDelegationD18)
           )
         }
+        onClick={() => {
+          window?._paq?.push([
+            'trackEvent',
+            'liquidity',
+            'v3_staking',
+            `click_deposit_${collateralType?.symbol?.toLowerCase()}_v3`,
+          ]);
+        }}
       >
         {collateralChange.lte(0) ? 'Enter Amount' : 'Deposit and Lock Collateral'}
       </Button>

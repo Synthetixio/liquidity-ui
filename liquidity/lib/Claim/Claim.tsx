@@ -190,6 +190,14 @@ export function Claim() {
         isDisabled={debtChange.lte(0) || debtChange.gt(max)}
         data-cy="claim submit"
         type="submit"
+        onClick={() => {
+          window?._paq?.push([
+            'trackEvent',
+            'liquidity',
+            'v3_staking',
+            `click_borrow_${collateralType?.symbol?.toLowerCase()}_v3`,
+          ]);
+        }}
       >
         {debtChange.lte(0)
           ? 'Enter Amount'
