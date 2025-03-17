@@ -74,7 +74,7 @@ export const ManagePage = () => {
         >
           <PositionTitle />
           <Flex alignItems={['center', 'flex-end']} direction="column">
-            <Tooltip label="APR is averaged over the trailing 28 days and is comprised of both performance and rewards">
+            <Tooltip label="Performance APR is calculated based on the last 28 days rolling average. Rewards APR is calculated based on the last 1 hour.">
               <Text
                 fontFamily="heading"
                 fontSize="sm"
