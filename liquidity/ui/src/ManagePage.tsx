@@ -74,7 +74,21 @@ export const ManagePage = () => {
         >
           <PositionTitle />
           <Flex alignItems={['center', 'flex-end']} direction="column">
-            <Tooltip label="Performance APR is calculated based on the last 28 days rolling average. Rewards APR is calculated based on the last 1 hour.">
+            <Tooltip
+              label={
+                <Text textAlign="left">
+                  Performance APR is calculated based on the last 28 days rolling average. <br />
+                  Rewards APR is calculated based on the last 1 hour of any active incentive
+                  program.
+                  {isAndromedaStataUSDC && (
+                    <>
+                      <br />
+                      Aave APR is the latest Aave lending rate.
+                    </>
+                  )}
+                </Text>
+              }
+            >
               <Text
                 fontFamily="heading"
                 fontSize="sm"
@@ -88,10 +102,12 @@ export const ManagePage = () => {
             </Tooltip>
             <Text fontWeight="bold" fontSize="20px" color="white" lineHeight="36px">
               {isPendingApr ? '~' : null}
+
               {!isPendingApr && positionApr && positionApr.apr28d > 0
                 ? (
-                    positionApr.apr28d * 100 +
-                    (isAndromedaStataUSDC && stataUSDCApr ? stataUSDCApr : 0)
+                    positionApr.apr28dPerformance * 100 +
+                    (isAndromedaStataUSDC && stataUSDCApr ? stataUSDCApr : 0) +
+                    positionApr.apr24hIncentiveRewards * 100
                   )
                     .toFixed(2)
                     .concat('%')
