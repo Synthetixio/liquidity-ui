@@ -11,7 +11,7 @@ export function useLocks(accountId?: string, collateralType?: string, customNetw
   const provider = useProviderForChain(targetNetwork);
 
   return useQuery({
-    enabled: Boolean(provider && CoreProxy),
+    enabled: Boolean(provider && CoreProxy && accountId && collateralType),
     queryKey: [
       `${targetNetwork?.id}-${targetNetwork?.preset}`,
       'Locks',
