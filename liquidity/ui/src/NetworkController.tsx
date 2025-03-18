@@ -2,7 +2,6 @@ import { CopyIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
   Badge,
   Button,
-  Divider,
   Flex,
   IconButton,
   Link,
@@ -10,24 +9,18 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  MenuOptionGroup,
-  Switch,
   Text,
 } from '@chakra-ui/react';
-import { LOCAL_STORAGE_KEYS } from '@snx-v3/constants';
 import { prettyString, renderAccountId } from '@snx-v3/format';
 import { WalletIcon } from '@snx-v3/icons';
 import { Tooltip } from '@snx-v3/Tooltip';
 import { useAccounts } from '@snx-v3/useAccounts';
 import { NetworkIcon, NETWORKS, useNetwork, useWallet } from '@snx-v3/useBlockchain';
-import { useCreateAccount } from '@snx-v3/useCreateAccount';
-import { useLocalStorage } from '@snx-v3/useLocalStorage';
 import { makeSearch, useParams } from '@snx-v3/useParams';
 import { ethers } from 'ethers';
 import React from 'react';
 
 const mainnets = NETWORKS.filter(({ isSupported, isTestnet }) => isSupported && !isTestnet);
-const testnets = NETWORKS.filter(({ isSupported, isTestnet }) => isSupported && isTestnet);
 
 export function NetworkController() {
   const [params, setParams] = useParams();
@@ -36,8 +29,6 @@ export function NetworkController() {
   const { activeWallet, walletsInfo, connect, disconnect } = useWallet();
   const { network: currentNetwork, setNetwork } = useNetwork();
   const { data: accounts, isPending: isPendingAccounts } = useAccounts();
-  const createAccount = useCreateAccount();
-  const [showTestnets, setShowTestnets] = useLocalStorage(LOCAL_STORAGE_KEYS.SHOW_TESTNETS, false);
 
   const paramsAccountId = React.useMemo(() => {
     try {
@@ -127,37 +118,6 @@ export function NetworkController() {
                 isDisabled={window.$chainId ? window.$chainId !== id : false}
               >
                 <NetworkIcon networkId={id} size="20px" />
-                <Text variant="nav" ml={2}>
-                  {label}
-                </Text>
-              </MenuItem>
-            ))}
-
-            {showTestnets && <Divider color="gray.900" />}
-
-            <MenuOptionGroup>
-              <Flex py={4} px={3} alignItems="center" justifyContent="space-between">
-                <Text fontSize="14px" fontFamily="heading" lineHeight="20px">
-                  Show Testnets
-                </Text>
-                <Switch
-                  mr={2}
-                  size="sm"
-                  color="gray.900"
-                  colorScheme="gray"
-                  isChecked={showTestnets}
-                  onChange={() => setShowTestnets(!showTestnets)}
-                />
-              </Flex>
-            </MenuOptionGroup>
-
-            {(showTestnets ? testnets : []).map(({ id, preset, label }) => (
-              <MenuItem
-                key={`${id}-${preset}`}
-                onClick={() => setNetwork(id)}
-                isDisabled={window.$chainId ? window.$chainId !== id : false}
-              >
-                <NetworkIcon filter="grayscale(1)" networkId={id} size="20px" />
                 <Text variant="nav" ml={2}>
                   {label}
                 </Text>
@@ -294,37 +254,6 @@ export function NetworkController() {
                     </Text>
                   ))}
                 </Flex>
-
-                <Button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    createAccount.mutation.mutate();
-                  }}
-                  isDisabled={!createAccount.enabled || createAccount.mutation.isPending}
-                  size="xs"
-                  variant="outline"
-                  colorScheme="gray"
-                  color="white"
-                  leftIcon={
-                    <svg
-                      width="8"
-                      height="8"
-                      viewBox="0 0 8 8"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M3.5 3.5V0.5H4.5V3.5H7.5V4.5H4.5V7.5H3.5V4.5H0.5V3.5H3.5Z"
-                        fill="white"
-                      />
-                    </svg>
-                  }
-                  w="130px"
-                  data-cy="create new account button"
-                >
-                  Create Account
-                </Button>
               </Flex>
             </Flex>
           </Flex>
