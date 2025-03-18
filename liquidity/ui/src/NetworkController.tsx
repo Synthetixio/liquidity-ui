@@ -198,63 +198,66 @@ export function NetworkController() {
                   />
                 </Tooltip>
               </Flex>
-              <Flex
-                flexDir="column"
-                p="2"
-                border="1px solid"
-                borderColor="gray.900"
-                rounded="base"
-                gap="2"
-              >
-                <Flex w="100%" justifyContent="space-between">
-                  <Text fontWeight={400} fontSize="14px">
-                    Account(s)
-                  </Text>
-                  <Link
-                    href={`?${makeSearch({ page: 'settings', accountId: params.accountId })}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setParams({ page: 'settings', accountId: params.accountId });
-                    }}
-                  >
-                    <IconButton
-                      variant="outline"
-                      colorScheme="gray"
-                      size="xs"
-                      icon={<SettingsIcon />}
-                      aria-label="account settings"
-                    />
-                  </Link>
-                </Flex>
-                <Flex data-cy="accounts list" flexDir="column">
-                  {accounts?.map((accountId) => (
-                    <Text
-                      key={accountId.toString()}
-                      display="flex"
-                      alignItems="center"
-                      color="white"
-                      fontWeight={700}
-                      fontSize="16px"
-                      cursor="pointer"
-                      p="3"
-                      data-cy="account id"
-                      data-account-id={accountId}
-                      _hover={{ bg: 'whiteAlpha.300' }}
+
+              {accounts && accounts.length > 0 ? (
+                <Flex
+                  flexDir="column"
+                  p="2"
+                  border="1px solid"
+                  borderColor="gray.900"
+                  rounded="base"
+                  gap="2"
+                >
+                  <Flex w="100%" justifyContent="space-between">
+                    <Text fontWeight={400} fontSize="14px">
+                      {accounts.length > 1 ? 'Accounts' : 'Account'}
+                    </Text>
+                    <Link
+                      href={`?${makeSearch({ page: 'settings', accountId: params.accountId })}`}
                       onClick={(e) => {
-                        e.stopPropagation();
-                        setParams({ ...params, accountId: accountId.toString() });
+                        e.preventDefault();
+                        setParams({ page: 'settings', accountId: params.accountId });
                       }}
                     >
-                      {renderAccountId(accountId)}
-                      {paramsAccountId && accountId.eq(paramsAccountId) ? (
-                        <Badge ml={2} colorScheme="cyan" variant="outline">
-                          Connected
-                        </Badge>
-                      ) : null}
-                    </Text>
-                  ))}
+                      <IconButton
+                        variant="outline"
+                        colorScheme="gray"
+                        size="xs"
+                        icon={<SettingsIcon />}
+                        aria-label="account settings"
+                      />
+                    </Link>
+                  </Flex>
+                  <Flex data-cy="accounts list" flexDir="column">
+                    {accounts?.map((accountId) => (
+                      <Text
+                        key={accountId.toString()}
+                        display="flex"
+                        alignItems="center"
+                        color="white"
+                        fontWeight={700}
+                        fontSize="16px"
+                        cursor="pointer"
+                        p="3"
+                        data-cy="account id"
+                        data-account-id={accountId}
+                        _hover={{ bg: 'whiteAlpha.300' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setParams({ ...params, accountId: accountId.toString() });
+                        }}
+                      >
+                        {renderAccountId(accountId)}
+                        {paramsAccountId && accountId.eq(paramsAccountId) ? (
+                          <Badge ml={2} colorScheme="cyan" variant="outline">
+                            Connected
+                          </Badge>
+                        ) : null}
+                      </Text>
+                    ))}
+                  </Flex>
                 </Flex>
-              </Flex>
+              ) : null}
             </Flex>
           </Flex>
         </MenuList>
