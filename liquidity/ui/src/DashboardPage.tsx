@@ -1,14 +1,16 @@
-import { Flex, Heading, Text } from '@chakra-ui/react';
+import { Alert, AlertIcon, Collapse, Flex, Heading, Link, Text } from '@chakra-ui/react';
 import { PoolsList } from '@snx-v3/Pools';
 import { PositionsList } from '@snx-v3/Positions';
 import { Rewards } from '@snx-v3/Rewards';
 import { StatsTotalLocked } from '@snx-v3/StatsTotalLocked';
 import { StatsTotalPnl } from '@snx-v3/StatsTotalPnl';
 import { StataUSDC, Synths } from '@snx-v3/Synths';
+import { MAINNET, OPTIMISM, useNetwork } from '@snx-v3/useBlockchain';
 import React from 'react';
 import { Helmet } from 'react-helmet';
 
 export function DashboardPage() {
+  const { network } = useNetwork();
   return (
     <>
       <Helmet>
@@ -16,6 +18,22 @@ export function DashboardPage() {
         <meta name="description" content="Synthetix Liquidity V3" />
       </Helmet>
       <Flex pt={{ base: 2, sm: 10 }} flexDir="column" mb={16}>
+        <Collapse
+          in={network?.id === MAINNET.id || network?.id === OPTIMISM.id}
+          animateOpacity
+          unmountOnExit
+        >
+          <Alert status="warning" mb="6">
+            <AlertIcon />
+            <Text>
+              From March 24th the liquidation ratio is being raised on legacy positions.{' '}
+              <Link isExternal href="https://420.synthetix.io" color="cyan.500">
+                Migrate to 420 Pool immediately.
+              </Link>
+            </Text>
+          </Alert>
+        </Collapse>
+
         <Flex columnGap={20} flexWrap="wrap" justifyContent="space-between">
           <Flex flexDirection="column" minWidth={400}>
             <Heading
