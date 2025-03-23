@@ -1,7 +1,7 @@
 import { calculateCRatio } from '@snx-v3/calculations';
 import { POOL_ID } from '@snx-v3/constants';
 import { contractsHash } from '@snx-v3/tsHelpers';
-import { useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
+import { Network, useNetwork, useProviderForChain } from '@snx-v3/useBlockchain';
 import { useCollateralTypes } from '@snx-v3/useCollateralTypes';
 import { useCoreProxy } from '@snx-v3/useCoreProxy';
 import { type LiquidityPositionType } from '@snx-v3/useLiquidityPosition';
@@ -14,12 +14,20 @@ import { ethers } from 'ethers';
 
 const log = debug('snx:useLiquidityPositions');
 
-export const useLiquidityPositions = ({ accountId }: { accountId?: string }) => {
-  const { data: CoreProxy } = useCoreProxy();
-  const { data: collateralTypes } = useCollateralTypes();
-  const { network } = useNetwork();
+export const useLiquidityPositions = ({
+  accountId,
+  network: customNetwork,
+}: {
+  accountId?: string;
+  network?: Network;
+}) => {
+  const { network: currentNetwork } = useNetwork();
+  const network = customNetwork || currentNetwork;
   const provider = useProviderForChain(network);
-  const { data: systemToken } = useSystemToken();
+
+  const { data: CoreProxy } = useCoreProxy(network);
+  const { data: collateralTypes } = useCollateralTypes(false, network);
+  const { data: systemToken } = useSystemToken(network);
 
   const queryClient = useQueryClient();
   return useQuery({

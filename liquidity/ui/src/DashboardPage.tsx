@@ -5,24 +5,12 @@ import { Rewards } from '@snx-v3/Rewards';
 import { StatsTotalLocked } from '@snx-v3/StatsTotalLocked';
 import { StatsTotalPnl } from '@snx-v3/StatsTotalPnl';
 import { StataUSDC, Synths } from '@snx-v3/Synths';
-import { useLiquidityPositions } from '@snx-v3/useLiquidityPositions';
-import { type PositionPageSchemaType, useParams } from '@snx-v3/useParams';
+import { MAINNET, OPTIMISM, useNetwork } from '@snx-v3/useBlockchain';
 import React from 'react';
 import { Helmet } from 'react-helmet';
 
 export function DashboardPage() {
-  const [params] = useParams<PositionPageSchemaType>();
-  const { data: liquidityPositions } = useLiquidityPositions({
-    accountId: params.accountId,
-  });
-  const hasPosition = React.useMemo(
-    () =>
-      liquidityPositions
-        ? liquidityPositions.some((liquidityPosition) => liquidityPosition.collateralAmount.gt(0))
-        : false,
-    [liquidityPositions]
-  );
-
+  const { network } = useNetwork();
   return (
     <>
       <Helmet>
@@ -30,7 +18,11 @@ export function DashboardPage() {
         <meta name="description" content="Synthetix Liquidity V3" />
       </Helmet>
       <Flex pt={{ base: 2, sm: 10 }} flexDir="column" mb={16}>
-        <Collapse in={hasPosition} animateOpacity unmountOnExit>
+        <Collapse
+          in={network?.id === MAINNET.id || network?.id === OPTIMISM.id}
+          animateOpacity
+          unmountOnExit
+        >
           <Alert status="warning" mb="6">
             <AlertIcon />
             <Text>
