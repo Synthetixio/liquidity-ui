@@ -234,46 +234,50 @@ export function PoolRow({
             fontWeight={500}
             color="white"
           >
-            {isPendingApr ? '~' : null}
-            {!isPendingApr && positionApr && positionApr.apr28d > 0
-              ? (
+            {isPendingApr ? (
+              '~'
+            ) : positionApr ? (
+              <>
+                {(
                   positionApr.apr28dPerformance * 100 +
                   (isAndromedaStataUSDC && stataUSDCApr ? stataUSDCApr : 0) +
                   positionApr.apr24hIncentiveRewards * 100
                 )
                   .toFixed(2)
-                  .concat('%')
-              : '-'}
-            {!isPendingApr && positionApr && positionApr.apr28d > 0 ? (
-              <Tooltip
-                label={
-                  <Flex direction="column">
-                    <Flex justifyContent="space-between">
-                      <Text mr={2}>Performance:</Text>
-                      <Text>{(positionApr.apr28dPerformance * 100).toFixed(2).concat('%')}</Text>
+                  .concat('%')}
+
+                <Tooltip
+                  label={
+                    <Flex direction="column">
+                      <Flex justifyContent="space-between">
+                        <Text mr={2}>Performance:</Text>
+                        <Text>{(positionApr.apr28dPerformance * 100).toFixed(2).concat('%')}</Text>
+                      </Flex>
+                      {positionApr.apr24hIncentiveRewards > 0 && (
+                        <Flex justifyContent="space-between">
+                          <Text mr={2}>Rewards: </Text>
+                          <Text>
+                            {(positionApr.apr24hIncentiveRewards * 100).toFixed(2).concat('%')}
+                          </Text>
+                        </Flex>
+                      )}
+                      {isAndromedaStataUSDC && stataUSDCApr ? (
+                        <Flex justifyContent="space-between">
+                          <Text mr={2}>AAVE yield: </Text>
+                          <Text>{stataUSDCApr.toFixed(2).concat('%')}</Text>
+                        </Flex>
+                      ) : null}
                     </Flex>
-                    {positionApr.apr24hIncentiveRewards > 0 && (
-                      <Flex justifyContent="space-between">
-                        <Text mr={2}>Rewards: </Text>
-                        <Text>
-                          {(positionApr.apr24hIncentiveRewards * 100).toFixed(2).concat('%')}
-                        </Text>
-                      </Flex>
-                    )}
-                    {isAndromedaStataUSDC && stataUSDCApr ? (
-                      <Flex justifyContent="space-between">
-                        <Text mr={2}>AAVE yield: </Text>
-                        <Text>{stataUSDCApr.toFixed(2).concat('%')}</Text>
-                      </Flex>
-                    ) : null}
+                  }
+                >
+                  <Flex as="span" display="inline">
+                    <Sparkles w="14px" h="14px" mb={1} ml="0.5px" mt="1px" />
                   </Flex>
-                }
-              >
-                <Flex as="span" display="inline">
-                  <Sparkles w="14px" h="14px" mb={1} ml="0.5px" mt="1px" />
-                </Flex>
-              </Tooltip>
-            ) : null}
+                </Tooltip>
+              </>
+            ) : (
+              '-'
+            )}
           </Text>
         </Flex>
         <Flex minW="120px" flex="1" justifyContent="flex-end">

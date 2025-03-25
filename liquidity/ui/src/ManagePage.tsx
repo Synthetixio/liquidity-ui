@@ -101,17 +101,17 @@ export const ManagePage = () => {
               </Text>
             </Tooltip>
             <Text fontWeight="bold" fontSize="20px" color="white" lineHeight="36px">
-              {isPendingApr ? '~' : null}
-
-              {!isPendingApr && positionApr && positionApr.apr28d > 0
-                ? (
-                    positionApr.apr28dPerformance * 100 +
-                    (isAndromedaStataUSDC && stataUSDCApr ? stataUSDCApr : 0) +
-                    positionApr.apr24hIncentiveRewards * 100
-                  )
-                    .toFixed(2)
-                    .concat('%')
-                : '-'}
+              {isPendingApr
+                ? '~'
+                : positionApr
+                  ? (
+                      positionApr.apr28dPerformance * 100 +
+                      (isAndromedaStataUSDC && stataUSDCApr ? stataUSDCApr : 0) +
+                      positionApr.apr24hIncentiveRewards * 100
+                    )
+                      .toFixed(2)
+                      .concat('%')
+                  : '-'}
             </Text>
           </Flex>
         </Flex>
