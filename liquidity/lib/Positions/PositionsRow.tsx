@@ -15,15 +15,15 @@ import { Amount } from '@snx-v3/Amount';
 import { CRatioAmount, CRatioBadge } from '@snx-v3/CRatioBar';
 import { DebtAmount, PnlAmount } from '@snx-v3/DebtAmount';
 import { TokenIcon } from '@snx-v3/TokenIcon';
+import { useApr } from '@snx-v3/useApr';
 import { useStataUSDCApr } from '@snx-v3/useApr/useStataUSDCApr';
 import { useNetwork } from '@snx-v3/useBlockchain';
 import { useIsAndromedaStataUSDC } from '@snx-v3/useIsAndromedaStataUSDC';
 import { type LiquidityPositionType } from '@snx-v3/useLiquidityPosition';
 import { makeSearch, useParams } from '@snx-v3/useParams';
 import { useWithdrawTimer } from '@snx-v3/useWithdrawTimer';
-import lockIcon from './lock.svg';
 import React from 'react';
-import { useApr } from '@snx-v3/useApr';
+import lockIcon from './lock.svg';
 
 export function PositionRow({ liquidityPosition }: { liquidityPosition: LiquidityPositionType }) {
   const [params, setParams] = useParams();
@@ -195,15 +195,16 @@ export function PositionRow({ liquidityPosition }: { liquidityPosition: Liquidit
         <Fade in>
           <Flex flexDirection="column" alignItems="flex-end">
             <Text color="white" lineHeight="1.25rem" fontFamily="heading" fontSize="sm">
-              {isPendingApr ? '~' : null}
-              {!isPendingApr && positionApr && positionApr.apr28d > 0
-                ? (
-                    positionApr.apr28d * 100 +
-                    (isAndromedaStataUSDC && stataUSDCApr ? stataUSDCApr : 0)
-                  )
-                    .toFixed(2)
-                    .concat('%')
-                : '-'}
+              {isPendingApr
+                ? '~'
+                : positionApr
+                  ? (
+                      positionApr.apr28d * 100 +
+                      (isAndromedaStataUSDC && stataUSDCApr ? stataUSDCApr : 0)
+                    )
+                      .toFixed(2)
+                      .concat('%')
+                  : '-'}
             </Text>
           </Flex>
         </Fade>
