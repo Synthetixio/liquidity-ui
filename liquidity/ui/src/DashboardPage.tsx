@@ -35,7 +35,7 @@ export function DashboardPage() {
         </Collapse>
 
         <Flex columnGap={20} flexWrap="wrap" justifyContent="space-between">
-          <Flex flexDirection="column" minWidth={400}>
+          <Flex flexDirection="column">
             <Heading
               mt={[6, 10]}
               color="gray.50"
@@ -49,7 +49,7 @@ export function DashboardPage() {
               Deposit SNX to earn a privileged share of protocol performance
             </Text>
           </Flex>
-          <Flex mt={10} gap={4} flex={1}>
+          <Flex mt={10} gap={4} flex={1} flexDirection={['column', 'row']}>
             <StatsTotalLocked />
             <StatsTotalPnl />
           </Flex>

@@ -31,6 +31,7 @@ export const chains: ChainWithDecimalId[] = Object.values(
 );
 
 export const onboard = init({
+  theme: 'dark',
   connect: {
     autoConnectLastWallet: true,
     autoConnectAllPreviousWallet: true,
