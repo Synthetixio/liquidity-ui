@@ -11,6 +11,8 @@ export const PositionsNotConnected = () => {
       <Button
         size="sm"
         data-cy="connect wallet button"
+        minWidth="fit-content"
+        ml="4"
         onClick={() => {
           connect();
         }}
