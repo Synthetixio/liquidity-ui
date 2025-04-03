@@ -83,12 +83,9 @@ export const App = () => {
           <ChakraProvider theme={extendedTheme}>
             <ColorMode />
             <Fonts />
-            <BrowserRouter>
-              <TermsModal
-                defaultOpen={process.env.NODE_ENV !== 'development' && !TERMS_CONDITIONS_ACCEPTED}
-              />
-              <Router />
-            </BrowserRouter>
+            <body>
+              <p>Temporarily down for maintenance.</p>
+            </body>
             <ReactQueryDevtools />
           </ChakraProvider>
         </Web3OnboardProvider>
