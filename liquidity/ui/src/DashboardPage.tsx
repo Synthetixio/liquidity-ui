@@ -5,12 +5,16 @@ import { Rewards } from '@snx-v3/Rewards';
 import { StatsTotalLocked } from '@snx-v3/StatsTotalLocked';
 import { StatsTotalPnl } from '@snx-v3/StatsTotalPnl';
 import { StataUSDC, Synths } from '@snx-v3/Synths';
-import { MAINNET, OPTIMISM, useNetwork } from '@snx-v3/useBlockchain';
+import { MAINNET, OPTIMISM, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import React from 'react';
 import { Helmet } from 'react-helmet';
+import { useMigrationData } from './useMigrationData';
 
 export function DashboardPage() {
   const { network } = useNetwork();
+  const { activeWallet } = useWallet();
+  const walletAddress = activeWallet?.address;
+  const { data: migrationData } = useMigrationData({ walletAddress });
   return (
     <>
       <Helmet>
@@ -18,8 +22,20 @@ export function DashboardPage() {
         <meta name="description" content="Synthetix Liquidity V3" />
       </Helmet>
       <Flex pt={{ base: 2, sm: 10 }} flexDir="column" mb={16}>
+        <Collapse in={Boolean(migrationData?.address)} animateOpacity unmountOnExit>
+          <Alert status="error" mb="6">
+            <AlertIcon />
+            <Text>
+              We’ve recently deprecated solo staking and your account was impacted. Please create a
+              ticket in discord and the team will help recover your account
+            </Text>
+          </Alert>
+        </Collapse>
+
         <Collapse
-          in={network?.id === MAINNET.id || network?.id === OPTIMISM.id}
+          in={
+            !migrationData?.address && (network?.id === MAINNET.id || network?.id === OPTIMISM.id)
+          }
           animateOpacity
           unmountOnExit
         >
