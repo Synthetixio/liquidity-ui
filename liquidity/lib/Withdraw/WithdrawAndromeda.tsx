@@ -123,7 +123,7 @@ export function WithdrawAndromeda() {
         provider,
         network,
         calls,
-        'useDepositAndromeda',
+        'WithdrawAndromeda',
         walletAddress
       );
 

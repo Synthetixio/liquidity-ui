@@ -312,6 +312,7 @@ export function Deposit() {
         type="submit"
         isDisabled={
           !(
+            network?.preset === 'andromeda' && // only Andromeda deposits are still allowed
             collateralChange.gt(0) &&
             !overAvailableBalance &&
             collateralType &&

@@ -4899,37 +4899,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/DepositModal@workspace:*, @snx-v3/DepositModal@workspace:liquidity/lib/DepositModal":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/DepositModal@workspace:liquidity/lib/DepositModal"
-  dependencies:
-    "@chakra-ui/icons": "npm:^2.1.1"
-    "@chakra-ui/react": "npm:^2.8.2"
-    "@snx-v3/Amount": "workspace:*"
-    "@snx-v3/CRatioBar": "workspace:*"
-    "@snx-v3/ChangeStat": "workspace:*"
-    "@snx-v3/ContractError": "workspace:*"
-    "@snx-v3/Manage": "workspace:*"
-    "@snx-v3/ManagePositionContext": "workspace:*"
-    "@snx-v3/Multistep": "workspace:*"
-    "@snx-v3/TransactionSummary": "workspace:*"
-    "@snx-v3/constants": "workspace:*"
-    "@snx-v3/format": "workspace:*"
-    "@snx-v3/useApprove": "workspace:*"
-    "@snx-v3/useCollateralTypes": "workspace:*"
-    "@snx-v3/useContractErrorParser": "workspace:*"
-    "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/useDeposit": "workspace:*"
-    "@snx-v3/useLiquidityPosition": "workspace:*"
-    "@snx-v3/useParams": "workspace:*"
-    "@snx-v3/useWrapEth": "workspace:*"
-    "@synthetixio/wei": "npm:^2.74.4"
-    "@xstate/react": "npm:^3.2.2"
-    react: "npm:^18.2.0"
-    xstate: "npm:^4.38.3"
-  languageName: unknown
-  linkType: soft
-
 "@snx-v3/DepositModalAndromeda@workspace:*, @snx-v3/DepositModalAndromeda@workspace:liquidity/lib/DepositModalAndromeda":
   version: 0.0.0-use.local
   resolution: "@snx-v3/DepositModalAndromeda@workspace:liquidity/lib/DepositModalAndromeda"
@@ -5002,7 +4971,6 @@ __metadata:
     "@snx-v3/Claim": "workspace:*"
     "@snx-v3/ClaimModal": "workspace:*"
     "@snx-v3/Deposit": "workspace:*"
-    "@snx-v3/DepositModal": "workspace:*"
     "@snx-v3/DepositModalAndromeda": "workspace:*"
     "@snx-v3/ManagePositionContext": "workspace:*"
     "@snx-v3/Repay": "workspace:*"
@@ -6029,25 +5997,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/useDeposit@workspace:*, @snx-v3/useDeposit@workspace:liquidity/lib/useDeposit":
-  version: 0.0.0-use.local
-  resolution: "@snx-v3/useDeposit@workspace:liquidity/lib/useDeposit"
-  dependencies:
-    "@snx-v3/constants": "workspace:*"
-    "@snx-v3/tsHelpers": "workspace:*"
-    "@snx-v3/txnReducer": "workspace:*"
-    "@snx-v3/useBlockchain": "workspace:*"
-    "@snx-v3/useCollateralPriceUpdates": "workspace:*"
-    "@snx-v3/useCoreProxy": "workspace:*"
-    "@snx-v3/withERC7412": "workspace:*"
-    "@synthetixio/wei": "npm:^2.74.4"
-    "@tanstack/react-query": "npm:^5.8.3"
-    debug: "npm:^4.4.0"
-    ethers: "npm:^5.7.2"
-    react: "npm:^18.2.0"
-  languageName: unknown
-  linkType: soft
-
 "@snx-v3/useEthBalance@workspace:*, @snx-v3/useEthBalance@workspace:liquidity/lib/useEthBalance":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useEthBalance@workspace:liquidity/lib/useEthBalance"
@@ -6677,7 +6626,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snx-v3/useWrapEth@workspace:*, @snx-v3/useWrapEth@workspace:liquidity/lib/useWrapEth":
+"@snx-v3/useWrapEth@workspace:liquidity/lib/useWrapEth":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useWrapEth@workspace:liquidity/lib/useWrapEth"
   dependencies:
