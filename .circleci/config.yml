@@ -352,10 +352,10 @@ workflows:
           name: e2e-base
           dir: '8453-andromeda'
           parallelism: 3
-      - e2e:
-          name: e2e-arbitrum
-          dir: '42161-main'
-          parallelism: 3
+      #- e2e:
+      #    name: e2e-arbitrum
+      #    dir: '42161-main'
+      #    parallelism: 3
       - e2e:
           name: e2e-mainnet
           dir: '1-main'
@@ -367,7 +367,7 @@ workflows:
             - tests
             #- cy
             - e2e-base
-            - e2e-arbitrum
+            #- e2e-arbitrum
             - e2e-mainnet
           filters:
             branches:

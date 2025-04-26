@@ -3,7 +3,6 @@ import { Borrow } from '@snx-v3/Borrow';
 import { Claim } from '@snx-v3/Claim';
 import { ClaimModal } from '@snx-v3/ClaimModal';
 import { Deposit } from '@snx-v3/Deposit';
-import { DepositModal } from '@snx-v3/DepositModal';
 import { DepositModalAndromeda } from '@snx-v3/DepositModalAndromeda';
 import { ManagePositionContext } from '@snx-v3/ManagePositionContext';
 import { Repay, RepayAndromedaDebt } from '@snx-v3/Repay';
@@ -291,15 +290,6 @@ export const ManageAction = ({
       ) : null}
       {txnModalOpen === 'claim' ? (
         <ClaimModal
-          onClose={() => {
-            setCollateralChange(wei(0));
-            setDebtChange(wei(0));
-            setTxnModalOpen(undefined);
-          }}
-        />
-      ) : null}
-      {txnModalOpen === 'deposit' && network?.preset !== 'andromeda' ? (
-        <DepositModal
           onClose={() => {
             setCollateralChange(wei(0));
             setDebtChange(wei(0));
