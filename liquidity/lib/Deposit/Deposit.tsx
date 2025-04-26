@@ -254,6 +254,17 @@ export function Deposit() {
         </Alert>
       </Collapse>
 
+      <Collapse
+        in={params.collateralSymbol === 'SNX' || collateralType?.symbol === 'SNX'}
+        animateOpacity
+        unmountOnExit
+      >
+        <Alert mb={6} status="error" borderRadius="6px">
+          <AlertIcon />
+          <AlertDescription>Depositing of SNX is disabled.</AlertDescription>
+        </Alert>
+      </Collapse>
+
       {collateralType && liquidityPosition ? (
         <Collapse
           in={
