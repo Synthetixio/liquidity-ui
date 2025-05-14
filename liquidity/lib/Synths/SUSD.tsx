@@ -26,7 +26,7 @@ export function SUSD() {
 
   const { data: systemTokenBalance } = useTokenBalance(USDProxy?.address);
 
-  const toast = useToast({ isClosable: true, duration: 9000 });
+  const toast = useToast({ isClosable: true, duration: 90_000 });
   const queryClient = useQueryClient();
   const errorParser = useContractErrorParser();
   const isReady =
@@ -54,7 +54,11 @@ export function SUSD() {
 
       if (balanceOfV3USD.gt(alowanceOfV3USD)) {
         toast.closeAll();
-        toast({ title: 'Approving snxUSD...', variant: 'left-accent' });
+        toast({
+          title: 'Approving snxUSD...',
+          description: 'This may take a while. Please do not close this window.',
+          variant: 'left-accent',
+        });
         const approveV3USDGasLimit = await USDProxyContract.estimateGas.approve(
           LegacyMarket.address,
           balanceOfV3USD
@@ -67,6 +71,13 @@ export function SUSD() {
         const receipt = await provider.waitForTransaction(txn.hash);
         log('approve snxUSD receipt', receipt);
       }
+
+      toast.closeAll();
+      toast({
+        title: 'Redeeming sUSD...',
+        description: 'This may take a while. Please do not close this window.',
+        variant: 'left-accent',
+      });
 
       const LegacyMarketContract = new ethers.Contract(
         LegacyMarket.address,
@@ -98,7 +109,7 @@ export function SUSD() {
         title: 'Success',
         description: 'Your sUSD has been redeemed.',
         status: 'success',
-        duration: 5000,
+        duration: 90_000,
         variant: 'left-accent',
       });
     },
