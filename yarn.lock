@@ -5244,8 +5244,11 @@ __metadata:
     "@snx-v3/etherscanLink": "workspace:*"
     "@snx-v3/useBlockchain": "workspace:*"
     "@snx-v3/useContractErrorParser": "workspace:*"
+    "@snx-v3/useLegacyMarket": "workspace:*"
     "@snx-v3/useStaticAaveUSDC": "workspace:*"
     "@snx-v3/useSynthBalances": "workspace:*"
+    "@snx-v3/useTokenBalance": "workspace:*"
+    "@snx-v3/useUSDProxy": "workspace:*"
     "@snx-v3/useUnwrapAllSynths": "workspace:*"
     "@synthetixio/wei": "npm:^2.74.4"
     "@tanstack/react-query": "npm:^5.8.3"
@@ -6044,6 +6047,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/useLegacyMarket@workspace:*, @snx-v3/useLegacyMarket@workspace:liquidity/lib/contracts/useLegacyMarket":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useLegacyMarket@workspace:liquidity/lib/contracts/useLegacyMarket"
+  dependencies:
+    "@snx-v3/contracts": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/useLiquidityPosition@workspace:*, @snx-v3/useLiquidityPosition@workspace:liquidity/lib/useLiquidityPosition":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useLiquidityPosition@workspace:liquidity/lib/useLiquidityPosition"
@@ -6511,6 +6525,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snx-v3/useUSDProxy@workspace:*, @snx-v3/useUSDProxy@workspace:liquidity/lib/contracts/useUSDProxy":
+  version: 0.0.0-use.local
+  resolution: "@snx-v3/useUSDProxy@workspace:liquidity/lib/contracts/useUSDProxy"
+  dependencies:
+    "@snx-v3/contracts": "workspace:*"
+    "@snx-v3/useBlockchain": "workspace:*"
+    "@tanstack/react-query": "npm:^5.8.3"
+    react: "npm:^18.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@snx-v3/useUndelegate@workspace:*, @snx-v3/useUndelegate@workspace:liquidity/lib/useUndelegate":
   version: 0.0.0-use.local
   resolution: "@snx-v3/useUndelegate@workspace:liquidity/lib/useUndelegate"
@@ -6962,9 +6987,9 @@ __metadata:
   linkType: hard
 
 "@synthetixio/v3-contracts@npm:^8.1.0":
-  version: 8.6.0
-  resolution: "@synthetixio/v3-contracts@npm:8.6.0"
-  checksum: 10/2264c6ca5e80dbbc8fc907251642abe840102e89e45ec9cfa817c1bdb3a53dfcc8ae1dd4baac2bd9912bf950fdf8c44a1db3afa0c3f54e86ba7cebf18a8f1766
+  version: 8.8.0
+  resolution: "@synthetixio/v3-contracts@npm:8.8.0"
+  checksum: 10/e1fcfa7b1c0305c4bc98d768f41eb0694370dfdbe5812c6f41578305d6746e25c697357e1f196394af999a030255228d46ff1afb2090a0704efcf58707d09d0c
   languageName: node
   linkType: hard
 
@@ -10187,16 +10212,16 @@ __metadata:
   linkType: hard
 
 "browserslist@npm:4":
-  version: 4.24.4
-  resolution: "browserslist@npm:4.24.4"
+  version: 4.24.5
+  resolution: "browserslist@npm:4.24.5"
   dependencies:
-    caniuse-lite: "npm:^1.0.30001688"
-    electron-to-chromium: "npm:^1.5.73"
+    caniuse-lite: "npm:^1.0.30001716"
+    electron-to-chromium: "npm:^1.5.149"
     node-releases: "npm:^2.0.19"
-    update-browserslist-db: "npm:^1.1.1"
+    update-browserslist-db: "npm:^1.1.3"
   bin:
     browserslist: cli.js
-  checksum: 10/11fda105e803d891311a21a1f962d83599319165faf471c2d70e045dff82a12128f5b50b1fcba665a2352ad66147aaa248a9d2355a80aadc3f53375eb3de2e48
+  checksum: 10/93fde829b77f20e2c4e1e0eaed154681c05e4828420e4afba790d480daa5de742977a44bbac8567881b8fbec3da3dea7ca1cb578ac1fd4385ef4ae91ca691d64
   languageName: node
   linkType: hard
 
@@ -10410,9 +10435,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:1":
-  version: 1.0.30001697
-  resolution: "caniuse-lite@npm:1.0.30001697"
-  checksum: 10/cd0ca97e71f4157ff3d26990a24122586a973a14086ad43c459c2f0f2f9876b327eee57c2315bb04bd5e826e77d0b6f55723c583c78be0eaf0f3f171afaf7eff
+  version: 1.0.30001718
+  resolution: "caniuse-lite@npm:1.0.30001718"
+  checksum: 10/e172a4c156f743cc947e659f353ad9edb045725cc109a02cc792dcbf98569356ebfa4bb4356e3febf87427aab0951c34c1ee5630629334f25ae6f76de7d86fd0
   languageName: node
   linkType: hard
 
@@ -11963,10 +11988,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron-to-chromium@npm:^1.5.73":
-  version: 1.5.83
-  resolution: "electron-to-chromium@npm:1.5.83"
-  checksum: 10/54326419778f80bfc3a76fec2e5a9122d81e7b04758da0b9c4d8bac612e6740f67f8a072b30ba62729f8ff5946fab3e2e1060936d1424eb5594c41baa9d82023
+"electron-to-chromium@npm:^1.5.149":
+  version: 1.5.152
+  resolution: "electron-to-chromium@npm:1.5.152"
+  checksum: 10/6e90f1f0f4f94aec25959e8fd6aee6558c5927acf737c9903862ffac659c9a238b603957f381eada918fd09a0af1ede2f81c6e45bbea8e152074dad0eeca47da
   languageName: node
   linkType: hard
 
@@ -17293,7 +17318,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"picocolors@npm:^1.0.0, picocolors@npm:^1.1.0":
+"picocolors@npm:^1.0.0, picocolors@npm:^1.1.1":
   version: 1.1.1
   resolution: "picocolors@npm:1.1.1"
   checksum: 10/e1cf46bf84886c79055fdfa9dcb3e4711ad259949e3565154b004b260cd356c5d54b31a1437ce9782624bf766272fe6b0154f5f0c744fb7af5d454d2b60db045
@@ -20281,17 +20306,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"update-browserslist-db@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "update-browserslist-db@npm:1.1.1"
+"update-browserslist-db@npm:^1.1.3":
+  version: 1.1.3
+  resolution: "update-browserslist-db@npm:1.1.3"
   dependencies:
     escalade: "npm:^3.2.0"
-    picocolors: "npm:^1.1.0"
+    picocolors: "npm:^1.1.1"
   peerDependencies:
     browserslist: ">= 4.21.0"
   bin:
     update-browserslist-db: cli.js
-  checksum: 10/7678dd8609750588d01aa7460e8eddf2ff9d16c2a52fb1811190e0d056390f1fdffd94db3cf8fb209cf634ab4fa9407886338711c71cc6ccade5eeb22b093734
+  checksum: 10/87af2776054ffb9194cf95e0201547d041f72ee44ce54b144da110e65ea7ca01379367407ba21de5c9edd52c74d95395366790de67f3eb4cc4afa0fe4424e76f
   languageName: node
   linkType: hard
 

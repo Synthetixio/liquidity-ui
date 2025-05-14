@@ -4,7 +4,7 @@ import { PositionsList } from '@snx-v3/Positions';
 import { Rewards } from '@snx-v3/Rewards';
 import { StatsTotalLocked } from '@snx-v3/StatsTotalLocked';
 import { StatsTotalPnl } from '@snx-v3/StatsTotalPnl';
-import { StataUSDC, Synths } from '@snx-v3/Synths';
+import { StataUSDC, SUSD, Synths } from '@snx-v3/Synths';
 import { MAINNET, OPTIMISM, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import React from 'react';
 import { Helmet } from 'react-helmet';
@@ -109,6 +109,7 @@ export function DashboardPage() {
           >
             <Synths />
             <StataUSDC />
+            <SUSD />
           </Flex>
         </Flex>
 
