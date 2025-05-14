@@ -5,6 +5,7 @@ export * from './importCollateralTokens';
 export * from './importCoreProxy';
 export * from './importDebtRepayer';
 export * from './importExtras';
+export * from './importLegacyMarket';
 export * from './importMeta';
 export * from './importOracleManagerProxy';
 export * from './importPositionManager';

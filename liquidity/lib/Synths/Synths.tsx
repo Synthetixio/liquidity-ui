@@ -39,6 +39,8 @@ export function Synths() {
       .sort((a, b) => b.balance.toNumber() - a.balance.toNumber());
   }, [synthBalances]);
 
+  const hasSynths = synthBalances && synthBalances.some(({ balance }) => balance.gt(0));
+
   return (
     <TableContainer>
       <SynthsUnwrapModal txnStatus={txnState.txnStatus} txnHash={txnState.txnHash} />
@@ -46,31 +48,34 @@ export function Synths() {
         <Heading fontSize="18px" fontWeight={700} lineHeight="28px" color="gray.50" mb={3}>
           Synths
         </Heading>
-        <Button
-          size="sm"
-          variant="solid"
-          isDisabled={!(synthBalances && synthBalances.some(({ balance }) => balance.gt(0)))}
-          _disabled={{
-            bg: 'gray.900',
-            backgroundImage: 'none',
-            color: 'gray.500',
-            opacity: 0.5,
-            cursor: 'not-allowed',
-          }}
-          data-cy="unwrap synths submit"
-          onClick={() => {
-            window?._paq?.push([
-              'trackEvent',
-              'liquidity',
-              'v3_staking',
-              `submit_unwrap_synths_v3`,
-            ]);
-            unwrapAll();
-          }}
-        >
-          Unwrap
-        </Button>
+        {hasSynths ? (
+          <Button
+            size="sm"
+            variant="solid"
+            isDisabled={!hasSynths}
+            _disabled={{
+              bg: 'gray.900',
+              backgroundImage: 'none',
+              color: 'gray.500',
+              opacity: 0.5,
+              cursor: 'not-allowed',
+            }}
+            data-cy="unwrap synths submit"
+            onClick={() => {
+              window?._paq?.push([
+                'trackEvent',
+                'liquidity',
+                'v3_staking',
+                `submit_unwrap_synths_v3`,
+              ]);
+              unwrapAll();
+            }}
+          >
+            Unwrap
+          </Button>
+        ) : null}
       </Flex>
+
       <Table variant="simple" data-cy="synths table">
         <Thead>
           <Tr borderBottom="1px solid #2D2D38">
