@@ -2,6 +2,7 @@ function filterDeprecated(feedId: string) {
   return ![
     //
     '0x5c6c0d2386e3352356c3ab84434fafb5ea067ac2678a38a338c4a69ddc4bdb0c', // FTM
+    '0x06ade621dbc31ed0fc9255caaab984a468abe84164fb2ccc76f02a4636d97e31', // EOS
   ].includes(feedId);
 }
 
