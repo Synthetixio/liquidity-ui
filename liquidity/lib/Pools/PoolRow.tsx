@@ -290,6 +290,7 @@ export function PoolRow({
               accountId: params.accountId,
             })}`}
             onClick={onClick}
+            isDisabled={buttonText === 'Deposit'}
             size="sm"
             height="32px"
             py="10px"
