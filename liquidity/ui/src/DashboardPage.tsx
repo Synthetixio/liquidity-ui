@@ -5,7 +5,7 @@ import { Rewards } from '@snx-v3/Rewards';
 import { StatsTotalLocked } from '@snx-v3/StatsTotalLocked';
 import { StatsTotalPnl } from '@snx-v3/StatsTotalPnl';
 import { StataUSDC, SUSD, Synths } from '@snx-v3/Synths';
-import { MAINNET, OPTIMISM, useNetwork, useWallet } from '@snx-v3/useBlockchain';
+import { MAINNET, OPTIMISM, BASE_ANDROMEDA, useNetwork, useWallet } from '@snx-v3/useBlockchain';
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { useMigrationData } from './useMigrationData';
@@ -46,6 +46,23 @@ export function DashboardPage() {
               <Link isExternal href="https://420.synthetix.io" color="cyan.500">
                 Migrate to 420 Pool immediately.
               </Link>
+            </Text>
+          </Alert>
+        </Collapse>
+
+        <Collapse in={network?.id === BASE_ANDROMEDA.id} animateOpacity unmountOnExit>
+          <Alert status="warning" mb="6">
+            <AlertIcon />
+            <Text>
+              Synthetix on Base is being deprecated (
+              <Link
+                isExternal
+                href="https://blog.synthetix.io/p/8c9fb07e-db0d-4a07-a959-fafe6d39d30f/"
+                color="cyan.500"
+              >
+                Sunsetting L2s in Preparation for Synthetix Mainnet
+              </Link>
+              ), please withdraw any assets.
             </Text>
           </Alert>
         </Collapse>
