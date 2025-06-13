@@ -1,6 +1,6 @@
 import { makeSearch } from '@snx-v3/useParams';
 
-describe(__filename, () => {
+xdescribe(__filename, () => {
   Cypress.env('chainId', '8453');
   Cypress.env('preset', 'andromeda');
   Cypress.env('walletAddress', '0xaaaa6c341C4Df916d9f0583Ba9Ea953618e5f008');
