@@ -276,7 +276,7 @@ export function DepositModalAndromeda({ onClose }: { onClose: () => void }) {
             txnStateDeposit.txnStatus === 'prompting' ||
             txnStateDeposit.txnStatus === 'pending'
           }
-          isDisabled={!isReady}
+          isDisabled={true}
           onClick={() => {
             window?._paq?.push([
               'trackEvent',

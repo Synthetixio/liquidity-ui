@@ -254,14 +254,10 @@ export function Deposit() {
         </Alert>
       </Collapse>
 
-      <Collapse
-        in={params.collateralSymbol === 'SNX' || collateralType?.symbol === 'SNX'}
-        animateOpacity
-        unmountOnExit
-      >
+      <Collapse in={true} animateOpacity unmountOnExit>
         <Alert mb={6} status="error" borderRadius="6px">
           <AlertIcon />
-          <AlertDescription>Depositing of SNX is disabled.</AlertDescription>
+          <AlertDescription>Depositing is disabled.</AlertDescription>
         </Alert>
       </Collapse>
 
@@ -321,17 +317,7 @@ export function Deposit() {
       <Button
         data-cy="deposit submit"
         type="submit"
-        isDisabled={
-          !(
-            network?.preset === 'andromeda' && // only Andromeda deposits are still allowed
-            collateralChange.gt(0) &&
-            !overAvailableBalance &&
-            collateralType &&
-            collateralChange
-              .add(liquidityPosition?.collateralAmount ?? ZEROWEI)
-              .gt(collateralType.minDelegationD18)
-          )
-        }
+        isDisabled={true}
         onClick={() => {
           window?._paq?.push([
             'trackEvent',
