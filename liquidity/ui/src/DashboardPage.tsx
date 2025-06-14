@@ -57,7 +57,7 @@ export function DashboardPage() {
               Synthetix on Base is being deprecated (
               <Link
                 isExternal
-                href="https://blog.synthetix.io/p/8c9fb07e-db0d-4a07-a959-fafe6d39d30f/"
+                href="https://blog.synthetix.io/l2s-are-dead-long-live-ethereum/"
                 color="cyan.500"
               >
                 Sunsetting L2s in Preparation for Synthetix Mainnet
