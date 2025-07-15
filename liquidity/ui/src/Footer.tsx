@@ -22,12 +22,6 @@ export const Footer = () => {
           <Link href="https://github.com/Synthetixio/" target="_blank">
             <GithubIcon w="24px" h="24px" mr={2} />
           </Link>
-          <Link href="https://warpcast.com/~/channel/synthetix" target="_blank">
-            <WarpcastIcon w="24px" h="24px" mr={2} />
-          </Link>
-          <Link href="https://www.youtube.com/@synthetix.v3" target="_blank">
-            <YoutubeIcon w="24px" h="24px" />
-          </Link>
         </Flex>
       </Container>
     </Flex>
