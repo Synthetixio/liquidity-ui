@@ -1,4 +1,6 @@
 import { Alert, AlertIcon, Collapse, Flex, Link, Text } from '@chakra-ui/react';
+import { Rewards } from '@snx-v3/Rewards';
+import { StataUSDC, SUSD, Synths } from '@snx-v3/Synths';
 import { useWallet } from '@snx-v3/useBlockchain';
 import React from 'react';
 import { Helmet } from 'react-helmet';
@@ -19,8 +21,8 @@ export function DashboardPage() {
           <Alert status="error" mb="6">
             <AlertIcon />
             <Text>
-              We&apos;ve deprecated solo staking and your account was impacted. Please create a
-              ticket in discord and the team will help recover your account.
+              We’ve recently deprecated solo staking and your account was impacted. Please create a
+              ticket in discord and the team will help recover your account
             </Text>
           </Alert>
         </Collapse>
@@ -34,6 +36,42 @@ export function DashboardPage() {
             </Link>
           </Text>
         </Alert>
+
+        <Flex mt={6} flexDirection={['column', 'column', 'row']} gap={4}>
+          <Flex
+            flex={1}
+            flexDirection="column"
+            borderColor="gray.900"
+            borderWidth="1px"
+            borderRadius="5px"
+            p={6}
+            sx={{
+              borderCollapse: 'separate !important',
+              borderSpacing: 0,
+            }}
+            bg="navy.700"
+          >
+            <Rewards />
+          </Flex>
+
+          <Flex
+            flex={1}
+            flexDirection="column"
+            borderColor="gray.900"
+            borderWidth="1px"
+            borderRadius="5px"
+            p={6}
+            sx={{
+              borderCollapse: 'separate !important',
+              borderSpacing: 0,
+            }}
+            bg="navy.700"
+          >
+            <Synths />
+            <StataUSDC />
+            <SUSD />
+          </Flex>
+        </Flex>
       </Flex>
     </>
   );
